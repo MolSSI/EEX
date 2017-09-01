@@ -14,7 +14,7 @@ def get_example_filename(program, filename):
         raise KeyError("Examples for program %s not found!" % program)
 
     # Make sure file exists
-    fname = os.path.join(examples_dir, program, filname)
+    fname = os.path.join(examples_dir, program, filename)
     if not os.path.exists(fname):
         raise OSError("File %s not found!" % fname)
 

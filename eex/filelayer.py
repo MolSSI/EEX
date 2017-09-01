@@ -49,7 +49,18 @@ class HDFStore(object):
 
         data.to_hdf(self.store, key, format="t", append=do_append)
 
-    def read_table(self, key, rows=None):
+    def read_table(self, key, rows=None, where=None, chunksize=None):
+        """
+        Reads the table using either the rows or where synatx
+        Appends or builds a new table
+
+        Parameters
+        ----------
+        key : str
+            The name of the table
+        data : pd.DataFrame
+            The data to append to the table
+        """
 
         if rows:
             raise Exception("NYI")
