@@ -7,6 +7,7 @@ import pytest
 import pandas as pd
 import numpy as np
 
+
 def build_atom_df(nmols):
 
     ncols = nmols * 3
@@ -19,7 +20,12 @@ def build_atom_df(nmols):
     bond_df["Z"] = np.random.rand(ncols)
     return bond_df
 
+
 def test_df_bonds():
+    """
+    Tests adding bonds as a DataFrame
+    """
+
     dl = eex.datalayer.DataLayer("test_df_bonds")
 
     tmp_df = build_atom_df(10)
@@ -31,7 +37,12 @@ def test_df_bonds():
 
     tmp_df.equals(dl_df)
 
+
 def test_list_bonds():
+    """
+    Tests adding bonds as a list
+    """
+
     dl = eex.datalayer.DataLayer("test_list_bonds")
 
     tmp_df = build_atom_df(10)
@@ -40,4 +51,3 @@ def test_list_bonds():
 
     dl_df = dl.read_atoms()
     tmp_df.equals(dl_df)
-    

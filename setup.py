@@ -13,6 +13,7 @@ if __name__ == "__main__":
         install_requires=[
             'numpy>=1.7',
             'pandas>=0.18',
+            'pytables>=3.2',
         ],
         extras_require={
             'docs': [
