@@ -23,7 +23,7 @@ class HDFStore(object):
         # Setup the store
         self.save_data = save_data
         self.store_filename = os.path.join(self.store_location, self.name + ".h5")
-        self.store = pd.HDFStore(self.store_filename, mode="a")
+        self.store = pd.HDFStore(self.store_filename)
 
         # Set additional state
         self.created_tables = []
@@ -58,7 +58,7 @@ class HDFStore(object):
 
     def __del__(self):
         """
-        On objection deletion close the store and remove (optional)
+        On objection deletion close the store and remove store (optional)
         """
 
         self.store.close()
