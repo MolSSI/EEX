@@ -1,0 +1,20 @@
+This is the additional/replacement parameter set for SPC/E water (based on Lammps)
+MASS
+O1    16.0
+H1     1.008   0.000
+H2     1.008   0.000
+ 
+BOND
+O1-H1  369.352928448  1.000      SPC/E water (from lammps input file)
+O1-H2  369.352928448  1.000      SPC/E water (from lammps input file)
+
+ANGLE
+H1-O1-H2  41.90196672   109.47 (from lammps input file)
+
+DIHE
+
+NONBON
+  O1       1.7767    0.1553
+  H1          0.0000  0.0000
+  H2          0.0000  0.0000
+
