@@ -26,7 +26,7 @@ def test_lammps_read():
     assert data["dimensions"]["xhi"] == 12.362
 
     # Check Atoms
-    atoms = dl.get_atoms()
+    atoms = dl.get_atoms(["atom_type", "charge"])
     assert atoms.shape[0] == 600
     assert np.allclose(np.unique(atoms["atom_type"]), [1, 2])
     assert np.allclose(np.unique(atoms["charge"]), [-0.8476,  0.4238])

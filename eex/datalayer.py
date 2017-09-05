@@ -10,6 +10,14 @@ import collections
 from . import filelayer
 
 
+# Valid Atom Properties
+_valid_atom_properties = {
+    "molecule_index": ["molecule_index"],
+    "atom_type": ["atom_type"],
+    "charge": ["charge"],
+    "XYZ": ["X", "Y", "Z"]
+}
+
 class DataLayer(object):
     def __init__(self, name, store_location=None, save_data=False, backend="HDF5"):
         """
@@ -51,25 +59,55 @@ class DataLayer(object):
 
         return data
 
-    def add_atoms(self, atoms, property=None):
+    def add_atoms(self, atom_df, property_name=None):
 
+        # Our index name
+        index = "atom_index"
+        if property_name and (property_name not in list(_valid_atom_properties)):
+            raise KeyError("DataLayer:add_atoms: Property name '%s' not recognized." % property_name)
 
-        # valid_atom_properties = ["molecule_index", "atom_type", "charge", "X", "Y", "Z"]
-        # atom_index = "atom_index"
+        if isinstance(atom_df, (list, tuple)):
+            if property_name is None:
+                raise KeyError("DataLayer:add_atoms: If data type is list, 'property_name' must be set.")
+            if len(atom_df) != (len(_valid_atom_properties[property_name]) + 1):
+                raise KeyError("DataLayer:add_atoms: Property name '%s' not recognized." % property_name)
 
+            atom_df = pd.DataFrame([atom_df], columns=[index] + _valid_atom_properties[property_name])
+            atom_df.set_index(index, drop=True, inplace=True)
 
-        needed_cols = ["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"]
-        atoms = self._validate_table_input(atoms, needed_cols)
+        elif isinstance(atom_df, pd.DataFrame):
+            if index in atom_df.columns:
+                atom_df = atom_df.set_index(index, drop=True)
+            else:
+                atom_df.index.name = index
+        else:
+            raise KeyError("DataLayer:add_atoms: Data type '%s' not understood." % type(atoms_df))
 
-        # Reorder columns
-        atoms = atoms[needed_cols]
+        # Add a single property
+        if property_name:
+            self.store.add_table(property_name, atom_df[_valid_atom_properties[property_name]])
+        # Try to add all possible properties
+        else:
+            set_cols = set(atom_df.columns)
+            for k, v in _valid_atom_properties.items():
+                if set(v) <= set_cols:
+                    self.store.add_table(k, atom_df[v])
 
-        # Store the Data
-        self.store.add_table("atoms", atoms)
+    def get_atoms(self, properties):
+        # Our index name
+        index = "atom_index"
+        if not isinstance(properties, (tuple, list)):
+            properties = [properties]
 
-    def get_atoms(self):
+        if not set(properties) <= set(list(_valid_atom_properties)):
+            invalid_props = set(properties) - set(list(_valid_atom_properties))
+            raise KeyError("DataLayer:add_atoms: Property name(s) '%s' not recognized." % str(list(invalid_props)))
 
-        return self.store.read_table("atoms")
+        df_data = []
+        for prop in properties:
+            df_data.append(self.store.read_table(prop))
+
+        return pd.concat(df_data, axis=1)
 
     def add_bonds(self, bonds):
         """

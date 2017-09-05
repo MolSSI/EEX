@@ -34,7 +34,8 @@ def test_df_bonds():
     dl.add_atoms(tmp_df.loc[:5])
     dl.add_atoms(tmp_df.loc[5:])
 
-    dl_df = dl.get_atoms()
+    dl_df = dl.get_atoms(["molecule_index", "atom_type", "charge", "XYZ"])
+    dl_df = dl_df.reset_index()
 
     tmp_df.equals(dl_df)
 
@@ -48,7 +49,12 @@ def test_list_bonds():
 
     tmp_df = build_atom_df(10)
     for idx, row in tmp_df.iterrows():
-        dl.add_atoms(list(row))
+        data = list(row)
+        dl.add_atoms([data[0], data[1]], property_name="molecule_index")
+        dl.add_atoms([data[0], data[2]], property_name="atom_type")
+        dl.add_atoms([data[0], data[3]], property_name="charge")
+        dl.add_atoms([data[0], data[4], data[5], data[6]], property_name="XYZ")
 
-    dl_df = dl.get_atoms()
+    dl_df = dl.get_atoms(["molecule_index", "atom_type", "charge", "XYZ"])
+    dl_df = dl_df.reset_index()
     tmp_df.equals(dl_df)
