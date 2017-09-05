@@ -51,10 +51,14 @@ class DataLayer(object):
 
         return data
 
-    def add_atoms(self, atoms):
+    def add_atoms(self, atoms, property=None):
+
+
+        # valid_atom_properties = ["molecule_index", "atom_type", "charge", "X", "Y", "Z"]
+        # atom_index = "atom_index"
+
 
         needed_cols = ["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"]
-
         atoms = self._validate_table_input(atoms, needed_cols)
 
         # Reorder columns

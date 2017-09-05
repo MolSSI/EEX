@@ -6,19 +6,24 @@ import os
 import pandas as pd
 import tables
 
+def _parse_store_location(store_location):
+    if store_location is None:
+        store_location = os.getcwd()
+    else:
+        store_location = store_location
+
+    if not os.path.exists(store_location):
+        os.makedirs(store_location)
+
+    return store_location
+
 class HDFStore(object):
     def __init__(self, name, store_location, save_data):
 
 
         # Figure out what the store_location means
         self.name = name
-        if store_location is None:
-            self.store_location = os.getcwd()
-        else:
-            self.store_location = store_location
-
-        if not os.path.exists(self.store_location):
-            os.makedirs(self.store_location)
+        self.store_location = _parse_store_location(store_location)
 
         # Setup the store
         self.save_data = save_data
@@ -75,3 +80,45 @@ class HDFStore(object):
         self.store.close()
         if not self.save_data:
             os.unlink(self.store_filename)
+
+
+class InMemory(object):
+    def __init__(self, name, store_location, save_data):
+
+        # Figure out what the store_location means
+        self.name = name
+        self.store_location = _parse_store_location(store_location)
+
+        # Setup the store
+        self.save_data = save_data
+
+        # Table holder dictionary
+        self.tables = {}
+        self.table_frags = {}
+
+    def add_table(self, key, data):
+        if key not in list(self.tables):
+            self.append_index[key] = data.shape[0]
+            self.table_frags[key] = [data]
+            self.tables[key] = pd.DataFrame()
+        else:
+            self.table_frags[key].append(data)
+
+    def read_table(self, key):
+        if key not in list(self.tables):
+            raise KeyError("Key %s does not exist" % key)
+
+        if len(self.table_frags[key]):
+            self.tables[key] = pd.concat([self.tables[key]] + self.table_frags[key])
+            self.table_frags[key] = []
+        else:
+            return self.tables[key]
+
+    def __del__(self):
+        if self.save_data:
+            store = pd.HDFStore(self.store_filename)
+            for k, v in self.tables.items():
+                v.to_hdf(store, k, format="t")
+            store.close()
+
+
