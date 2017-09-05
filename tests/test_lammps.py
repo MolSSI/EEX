@@ -2,6 +2,7 @@
 Tests for LAMMPS IO
 """
 import eex
+import numpy as np
 import pytest
 import pandas as pd
 import eex_find_files
@@ -24,5 +25,9 @@ def test_lammps_read():
     assert data["dimensions"]["xlo"] == -12.362
     assert data["dimensions"]["xhi"] == 12.362
 
+    atoms = dl.read_atoms()
+    assert atoms.shape[0] == 600
+    assert np.allclose(np.unique(atoms["charge"]), [-0.8476,  0.4238])
 
+    # assert False
 

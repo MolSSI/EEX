@@ -3,6 +3,8 @@ LAMMPS EEX I/O
 """
 
 import pandas as pd
+import math
+
 from .. import datalayer
 from .. import utility
 
@@ -17,21 +19,21 @@ _size_keys = [
 
 # Coeff labels to look for and their size
 _coeff_labels = {
-    "Masses": "atom types",
-    "Pair Coeffs": "atom types",
-    "Bond Coeffs": "bond types",
-    "Angle Coeffs": "angle types",
-    "Dihedral Coeffs": "dihedral types",
-    "Improper Coeffs": "improper types"
+    "Masses": ("atom types", "NYI"),
+    "Pair Coeffs": ("atom types", "NYI"),
+    "Bond Coeffs": ("bond types", "NYI"),
+    "Angle Coeffs": ("angle types", "NYI"),
+    "Dihedral Coeffs": ("dihedral types", "NYI"),
+    "Improper Coeffs": ("improper types", "NYI"),
 }
 
 # Data labels to look for their size
 _data_labels = {
-    "Atoms": "atoms",
-    "Bonds": "bonds",
-    "Angles": "angles",
-    "Dihedrals": "dihedrals",
-    "Impropers": "impropers"
+    "Atoms": ("atoms", "add_atoms", ['atom_index', 'molecule_index', 'atom_type', 'charge', 'X', 'Y', 'Z']),
+    "Bonds": ("bonds", "NYI"),
+    "Angles": ("angles", "NYI"),
+    "Dihedrals": ("dihedrals", "NYI"),
+    "Impropers": ("impropers", "NYI"),
 }
 
 _full_labels = _coeff_labels.copy()
@@ -40,7 +42,31 @@ _full_labels.update(_data_labels)
 _full_labels_list = list(_full_labels)
 
 
-def read_lammps_file(dl, filename):
+def _get_size(label, sizes_dict):
+    if label not in list(_full_labels):
+        raise KeyError("LAMMPS: Label '%s' not recognized" % label)
+
+    skey = _full_labels[label][0]
+    return sizes_dict[skey]
+
+
+def _get_dl_function(label):
+    if label not in list(_full_labels):
+        raise KeyError("LAMMPS: Label '%s' not recognized" % label)
+
+    return _full_labels[label][1]
+
+def _get_df_columns(label):
+    if label not in list(_full_labels):
+        raise KeyError("LAMMPS: Label '%s' not recognized" % label)
+
+    if len(_full_labels[label]) >= 3:
+        return _full_labels[label][2]
+    else:
+        return False
+
+
+def read_lammps_file(dl, filename, blocksize=110):
 
     ### First we need to figure out system dimensions
     max_rows = 100  # How many lines do we attempt to search?
@@ -58,8 +84,8 @@ def read_lammps_file(dl, filename):
 
     sizes_dict = {}
 
-    breakline = None
-    first_data_type = None
+    startline = None
+    current_data_category = None
 
     header = header_data[0]
     for num, line in enumerate(header_data[1:]):
@@ -74,8 +100,8 @@ def read_lammps_file(dl, filename):
 
         # We are
         elif utility.line_fuzzy_list(line, _full_labels_list)[0]:
-            breakline = num
-            first_data_type = utility.line_fuzzy_list(line, _full_labels_list)[1]
+            startline = num + 3  # Skips first row and two blank lines
+            current_data_category = utility.line_fuzzy_list(line, _full_labels_list)[1]
             break
 
         # Figure out the dims
@@ -112,7 +138,7 @@ def read_lammps_file(dl, filename):
             raise IOError("LAMMPS Read: Line not understood!\n%s" % line)
 
     # Make sure we have what we need
-    if breakline is None:
+    if startline is None:
         raise IOError("LAMMPS Read: Did not find data start in %d header lines." % max_rows)
 
     if sum((v != None) for k, v in dim_dict.items()) != 6:
@@ -121,15 +147,51 @@ def read_lammps_file(dl, filename):
     if ("atoms" not in list(sizes_dict)) or ("atom types" not in list(sizes_dict)):
         raise IOError("LAMMPS Read: Did not find size data on 'atoms' or 'atom types' in %d header lines." % max_rows)
 
-    print(sizes_dict)
-    print(dim_dict)
     ### Iterate over the primary data portion of the object
-    # print(breakline)
-    # print(first_data_type)
-    # while True:
 
-    #     if first_data_type not in list(sizes_dict):
-    #         raise KeyError("")
+    reader = pd.read_table(
+        filename,
+        header=None,
+        iterator=True,
+        names=range(10),
+        engine="c",
+        comment="#",
+        delim_whitespace=True,
+        skiprows=startline)
+
+    while True:
+
+        # Figure out the size of the chunk to read
+        size = _get_size(current_data_category, sizes_dict)
+        dl_func = _get_dl_function(current_data_category)
+        df_cols = _get_df_columns(current_data_category)
+
+        # Read in the data, in chunks
+        remaining = size
+        for block in range(math.ceil(size / blocksize)):
+
+            # Figure out the size of the read
+            read_size = blocksize
+            if remaining < blocksize:
+                read_size = remaining
+
+            # Read and update DL
+            data = reader.get_chunk(read_size).dropna(axis=1, how="all")
+            if dl_func != "NYI":
+                # print(data)
+                data.columns = df_cols
+            dl.call_by_string(dl_func, data)
+
+            # Update remaining
+            remaining -= blocksize
+
+        # Figure out the next category to read
+        try:
+            tmp = reader.get_chunk(1).dropna(axis=1, how="any")
+        except StopIteration:
+            break
+
+        current_data_category = " ".join(str(x) for x in list(tmp.iloc[0]))
 
     # raise Exception("")
     data = {}

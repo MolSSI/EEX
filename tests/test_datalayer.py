@@ -11,10 +11,11 @@ import numpy as np
 def build_atom_df(nmols):
 
     ncols = nmols * 3
-    bond_df = pd.DataFrame(columns=["atom_index", "molecule_index", "atom_type", "X", "Y", "Z"])
+    bond_df = pd.DataFrame(columns=["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"])
     bond_df["atom_index"] = np.arange(ncols)
     bond_df["molecule_index"] = np.repeat(np.arange(nmols), 3)
     bond_df["atom_type"] = np.tile([1, 2, 2], nmols)
+    bond_df["charge"] = np.tile([-0.8, 0.4, 0.4], nmols)
     bond_df["X"] = np.random.rand(ncols)
     bond_df["Y"] = np.random.rand(ncols)
     bond_df["Z"] = np.random.rand(ncols)

@@ -40,7 +40,7 @@ class DataLayer(object):
 
     def add_atoms(self, atoms):
 
-        needed_cols = ["atom_index", "molecule_index", "atom_type", "X", "Y", "Z"]
+        needed_cols = ["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"]
 
         if isinstance(atoms, (list, tuple)):
             if len(atoms) != len(needed_cols):
@@ -70,8 +70,19 @@ class DataLayer(object):
 
 
 
-
         Parameters
         ----------
         """
         raise Exception("NYI")
+
+    def call_by_string(self, *args, **kwargs):
+
+        if args[0] == "NYI":
+            return
+
+        try:
+            function = getattr(self, args[0])
+        except:
+            raise KeyError("DataLayer:call_by_string: does not have method %s." % args[0])
+
+        return function(*args[1:], **kwargs)
