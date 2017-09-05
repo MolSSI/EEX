@@ -25,9 +25,19 @@ def test_lammps_read():
     assert data["dimensions"]["xlo"] == -12.362
     assert data["dimensions"]["xhi"] == 12.362
 
+    # Check Atoms
     atoms = dl.get_atoms()
     assert atoms.shape[0] == 600
+    assert np.allclose(np.unique(atoms["atom_type"]), [1, 2])
     assert np.allclose(np.unique(atoms["charge"]), [-0.8476,  0.4238])
 
-    # assert False
+    # Check Bonds
+    bonds = dl.get_bonds()
+    assert bonds.shape[0] == 400
+    assert np.allclose(np.unique(bonds["bond_type"]), [1])
+
+    # Check Angles
+    angles = dl.get_angles()
+    assert angles.shape[0] == 200
+    assert np.allclose(np.unique(angles["angle_type"]), [1])
 

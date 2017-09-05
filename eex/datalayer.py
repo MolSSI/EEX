@@ -38,19 +38,24 @@ class DataLayer(object):
         else:
             raise KeyError("DataLayer:add_atoms ")
 
+    def _validate_table_input(self, data, needed_cols):
+        if isinstance(data, (list, tuple)):
+            if len(data) != len(needed_cols):
+                raise Exception("DataLayer:add_data requires exactly the %s columns" % str(needed_cols))
+            data = pd.DataFrame([data], columns=needed_cols)
+        elif isinstance(data, pd.DataFrame):
+            if collections.Counter(needed_cols) != collections.Counter(data.columns):
+                raise Exception("DataLayer:add_data requires exactly the %s columns" % str(needed_cols))
+        else:
+            raise TypeError("DataLayer:add_data type %s not recognized" % type(data))
+
+        return data
+
     def add_atoms(self, atoms):
 
         needed_cols = ["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"]
 
-        if isinstance(atoms, (list, tuple)):
-            if len(atoms) != len(needed_cols):
-                raise Exception("DataLayer:add_atoms requires exactly the %s columns" % str(needed_cols))
-            atoms = pd.DataFrame([atoms], columns=needed_cols)
-        elif isinstance(atoms, pd.DataFrame):
-            if collections.Counter(needed_cols) != collections.Counter(atoms.columns):
-                raise Exception("DataLayer:add_atoms requires exactly the %s columns" % str(needed_cols))
-        else:
-            raise TypeError("DataLayer:add_atoms type %s not recognized" % type(atoms))
+        atoms = self._validate_table_input(atoms, needed_cols)
 
         # Reorder columns
         atoms = atoms[needed_cols]
@@ -68,15 +73,45 @@ class DataLayer(object):
 
         Bonds:
 
+        Parameters
+        ----------
+        """
 
+        needed_cols = ["bond_index", "atom1_index", "atom2_index", "bond_type"]
+
+        bonds = self._validate_table_input(bonds, needed_cols)
+
+        # Reorder columns
+        bonds = bonds[needed_cols]
+
+        self.store.add_table("bonds", bonds)
+
+    def get_bonds(self):
+
+        return self.store.read_table("bonds")
+
+    def add_angles(self, angles):
+        """
+        Adds bond using a index notation:
+
+        Bonds:
 
         Parameters
         ----------
         """
 
+        needed_cols = ["bond_index", "atom1_index", "atom2_index", "atom3_index", "angle_type"]
 
+        angles = self._validate_table_input(angles, needed_cols)
 
-        self.store.add_table("bonds", bonds)
+        # Reorder columns
+        angles = angles[needed_cols]
+
+        self.store.add_table("angles", angles)
+
+    def get_angles(self):
+
+        return self.store.read_table("angles")
 
     def call_by_string(self, *args, **kwargs):
 
