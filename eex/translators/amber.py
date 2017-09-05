@@ -6,6 +6,12 @@ import pandas as pd
 import math
 import re
 
+# Python 2/3 compat
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+
 from .. import datalayer
 from .. import utility
 
@@ -20,50 +26,53 @@ _size_keys = [
 ]
 
 _data_labels = {
-    "ATOM_NAME": "NATOM",
-    "CHARGE": "NATOM",
-    "ATOMIC_NUMBER": "NATOM",
-    "MASS": "NATOM",
-    "ATOM_TYPE_INDEX": "NATOM",
-    "NUMBER_EXCLUDED_ATOMS": "NATOM",
-    "NONBONDED_PARM_INDEX": "NATOM ** 2",
-    "RESIDUE_LABEL": "NRES",
-    "RESIDUE_POINTER": "NRES",
-    "BOND_FORCE_CONSTANT": "NUMND",
-    "BOND_EQUIL_VALUE": "NUMND",
-    "ANGLE_FORCE_CONSTANT": "NUMANG",
-    "ANGLE_EQUIL_VALUE": "NUMND",
-    "DIHEDRAL_FORCE_CONSTANT": "NPTRA",
-    "DIHEDRAL_PERIODICITY": "NPTRA",
-    "DIHEDRAL_PHASE": "NPTRA",
-    "SCEE_SCALE_FACTOR": "NPTRA",
-    "SCNB_SCALE_FACTOR": "NPTRA",
-    "SOLTY": "NATYP",
-    "LENNARD_JONES_ACOEF": "(NTYPES * (NTYPES + 1)) / 2",
-    "LENNARD_JONES_BCOEF": "(NTYPES * (NTYPES + 1)) / 2",
-    "BONDS_INC_HYDROGEN": "3 * NBONH",
-    "BONDS_WITHOUT_HYDROGEN": "3 * NBONA",
-    "ANGLES_INC_HYDROGEN": "4 * NTHETH",
-    "ANGLES_WITHOUT_HYDROGEN": "4 * NTHETA",
-    "DIHEDRALS_INC_HYDROGEN": "5 * NPHIH",
-    "DIHEDRALS_WITHOUT_HYDROGEN": "5 * NPHIA",
-    "EXCLUDED_ATOMS_LIST": "NNB",
-    "HBOND_ACOEF": "NPHB",
-    "HBOND_BCOEF": "NPHB",
-    "HBCUT": "NPHB",
-    "AMBER_ATOM_TYPE": "NATOM",
-    "TREE_CHAIN_CLASSIFICATION": "NATOM",
-    "JOIN_ARRAY": "NATOM",
-    "IROTAT": "NATOM",
-    "SOLVENT_POINTERS": 3,
-    "ATOMS_PER_MOLECULE": "NPSM",
-    "BOX_DIMENSIONS": 4,
-    "CAP_INFO": "1 if IFCAP else 0",
-    "CAP_INFO2": "4 if IFCAP else 0",
-    "RADIUS_SET": 1,
-    "RADII": "NATOM",
-    "IPOL": 1,
-    "POLARIZABILITY": "NATOM if IPOL else 0"
+    "ATOM_NAME": ["NATOM"],
+    "CHARGE": ["NATOM"],
+    "ATOMIC_NUMBER": ["NATOM"],
+    "MASS": ["NATOM"],
+    "ATOM_TYPE_INDEX": ["NATOM"],
+    "NUMBER_EXCLUDED_ATOMS": ["NATOM"],
+    "NONBONDED_PARM_INDEX": ["NTYPES ** 2"],
+    "RESIDUE_LABEL": ["NRES"],
+    "RESIDUE_POINTER": ["NRES"],
+    "BOND_FORCE_CONSTANT": ["NUMBND"],
+    "BOND_EQUIL_VALUE": ["NUMBND"],
+    "ANGLE_FORCE_CONSTANT": ["NUMANG"],
+    "ANGLE_EQUIL_VALUE": ["NUMBND"],
+    "DIHEDRAL_FORCE_CONSTANT": ["NPTRA"],
+    "DIHEDRAL_PERIODICITY": ["NPTRA"],
+    "DIHEDRAL_PHASE": ["NPTRA"],
+    "SCEE_SCALE_FACTOR": ["NPTRA"],
+    "SCNB_SCALE_FACTOR": ["NPTRA"],
+    "SOLTY": ["NATYP"],
+    "LENNARD_JONES_ACOEF": ["(NTYPES * (NTYPES + 1)) / 2"],
+    "LENNARD_JONES_BCOEF": ["(NTYPES * (NTYPES + 1)) / 2"],
+    "BONDS_INC_HYDROGEN": ["3 * NBONH"],
+    "BONDS_WITHOUT_HYDROGEN": ["3 * NBONA"],
+    "ANGLES_INC_HYDROGEN": ["4 * NTHETH"],
+    "ANGLES_WITHOUT_HYDROGEN": ["4 * NTHETA"],
+    "DIHEDRALS_INC_HYDROGEN": ["5 * NPHIH"],
+    "DIHEDRALS_WITHOUT_HYDROGEN": ["5 * NPHIA"],
+    "EXCLUDED_ATOMS_LIST": ["NNB"],
+    "HBOND_ACOEF": ["NPHB"],
+    "HBOND_BCOEF": ["NPHB"],
+    "HBCUT": ["NPHB"],
+    "AMBER_ATOM_TYPE": ["NATOM"],
+    "TREE_CHAIN_CLASSIFICATION": ["NATOM"],
+    "JOIN_ARRAY": ["NATOM"],
+    "IROTAT": ["NATOM"],
+    "SOLVENT_POINTERS": [3],
+    "ATOMS_PER_MOLECULE": ["NATOM"],
+    # "ATOMS_PER_MOLECULE": ["NPSM"], # Needs to be updated
+    "BOX_DIMENSIONS": [4],
+    "CAP_INFO": ["1 if IFCAP else 0"],
+    "CAP_INFO2": ["4 if IFCAP else 0"],
+    "RADIUS_SET": [1],
+    "RADII": ["NATOM"],
+    "SCREEN": ["NATOM"],
+    "IPOL": [1],
+    "POLARIZABILITY": [0]
+    # "POLARIZABILITY": ["NATOM if IPOL else 0"]
 }
 
 
@@ -78,35 +87,45 @@ def _parse_format(string):
     [10, int, 8]
     """
     if "FORMAT" not in string:
-        raise ValueError("AMBER: Did not undstand format line '%s'." % string)
+        raise ValueError("AMBER: Did not understand format line '%s'." % string)
 
-    string = string.replace("%FORMAT(", "").replace(")", "").strip()
-    ret = [x for x in re.split('(\d+)', string) if x]
-    if len(ret) != 3:
-        raise ValueError("AMBER: Did not undstand format line '%s'." % string)
-
-    ret[0] = int(ret[0])
-    ret[2] = int(ret[2])
+    pstring = string.replace("%FORMAT(", "").replace(")", "").strip()
+    ret = [x for x in re.split('(\d+)', pstring) if x]
 
     if ret[1] == "I":
+        if len(ret) != 3:
+            raise ValueError("AMBER: Did not understand format line '%s'." % string)
         ret[1] = int
-    elif ret[1] == "F":
+        ret[0] = int(ret[0])
+        ret[2] = int(ret[2])
+    elif ret[1] == "E":
+        if len(ret) != 5:
+            raise ValueError("AMBER: Did not understand format line '%s'." % string)
         ret[1] = float
+        ret[0] = int(ret[0])
+        ret[2] = int(ret[2])
+        # The .8 is not interesting to us
+    elif ret[1] == "a":
+        if len(ret) != 3:
+            raise ValueError("AMBER: Did not understand format line '%s'." % string)
+        ret[1] = str
+        ret[0] = int(ret[0])
+        ret[2] = int(ret[2])
     else:
-        raise ValueError("AMBER: Type symbol '%s' not understood." % ret[1])
+        raise ValueError("AMBER: Type symbol '%s' not understood from line '%s'." % (ret[1], string))
 
     return ret
 
 
-def read_amber_file(dl, filename, blocksize=110):
+def read_amber_file(dl, filename, blocksize=5000):
 
     ### First we need to figure out system dimensions
     max_rows = 100  # How many lines do we attempt to search?
     with open(filename, "r") as infile:
         header_data = [next(infile).strip() for x in range(max_rows)]
 
-    sizes = {}
-    data = {}
+    sizes_dict = {}
+    ret_data = {}
     found_sizes = False
     found_version = False
     for num, line in enumerate(header_data):
@@ -115,9 +134,9 @@ def read_amber_file(dl, filename, blocksize=110):
         if "VERSION" in line:
             sline = line.strip().split()
             if "VERSION_STAMP" == sline[1]:
-                data["VERSION"] = sline[3]
-                if data["VERSION"] != "V0001.000":
-                    raise ValueError("AMBER Read: Did not recognize version '%s'." % data["VERSION"])
+                ret_data["VERSION"] = sline[3]
+                if ret_data["VERSION"] != "V0001.000":
+                    raise ValueError("AMBER Read: Did not recognize version '%s'." % ret_data["VERSION"])
                 found_version = True
             else:
                 raise ValueError("AMBER Read: Could not understand version line.")
@@ -136,7 +155,7 @@ def read_amber_file(dl, filename, blocksize=110):
                 raise IndexError("AMBER Read: The size of the FLAG POINTERS does not match the FLAG NAMES.")
 
             for k, v in zip(_size_keys, parsed_sizes):
-                sizes[k] = v
+                sizes_dict[k] = v
 
             found_sizes = True
 
@@ -148,68 +167,108 @@ def read_amber_file(dl, filename, blocksize=110):
 
     ### Iterate over the primary data portion of the object
 
+    # Figure out the size of each label
+    label_sizes = {}
+    for k, v in _data_labels.items():
+        if isinstance(v[0], int):
+            label_sizes[k] = v[0]
+        elif v[0] in list(sizes_dict):
+            label_sizes[k] = sizes_dict[v[0]]
+        else:
+            # print("%30s %40s %d" % (k, v[0], int(eval(v[0], sizes_dict))))
+            label_sizes[k] = int(eval(v[0], sizes_dict))
+
+    # Find the start
     current_data_category = None
     current_data_type = None
     file_handle = open(filename, "r")
-    for x in file_handle:
-        if "FLAG ATOM_NAME" in x:
+    counter = 0
+    for line in file_handle:
+        if counter > 100:
+            raise KeyError("AMBER Read: Could not find the line a data category in the first 100 lines.")
+        matched, name = utility.line_fuzzy_list(line, list(_data_labels))
+        if matched:
+            current_data_category = name
+            current_data_type = _parse_format(next(file_handle))
 
             break
+        counter += 1
 
-    return  data
-    print('--')
-    print(pd.read_fwf(file_handle, nrows=3, widths=[80], header=None))
-    print('--')
-    # print(pd.read_fwf(file_handle, nrows=3, widths=[80], header=None))
-    # print('--')
-    # print(pd.read_fwf(file_handle, nrows=3, widths=[80], header=None))
-    # print('--')
-    # print(pd.read_fwf(file_handle, nrows=3, widths=[80], header=None))
-    # print('--')
-    # print(pd.read_fwf(file_handle, nrows=3, widths=([4] * 20), header=None))
-    # print(pd.read_fwf(file_handle, nrows=3, widths=([4] * 20), header=None))
-    # print(next(file_handle).strip())
-
-    raise Exception()
     while True:
 
-        # Figure out the size of the chunk to read
-        size = _get_size(current_data_category, sizes_dict)
-        dl_func = _get_dl_function(current_data_category)
-        df_cols = _get_df_columns(current_data_category)
+        # Type out the sizes and types
+        print(current_data_category, end=" ")
+        # print(current_data_type, end="")
+        # print(label_sizes[current_data_category], end="")
+        nsize = label_sizes[current_data_category]
+        nrows = math.ceil(nsize / current_data_type[0])
+        dtypes = [current_data_type[1]] * current_data_type[0]
+        widths = [current_data_type[2]] * current_data_type[0]
 
         # Read in the data, in chunks
-        remaining = size
-        for block in range(int(math.ceil(size / blocksize))):
+        remaining = nrows
+        print(nsize, nrows, current_data_type)
+        for block in range(int(math.ceil(nrows / blocksize))):
 
             # Figure out the size of the read
             read_size = blocksize
             if remaining < blocksize:
                 read_size = remaining
 
-            # Read and update DL
-            data = reader.get_chunk(read_size).dropna(axis=1, how="all")
-            if dl_func != "NYI":
-                # print(data)
-                data.columns = df_cols
-            dl.call_by_string(dl_func, data)
+            # read_fwf will push the file pointer *at least 4* so lets just read it in
+            if read_size < 4:
+                data = []
+                for x in range(read_size):
+                    data.append(next(file_handle))
+                    tmp_handle = StringIO("".join(data))
+            else:
+                tmp_handle = file_handle
+
+            data = pd.read_fwf(tmp_handle, nrows=read_size, widths=widths, dtypes=dtypes, header=None)
+            # print(data.head())
+            # print(data.tail())
+            # if dl_func != "NYI":
+            #     # print(data)
+            #     data.columns = df_cols
+            # dl.call_by_string(dl_func, data)
 
             # Update remaining
             remaining -= blocksize
 
+        # If we are doing nothing, we still have a blank line
+        if nrows == 0:
+            next(file_handle)
+
         # Figure out the next category to read
         try:
-            tmp = reader.get_chunk(1).dropna(axis=1, how="any")
+            category_line = next(file_handle)
+            format_line = next(file_handle)
         except StopIteration:
             break
 
-        current_data_category = " ".join(str(x) for x in list(tmp.iloc[0]))
+
+        # Bad hack for solvent pointers
+        if "SOLVENT_POINTERS" in category_line:
+            dline = next(file_handle).rstrip()
+            data = [int(dline[i:i + 8]) for i in range(0, len(dline), 8)]
+            label_sizes["ATOMS_PER_MOLECULE"] = data[1]
+            try:
+                category_line = next(file_handle)
+                format_line = next(file_handle)
+            except StopIteration:
+                break
+
+        matched, current_data_category = utility.line_fuzzy_list(category_line, list(_data_labels))
+        if not matched:
+            raise KeyError("AMBER Read: Data category '%s' not understood" % category_line)
+
+        current_data_type = _parse_format(format_line)
+
 
     # raise Exception("")
-    data = {}
-    data["sizes"] = sizes_dict
-    data["dimensions"] = dim_dict
-
+    # data = {}
+    # data["sizes"] = sizes_dict
+    # data["dimensions"] = dim_dict
 
     file_handle.close()
-    return data
+    return ret_data
