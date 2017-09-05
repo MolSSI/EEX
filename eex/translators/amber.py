@@ -197,7 +197,7 @@ def read_amber_file(dl, filename, blocksize=5000):
     while True:
 
         # Type out the sizes and types
-        print(current_data_category, end=" ")
+        # print(current_data_category, end=" ")
         # print(current_data_type, end="")
         # print(label_sizes[current_data_category], end="")
         nsize = label_sizes[current_data_category]
@@ -207,7 +207,7 @@ def read_amber_file(dl, filename, blocksize=5000):
 
         # Read in the data, in chunks
         remaining = nrows
-        print(nsize, nrows, current_data_type)
+        # print(current_data_category, nsize, nrows, current_data_type)
         for block in range(int(math.ceil(nrows / blocksize))):
 
             # Figure out the size of the read
