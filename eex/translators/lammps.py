@@ -168,7 +168,7 @@ def read_lammps_file(dl, filename, blocksize=110):
 
         # Read in the data, in chunks
         remaining = size
-        for block in range(math.ceil(size / blocksize)):
+        for block in range(int(math.ceil(size / blocksize))):
 
             # Figure out the size of the read
             read_size = blocksize
