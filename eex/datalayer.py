@@ -9,7 +9,6 @@ import collections
 
 from . import filelayer
 
-
 # Valid Atom Properties
 _valid_atom_properties = {
     "molecule_index": ["molecule_index"],
@@ -17,6 +16,7 @@ _valid_atom_properties = {
     "charge": ["charge"],
     "XYZ": ["X", "Y", "Z"]
 }
+
 
 class DataLayer(object):
     def __init__(self, name, store_location=None, save_data=False, backend="HDF5"):
@@ -92,6 +92,8 @@ class DataLayer(object):
             for k, v in _valid_atom_properties.items():
                 if set(v) <= set_cols:
                     self.store.add_table(k, atom_df[v])
+
+        return True
 
     def get_atoms(self, properties):
         # Our index name
