@@ -34,7 +34,7 @@ def test_df_bonds():
     dl.add_atoms(tmp_df.loc[:5])
     dl.add_atoms(tmp_df.loc[5:])
 
-    dl_df = dl.read_atoms()
+    dl_df = dl.get_atoms()
 
     tmp_df.equals(dl_df)
 
@@ -50,5 +50,5 @@ def test_list_bonds():
     for idx, row in tmp_df.iterrows():
         dl.add_atoms(list(row))
 
-    dl_df = dl.read_atoms()
+    dl_df = dl.get_atoms()
     tmp_df.equals(dl_df)

@@ -58,11 +58,11 @@ class DataLayer(object):
         # Store the Data
         self.store.add_table("atoms", atoms)
 
-    def read_atoms(self):
+    def get_atoms(self):
 
         return self.store.read_table("atoms")
 
-    def add_bonds_by_index(self, bonds):
+    def add_bonds(self, bonds):
         """
         Adds bond using a index notation:
 
@@ -73,7 +73,10 @@ class DataLayer(object):
         Parameters
         ----------
         """
-        raise Exception("NYI")
+
+
+
+        self.store.add_table("bonds", bonds)
 
     def call_by_string(self, *args, **kwargs):
 
