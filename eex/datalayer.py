@@ -14,7 +14,12 @@ _valid_atom_properties = {
     "molecule_index": ["molecule_index"],
     "atom_type": ["atom_type"],
     "charge": ["charge"],
-    "XYZ": ["X", "Y", "Z"]
+    "XYZ": ["X", "Y", "Z"],
+    "atomic_number" : ["atomic_number"],
+    "atom_name" : ["atom_name"]
+    "mass" : ["mass"]
+    "res_num" : ["res_num"]
+    "res_name" : ["res_name"]
 }
 
 
