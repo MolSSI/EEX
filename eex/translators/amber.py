@@ -61,9 +61,9 @@ _data_labels = {
     "TREE_CHAIN_CLASSIFICATION": ["NATOM"],
     "JOIN_ARRAY": ["NATOM"],
     "IROTAT": ["NATOM"],
-    "SOLVENT_POINTERS": [3],
+    "SOLVENT_POINTERS": ["3 if IFBOX else 0" ],
     "ATOMS_PER_MOLECULE": ["NATOM"],
-    # "ATOMS_PER_MOLECULE": ["NPSM"], # Needs to be updated
+    # "ATOMS_PER_MOLECULE": ["SOLVENT_POINTERS[1] if IFBOX else 0"], # SOLVENT_POINTERS[1] == NPSM
     "BOX_DIMENSIONS": [4],
     "CAP_INFO": ["1 if IFCAP else 0"],
     "CAP_INFO2": ["4 if IFCAP else 0"],
@@ -207,6 +207,7 @@ def read_amber_file(dl, filename, blocksize=5000):
 
         # Read in the data, in chunks
         remaining = nrows
+        print(remaining)
         print(current_data_category, nsize, nrows, current_data_type)
         num_blocks = int(math.ceil(nrows / float(blocksize)))
         for block in range(num_blocks):
