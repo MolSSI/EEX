@@ -45,8 +45,10 @@ class DataLayer(object):
 
         if backend.upper() == "HDF5":
             self.store = filelayer.HDFStore(self.name, self.store_location, save_data)
+        elif backend.upper() == "MEMORY":
+            self.store = filelayer.MemoryStore(self.name, self.store_location, save_data)
         else:
-            raise KeyError("DataLayer:add_atoms ")
+            raise KeyError("DataLayer: Backend of type '%s' not recognized." % backend)
 
     def _validate_table_input(self, data, needed_cols):
         if isinstance(data, (list, tuple)):

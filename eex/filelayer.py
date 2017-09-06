@@ -82,7 +82,7 @@ class HDFStore(object):
             os.unlink(self.store_filename)
 
 
-class InMemory(object):
+class MemoryStore(object):
     def __init__(self, name, store_location, save_data):
 
         # Figure out what the store_location means
@@ -98,7 +98,6 @@ class InMemory(object):
 
     def add_table(self, key, data):
         if key not in list(self.tables):
-            self.append_index[key] = data.shape[0]
             self.table_frags[key] = [data]
             self.tables[key] = pd.DataFrame()
         else:
@@ -108,11 +107,13 @@ class InMemory(object):
         if key not in list(self.tables):
             raise KeyError("Key %s does not exist" % key)
 
+        # Concat any fragments
         if len(self.table_frags[key]):
-            self.tables[key] = pd.concat([self.tables[key]] + self.table_frags[key])
+            self.table_frags[key].append(self.tables[key])
+            self.tables[key] = pd.concat(self.table_frags[key])
             self.table_frags[key] = []
-        else:
-            return self.tables[key]
+
+        return self.tables[key]
 
     def __del__(self):
         if self.save_data:

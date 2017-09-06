@@ -7,8 +7,10 @@ import pytest
 import pandas as pd
 import numpy as np
 
+_backend_list = ["HDF5", "Memory"]
 
-def build_atom_df(nmols):
+
+def _build_atom_df(nmols):
 
     ncols = nmols * 3
     bond_df = pd.DataFrame(columns=["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"])
@@ -22,14 +24,15 @@ def build_atom_df(nmols):
     return bond_df
 
 
-def test_df_bonds():
+@pytest.mark.parametrize("backend", _backend_list)
+def test_df_bonds(backend):
     """
     Tests adding bonds as a DataFrame
     """
 
-    dl = eex.datalayer.DataLayer("test_df_bonds")
+    dl = eex.datalayer.DataLayer("test_df_bonds", backend=backend)
 
-    tmp_df = build_atom_df(10)
+    tmp_df = _build_atom_df(10)
 
     dl.add_atoms(tmp_df.loc[:5])
     dl.add_atoms(tmp_df.loc[5:])
@@ -40,14 +43,15 @@ def test_df_bonds():
     tmp_df.equals(dl_df)
 
 
-def test_list_bonds():
+@pytest.mark.parametrize("backend", _backend_list)
+def test_list_bonds(backend):
     """
     Tests adding bonds as a list
     """
 
-    dl = eex.datalayer.DataLayer("test_list_bonds")
+    dl = eex.datalayer.DataLayer("test_list_bonds", backend=backend)
 
-    tmp_df = build_atom_df(10)
+    tmp_df = _build_atom_df(10)
     for idx, row in tmp_df.iterrows():
         data = list(row)
         dl.add_atoms([data[0], data[1]], property_name="molecule_index")
