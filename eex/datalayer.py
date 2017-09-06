@@ -100,6 +100,7 @@ class DataLayer(object):
         if property_name and (property_name not in list(_valid_atom_properties)):
             raise KeyError("DataLayer:add_atoms: Property name '%s' not recognized." % property_name)
 
+        # Parse list and DataFrame object and check validity
         if isinstance(atom_df, (list, tuple)):
             if property_name is None:
                 raise KeyError("DataLayer:add_atoms: If data type is list, 'property_name' must be set.")
@@ -124,6 +125,7 @@ class DataLayer(object):
         else:
             set_cols = set(atom_df.columns)
             for k, v in _valid_atom_properties.items():
+                # Check if v is in the set_cols (set logic)
                 if set(v) <= set_cols:
                     self.store.add_table(k, atom_df[v])
 
@@ -163,12 +165,18 @@ class DataLayer(object):
 
     def add_bonds(self, bonds):
         """
-        Adds bond using a index notation:
-
-        Bonds:
+        Adds bond using a index notation.
 
         Parameters
         ----------
+        bonds : pd.DataFrame
+            Adds a DataFrame containing the bond information by index
+            Required columns: ["bond_index", "atom1_index", "atom2_index", "bond_type"]
+
+        Returns
+        -------
+        return : bool
+            Returns a boolean value if the operations was successful or not
         """
 
         needed_cols = ["bond_index", "atom1_index", "atom2_index", "bond_type"]
@@ -180,18 +188,26 @@ class DataLayer(object):
 
         self.store.add_table("bonds", bonds)
 
+        return True
+
     def get_bonds(self):
 
         return self.store.read_table("bonds")
 
     def add_angles(self, angles):
         """
-        Adds bond using a index notation:
-
-        Bonds:
+        Adds angles using a index notation.
 
         Parameters
         ----------
+        bonds : pd.DataFrame
+            Adds a DataFrame containing the angle information by index
+            Required columns: ["bond_index", "atom1_index", "atom2_index", "atom3_index", "bond_type"]
+
+        Returns
+        -------
+        return : bool
+            Returns a boolean value if the operations was successful or not
         """
 
         needed_cols = ["bond_index", "atom1_index", "atom2_index", "atom3_index", "angle_type"]
