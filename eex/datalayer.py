@@ -31,6 +31,8 @@ class DataLayer(object):
             The location to store the temporary data during the translation. Defaults to the current working directory.
         save_data : {False, True}, optional
             Decides whether to delete the store data upon destruction of the DataLayer object.
+        backend : {"HDF5", "memory"}, optional
+            Storage backend for the energy expression.
         """
 
         # Set the state
@@ -41,7 +43,7 @@ class DataLayer(object):
         if self.store_location is None:
             self.store_location = os.getcwd()
 
-        if backend == "HDF5":
+        if backend.upper() == "HDF5":
             self.store = filelayer.HDFStore(self.name, self.store_location, save_data)
         else:
             raise KeyError("DataLayer:add_atoms ")
@@ -60,6 +62,36 @@ class DataLayer(object):
         return data
 
     def add_atoms(self, atom_df, property_name=None):
+        """
+        Adds atom information to the DataLayer object.
+
+        Parameters
+        ----------
+        atom_df : {DataFrame, list, tuple}
+            The atom data to add to the object.
+        property_name: {list, str}, optional
+            The atom property that is added, only necessary if a list is passed in.
+
+        Returns
+        -------
+        return : {bool}
+            If the add was successful or not.
+
+
+        Example
+        -------
+        dl = DataLayer("test")
+
+        # Add the atoms to the same molecule
+        dl.add_atoms([0, 1], properties="molecule_index")
+        dl.add_atoms([1, 1], properties="molecule_index")
+        dl.add_atoms([2, 1], properties="molecule_index")
+
+        # Add the XYZ information for five random atoms
+        tmp_df = pd.DataFrame(np.random.rand(5, 3), columns=["X", "Y", "Z"])
+        tmp_df["atom_index"] = np.arange(5)
+        dl.add_atom(tmp_df)
+        """
 
         # Our index name
         index = "atom_index"
@@ -96,6 +128,22 @@ class DataLayer(object):
         return True
 
     def get_atoms(self, properties):
+        """
+        Obtains atom information to the DataLayer object.
+
+        Parameters
+        ----------
+        properties : {list, str}
+            The properties to obtain for the atom data.
+
+        Returns
+        -------
+        return : pd.DataFrame
+            Returns a DataFrame containing the atom property information
+            If the add was successful or not.
+
+        """
+
         # Our index name
         index = "atom_index"
         if not isinstance(properties, (tuple, list)):
