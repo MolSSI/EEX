@@ -2,10 +2,10 @@ coverage:
   status:
     project:
       default:
-        threshold: 80%
+        threshold: 50%
     patch:
       default:
-        threshold: 0%
+        threshold: 50%
   ignore:
-    - test/.*
-    - setup.py
+    - "test/.*"
+    - "setup.py"
