@@ -12,15 +12,16 @@ from . import filelayer
 # Valid Atom Properties
 _valid_atom_properties = {
     "molecule_index": ["molecule_index"],
-    "atom_name" : ["atom_name"],
+    "atom_name": ["atom_name"],
     "atom_type": ["atom_type"],
-    "atom_type_name" : ["atom_type_name"],  # Added because amber uses both an "atom_type" (integer) and "amber_atom_type" (string)
+    "atom_type_name": ["atom_type_name"],  # Added because amber uses both an "atom_type" (integer) and "amber_atom_type" (string)
     "charge": ["charge"],
     "XYZ": ["X", "Y", "Z"],
-    "atomic_number" : ["atomic_number"],
-    "mass" : ["mass"],
-    "residue_index" : ["residue_index"],
-    "residue_name" : ["residue_name"],
+    "atomic_number": ["atomic_number"],
+    "mass": ["mass"],
+    "residue_index": ["residue_index"],
+    "residue_name": ["residue_name"],
+    "implicit_solvent_radius": ["implicit_solvent_radius"], # Amber radii section - used for implicit solvent calculations
 }
 
 

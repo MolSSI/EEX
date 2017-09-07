@@ -60,7 +60,7 @@ _data_labels = {
     "HBCUT": ["NPHB"],
     "AMBER_ATOM_TYPE": ["NATOM"],
     "TREE_CHAIN_CLASSIFICATION": ["NATOM"],
-    "JOIN_ARRAY": ["NATOM"],
+    "JOIN_ARRAY": ["NATOM"],    # This section is filled with zeros, but is unused. We should not store it.
     "IROTAT": ["NATOM"],
     "SOLVENT_POINTERS": ["3 if IFBOX else 0"],
     "ATOMS_PER_MOLECULE": ["NATOM"],
@@ -80,8 +80,10 @@ _atom_property_names = {"ATOM_NAME" : "atom_name",
                         "CHARGE": "charge",
                         "MASS": "mass",
                         "ATOM_TYPE_INDEX": "atom_type",
-                        "ATOMIC_NUMBER": "atomic_number"}
-
+                        "ATOMIC_NUMBER": "atomic_number",
+                        "AMBER_ATOM_TYPE": "atom_type_name",
+                        "RADII" : "implicit_solvent_radius",
+                        }
 
 def _parse_format(string):
     """
