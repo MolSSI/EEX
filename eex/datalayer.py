@@ -13,13 +13,14 @@ from . import filelayer
 _valid_atom_properties = {
     "molecule_index": ["molecule_index"],
     "atom_type": ["atom_type"],
+    "atom_type_name" : ["atom_type_name"],  # Added because amber uses both an "atom_type" (integer) and "amber_atom_type" (string)
     "charge": ["charge"],
     "XYZ": ["X", "Y", "Z"],
     "atomic_number" : ["atomic_number"],
-    "atom_name" : ["atom_name"]
-    "mass" : ["mass"]
-    "res_num" : ["res_num"]
-    "res_name" : ["res_name"]
+    "atom_name" : ["atom_name"],
+    "mass" : ["mass"],
+    "res_num" : ["res_num"],
+    "res_name" : ["res_name"],
 }
 
 
