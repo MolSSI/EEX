@@ -12,15 +12,15 @@ from . import filelayer
 # Valid Atom Properties
 _valid_atom_properties = {
     "molecule_index": ["molecule_index"],
+    "atom_name" : ["atom_name"],
     "atom_type": ["atom_type"],
     "atom_type_name" : ["atom_type_name"],  # Added because amber uses both an "atom_type" (integer) and "amber_atom_type" (string)
     "charge": ["charge"],
     "XYZ": ["X", "Y", "Z"],
     "atomic_number" : ["atomic_number"],
-    "atom_name" : ["atom_name"],
     "mass" : ["mass"],
-    "res_num" : ["res_num"],
-    "res_name" : ["res_name"],
+    "residue_index" : ["residue_index"],
+    "residue_name" : ["residue_name"],
 }
 
 
@@ -130,10 +130,14 @@ class DataLayer(object):
         # Try to add all possible properties
         else:
             set_cols = set(atom_df.columns)
+            found_one = False
             for k, v in _valid_atom_properties.items():
                 # Check if v is in the set_cols (set logic)
                 if set(v) <= set_cols:
                     self.store.add_table(k, atom_df[v])
+                    found_one = True
+            if not found_one:
+                raise Exception("DataLayer:add_atom: No data was added as no key was matched.")
 
         return True
 

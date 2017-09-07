@@ -5,6 +5,7 @@ LAMMPS EEX I/O
 import pandas as pd
 import math
 import re
+import numpy as np
 
 # Python 2/3 compat
 try:
@@ -61,7 +62,7 @@ _data_labels = {
     "TREE_CHAIN_CLASSIFICATION": ["NATOM"],
     "JOIN_ARRAY": ["NATOM"],
     "IROTAT": ["NATOM"],
-    "SOLVENT_POINTERS": ["3 if IFBOX else 0" ],
+    "SOLVENT_POINTERS": ["3 if IFBOX else 0"],
     "ATOMS_PER_MOLECULE": ["NATOM"],
     # "ATOMS_PER_MOLECULE": ["SOLVENT_POINTERS[1] if IFBOX else 0"], # SOLVENT_POINTERS[1] == NPSM
     "BOX_DIMENSIONS": [4],
@@ -74,6 +75,12 @@ _data_labels = {
     "POLARIZABILITY": [0]
     # "POLARIZABILITY": ["NATOM if IPOL else 0"]
 }
+
+_atom_property_names = {"ATOM_NAME" : "atom_name",
+                        "CHARGE": "charge",
+                        "MASS": "mass",
+                        "ATOM_TYPE_INDEX": "atom_type",
+                        "ATOMIC_NUMBER": "atomic_number"}
 
 
 def _parse_format(string):
@@ -207,9 +214,10 @@ def read_amber_file(dl, filename, blocksize=5000):
 
         # Read in the data, in chunks
         remaining = nrows
-        print(remaining)
-        print(current_data_category, nsize, nrows, current_data_type)
+        # print(remaining)
+        # print(current_data_category, nsize, nrows, current_data_type)
         num_blocks = int(math.ceil(nrows / float(blocksize)))
+        category_index = 0
         for block in range(num_blocks):
 
             # Figure out the size of the read
@@ -227,6 +235,17 @@ def read_amber_file(dl, filename, blocksize=5000):
                 tmp_handle = file_handle
 
             data = pd.read_fwf(tmp_handle, nrows=read_size, widths=widths, dtypes=dtypes, header=None)
+            if current_data_category in list(_atom_property_names):
+                flat_data = data.values.flatten()
+                index = np.arange(category_index, flat_data.shape[0] + category_index)
+                df = pd.DataFrame({"atom_index": index, _atom_property_names[current_data_category]: flat_data})
+                df.dropna(axis=0, how="any", inplace=True)
+                dl.add_atoms(df)
+            else:
+                # logger.debug("Did not understand data category.. passing")
+                pass
+            # elif current_data_category == "ATOM_NAME":
+
             # print(data.head())
             # print(data.tail())
             # if dl_func != "NYI":
@@ -248,7 +267,6 @@ def read_amber_file(dl, filename, blocksize=5000):
         except StopIteration:
             break
 
-
         # Bad hack for solvent pointers
         if "SOLVENT_POINTERS" in category_line:
             dline = next(file_handle).rstrip()
@@ -265,8 +283,8 @@ def read_amber_file(dl, filename, blocksize=5000):
             raise KeyError("AMBER Read: Data category '%s' not understood" % category_line)
 
         current_data_type = _parse_format(format_line)
-
-
+        # break
+        # raise Exception("")
     # raise Exception("")
     # data = {}
     # data["sizes"] = sizes_dict
