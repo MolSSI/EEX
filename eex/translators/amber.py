@@ -234,12 +234,23 @@ def read_amber_file(dl, filename, blocksize=5000):
             else:
                 tmp_handle = file_handle
 
+            # Read in the data
             data = pd.read_fwf(tmp_handle, nrows=read_size, widths=widths, dtypes=dtypes, header=None)
+
+            # 1D atom properties
             if current_data_category in list(_atom_property_names):
+
+                # Reorganize the data 2D -> 1D packing
                 flat_data = data.values.flatten()
                 index = np.arange(category_index, flat_data.shape[0] + category_index)
-                df = pd.DataFrame({"atom_index": index, _atom_property_names[current_data_category]: flat_data})
+                dl_col_name = _atom_property_names[current_data_category]
+
+                # Build and curate the data
+                df = pd.DataFrame({"atom_index": index, dl_col_name: flat_data})
                 df.dropna(axis=0, how="any", inplace=True)
+                category_index += df.shape[0]
+
+                # Add the data to DL
                 dl.add_atoms(df)
             else:
                 # logger.debug("Did not understand data category.. passing")
