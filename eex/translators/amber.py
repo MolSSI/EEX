@@ -81,8 +81,8 @@ _atom_property_names = {"ATOM_NAME" : "atom_name",
                         "MASS": "mass",
                         "ATOM_TYPE_INDEX": "atom_type",
                         "ATOMIC_NUMBER": "atomic_number",
-                        "AMBER_ATOM_TYPE": "atom_type_name",
-                        "RADII" : "implicit_solvent_radius",
+                        # "AMBER_ATOM_TYPE": "atom_type_name",
+                        # "RADII" : "implicit_solvent_radius",
                         }
 
 def _parse_format(string):

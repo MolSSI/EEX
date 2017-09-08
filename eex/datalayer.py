@@ -8,21 +8,7 @@ import tables
 import collections
 
 from . import filelayer
-
-# Valid Atom Properties
-_valid_atom_properties = {
-    "molecule_index": ["molecule_index"],
-    "atom_name": ["atom_name"],
-    "atom_type": ["atom_type"],
-    "atom_type_name": ["atom_type_name"],  # Added because amber uses both an "atom_type" (integer) and "amber_atom_type" (string)
-    "charge": ["charge"],
-    "XYZ": ["X", "Y", "Z"],
-    "atomic_number": ["atomic_number"],
-    "mass": ["mass"],
-    "residue_index": ["residue_index"],
-    "residue_name": ["residue_name"],
-    "implicit_solvent_radius": ["implicit_solvent_radius"], # Amber radii section - used for implicit solvent calculations
-}
+from . import fields
 
 
 class DataLayer(object):
@@ -102,19 +88,21 @@ class DataLayer(object):
         dl.add_atom(tmp_df)
         """
 
+        apc_dict = fields.atom_property_to_column
+
         # Our index name
         index = "atom_index"
-        if property_name and (property_name not in list(_valid_atom_properties)):
+        if property_name and (property_name not in list(apc_dict)):
             raise KeyError("DataLayer:add_atoms: Property name '%s' not recognized." % property_name)
 
         # Parse list and DataFrame object and check validity
         if isinstance(atom_df, (list, tuple)):
             if property_name is None:
                 raise KeyError("DataLayer:add_atoms: If data type is list, 'property_name' must be set.")
-            if len(atom_df) != (len(_valid_atom_properties[property_name]) + 1):
+            if len(atom_df) != (len(apc_dict[property_name]) + 1):
                 raise KeyError("DataLayer:add_atoms: Property name '%s' not recognized." % property_name)
 
-            atom_df = pd.DataFrame([atom_df], columns=[index] + _valid_atom_properties[property_name])
+            atom_df = pd.DataFrame([atom_df], columns=[index] + apc_dict[property_name])
             atom_df.set_index(index, drop=True, inplace=True)
 
         elif isinstance(atom_df, pd.DataFrame):
@@ -127,18 +115,20 @@ class DataLayer(object):
 
         # Add a single property
         if property_name:
-            self.store.add_table(property_name, atom_df[_valid_atom_properties[property_name]])
+            self.store.add_table(property_name, atom_df[apc_dict[property_name]])
         # Try to add all possible properties
         else:
             set_cols = set(atom_df.columns)
             found_one = False
-            for k, v in _valid_atom_properties.items():
+            for k, v in apc_dict.items():
                 # Check if v is in the set_cols (set logic)
                 if set(v) <= set_cols:
                     self.store.add_table(k, atom_df[v])
                     found_one = True
             if not found_one:
-                raise Exception("DataLayer:add_atom: No data was added as no key was matched.")
+                raise Exception(
+                    "DataLayer:add_atom: No data was added as no key was matched from input columns:\n%s" %
+                    (" " * 11 + str(atom_df.columns)))
 
         return True
 
@@ -159,13 +149,15 @@ class DataLayer(object):
 
         """
 
+        valid_properties = list(fields.atom_property_to_column)
+
         # Our index name
         index = "atom_index"
         if not isinstance(properties, (tuple, list)):
             properties = [properties]
 
-        if not set(properties) <= set(list(_valid_atom_properties)):
-            invalid_props = set(properties) - set(list(_valid_atom_properties))
+        if not set(properties) <= set(list(valid_properties)):
+            invalid_props = set(properties) - set(list(valid_properties))
             raise KeyError("DataLayer:add_atoms: Property name(s) '%s' not recognized." % str(list(invalid_props)))
 
         df_data = []
