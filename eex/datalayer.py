@@ -126,9 +126,8 @@ class DataLayer(object):
                     self.store.add_table(k, atom_df[v])
                     found_one = True
             if not found_one:
-                raise Exception(
-                    "DataLayer:add_atom: No data was added as no key was matched from input columns:\n%s" %
-                    (" " * 11 + str(atom_df.columns)))
+                raise Exception("DataLayer:add_atom: No data was added as no key was matched from input columns:\n%s" %
+                                (" " * 11 + str(atom_df.columns)))
 
         return True
 
@@ -165,6 +164,11 @@ class DataLayer(object):
             df_data.append(self.store.read_table(prop))
 
         return pd.concat(df_data, axis=1)
+
+    def add_term(self, term):
+        """
+        Adds a n-body energy expression to the DataLayer object.
+        """
 
     def add_bonds(self, bonds):
         """
@@ -237,3 +241,34 @@ class DataLayer(object):
             raise KeyError("DataLayer:call_by_string: does not have method %s." % args[0])
 
         return function(*args[1:], **kwargs)
+
+    def add_other(self, key, df):
+        """
+        Adds arbitrary data to the DataLayer object. This data is effectively private and will not be used by any part
+        of EEX.
+
+        Parameters
+        ----------
+        key : str
+            The key to store the data under.
+        df : pd.DataFrame
+            Adds a DataFrame containing data
+
+        Returns
+        -------
+        return : bool
+            Returns a boolean value if the operations was successful or not
+        """
+
+        key = "other-" + key
+        self.store.add_table(key, df)
+
+        return True
+
+    def get_other(self, key):
+        """
+        Obtains other information from the DataLayer object.
+        """
+
+        key = "other-" + key
+        return self.store.read_table(key)

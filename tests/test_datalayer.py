@@ -7,6 +7,10 @@ import pytest
 import pandas as pd
 import numpy as np
 
+# Set the Seed
+np.random.seed(0)
+
+# Any parameters to loop over
 _backend_list = ["HDF5", "Memory"]
 
 
@@ -34,13 +38,22 @@ def test_df_bonds(backend):
 
     tmp_df = _build_atom_df(10)
 
+    # Add a random DataFrame with name "atoms" to check interference with "add_atoms"
+    rand_df = pd.DataFrame(np.random.rand(4, 4))
+    dl.add_other("atoms", rand_df)
+
     dl.add_atoms(tmp_df.loc[:5])
     dl.add_atoms(tmp_df.loc[5:])
 
     dl_df = dl.get_atoms(["molecule_index", "atom_type", "charge", "XYZ"])
     dl_df = dl_df.reset_index()
 
+    # Compare DL df
     tmp_df.equals(dl_df)
+
+    # Compare rand DF
+    dl_rand_df = dl.get_other("atoms")
+    rand_df.equals(dl_rand_df)
 
 
 @pytest.mark.parametrize("backend", _backend_list)
