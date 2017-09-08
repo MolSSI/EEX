@@ -84,6 +84,7 @@ _atom_property_names = {"ATOM_NAME" : "atom_name",
                         # "AMBER_ATOM_TYPE": "atom_type_name",
                         # "RADII" : "implicit_solvent_radius",
                         }
+_other_store_names = ["RESIDUE_LABEL", "RESIDUE_POINTER"]
 
 def _parse_format(string):
     """
@@ -254,6 +255,21 @@ def read_amber_file(dl, filename, blocksize=5000):
 
                 # Add the data to DL
                 dl.add_atoms(df)
+            elif current_data_category in list(_other_store_names):
+                # Reorganize the data 2D -> 1D packing
+                flat_data = data.values.flatten()
+                index = np.arange(category_index, flat_data.shape[0] + category_index)
+                dl_col_name = current_data_category
+
+                # Build and curate the data
+                df = pd.DataFrame({"res_index": index, dl_col_name: flat_data})
+                df.set_index("res_index", inplace=True)
+                df.dropna(axis=0, how="any", inplace=True)
+                category_index += df.shape[0]
+
+                # Add the data to DL
+                dl.add_other(current_data_category, df)
+
             else:
                 # logger.debug("Did not understand data category.. passing")
                 pass
@@ -298,6 +314,26 @@ def read_amber_file(dl, filename, blocksize=5000):
         current_data_type = _parse_format(format_line)
         # break
         # raise Exception("")
+
+
+    ### Handle any data we added to the other columns
+
+    # Expand residue values
+    res_df = dl.get_other(_other_store_names)
+
+    sizes = np.diff(res_df["RESIDUE_POINTER"])
+    last_size = sizes_dict["NATOM"] - res_df["RESIDUE_POINTER"].iloc[-1] + 1
+    sizes = np.concatenate((sizes, [last_size])).astype(np.int)
+
+    res_df["residue_index"] = np.arange(0, res_df.shape[0])
+    res_df_cols = list(res_df.columns)
+    res_df = pd.DataFrame({"residue_index": np.repeat(res_df["residue_index"].values, sizes, axis=0),
+                           "residue_name": np.repeat(res_df["RESIDUE_LABEL"].values.astype('str'), sizes, axis=0)})
+
+    res_df.index.name = "atom_index"
+    dl.add_atoms(res_df)
+
+
     # raise Exception("")
     # data = {}
     # data["sizes"] = sizes_dict

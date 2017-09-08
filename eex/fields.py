@@ -37,21 +37,24 @@ _valid_atom_properties = {
         "description": "The charge of a given atom.",
         "unique": False,
         "dtype": int,
-        "units": "coulomb"
+        "units": "coulomb",
+        "tol": 1.e-8,
     },
     "XYZ": {
         "required_columns": ["X", "Y", "Z"],
         "description": "The XYZ coordinates of a given atom.",
         "unique": False,
         "dtype": float,
-        "units": "nanometers"
+        "units": "nanometers",
+        "tol": 1.e-8,
     },
     "mass": {
         "required_columns": ["mass"],
         "description": "The mass of the atom.",
         "unique": False,
         "dtype": float,
-        "units": "AMU"
+        "units": "AMU",
+        "tol": 1.e-8,
     },
     "residue_index": {
         "required_columns": ["residue_index"],

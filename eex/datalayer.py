@@ -43,6 +43,9 @@ class DataLayer(object):
         else:
             raise KeyError("DataLayer: Backend of type '%s' not recognized." % backend)
 
+        # Setup empty parameters dictionary
+        self.parameters = {}
+
     def _validate_table_input(self, data, needed_cols):
         if isinstance(data, (list, tuple)):
             if len(data) != len(needed_cols):
@@ -56,7 +59,21 @@ class DataLayer(object):
 
         return data
 
-    def add_atoms(self, atom_df, property_name=None):
+    def _assign_unique_params(self, df, parameter_name):
+
+        field_data = fields._valid_atom_properties[parameter_name]
+        if parameter_name not in list(self.parameters):
+            self.parameters[parameter_name] = {"counter": 0, "uvals": []}
+
+        saved_vals = self.parameters[parameter_name]["uvals"]
+        uvals, uidx = np.unique(df[parameter_name], return_index=True)
+        umask = np.in1d(uvals, saved_vals)
+
+        # if
+
+        return indexed_df
+
+    def add_atoms(self, atom_df, property_name=None, by_value=False):
         """
         Adds atom information to the DataLayer object.
 
@@ -64,8 +81,10 @@ class DataLayer(object):
         ----------
         atom_df : {DataFrame, list, tuple}
             The atom data to add to the object.
-        property_name: {list, str}, optional
+        property_name : {list, str}, optional
             The atom property that is added, only necessary if a list is passed in.
+        by_value : bool
+            If data is passed by_value the DL automatically hashes the parameters to unique components.
 
         Returns
         -------
@@ -108,8 +127,9 @@ class DataLayer(object):
         elif isinstance(atom_df, pd.DataFrame):
             if index in atom_df.columns:
                 atom_df = atom_df.set_index(index, drop=True)
-            else:
-                atom_df.index.name = index
+
+            if atom_df.index.name != index:
+                raise KeyError("DataLayer:add_atoms: DF index must be the `atom_index`.")
         else:
             raise KeyError("DataLayer:add_atoms: Data type '%s' not understood." % type(atoms_df))
 
@@ -131,7 +151,7 @@ class DataLayer(object):
 
         return True
 
-    def get_atoms(self, properties):
+    def get_atoms(self, properties, by_value=False):
         """
         Obtains atom information to the DataLayer object.
 
@@ -260,7 +280,7 @@ class DataLayer(object):
             Returns a boolean value if the operations was successful or not
         """
 
-        key = "other-" + key
+        key = "other_" + key
         self.store.add_table(key, df)
 
         return True
@@ -270,5 +290,12 @@ class DataLayer(object):
         Obtains other information from the DataLayer object.
         """
 
-        key = "other-" + key
-        return self.store.read_table(key)
+        if not isinstance(key, (tuple, list)):
+            key = [key]
+
+        tmp_data = []
+        for k in key:
+            k = "other_" + k
+            tmp_data.append(self.store.read_table(k))
+
+        return pd.concat(tmp_data, axis=1)
