@@ -223,7 +223,13 @@ class DataLayer(object):
 
         df_data = []
         for prop in properties:
-            df_data.append(self.store.read_table(prop))
+            tmp = self.store.read_table(prop)
+            if by_value:
+                print(tmp.head())
+                print(prop)
+                tmp = self._build_value_params(tmp, prop)
+            df_data.append(tmp)
+            # df_data.append(self.store.read_table(prop))
 
         return pd.concat(df_data, axis=1)
 
