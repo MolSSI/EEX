@@ -254,7 +254,12 @@ def read_amber_file(dl, filename, blocksize=5000):
                 category_index += df.shape[0]
 
                 # Add the data to DL
-                dl.add_atoms(df)
+                # if current_data_category.lower() == "charge":
+                #     print("Here!")
+                #     dl.add_atoms(df, by_value=True)
+                #     raise Exception("")
+                # else:
+                dl.add_atoms(df, by_value=True)
             elif current_data_category in list(_other_store_names):
                 # Reorganize the data 2D -> 1D packing
                 flat_data = data.values.flatten()

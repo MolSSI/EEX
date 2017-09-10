@@ -27,7 +27,7 @@ def test_amber_read():
     #    assert data["dimensions"]["xhi"] == 12.362
     #
     #    # Check Atoms
-    atoms = dl.get_atoms(["atom_name", "charge", "atomic_number", "mass", "residue_name", "residue_index"])
+    atoms = dl.get_atoms(["atom_name", "charge", "atomic_number", "mass", "residue_name", "residue_index"], by_value=True)
     assert atoms.shape[0] == 648
     assert set(np.unique(atoms["atom_name"])) == set(["H1", "H2", "O"])
     assert np.allclose(np.unique(atoms["charge"]), [-1.54452215E+01, 7.72261074E+00])

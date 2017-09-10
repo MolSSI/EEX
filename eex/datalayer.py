@@ -4,6 +4,7 @@ Contains the DataLayer class (name in progress) which takes and reads various pe
 
 import os
 import pandas as pd
+import numpy as np
 import tables
 import collections
 
@@ -59,19 +60,52 @@ class DataLayer(object):
 
         return data
 
-    def _assign_unique_params(self, df, parameter_name):
+    def _set_unique_params(self, df, parameter_name):
 
         field_data = fields._valid_atom_properties[parameter_name]
         if parameter_name not in list(self.parameters):
-            self.parameters[parameter_name] = {"counter": 0, "uvals": []}
+            self.parameters[parameter_name] = {"counter": -1, "uvals": {}}
 
-        saved_vals = self.parameters[parameter_name]["uvals"]
-        uvals, uidx = np.unique(df[parameter_name], return_index=True)
-        umask = np.in1d(uvals, saved_vals)
+        cols = field_data["required_columns"]
 
-        # if
+        if field_data["dtype"] == float:
+            df = df[cols].round(field_data["tol"])
 
-        return indexed_df
+        ret_df = pd.DataFrame(index=df.index)
+        ret_df[parameter_name] = 0
+        param_dict = self.parameters[parameter_name]
+
+        # For each unique value
+        for gb_idx, udf in df.groupby(cols):
+
+            # Update dictionary if necessary
+            if not gb_idx in list(param_dict["uvals"]):
+                param_dict["counter"] += 1
+
+                # Bidirectional dictionary
+                param_dict["uvals"][gb_idx] = param_dict["counter"]
+                param_dict["uvals"][param_dict["counter"]] = gb_idx
+
+            # Grab the unique and set
+            uidx = param_dict["uvals"][gb_idx]
+            ret_df.loc[udf.index, parameter_name] = uidx
+
+        return ret_df
+
+    def _build_value_params(self, df, parameter_name):
+        # adf
+        field_data = fields._valid_atom_properties[parameter_name]
+        param_dict = self.parameters[parameter_name]
+
+        cols = field_data["required_columns"]
+
+        ret_df = pd.DataFrame(index=df.index)
+        ret_df[parameter_name] = 0.0
+
+        for gb_idx, udf in df.groupby(cols):
+            ret_df.loc[udf.index, parameter_name] = param_dict["uvals"][gb_idx]
+
+        return ret_df
 
     def add_atoms(self, atom_df, property_name=None, by_value=False):
         """
@@ -135,7 +169,11 @@ class DataLayer(object):
 
         # Add a single property
         if property_name:
-            self.store.add_table(property_name, atom_df[apc_dict[property_name]])
+            if by_value:
+                tmp_df = self._set_unique_params(atom_df, property_name)
+            else:
+                tmp_df = atom_df[apc_dict[property_name]]
+            self.store.add_table(property_name, tmp_df)
         # Try to add all possible properties
         else:
             set_cols = set(atom_df.columns)
@@ -143,7 +181,11 @@ class DataLayer(object):
             for k, v in apc_dict.items():
                 # Check if v is in the set_cols (set logic)
                 if set(v) <= set_cols:
-                    self.store.add_table(k, atom_df[v])
+                    if by_value:
+                        tmp_df = self._set_unique_params(atom_df, k)
+                    else:
+                        tmp_df = atom_df[v]
+                    self.store.add_table(k, tmp_df)
                     found_one = True
             if not found_one:
                 raise Exception("DataLayer:add_atom: No data was added as no key was matched from input columns:\n%s" %

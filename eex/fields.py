@@ -38,7 +38,7 @@ _valid_atom_properties = {
         "unique": False,
         "dtype": int,
         "units": "coulomb",
-        "tol": 1.e-8,
+        "tol": 8,
     },
     "XYZ": {
         "required_columns": ["X", "Y", "Z"],
@@ -46,7 +46,7 @@ _valid_atom_properties = {
         "unique": False,
         "dtype": float,
         "units": "nanometers",
-        "tol": 1.e-8,
+        "tol": 8,
     },
     "mass": {
         "required_columns": ["mass"],
@@ -54,7 +54,7 @@ _valid_atom_properties = {
         "unique": False,
         "dtype": float,
         "units": "AMU",
-        "tol": 1.e-8,
+        "tol": 8,
     },
     "residue_index": {
         "required_columns": ["residue_index"],
