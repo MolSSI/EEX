@@ -61,6 +61,9 @@ class DataLayer(object):
         return data
 
     def _set_unique_params(self, df, parameter_name):
+        """
+        Hashes the input parameters to build in internal index of unique values.
+        """
 
         field_data = fields._valid_atom_properties[parameter_name]
         if parameter_name not in list(self.parameters):
@@ -93,6 +96,9 @@ class DataLayer(object):
         return ret_df
 
     def _build_value_params(self, df, parameter_name):
+        """
+        Expands the unique parameters using the built in parameter_name dictionary.
+        """
         # adf
         field_data = fields._valid_atom_properties[parameter_name]
         param_dict = self.parameters[parameter_name]
