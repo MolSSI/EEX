@@ -336,7 +336,7 @@ def read_amber_file(dl, filename, blocksize=5000):
                            "residue_name": np.repeat(res_df["RESIDUE_LABEL"].values.astype('str'), sizes, axis=0)})
 
     res_df.index.name = "atom_index"
-    dl.add_atoms(res_df)
+    dl.add_atoms(res_df, by_value=True)
 
 
     # raise Exception("")

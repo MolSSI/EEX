@@ -12,6 +12,8 @@ from . import filelayer
 from . import fields
 
 
+APC_DICT = fields.atom_property_to_column
+
 class DataLayer(object):
     def __init__(self, name, store_location=None, save_data=False, backend="HDF5"):
         """
@@ -99,7 +101,6 @@ class DataLayer(object):
         """
         Expands the unique parameters using the built in parameter_name dictionary.
         """
-        # adf
         field_data = fields._valid_atom_properties[parameter_name]
         param_dict = self.parameters[parameter_name]
 
@@ -112,6 +113,23 @@ class DataLayer(object):
             ret_df.loc[udf.index, parameter_name] = param_dict["uvals"][gb_idx]
 
         return ret_df
+
+    def _store_table(self, table_name, df, parameter_name, by_value):
+
+        if by_value and not (fields._valid_atom_properties[parameter_name]["unique"]):
+            tmp_df = self._set_unique_params(df, parameter_name)
+        else:
+            tmp_df = df[APC_DICT[parameter_name]]
+
+        return self.store.add_table(table_name, tmp_df)
+
+    def _get_table(self, table_name, parameter_name, by_value):
+
+        tmp = self.store.read_table(table_name)
+        if by_value and not (fields._valid_atom_properties[parameter_name]["unique"]):
+            tmp = self._build_value_params(tmp, parameter_name)
+        return tmp
+
 
     def add_atoms(self, atom_df, property_name=None, by_value=False):
         """
@@ -147,21 +165,19 @@ class DataLayer(object):
         dl.add_atom(tmp_df)
         """
 
-        apc_dict = fields.atom_property_to_column
-
         # Our index name
         index = "atom_index"
-        if property_name and (property_name not in list(apc_dict)):
+        if property_name and (property_name not in list(APC_DICT)):
             raise KeyError("DataLayer:add_atoms: Property name '%s' not recognized." % property_name)
 
         # Parse list and DataFrame object and check validity
         if isinstance(atom_df, (list, tuple)):
             if property_name is None:
                 raise KeyError("DataLayer:add_atoms: If data type is list, 'property_name' must be set.")
-            if len(atom_df) != (len(apc_dict[property_name]) + 1):
+            if len(atom_df) != (len(APC_DICT[property_name]) + 1):
                 raise KeyError("DataLayer:add_atoms: Property name '%s' not recognized." % property_name)
 
-            atom_df = pd.DataFrame([atom_df], columns=[index] + apc_dict[property_name])
+            atom_df = pd.DataFrame([atom_df], columns=[index] + APC_DICT[property_name])
             atom_df.set_index(index, drop=True, inplace=True)
 
         elif isinstance(atom_df, pd.DataFrame):
@@ -175,23 +191,15 @@ class DataLayer(object):
 
         # Add a single property
         if property_name:
-            if by_value:
-                tmp_df = self._set_unique_params(atom_df, property_name)
-            else:
-                tmp_df = atom_df[apc_dict[property_name]]
-            self.store.add_table(property_name, tmp_df)
+            self._store_table(property_name, atom_df, property_name, by_value)
         # Try to add all possible properties
         else:
             set_cols = set(atom_df.columns)
             found_one = False
-            for k, v in apc_dict.items():
+            for k, v in APC_DICT.items():
                 # Check if v is in the set_cols (set logic)
                 if set(v) <= set_cols:
-                    if by_value:
-                        tmp_df = self._set_unique_params(atom_df, k)
-                    else:
-                        tmp_df = atom_df[v]
-                    self.store.add_table(k, tmp_df)
+                    self._store_table(k, atom_df, k, by_value)
                     found_one = True
             if not found_one:
                 raise Exception("DataLayer:add_atom: No data was added as no key was matched from input columns:\n%s" %
@@ -229,11 +237,12 @@ class DataLayer(object):
 
         df_data = []
         for prop in properties:
-            tmp = self.store.read_table(prop)
-            if by_value:
-                print(tmp.head())
-                print(prop)
-                tmp = self._build_value_params(tmp, prop)
+            # tmp = self.store.read_table(prop)
+            # if by_value:
+            #     print(tmp.head())
+            #     print(prop)
+            #     tmp = self._build_value_params(tmp, prop)
+            tmp = self._get_table(prop, prop, by_value)
             df_data.append(tmp)
             # df_data.append(self.store.read_table(prop))
 
