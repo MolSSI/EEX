@@ -158,7 +158,12 @@ def read_amber_file(dl, filename, blocksize=5000):
             parsed_sizes = []
             for shift in range(4):
                 dline = header_data[num + 2 + shift]
-                dline = [dtype(dline[i:i + width]) for i in range(0, len(dline), width)]
+                # Make sure the leading white space is not being cut off each line
+                if shift<3:
+                    dline = dline.rjust(80)
+                print("Dline", dline)
+                dline = [dtype(dline[i:(i + width)]) for i in range(0, len(dline), width)]
+                print("Dline2", dline)
                 parsed_sizes.extend(dline)
 
             if len(parsed_sizes) != len(_size_keys):
