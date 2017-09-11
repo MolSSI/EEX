@@ -79,7 +79,10 @@ class HDFStore(object):
 
         self.store.close()
         if not self.save_data:
-            os.unlink(self.store_filename)
+            try:
+                os.unlink(self.store_filename)
+            except IOError:
+                pass
 
 
 class MemoryStore(object):

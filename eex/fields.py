@@ -43,7 +43,7 @@ _valid_atom_properties = {
     "XYZ": {
         "required_columns": ["X", "Y", "Z"],
         "description": "The XYZ coordinates of a given atom.",
-        "unique": False,
+        "unique": True,
         "dtype": float,
         "units": "nanometers",
         "tol": 8,
