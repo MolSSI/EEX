@@ -69,7 +69,7 @@ class DataLayer(object):
 
         field_data = fields._valid_atom_properties[parameter_name]
         if parameter_name not in list(self.parameters):
-            self.parameters[parameter_name] = {"counter": -1, "uvals": {}}
+            self.parameters[parameter_name] = {"counter": -1, "uvals": {}, "inv_uvals": {}}
 
         cols = field_data["required_columns"]
 
@@ -80,6 +80,7 @@ class DataLayer(object):
         ret_df[parameter_name] = 0
         param_dict = self.parameters[parameter_name]
 
+
         # For each unique value
         for gb_idx, udf in df.groupby(cols):
 
@@ -89,7 +90,7 @@ class DataLayer(object):
 
                 # Bidirectional dictionary
                 param_dict["uvals"][gb_idx] = param_dict["counter"]
-                param_dict["uvals"][param_dict["counter"]] = gb_idx
+                param_dict["inv_uvals"][param_dict["counter"]] = gb_idx
 
             # Grab the unique and set
             uidx = param_dict["uvals"][gb_idx]
@@ -110,7 +111,7 @@ class DataLayer(object):
         ret_df[parameter_name] = 0.0
 
         for gb_idx, udf in df.groupby(cols):
-            ret_df.loc[udf.index, parameter_name] = param_dict["uvals"][gb_idx]
+            ret_df.loc[udf.index, parameter_name] = param_dict["inv_uvals"][gb_idx]
 
         return ret_df
 
