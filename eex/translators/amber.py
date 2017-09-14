@@ -130,6 +130,7 @@ def _parse_format(string):
 def read_amber_file(dl, filename, blocksize=5000):
 
     ### First we need to figure out system dimensions
+    global df
     max_rows = 100  # How many lines do we attempt to search?
     with open(filename, "r") as infile:
         header_data = [next(infile).strip() for x in range(max_rows)]
@@ -161,9 +162,7 @@ def read_amber_file(dl, filename, blocksize=5000):
                 # Make sure the leading white space is not being cut off each line
                 if shift<3:
                     dline = dline.rjust(80)
-                print("Dline", dline)
                 dline = [dtype(dline[i:(i + width)]) for i in range(0, len(dline), width)]
-                print("Dline2", dline)
                 parsed_sizes.extend(dline)
 
             if len(parsed_sizes) != len(_size_keys):
@@ -212,9 +211,6 @@ def read_amber_file(dl, filename, blocksize=5000):
     while True:
 
         # Type out the sizes and types
-        # print(current_data_category, end=" ")
-        # print(current_data_type, end="")
-        # print(label_sizes[current_data_category], end="")
         nsize = label_sizes[current_data_category]
         nrows = int(math.ceil(nsize / float(current_data_type[0])))
         dtypes = [current_data_type[1]] * current_data_type[0]
@@ -270,6 +266,9 @@ def read_amber_file(dl, filename, blocksize=5000):
                 df = pd.DataFrame({"res_index": index, dl_col_name: flat_data})
                 df.set_index("res_index", inplace=True)
                 df.dropna(axis=0, how="any", inplace=True)
+                # Force residue pointer to be type int
+                if current_data_category == "RESIDUE_POINTER":
+                    df = df.astype(int)
                 category_index += df.shape[0]
 
                 # Add the data to DL
