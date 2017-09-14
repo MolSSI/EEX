@@ -76,6 +76,24 @@ _data_labels = {
     # "POLARIZABILITY": ["NATOM if IPOL else 0"]
 }
 
+_data_units = {
+    """
+    Gives units of sections with units - for conversions NYI
+
+    """
+
+    "CHARGE" : ["18.2223*e"], # Internal units
+    "MASS" : ["g mol^-1"],
+    "BOND_FORCE_CONSTANT" : ["kcal mol^-1 Angstrom^-2"],
+    "BOND_EQUIL_VALUE" : ["Angstrom"],
+    "ANGLE_FORCE_CONSTANT" : ["kcal mol^-2 radian^2"],
+    "ANGLE_EQUIL_VALUE" : ["radian"],
+    "DIHEDRAL_FORCE_CONSTANT" : ["kcal mol^-1"],
+    "DIHEDRAL_PHASE" : ["radian"],
+    "LENNARD_JONES_ACOEFF" : ["kcal mol^-12"],
+    "LENNARD_JONES_BCOEFF" : ["kcal mol^-6"],
+}
+
 _atom_property_names = {"ATOM_NAME" : "atom_name",
                         "CHARGE": "charge",
                         "MASS": "mass",
