@@ -41,61 +41,6 @@ _data_labels = {
 _data_labels_units = {
     "Masses": "mass",
     "Atoms": ["N/A", "N/A", "atom_type", "charge", "distance", "distance", "distance"],
-
-}
-
-
-# Dictionaries for coeff format and units - http://lammps.sandia.gov/doc/Section_commands.html
-# NYI
-_bond_styles = {
-    "none" : {},
-    "fene": {
-        "bond_coeff" : {}
-    },
-    "nonlinear": {},
-    "zero": {},
-    "quartic": {},
-    "hybrid": {},
-    "harmonic": {},
-    "table": {},
-    "class2": {},
-    "morse":{},
-}
-
-_angle_styles = {
-    "none": {},
-    "class2": {},
-    "cosine/squared": {},
-    "zero": {},
-    "cosine": {},
-    "harmonic": {},
-    "hybrid": {},
-    "cosine/delta": {},
-    "charmm": {},
-    "cosine/periodic": {},
-}
-
-_dihedral_styles = {
-    "none": {},
-    "charmmfsw": {},
-    "multi/harmonic": {},
-    "zero": {},
-    "class2": {},
-    "opls": {},
-    "hybrid": {},
-    "harmonic": {},
-    "charmm": {},
-    "helix": {}
-}
-
-_improper_styles = {
-    "none": {},
-    "cvff": {},
-    "zero": {},
-    "harmonic": {},
-    "hybrid": {},
-    "umbrella": {},
-    "class2": {},
 }
 
 _full_labels = _coeff_labels.copy()
