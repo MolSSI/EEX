@@ -36,43 +36,66 @@ _data_labels = {
     "Impropers": ("impropers", "NYI"),
 }
 
-# Units for data labels based on LAMMPS unit styles (http://lammps.sandia.gov/doc/units.html)
+# Units for data labels
 # Not sure how we'll implement yet - just getting information in file
-_data_label_unit_style = {
+_data_labels_units = {
+    "Masses": "mass",
+    "Atoms": ["N/A", "N/A", "atom_type", "charge", "distance", "distance", "distance"]),
 
-    "lj" : {},
-    "real" : {
-        "Masses" : "gram mol^-1",
-        "Atoms" : ["N/A", "N/A", "N/A", "e", "Angstrom", "Angstrom", "Angstrom"],
-    },
-    "metal" : {
-        "Masses" : "gram mol^-1",
-        "Atoms" : ["N/A", "N/A", "N/A", "e", "Angstrom", "Angstrom", "Angstrom"],
+}
 
-    },
-    "si" : {
-        "Masses" : "kilogram",
-        "Atoms": ["N/A", "N/A", "N/A", "Coulomb", "meter", "meter", "meter"],
-    },
-    "cgs" : {
-        "Masses" : "gram",
-        "Atoms": ["N/A", "N/A", "N/A", "esu", "centimeter", "centimenter", "centimeter"],
 
+# Dictionaries for coeff format and units - http://lammps.sandia.gov/doc/Section_commands.html
+# NYI
+_bond_styles = {
+    "none" : {},
+    "fene": {
+        "bond_coeff" : {}
     },
-    "electron" : {
-        "Masses": "AMU",
-        "Atoms": ["N/A", "N/A", "N/A", "e", "Bohr", "Bohr", "Bohr"],
+    "nonlinear": {},
+    "zero": {},
+    "quartic": {},
+    "hybrid": {},
+    "harmonic": {},
+    "table": {},
+    "class2": {},
+    "morse":{},
+}
 
-    },
-    "micro" : {
-        "Masses": "picogram",
-        "Atoms": ["N/A", "N/A", "N/A", "picocoulomb", "micrometer", "micrometer", "micrometer"],
-    },
-    "nano" : {
-        "Masses": "attogram",
-        "Atoms": ["N/A", "N/A", "N/A", "e", "nanometer", "nanometer", "nanometer"]
+_angle_styles = {
+    "none": {},
+    "class2": {},
+    "cosine/squared": {},
+    "zero": {},
+    "cosine": {},
+    "harmonic": {},
+    "hybrid": {},
+    "cosine/delta": {},
+    "charmm": {},
+    "cosine/periodic": {},
+}
 
-    },
+_dihedral_styles = {
+    "none": {},
+    "charmmfsw": {},
+    "multi/harmonic": {},
+    "zero": {},
+    "class2": {},
+    "opls": {},
+    "hybrid": {},
+    "harmonic": {},
+    "charmm": {},
+    "helix": {}
+}
+
+_improper_styles = {
+    "none": {},
+    "cvff": {},
+    "zero": {},
+    "harmonic": {},
+    "hybrid": {},
+    "umbrella": {},
+    "class2": {},
 }
 
 _full_labels = _coeff_labels.copy()
