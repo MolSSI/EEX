@@ -37,7 +37,7 @@ _valid_atom_properties = {
         "description": "The charge of a given atom.",
         "unique": False,
         "dtype": int,
-        "units": "coulomb",
+        "units": "e",  # Charges are typically stored in units of e (elementary charge)
         "tol": 8,
     },
     "XYZ": {
@@ -65,7 +65,7 @@ _valid_atom_properties = {
     },
     "residue_name": {
         "required_columns": ["residue_name"],
-        "description": "The name of the residue for a given atom (?).",
+        "description": "The name of the associated residue of a given atom.",
         "unique": False,
         "dtype": int,
         "units": "N/A"
