@@ -148,7 +148,6 @@ def _parse_format(string):
 def read_amber_file(dl, filename, blocksize=5000):
 
     ### First we need to figure out system dimensions
-    global df
     max_rows = 100  # How many lines do we attempt to search?
     with open(filename, "r") as infile:
         header_data = [next(infile).strip() for x in range(max_rows)]
