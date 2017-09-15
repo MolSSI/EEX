@@ -72,7 +72,7 @@ _units_style = {
         "charge" : "statcoulomb",
         "dipole" : "statcoulomb centimeter",
         "electric field" : "statvolt cm^-1",
-        "density" : "gram cm^-dim,
+        "density" : "gram cm^-dim",
     },
 
     "electron": {
