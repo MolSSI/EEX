@@ -19,7 +19,6 @@ _size_keys = [
 
 # Coeff labels to look for and their size
 _coeff_labels = {
-    "Masses": ("atom types", "NYI"),
     "Pair Coeffs": ("atom types", "NYI"),
     "Bond Coeffs": ("bond types", "NYI"),
     "Angle Coeffs": ("angle types", "NYI"),
@@ -29,11 +28,51 @@ _coeff_labels = {
 
 # Data labels to look for their size
 _data_labels = {
+    "Masses": ("atom types", "NYI"),
     "Atoms": ("atoms", "add_atoms", ["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"]),
     "Bonds": ("bonds", "add_bonds", ["bond_index", "bond_type", "atom1_index", "atom2_index"]),
     "Angles": ("angles", "add_angles", ["bond_index", "angle_type", "atom1_index", "atom2_index", "atom3_index"]),
     "Dihedrals": ("dihedrals", "NYI"),
     "Impropers": ("impropers", "NYI"),
+}
+
+# Units for data labels based on LAMMPS unit styles (http://lammps.sandia.gov/doc/units.html)
+# Not sure how we'll implement yet - just getting information in file
+_data_label_unit_style = {
+
+    "lj" : {},
+    "real" : {
+        "Masses" : "gram mol^-1",
+        "Atoms" : ["N/A", "N/A", "N/A", "e", "Angstrom", "Angstrom", "Angstrom"],
+    },
+    "metal" : {
+        "Masses" : "gram mol^-1",
+        "Atoms" : ["N/A", "N/A", "N/A", "e", "Angstrom", "Angstrom", "Angstrom"],
+
+    },
+    "si" : {
+        "Masses" : "kilogram",
+        "Atoms": ["N/A", "N/A", "N/A", "Coulomb", "meter", "meter", "meter"],
+    },
+    "cgs" : {
+        "Masses" : "gram",
+        "Atoms": ["N/A", "N/A", "N/A", "esu", "centimeter", "centimenter", "centimeter"],
+
+    },
+    "electron" : {
+        "Masses": "AMU",
+        "Atoms": ["N/A", "N/A", "N/A", "e", "Bohr", "Bohr", "Bohr"],
+
+    },
+    "micro" : {
+        "Masses": "picogram",
+        "Atoms": ["N/A", "N/A", "N/A", "picocoulomb", "micrometer", "micrometer", "micrometer"],
+    },
+    "nano" : {
+        "Masses": "attogram",
+        "Atoms": ["N/A", "N/A", "N/A", "e", "nanometer", "nanometer", "nanometer"]
+
+    },
 }
 
 _full_labels = _coeff_labels.copy()
