@@ -1,13 +1,13 @@
 # Dictionaries for coeff format and units - http://lammps.sandia.gov/doc/Section_commands.html
 # NYI
 _bond_styles = {
-    "none" : {},
+    "none": {},
 
     "fene": {
         "form": "-0.5*K*R0^2*ln(1-(r/R0)^2) + 4*epsilon((sigma/r)^12 - (sigma/r)^6)) + epsilon",
-        "variables": ["r",]
+        "variables": ["r"],
         "terms": ["K", "r0", "epsilon", "sigma"],
-        "K" : "energy distance^-2",
+        "K": "energy distance^-2",
         "R0": "distance",
         "epsilon": "energy",
         "sigma": "distance",
@@ -16,9 +16,9 @@ _bond_styles = {
     "nonlinear": {
         "form": "(epsilon*(r-r0)^2) / (lambda^2-(r-r0)^2)",
         "variables": ["r"],
-        "terms": ["epsilon", "r0", "lambda"]
-        "epsilon" : "energy",
-        "r0" : "distance",
+        "terms": ["epsilon", "r0", "lambda"],
+        "epsilon": "energy",
+        "r0": "distance",
         "lambda": "distance"
     },
 
@@ -46,29 +46,29 @@ _bond_styles = {
         "U0": "energy"
     },
 
-    "hybrid": {}, # Special case - allows for more than one bond type in a simulation
+    "hybrid": {},  # Special case - allows for more than one bond type in a simulation
 
     "harmonic": {
         "form": "K*(r-r0)^2",
         "variables": ["r"],
-        "terms": ["K","r0"],
-        "K" : "energy distance^-2",
-        "r0" : "distance"
+        "terms": ["K", "r0"],
+        "K": "energy distance^-2",
+        "r0": "distance"
     },
 
-    "table": {}, # Special case - creation of interpolation tables.
+    "table": {},  # Special case - creation of interpolation tables.
 
     "class2": {
         "form": "K2 * (r-r0)^2 + K3 * (r-r0)^3 + K4 * (r-r0)^4",
         "variables": ["r"],
-        "terms": ["R0", "K2", "K3", "K4"]
+        "terms": ["R0", "K2", "K3", "K4"],
         "R0": "distance",
         "K2": "energy distance^-2",
         "K3": "energy distance^-3",
         "K4": "energy distnace^-4",
     },
 
-    "morse":{
+    "morse": {
         "form": "D * (1 - e^(-alpha * (r-r0)))^2",
         "variables": ["r"],
         "terms": ["D", "alpha", "r0"],
@@ -85,7 +85,7 @@ _angle_styles = {
         "theta0": "degree",
         "K2": "energy radian^-2",
         "K3": "energy radian^-3",
-        "K4": "energy radian^-4,
+        "K4": "energy radian^-4",
     },
 
     "cosine/squared": {
@@ -107,7 +107,7 @@ _angle_styles = {
         "theta0": "degree"
     },
 
-    "hybrid": {}, # Special case - allows for more than one angle type in a simulation
+    "hybrid": {},  # Special case - allows for more than one angle type in a simulation
 
     "cosine/delta": {
         "terms": ["K", "theta0"],
@@ -115,7 +115,7 @@ _angle_styles = {
         "theta0": "degree"
     },
 
-    "table": {}
+    "table": {},
 
     "charmm": {
         "terms": ["K", "theta0", "K_ub", "r_ub"],
@@ -126,7 +126,7 @@ _angle_styles = {
     },
 
     "cosine/periodic": {
-        "terms": ["C", "B", "n"]
+        "terms": ["C", "B", "n"],
         "C": "energy",
         "B": "N/A",
         "n": "N/A"
@@ -139,9 +139,9 @@ _dihedral_styles = {
     "charmmfsw": {
         "terms": ["K", "n", "d", "weight_factor"],
         "K": "energy",
-        "n": "N/A", # must be type int, no units
-        "d": "degrees", # must be type int. Differs because units must be degrees regardless of units command ?
-        "weight_factor" : "N/A"
+        "n": "N/A",  # must be type int, no units
+        "d": "degrees",  # must be type int. Differs because units must be degrees regardless of units command ?
+        "weight_factor": "N/A"
     },
 
     "multi/harmonic": {
@@ -161,7 +161,7 @@ _dihedral_styles = {
     },
 
     "opls": {
-        "terms" : [""]
+        "terms": [""]
     },
     "hybrid": {},
     "harmonic": {},
