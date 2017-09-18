@@ -4,7 +4,7 @@ _bond_styles = {
     "none" : {},
 
     "fene": {
-        "form": "-0.5*K*R0^2*ln(1-(r/R0)^2 + 4*epsilon((sigma/r)^12 - (sigma/r)^6)) + epsilon",
+        "form": "-0.5*K*R0^2*ln(1-(r/R0)^2) + 4*epsilon((sigma/r)^12 - (sigma/r)^6)) + epsilon",
         "variables": ["r",]
         "terms": ["K", "r0", "epsilon", "sigma"],
         "K" : "energy distance^-2",
