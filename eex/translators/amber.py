@@ -102,7 +102,14 @@ _atom_property_names = {"ATOM_NAME" : "atom_name",
                         # "AMBER_ATOM_TYPE": "atom_type_name",
                         # "RADII" : "implicit_solvent_radius",
                         }
-_other_store_names = ["RESIDUE_LABEL", "RESIDUE_POINTER"]
+
+_residue_store_names = ["RESIDUE_LABEL", "RESIDUE_POINTER"]
+
+_interaction_store_names = ["BONDS_INC_HYDROGEN", "BONDS_WITHOUT_HYDROGEN" ]
+
+_forcefield_parameters = ["BOND_FORCE_CONSTANT", "BOND_EQUIL_VALUE", "ANGLE_FORCE_CONSTANT", "ANGLE_EQUIL_VALUE",
+                        "DIHEDRAL_FORCE_CONSTANT", "DIHEDRAL_PERIODICITY", "DIHEDRAL_PHASE", "LENNARD_JONES_ACOEFF",
+                          "LENNARD_JONES_BCOEFF", ]
 
 def _parse_format(string):
     """
@@ -143,6 +150,18 @@ def _parse_format(string):
         raise ValueError("AMBER: Type symbol '%s' not understood from line '%s'." % (ret[1], string))
 
     return ret
+
+def _data_flatten(data, column_name, category_index, store_name):
+    # Reorganize the data 2D -> 1D packing
+    flat_data = data.values.flatten()
+    index = np.arange(category_index, flat_data.shape[0] + category_index)
+    dl_col_name = column_name
+
+    # Build and curate the data
+    df = pd.DataFrame({store_name: index, dl_col_name: flat_data})
+    df.dropna(axis=0, how="any", inplace=True)
+
+    return df
 
 
 def read_amber_file(dl, filename, blocksize=5000):
@@ -261,28 +280,14 @@ def read_amber_file(dl, filename, blocksize=5000):
             # 1D atom properties
             if current_data_category in list(_atom_property_names):
 
-                # Reorganize the data 2D -> 1D packing
-                flat_data = data.values.flatten()
-                index = np.arange(category_index, flat_data.shape[0] + category_index)
-                dl_col_name = _atom_property_names[current_data_category]
-
-                # Build and curate the data
-                df = pd.DataFrame({"atom_index": index, dl_col_name: flat_data})
-                df.dropna(axis=0, how="any", inplace=True)
+                df = _data_flatten(data, _atom_property_names[current_data_category], category_index, "atom_index")
                 category_index += df.shape[0]
-
                 # Add the data to DL
                 dl.add_atoms(df, by_value=True)
-            elif current_data_category in list(_other_store_names):
-                # Reorganize the data 2D -> 1D packing
-                flat_data = data.values.flatten()
-                index = np.arange(category_index, flat_data.shape[0] + category_index)
-                dl_col_name = current_data_category
 
-                # Build and curate the data
-                df = pd.DataFrame({"res_index": index, dl_col_name: flat_data})
-                df.set_index("res_index", inplace=True)
-                df.dropna(axis=0, how="any", inplace=True)
+            elif current_data_category in list(_residue_store_names):
+                df = _data_flatten(data, current_data_category, category_index, "res_index")
+
                 # Force residue pointer to be type int
                 if current_data_category == "RESIDUE_POINTER":
                     df = df.astype(int)
@@ -340,7 +345,7 @@ def read_amber_file(dl, filename, blocksize=5000):
     ### Handle any data we added to the other columns
 
     # Expand residue values
-    res_df = dl.get_other(_other_store_names)
+    res_df = dl.get_other(_residue_store_names)
 
     sizes = np.diff(res_df["RESIDUE_POINTER"])
     last_size = sizes_dict["NATOM"] - res_df["RESIDUE_POINTER"].iloc[-1] + 1
