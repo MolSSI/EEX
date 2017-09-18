@@ -4,14 +4,18 @@ _bond_styles = {
     "none" : {},
 
     "fene": {
+        "form": "-0.5*K*R0^2*ln(1-(r/R0)^2 + 4*epsilon((sigma/r)^12 - (sigma/r)^6)) + epsilon",
+        "variables": ["r",]
         "terms": ["K", "r0", "epsilon", "sigma"],
         "K" : "energy distance^-2",
-        "r0": "distance",
+        "R0": "distance",
         "epsilon": "energy",
         "sigma": "distance",
     },
 
     "nonlinear": {
+        "form": "(epsilon*(r-r0)^2) / (lambda^2-(r-r0)^2)",
+        "variables": ["r"],
         "terms": ["epsilon", "r0", "lambda"]
         "epsilon" : "energy",
         "r0" : "distance",
@@ -21,6 +25,8 @@ _bond_styles = {
     "zero": {},
 
     "fene/expand": {
+        "form": "-0.5*K*R0^2*ln(1-((r-delta)/R0)^2 + 4*epsilon((sigma/(r-delta))^12 - (sigma/(r-delta))^6)) + epsilon",
+        "variables": ["r"],
         "terms": ["K", "r0", "epsilon", "sigma", "delta"],
         "K": "energy distance^-2",
         "r0": "distance",
@@ -30,6 +36,8 @@ _bond_styles = {
     },
 
     "quartic": {
+        "form": "K(r-Rc)^2 * (r-Rc-B1)*(r-Rc-B2) + U0 + 4*epsilon*((sigma/r)^12 - (sigma/r)^6) + epsilon",
+        "variables": ["r"],
         "terms": ["K", "B1", "B2", "Rc", "U0"],
         "K": "energy distance^-4",
         "B1": "distance",
@@ -41,6 +49,8 @@ _bond_styles = {
     "hybrid": {}, # Special case - allows for more than one bond type in a simulation
 
     "harmonic": {
+        "form": "K*(r-r0)^2",
+        "variables": ["r"],
         "terms": ["K","r0"],
         "K" : "energy distance^-2",
         "r0" : "distance"
@@ -49,6 +59,8 @@ _bond_styles = {
     "table": {}, # Special case - creation of interpolation tables.
 
     "class2": {
+        "form": "K2 * (r-r0)^2 + K3 * (r-r0)^3 + K4 * (r-r0)^4",
+        "variables": ["r"],
         "terms": ["R0", "K2", "K3", "K4"]
         "R0": "distance",
         "K2": "energy distance^-2",
@@ -57,6 +69,8 @@ _bond_styles = {
     },
 
     "morse":{
+        "form": "D * (1 - e^(-alpha * (r-r0)))^2",
+        "variables": ["r"],
         "terms": ["D", "alpha", "r0"],
         "D": "energy",
         "alpha": "distance^-1",
@@ -121,11 +135,34 @@ _angle_styles = {
 
 _dihedral_styles = {
     "none": {},
-    "charmmfsw": {},
-    "multi/harmonic": {},
+
+    "charmmfsw": {
+        "terms": ["K", "n", "d", "weight_factor"],
+        "K": "energy",
+        "n": "N/A", # must be type int, no units
+        "d": "degrees", # must be type int. Differs because units must be degrees regardless of units command ?
+        "weight_factor" : "N/A"
+    },
+
+    "multi/harmonic": {
+        "terms": ["A1", "A2", "A3", "A4", "A5"],
+        "A1": "energy",
+        "A2": "energy",
+        "A3": "energy",
+        "A4": "energy",
+        "A5": "energy",
+    },
+
     "zero": {},
-    "class2": {},
-    "opls": {},
+
+    # Class2 is complicated special case - see http://lammps.sandia.gov/doc/dihedral_class2.html
+    "class2": {
+        "terms": []
+    },
+
+    "opls": {
+        "terms" : [""]
+    },
     "hybrid": {},
     "harmonic": {},
     "charmm": {},
