@@ -17,6 +17,7 @@ from .. import datalayer
 from .. import utility
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 # Possible size keys to look for in the header
@@ -60,7 +61,7 @@ _data_labels = {
     "HBCUT": ["NPHB"],
     "AMBER_ATOM_TYPE": ["NATOM"],
     "TREE_CHAIN_CLASSIFICATION": ["NATOM"],
-    "JOIN_ARRAY": ["NATOM"],    # This section is filled with zeros, but is unused. We should not store it.
+    "JOIN_ARRAY": ["NATOM"],  # This section is filled with zeros, but is unused. We should not store it.
     "IROTAT": ["NATOM"],
     "SOLVENT_POINTERS": ["3 if IFBOX else 0"],
     "ATOMS_PER_MOLECULE": ["NATOM"],
@@ -82,19 +83,19 @@ _data_units = {
 
     """
 
-    "CHARGE" : ["18.2223*e"], # Internal units
-    "MASS" : ["g mol^-1"],
-    "BOND_FORCE_CONSTANT" : ["kcal mol^-1 Angstrom^-2"],
-    "BOND_EQUIL_VALUE" : ["Angstrom"],
-    "ANGLE_FORCE_CONSTANT" : ["kcal mol^-2 radian^2"],
-    "ANGLE_EQUIL_VALUE" : ["radian"],
-    "DIHEDRAL_FORCE_CONSTANT" : ["kcal mol^-1"],
-    "DIHEDRAL_PHASE" : ["radian"],
-    "LENNARD_JONES_ACOEFF" : ["kcal mol^-12"],
-    "LENNARD_JONES_BCOEFF" : ["kcal mol^-6"],
+    "CHARGE": ["18.2223*e"],  # Internal units
+    "MASS": ["g mol^-1"],
+    "BOND_FORCE_CONSTANT": ["kcal mol^-1 Angstrom^-2"],
+    "BOND_EQUIL_VALUE": ["Angstrom"],
+    "ANGLE_FORCE_CONSTANT": ["kcal mol^-2 radian^2"],
+    "ANGLE_EQUIL_VALUE": ["radian"],
+    "DIHEDRAL_FORCE_CONSTANT": ["kcal mol^-1"],
+    "DIHEDRAL_PHASE": ["radian"],
+    "LENNARD_JONES_ACOEFF": ["kcal mol^-12"],
+    "LENNARD_JONES_BCOEFF": ["kcal mol^-6"],
 }
 
-_atom_property_names = {"ATOM_NAME" : "atom_name",
+_atom_property_names = {"ATOM_NAME": "atom_name",
                         "CHARGE": "charge",
                         "MASS": "mass",
                         "ATOM_TYPE_INDEX": "atom_type",
@@ -105,11 +106,12 @@ _atom_property_names = {"ATOM_NAME" : "atom_name",
 
 _residue_store_names = ["RESIDUE_LABEL", "RESIDUE_POINTER"]
 
-_interaction_store_names = ["BONDS_INC_HYDROGEN", "BONDS_WITHOUT_HYDROGEN" ]
+_interaction_store_names = ["BONDS_INC_HYDROGEN", "BONDS_WITHOUT_HYDROGEN"]
 
 _forcefield_parameters = ["BOND_FORCE_CONSTANT", "BOND_EQUIL_VALUE", "ANGLE_FORCE_CONSTANT", "ANGLE_EQUIL_VALUE",
-                        "DIHEDRAL_FORCE_CONSTANT", "DIHEDRAL_PERIODICITY", "DIHEDRAL_PHASE", "LENNARD_JONES_ACOEFF",
+                          "DIHEDRAL_FORCE_CONSTANT", "DIHEDRAL_PERIODICITY", "DIHEDRAL_PHASE", "LENNARD_JONES_ACOEFF",
                           "LENNARD_JONES_BCOEFF", ]
+
 
 def _parse_format(string):
     """
@@ -151,6 +153,7 @@ def _parse_format(string):
 
     return ret
 
+
 def _data_flatten(data, column_name, category_index, store_name):
     # Reorganize the data 2D -> 1D packing
     flat_data = data.values.flatten()
@@ -165,7 +168,6 @@ def _data_flatten(data, column_name, category_index, store_name):
 
 
 def read_amber_file(dl, filename, blocksize=5000):
-
     ### First we need to figure out system dimensions
     max_rows = 100  # How many lines do we attempt to search?
     with open(filename, "r") as infile:
@@ -196,7 +198,7 @@ def read_amber_file(dl, filename, blocksize=5000):
             for shift in range(4):
                 dline = header_data[num + 2 + shift]
                 # Make sure the leading white space is not being cut off each line
-                if shift<3:
+                if shift < 3:
                     dline = dline.rjust(80)
                 dline = [dtype(dline[i:(i + width)]) for i in range(0, len(dline), width)]
                 parsed_sizes.extend(dline)
@@ -296,6 +298,10 @@ def read_amber_file(dl, filename, blocksize=5000):
                 # Add the data to DL
                 dl.add_other(current_data_category, df)
 
+            elif current_data_category in list(_interaction_store_names):
+                df = _data_flatten(data, current_data_category, category_index, "index")
+                print(df.head())
+
             else:
                 # logger.debug("Did not understand data category.. passing")
                 pass
@@ -341,7 +347,6 @@ def read_amber_file(dl, filename, blocksize=5000):
         # break
         # raise Exception("")
 
-
     ### Handle any data we added to the other columns
 
     # Expand residue values
@@ -359,11 +364,10 @@ def read_amber_file(dl, filename, blocksize=5000):
     res_df.index.name = "atom_index"
     dl.add_atoms(res_df, by_value=True)
 
+    # Handle bonds
+    # Each bond is described by three integers.
 
-    # raise Exception("")
-    # data = {}
-    # data["sizes"] = sizes_dict
-    # data["dimensions"] = dim_dict
+
 
     file_handle.close()
     return ret_data
