@@ -308,8 +308,9 @@ def read_amber_file(dl, filename, blocksize=5000):
                 dl.add_other(current_data_category, df)
 
             elif current_data_category in list(_interaction_store_names):
-                df = _data_flatten(data, "Bonds", category_index, "bond_index")
-                dl.add_other("bonds", df["Bonds"].astype(int, inplace=True))
+                df = _data_flatten(data, "Bonds", category_index, "index")
+                print(df.head())
+                dl.add_other("bonds", df.astype(int, inplace=True))
 
             else:
                 # logger.debug("Did not understand data category.. passing")
@@ -373,6 +374,7 @@ def read_amber_file(dl, filename, blocksize=5000):
     res_df.index.name = "atom_index"
     dl.add_atoms(res_df, by_value=True)
 
+
     # Handle bonds
 
     # Get stored bond data from data layer
@@ -387,6 +389,8 @@ def read_amber_file(dl, filename, blocksize=5000):
     # Add names to columns
     bond_reshape.columns = ["atom1_index", "atom2_index", "bond_type"]
     bond_reshape['bond_index'] = bond_reshape.index
+
+    print(bond_reshape.head())
 
     # Add bonds to data layer
     dl.add_bonds(bond_reshape)
