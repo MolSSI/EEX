@@ -9,18 +9,18 @@ boundary p p p
 atom_style  full 
 
 #  define simulation volume 
-#  If I want N = 512 atoms 
-#  and I want a density of rho = 0.5 atoms/lj-sigma^3
+#  If I want N = 500 atoms 
+#  and I want a density of rho = 0.776 atoms/lj-sigma^3
 #  Then I can determine the size of a cube by 
 #  size = (N/rho)^(1/3)
-variable side      equal 10.0793684
+variable side      equal 8.619
 region      boxid block 0.0 ${side} 0.0 ${side} 0.0 ${side}
 create_box  1 boxid
 
 #  specify initial positions of atoms
 #  sc = simple cubic
 #  0.5 = density in lj units
-lattice     sc 0.50
+lattice     sc 0.776
 
 #  place atoms of type 1 in boxid
 create_atoms    1 box
@@ -59,13 +59,13 @@ neighbor    0.3 bin
 #  density = number density
 #  output every thousand steps
 #  norm = normalize by # of atoms (yes or no)
-thermo_style custom step pe ke etotal temp press density
+thermo_style one
 
 # report instantaneous thermo values every 100 steps
-thermo 100
+thermo 1000
 
 # normalize thermo properties by number of atoms (yes or no)
-thermo_modify norm no
+thermo_modify norm yes
 
 #  specify ensemble
 #  fixid = 1
@@ -96,7 +96,7 @@ fix     2 all nvt temp 1.0 1.0 0.1
 
 # run 1000 steps in the NVT ensemble
 # (this equilibrates thermostat)
-run     1000
+run     1000000
 
 #   save configurations
 #   dumpid = 1
@@ -105,9 +105,9 @@ run     1000
 #   save positions every 100 steps
 #   filename = output.xyz
 #
-dump    1       all xyz 100 output.xyz
-dump_modify 1 element Ar
+#dump    1       all xyz 100 output.xyz
+#dump_modify 1 element Ar
 
 # run 1000 more steps in the NVT ensemble
 # (this is data production, from which configurations are saved) 
-run     2000
+run     1000000
