@@ -96,6 +96,15 @@ _bond_styles = {
         "description": "This is a class2 bond"
         
     },
+    "oxdna/fene": {
+        "form": "-epsilon / 2 * ln (1 - ( (r - r0) / delta)^2 ) ",
+        "terms": OrderedDict({ 
+            "epsilon": "energy",
+            "delta": "distance",
+            "r0": "distance"
+        }),
+        "description": "This is a oxdna/fene bond"
+    },
 }
 
 _angle_styles = {
