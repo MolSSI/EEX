@@ -2,7 +2,7 @@
 
 # topotools example:
 # generate topology data from coordinate data
-# build a box of 4x4x4 = 64 molecules.
+# build a box of 8x8x8 = 512 molecules.
 ##############################################
 
 # explicitly load topotools and pbctools packages since
@@ -72,10 +72,10 @@ mol reanalyze top
 
 # now set box dimensions and write out the result as 
 # a lammps data file.
-pbc set {100.0 100.0 100.0 90.0 90.0 90.0}
+pbc set {10.0 10.0 10.0 90.0 90.0 90.0}
 
 # we use a high-level tool from to multiply the system.
-TopoTools::replicatemol top 4 4 4
+TopoTools::replicatemol top 8 8 8
 
 # and write out the result as a lammps data file.
 topo writelammpsdata data.ethane full
