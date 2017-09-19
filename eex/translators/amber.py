@@ -309,7 +309,6 @@ def read_amber_file(dl, filename, blocksize=5000):
 
             elif current_data_category in list(_interaction_store_names):
                 df = _data_flatten(data, "Bonds", category_index, "index")
-                print(df.head())
                 dl.add_other("bonds", df.astype(int, inplace=True))
 
             else:
@@ -389,8 +388,6 @@ def read_amber_file(dl, filename, blocksize=5000):
     # Add names to columns
     bond_reshape.columns = ["atom1_index", "atom2_index", "bond_type"]
     bond_reshape['bond_index'] = bond_reshape.index
-
-    print(bond_reshape.head())
 
     # Add bonds to data layer
     dl.add_bonds(bond_reshape)
