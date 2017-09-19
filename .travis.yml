@@ -43,7 +43,7 @@ before_script:
   - pip install -e .
 
 script:
-  - py.test -v --cov=./
+  - py.test -v --cov=eex/ --durations=5
 
 notifications:
   email: false

@@ -1,18 +1,35 @@
 # Dictionaries for coeff format and units - http://lammps.sandia.gov/doc/Section_commands.html
+
+from collections import OrderedDict
+
 # NYI
+_valid_bond_variables = {"r": {"units": "distance", "description": "Distance between the two index atoms"}}
+
+# Valid columns of dataframe
+_valid_bond_indices = {
+    "atom_index1": "Index of the first atom.",
+    "atom_index2": "Index of the second atom.",
+
+    # DataLayers knows the bondtype
+    "bond_type": "Index of bond_type stored in the DataLayer",
+
+    # DataLayer needs to currate input and form unique bond_types
+    "bond_style": "Bond style name from the _bond_styles dictionary",
+    "coeffs": "..."
+}
+
 _bond_styles = {
     "none": {},
-
     "fene": {
         "form": "-0.5*K*R0^2*ln(1-(r/R0)^2) + 4*epsilon((sigma/r)^12 - (sigma/r)^6)) + epsilon",
-        "variables": ["r"],
-        "terms": ["K", "r0", "epsilon", "sigma"],
-        "K": "energy distance^-2",
-        "R0": "distance",
-        "epsilon": "energy",
-        "sigma": "distance",
+        "terms": OrderedDict({
+            "K": "energy distance ^ -2",
+            "R0": "distance",
+            "epsilon": "energy",
+            "sigma": "distance"
+        }),
+        "description": "This is a fene bond!"
     },
-
     "nonlinear": {
         "form": "(epsilon*(r-r0)^2) / (lambda^2-(r-r0)^2)",
         "variables": ["r"],
@@ -21,9 +38,7 @@ _bond_styles = {
         "r0": "distance",
         "lambda": "distance"
     },
-
     "zero": {},
-
     "fene/expand": {
         "form": "-0.5*K*R0^2*ln(1-((r-delta)/R0)^2 + 4*epsilon((sigma/(r-delta))^12 - (sigma/(r-delta))^6)) + epsilon",
         "variables": ["r"],
@@ -34,7 +49,6 @@ _bond_styles = {
         "sigma": "distance",
         "delta": "distance,"
     },
-
     "quartic": {
         "form": "K(r-Rc)^2 * (r-Rc-B1)*(r-Rc-B2) + U0 + 4*epsilon*((sigma/r)^12 - (sigma/r)^6) + epsilon",
         "variables": ["r"],
@@ -45,9 +59,7 @@ _bond_styles = {
         "Rc": "distance",
         "U0": "energy"
     },
-
     "hybrid": {},  # Special case - allows for more than one bond type in a simulation
-
     "harmonic": {
         "form": "K*(r-r0)^2",
         "variables": ["r"],
@@ -55,9 +67,7 @@ _bond_styles = {
         "K": "energy distance^-2",
         "r0": "distance"
     },
-
     "table": {},  # Special case - creation of interpolation tables.
-
     "class2": {
         "form": "K2 * (r-r0)^2 + K3 * (r-r0)^3 + K4 * (r-r0)^4",
         "variables": ["r"],
@@ -67,7 +77,6 @@ _bond_styles = {
         "K3": "energy distance^-3",
         "K4": "energy distnace^-4",
     },
-
     "morse": {
         "form": "D * (1 - e^(-alpha * (r-r0)))^2",
         "variables": ["r"],
@@ -87,36 +96,28 @@ _angle_styles = {
         "K3": "energy radian^-3",
         "K4": "energy radian^-4",
     },
-
     "cosine/squared": {
         "terms": ["K", "theta0"],
         "K": "energy",
         "thetea0": "degrees",
     },
-
     "zero": {},
-
     "cosine": {
         "terms": ["K"],
         "K": "energy",
     },
-
     "harmonic": {
         "terms": ["K", "theta0"],
         "K": "energy radian^-2",
         "theta0": "degree"
     },
-
     "hybrid": {},  # Special case - allows for more than one angle type in a simulation
-
     "cosine/delta": {
         "terms": ["K", "theta0"],
         "K": "energy",
         "theta0": "degree"
     },
-
     "table": {},
-
     "charmm": {
         "terms": ["K", "theta0", "K_ub", "r_ub"],
         "K": "energy radian^2",
@@ -124,7 +125,6 @@ _angle_styles = {
         "K_ub": "energy distance^-2",
         "r_ub": "distance",
     },
-
     "cosine/periodic": {
         "terms": ["C", "B", "n"],
         "C": "energy",
@@ -135,7 +135,6 @@ _angle_styles = {
 
 _dihedral_styles = {
     "none": {},
-
     "charmmfsw": {
         "terms": ["K", "n", "d", "weight_factor"],
         "K": "energy",
@@ -143,7 +142,6 @@ _dihedral_styles = {
         "d": "degrees",  # must be type int. Differs because units must be degrees regardless of units command ?
         "weight_factor": "N/A"
     },
-
     "multi/harmonic": {
         "terms": ["A1", "A2", "A3", "A4", "A5"],
         "A1": "energy",
@@ -152,14 +150,12 @@ _dihedral_styles = {
         "A4": "energy",
         "A5": "energy",
     },
-
     "zero": {},
 
     # Class2 is complicated special case - see http://lammps.sandia.gov/doc/dihedral_class2.html
     "class2": {
         "terms": []
     },
-
     "opls": {
         "terms": [""]
     },
