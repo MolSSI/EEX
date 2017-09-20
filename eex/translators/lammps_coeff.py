@@ -5,6 +5,8 @@ from collections import OrderedDict
 # NYI
 _valid_bond_variables = {"r": {"units": "distance", "description": "Distance between the two index atoms"}}
 
+_valid_angle_variables = {"theta": {"units": "radian", "description": "Angle between three consecutive index atoms"}, "r": {"units": "distance", "description": "Distance between two given atoms in a set of three consecutive index atoms"}}
+
 # Valid columns of dataframe
 _valid_bond_indices = {
     "atom_index1": "Index of the first atom.",
@@ -15,6 +17,20 @@ _valid_bond_indices = {
 
     # DataLayer needs to currate input and form unique bond_types
     "bond_style": "Bond style name from the _bond_styles dictionary",
+    "coeffs": "..."
+}
+
+
+_valid_angle_indices = {
+    "atom_index1": "Index of the first atom.",
+    "atom_index2": "Index of the second atom.",
+    "atom_index3": "Index of the third atom.",
+
+    # DataLayers knows the bondtype
+    "angle_type": "Index of angle_type stored in the DataLayer",
+
+    # DataLayer needs to currate input and form unique bond_types
+    "angle_style": "Bond style name from the _bond_styles dictionary",
     "coeffs": "..."
 }
 
@@ -110,47 +126,95 @@ _bond_styles = {
 _angle_styles = {
     "none": {},
     "class2": {
-        "terms": ["theta0", "K2", "K3", "K4"],
-        "theta0": "degree",
-        "K2": "energy radian^-2",
-        "K3": "energy radian^-3",
-        "K4": "energy radian^-4",
+        "form": "NYI",
+        "terms": OrderedDict({ 
+            "theta0": "degree",
+            "K2": "energy radian^-2",
+            "K3": "energy radian^-3",
+            "K4": "energy radian^-4",
+        })
+        "description": "This is a class2 potential"
     },
     "cosine/squared": {
         "terms": ["K", "theta0"],
         "K": "energy",
-        "thetea0": "degrees",
+        "theta0": "degrees",
     },
     "zero": {},
     "cosine": {
-        "terms": ["K"],
-        "K": "energy",
+        "form": "K*(1+cos(theta))",
+        "terms": OrderedDict({
+            "K": "energy"
+         }),
+        "description": "This is a cosine potential"
     },
     "harmonic": {
-        "terms": ["K", "theta0"],
-        "K": "energy radian^-2",
-        "theta0": "degree"
+        "form": "K*(theta-theta0)^2",
+        "terms": OrderedDict({
+            "K": "energy radian^-2",
+            "theta0": "degree"
+        })
+        "description": "This is a harmonic"
     },
     "hybrid": {},  # Special case - allows for more than one angle type in a simulation
     "cosine/delta": {
-        "terms": ["K", "theta0"],
-        "K": "energy",
-        "theta0": "degree"
+        "form": "K*(1+cos(theta-theta0))",
+        "terms": OrderedDict({ 
+            "K": "energy",
+            "theta0": "degree"
+        })
+        "description": "This is a cosine/delta potential"
     },
     "table": {},
     "charmm": {
-        "terms": ["K", "theta0", "K_ub", "r_ub"],
-        "K": "energy radian^2",
-        "theta0": "degree",
-        "K_ub": "energy distance^-2",
-        "r_ub": "distance",
+        "form": "k*(theta-theta0)^2 + k_ub*(r-r_ub)^2",
+        "terms": OrderedDict({
+            "k": "energy radian^-2",
+            "theta0": "degree",
+            "k_ub": "energy distance^-2",
+            "r_ub": "distance"
+        }),
+        "description": "This is a charmm angle potential"
     },
     "cosine/periodic": {
-        "terms": ["C", "B", "n"],
-        "C": "energy",
-        "B": "N/A",
-        "n": "N/A"
+        "form": "C * (1-B*(-1)^n*cos(n*theta))",
+        "terms": OrderedDict({
+            "C": "energy",
+            "B": "dimensionless", #1 or -1
+            "n": "dimensionless"  # 1 2 3 4 5 or 6
+        })
+        "description": "This is a cosine/periodic potential"
     },
+    "dipole": {
+        "form": "NYI",
+        "terms": "NYI",
+        "description": "NYI"
+    },
+    "fourier": {
+        "form": "K*(c0+c1*cos(theta)+c2*cos(2*theta))",
+        "terms": OrderedDict({
+            "K": "energy",
+            "c0": "dimensionless",
+            "c1": "dimensionless", 
+            "c2": "dimensionless" 
+        })
+        "description": "This is a fourier potential"
+    },
+    "quartic": {
+        "form": "K2*(theta-theta0)^2+K3*(theta-theta0)^3+K4*(theta-theta0)^4",
+        "terms": OrderedDict({ 
+            "K2": "energy radian^-2",
+            "K3": "energy radian^-3",
+            "K4": "energy radian^-4",
+            "theta0": "degrees" #Lammps converts this to radians
+        }),
+        "description": "This is a quartic bond"
+    },
+    "sdk": {
+        "form": "NYI",
+        "terms": "NYI",
+        "description": "NYI"
+    }
 }
 
 _dihedral_styles = {
