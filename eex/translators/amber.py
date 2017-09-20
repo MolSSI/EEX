@@ -154,17 +154,26 @@ def _parse_format(string):
     return ret
 
 
-def _data_flatten(data, column_name, category_index, store_name):
+def _data_flatten(data, column_name, category_index, df_index_name):
     # Reorganize the data 2D -> 1D packing
     flat_data = data.values.flatten()
     index = np.arange(category_index, flat_data.shape[0] + category_index)
     dl_col_name = column_name
 
     # Build and curate the data
-    df = pd.DataFrame({store_name: index, dl_col_name: flat_data})
+    df = pd.DataFrame({df_index_name: index, dl_col_name: flat_data})
     df.dropna(axis=0, how="any", inplace=True)
-
     return df
+
+def _data_reshape(data, num_columns):
+    data_values = data.values
+    # Remove nans
+    data_process = data_values[~np.isnan(data_values)]
+    # Reshape data
+    data_shape = data_process.reshape(-1,num_columns)
+    df = pd.DataFrame(data=data_shape)
+    return df
+
 
 
 def read_amber_file(dl, filename, blocksize=5000):
@@ -284,6 +293,11 @@ def read_amber_file(dl, filename, blocksize=5000):
 
                 df = _data_flatten(data, _atom_property_names[current_data_category], category_index, "atom_index")
                 category_index += df.shape[0]
+
+                # Scale charge by constant used in AMBER to get units of e
+                if current_data_category == "CHARGE":
+                    df['charge'] = df['charge']/18.2223
+
                 # Add the data to DL
                 dl.add_atoms(df, by_value=True)
 
@@ -299,8 +313,8 @@ def read_amber_file(dl, filename, blocksize=5000):
                 dl.add_other(current_data_category, df)
 
             elif current_data_category in list(_interaction_store_names):
-                df = _data_flatten(data, current_data_category, category_index, "index")
-                print(df.head())
+                df = _data_flatten(data, "Bonds", category_index, "index")
+                dl.add_other("bonds", df.astype(int, inplace=True))
 
             else:
                 # logger.debug("Did not understand data category.. passing")
@@ -350,6 +364,7 @@ def read_amber_file(dl, filename, blocksize=5000):
     ### Handle any data we added to the other columns
 
     # Expand residue values
+
     res_df = dl.get_other(_residue_store_names)
 
     sizes = np.diff(res_df["RESIDUE_POINTER"])
@@ -357,17 +372,29 @@ def read_amber_file(dl, filename, blocksize=5000):
     sizes = np.concatenate((sizes, [last_size])).astype(np.int)
 
     res_df["residue_index"] = np.arange(0, res_df.shape[0])
-    res_df_cols = list(res_df.columns)
     res_df = pd.DataFrame({"residue_index": np.repeat(res_df["residue_index"].values, sizes, axis=0),
                            "residue_name": np.repeat(res_df["RESIDUE_LABEL"].values.astype('str'), sizes, axis=0)})
 
     res_df.index.name = "atom_index"
     dl.add_atoms(res_df, by_value=True)
 
+
     # Handle bonds
-    # Each bond is described by three integers.
 
+    # Get stored bond data from data layer
+    bond_df = dl.get_other("bonds")
+    # Reshape data
+    bond_reshape = _data_reshape(bond_df['Bonds'], 3)
 
+    # Calculate atom indices for bonds based on internal amber format (see ambermd.org/prmtop.pdf)
+    bond_reshape.loc[:,0:1] = (bond_reshape.loc[:,0:1]/3+1).astype(int)
+
+    # Add names to columns
+    bond_reshape.columns = ["atom1_index", "atom2_index", "bond_type"]
+    bond_reshape['bond_index'] = bond_reshape.index
+
+    # Add bonds to data layer
+    dl.add_bonds(bond_reshape)
 
     file_handle.close()
     return ret_data
