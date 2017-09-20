@@ -6,27 +6,36 @@ import os
 import pandas as pd
 import tables
 
-def _parse_store_location(store_location):
-    if store_location is None:
-        store_location = os.getcwd()
-    else:
-        store_location = store_location
 
-    if not os.path.exists(store_location):
-        os.makedirs(store_location)
-
-    return store_location
-
-class HDFStore(object):
+class BaseStore(object):
     def __init__(self, name, store_location, save_data):
-
 
         # Figure out what the store_location means
         self.name = name
-        self.store_location = _parse_store_location(store_location)
+        self.store_location = self._parse_store_location(store_location)
+
+        # Save other flags
+        self.save_data = save_data
+
+    def _parse_store_location(self, store_location):
+        if store_location is None:
+            store_location = os.getcwd()
+        else:
+            store_location = store_location
+
+        if not os.path.exists(store_location):
+            os.makedirs(store_location)
+
+        return store_location
+
+
+class HDFStore(BaseStore):
+    def __init__(self, name, store_location, save_data):
+
+        # Init the base class
+        super().__init__(name, store_location, save_data)
 
         # Setup the store
-        self.save_data = save_data
         self.store_filename = os.path.join(self.store_location, self.name + ".h5")
         self.store = pd.HDFStore(self.store_filename)
 
@@ -85,21 +94,19 @@ class HDFStore(object):
                 pass
 
 
-class MemoryStore(object):
+class MemoryStore(BaseStore):
     def __init__(self, name, store_location, save_data):
 
-        # Figure out what the store_location means
-        self.name = name
-        self.store_location = _parse_store_location(store_location)
-
-        # Setup the store
-        self.save_data = save_data
+        # Init the base class
+        super().__init__(name, store_location, save_data)
 
         # Table holder dictionary
         self.tables = {}
         self.table_frags = {}
 
     def add_table(self, key, data):
+
+        # Lazy concat fragments for speed
         if key not in list(self.tables):
             self.table_frags[key] = [data]
             self.tables[key] = pd.DataFrame()
