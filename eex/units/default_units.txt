@@ -2,6 +2,9 @@
 # Based on the International System of Units
 # Language: english
 # :copyright: 2013 by Pint Authors, see AUTHORS for more details.
+# See: https://github.com/hgrecco/pint for more details
+
+# Edited for 2014 NIST CODATA (https://physics.nist.gov/cuu/Constants/) by @dgasmith
 
 @defaults
     group = international
@@ -89,10 +92,10 @@ siemens = ampere / volt = S = mho
 weber = volt * second = Wb
 tesla = weber / meter ** 2 = T
 henry = weber / ampere = H
-elementary_charge = 1.602176487e-19 * coulomb = e
+elementary_charge = 1.6021766208e-19 * coulomb = e
 chemical_faraday = 9.64957e4 * coulomb
 physical_faraday = 9.65219e4 * coulomb
-faraday =  96485.3399 * coulomb = C12_faraday
+faraday = 96485.332 * coulomb = C12_faraday
 gamma = 1e-9 * tesla
 gauss = 1e-4 * tesla
 maxwell = 1e-8 * weber = mx
@@ -109,7 +112,7 @@ unit_pole = 1.256637e-7 * weber
 joule = newton * meter = J
 erg = dyne * centimeter
 btu = 1.05505585262e3 * joule = Btu = BTU = british_thermal_unit
-electron_volt = 1.60217653e-19 * J = eV
+electron_volt = 1.6021766208e-19 * J = eV
 quadrillion_btu = 10**15 * btu = quad
 thm = 100000 * BTU = therm = EC_therm
 calorie = 4.184 * joule = cal = thermochemical_calorie
@@ -117,7 +120,7 @@ international_steam_table_calorie = 4.1868 * joule
 ton_TNT = 4.184e9 * joule = tTNT
 US_therm = 1.054804e8 * joule
 watt_hour = watt * hour = Wh = watthour
-hartree = 4.35974394e-18 * joule = E_h = hartree_energy
+hartree = 4.359744650e-18 * joule = E_h = hartree_energy
 toe = 41.868e9 * joule = tonne_of_oil_equivalent
 
 # Force
@@ -130,7 +133,7 @@ force_ounce = g_0 * ounce = ozf = ounce_force
 force_pound = g_0 * lb = lbf = pound_force
 force_ton = 2000 * force_pound = ton_force
 poundal = lb * feet / second ** 2 = pdl
-kip = 1000*lbf
+kip = 1000 * lbf
 
 # Frequency
 [frequency] = 1 / [time]
@@ -152,6 +155,7 @@ peak_sun_hour = 1000 * watt_hour / meter**2 = PSH
 langley = thermochemical_calorie / centimeter**2 = Langley
 
 # Length
+bohr = 0.52917721067e-10 * meter
 angstrom = 1e-10 * meter = Å = ångström = Å
 parsec = 3.08568025e16 * meter = pc
 light_year = speed_of_light * julian_year = ly = lightyear
@@ -160,7 +164,7 @@ astronomical_unit = 149597870691 * meter = au
 # Mass
 carat = 200 * milligram
 metric_ton = 1000 * kilogram = t = tonne
-atomic_mass_unit = 1.660538782e-27 * kilogram =  u = amu = dalton = Da
+atomic_mass_unit = 1.660539040e-27 * kilogram =  u = amu = dalton = Da
 bag = 94 * lb
 
 # Textile
