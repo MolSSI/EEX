@@ -9,10 +9,10 @@ import tables
 import collections
 
 from . import filelayer
-from . import fields
+from . import metadata
 
 
-APC_DICT = fields.atom_property_to_column
+APC_DICT = metadata.atom_property_to_column
 
 class DataLayer(object):
     def __init__(self, name, store_location=None, save_data=False, backend="HDF5"):
@@ -67,7 +67,7 @@ class DataLayer(object):
         Hashes the input parameters to build in internal index of unique values.
         """
 
-        field_data = fields._valid_atom_properties[parameter_name]
+        field_data = metadata._valid_atom_properties[parameter_name]
         if parameter_name not in list(self.parameters):
             self.parameters[parameter_name] = {"counter": -1, "uvals": {}, "inv_uvals": {}}
 
@@ -102,7 +102,7 @@ class DataLayer(object):
         """
         Expands the unique parameters using the built in parameter_name dictionary.
         """
-        field_data = fields._valid_atom_properties[parameter_name]
+        field_data = metadata._valid_atom_properties[parameter_name]
         param_dict = self.parameters[parameter_name]
 
         cols = field_data["required_columns"]
@@ -117,7 +117,7 @@ class DataLayer(object):
 
     def _store_table(self, table_name, df, parameter_name, by_value):
 
-        if by_value and not (fields._valid_atom_properties[parameter_name]["unique"]):
+        if by_value and not (metadata._valid_atom_properties[parameter_name]["unique"]):
             tmp_df = self._set_unique_params(df, parameter_name)
         else:
             tmp_df = df[APC_DICT[parameter_name]]
@@ -127,7 +127,7 @@ class DataLayer(object):
     def _get_table(self, table_name, parameter_name, by_value):
 
         tmp = self.store.read_table(table_name)
-        if by_value and not (fields._valid_atom_properties[parameter_name]["unique"]):
+        if by_value and not (metadata._valid_atom_properties[parameter_name]["unique"]):
             tmp = self._build_value_params(tmp, parameter_name)
         return tmp
 
@@ -225,7 +225,7 @@ class DataLayer(object):
 
         """
 
-        valid_properties = list(fields.atom_property_to_column)
+        valid_properties = list(metadata.atom_property_to_column)
 
         # Our index name
         index = "atom_index"

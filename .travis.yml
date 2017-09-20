@@ -28,14 +28,13 @@ install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
-  - conda create -q -n eex_env python=$TRAVIS_PYTHON_VERSION numpy pandas pymongo pytest pytables matplotlib
+  - conda create -q -n eex_env python=$TRAVIS_PYTHON_VERSION numpy pandas pymongo pytest pytables matplotlib pint -c conda-forge
   - source activate eex_env
 
     # Install anything not in conda
   - pip install codecov
   - pip install pytest-cov
   - conda list
-  - mongod --version
 
 before_script:
   - python -V
