@@ -7,7 +7,9 @@ _valid_bond_variables = {"r": {"units": "distance", "description": "Distance bet
 
 _valid_angle_variables = {"theta": {"units": "radian", "description": "Angle between three consecutive index atoms"}, "r": {"units": "distance", "description": "Distance between two given atoms in a set of three consecutive index atoms"}}
 
+_valid_angle_variables = {"phi": {"units": "radian", "description": "Dihedral angle arising from four consecutive index atoms"}, "theta": {"units": "radian", "description": "Angle between three consecutive index atoms"}, "r": {"units": "distance", "description": "Distance between two given atoms in a set of three consecutive index atoms"}}
 # Valid columns of dataframe
+
 _valid_bond_indices = {
     "atom_index1": "Index of the first atom.",
     "atom_index2": "Index of the second atom.",
@@ -31,6 +33,20 @@ _valid_angle_indices = {
 
     # DataLayer needs to currate input and form unique bond_types
     "angle_style": "Bond style name from the _bond_styles dictionary",
+    "coeffs": "..."
+}
+
+_valid_dihedral_indices = {
+    "atom_index1": "Index of the first atom.",
+    "atom_index2": "Index of the second atom.",
+    "atom_index3": "Index of the third atom.",
+    "atom_index4": "Index of the fourth atom.",
+
+    # DataLayers knows the bondtype
+    "dihedral_type": "Index of dihedral_type stored in the DataLayer",
+
+    # DataLayer needs to currate input and form unique bond_types
+    "dihedral_style": "Dihedral style name from the _bond_styles dictionary",
     "coeffs": "..."
 }
 
@@ -220,11 +236,14 @@ _angle_styles = {
 _dihedral_styles = {
     "none": {},
     "charmmfsw": {
-        "terms": ["K", "n", "d", "weight_factor"],
-        "K": "energy",
-        "n": "N/A",  # must be type int, no units
-        "d": "degrees",  # must be type int. Differs because units must be degrees regardless of units command ?
-        "weight_factor": "N/A"
+        "form": "K*(1 + cos(n*phi-d))",
+        "terms": OrderedDict({ 
+            "K": "energy",
+            "n": "dimensionless",  # must be type int, no units
+            "d": "degrees",  # must be type int. Differs because units must be degrees regardless of units command ?
+            "weight_factor": "dimensionless"
+        })
+        "description": "This is a charmm dihedral"
     },
     "multi/harmonic": {
         "terms": ["A1", "A2", "A3", "A4", "A5"],
@@ -238,15 +257,87 @@ _dihedral_styles = {
 
     # Class2 is complicated special case - see http://lammps.sandia.gov/doc/dihedral_class2.html
     "class2": {
-        "terms": []
+        "form": "NYI",
+        "terms": "NYI",
+        "description": "NYI"
     },
-    "opls": {
-        "terms": [""]
+    "cosine/shift/exp": {
+        "form": "NYI",
+        "terms": "NYI",
+        "description": "NYI"
+    },
+    "fourier": {
+        "form": "sum_{i=1}^m k_i * (1.0 + cos(n_i * phi - d_i))",
+        "terms": OrderedDict({ 
+            "k_i": "energy",
+            "n_i": "dimensionless",
+            "d_i": "degrees"
+        })
+        "description": "This is a fourier dihedral"
+    },
+    "harmonic": {
+        "form": "K*(1+d*cos(n*phi))",
+        "terms": OrderedDict({ 
+            "K": "energy",
+            "n": "dimensionless",
+            "d": "dimensionless"
+        })
+        "description": "This is a harmonic dihedral"
+    },
+    "helix": {
+        "form": "A*(1-cos(phi)) + B*(1+cos(3*phi)) + C*(1+cos(phi+pi/4))",
+        "terms": OrderedDict({ 
+            "A": "energy",
+            "B": "energy",
+            "C": "energy"
+        })
+        "description": "This is a helix dihedral"
     },
     "hybrid": {},
-    "harmonic": {},
-    "charmm": {},
-    "helix": {}
+    "multi/harmonic": {
+        "form": "sum_{n=1}^5 A_n*(cos(phi))^(n-1)",
+        "terms": OrderedDict({ 
+            "A_n": "energy",
+            "n": "dimensionless"
+        })
+        "description": "This is a multiharmonic dihedral"
+    },
+    "nharmonic": {
+        "form": "sum_{n=1}^n A_n*(cos(phi))^(n-1)",
+        "terms": OrderedDict({ 
+            "A_n": "energy",
+            "n": "dimensionless"
+        })
+        "description": "This is a nharmonic dihedral"
+    },
+    "opls": {
+        "form": "0.5*K_1*(1+cos(phi))+0.5*K_2*(1-cos(2*phi))+0.5*K_3+(1+cos(3*phi))+0.5*K_4*(1-cos(4*phi))",
+        "terms": OrderedDict({ 
+            "K_1": "energy",
+            "K_2": "energy"
+            "K_3": "energy"
+            "K_4": "energy"
+        })
+        "description": "This is a opls dihedral"
+    },
+    "quadratic": {
+        "form": "K*(phi-phi0)^2",
+        "terms": OrderedDict({ 
+            "K": "energy",
+            "phi0": "degrees"
+        })
+        "description": "This is a quadratic dihedral"
+    },
+    "spherical": { #This type includes dihedrals phi and angles theta
+        "form": "NYI",
+        "terms": "NYI",
+        "description": "NYI"
+    },
+    "table": { 
+        "form": "NYI",
+        "terms": "NYI",
+        "description": "NYI"
+    },
 }
 
 _improper_styles = {
