@@ -31,7 +31,7 @@ _data_labels = {
     "Masses": ("atom types", "NYI"),
     "Atoms": ("atoms", "add_atoms", ["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"]),
     "Bonds": ("bonds", "add_bonds", ["bond_index", "bond_type", "atom1_index", "atom2_index"]),
-    "Angles": ("angles", "add_angles", ["bond_index", "angle_type", "atom1_index", "atom2_index", "atom3_index"]),
+    "Angles": ("angles", "add_angles", ["angle_index", "angle_type", "atom1_index", "atom2_index", "atom3_index"]),
     "Dihedrals": ("dihedrals", "NYI"),
     "Impropers": ("impropers", "NYI"),
 }

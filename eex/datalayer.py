@@ -301,7 +301,7 @@ class DataLayer(object):
             Returns a boolean value if the operations was successful or not
         """
 
-        needed_cols = ["bond_index", "atom1_index", "atom2_index", "atom3_index", "angle_type"]
+        needed_cols = ["angle_index", "atom1_index", "atom2_index", "atom3_index", "angle_type"]
 
         angles = self._validate_table_input(angles, needed_cols)
 

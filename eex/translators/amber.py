@@ -106,7 +106,9 @@ _atom_property_names = {"ATOM_NAME": "atom_name",
 
 _residue_store_names = ["RESIDUE_LABEL", "RESIDUE_POINTER"]
 
-_interaction_store_names = ["BONDS_INC_HYDROGEN", "BONDS_WITHOUT_HYDROGEN"]
+_topology_store_names = ["BONDS_INC_HYDROGEN", "BONDS_WITHOUT_HYDROGEN", "ANGLES_INC_HYDROGEN", "ANGLES_WITHOUT_HYDROGEN",
+                         "DIHEDRALS_INC_HYDROGEN", "DIHEDRALS_WITHOUT_HYDROGEN"]
+
 
 _forcefield_parameters = ["BOND_FORCE_CONSTANT", "BOND_EQUIL_VALUE", "ANGLE_FORCE_CONSTANT", "ANGLE_EQUIL_VALUE",
                           "DIHEDRAL_FORCE_CONSTANT", "DIHEDRAL_PERIODICITY", "DIHEDRAL_PHASE", "LENNARD_JONES_ACOEFF",
@@ -174,7 +176,22 @@ def _data_reshape(data, num_columns):
     df = pd.DataFrame(data=data_shape)
     return df
 
+def process_topology_section(keyword_df, keyword, num_columns):
 
+    # Reshape data
+    keyword_reshape = _data_reshape(keyword_df[keyword], num_columns)
+
+    # Calculate atom indices for angles
+    keyword_reshape.loc[:, 0:(num_columns-2)] = (keyword_reshape.loc[:, 0:(num_columns-2)] / 3 + 1).astype(int)
+
+    # Figure out column names
+    col_name = ["atom"+str(x)+"_index" for x in range(1,num_columns)]
+    col_name.append(keyword[:-1]+"_type")
+
+    keyword_reshape.columns = col_name
+    keyword_reshape[keyword[:-1]+"_index"] = keyword_reshape.index
+
+    return keyword_reshape
 
 def read_amber_file(dl, filename, blocksize=5000):
     ### First we need to figure out system dimensions
@@ -239,6 +256,7 @@ def read_amber_file(dl, filename, blocksize=5000):
             # print("%30s %40s %d" % (k, v[0], int(eval(v[0], sizes_dict))))
             label_sizes[k] = int(eval(v[0], sizes_dict))
 
+    # print(label_sizes)
     # Find the start
     current_data_category = None
     current_data_type = None
@@ -312,9 +330,11 @@ def read_amber_file(dl, filename, blocksize=5000):
                 # Add the data to DL
                 dl.add_other(current_data_category, df)
 
-            elif current_data_category in list(_interaction_store_names):
-                df = _data_flatten(data, "Bonds", category_index, "index")
-                dl.add_other("bonds", df.astype(int, inplace=True))
+            # Store bond, angle, dihedrals
+            elif current_data_category in list(_topology_store_names):
+                category = current_data_category.split("_")[0].lower()
+                df = _data_flatten(data, category, category_index, "index")
+                dl.add_other(category, df.astype(int, inplace=True))
 
             else:
                 # logger.debug("Did not understand data category.. passing")
@@ -379,22 +399,30 @@ def read_amber_file(dl, filename, blocksize=5000):
     dl.add_atoms(res_df, by_value=True)
 
 
-    # Handle bonds
+    # Handle bonds, angles, dihedrals
 
-    # Get stored bond data from data layer
-    bond_df = dl.get_other("bonds")
-    # Reshape data
-    bond_reshape = _data_reshape(bond_df['Bonds'], 3)
+    # These statements can be combined later. 'if' statements necessary for systems with 0 bonds, angles, or dihedrals
+    if ((label_sizes["BONDS_INC_HYDROGEN"] + label_sizes['BONDS_WITHOUT_HYDROGEN']) > 0):
+        bond_df = dl.get_other("bonds")
+        bond_reshape = process_topology_section(bond_df, "bonds", 3)
 
-    # Calculate atom indices for bonds based on internal amber format (see ambermd.org/prmtop.pdf)
-    bond_reshape.loc[:,0:1] = (bond_reshape.loc[:,0:1]/3+1).astype(int)
+        dl.add_bonds(bond_reshape)
 
-    # Add names to columns
-    bond_reshape.columns = ["atom1_index", "atom2_index", "bond_type"]
-    bond_reshape['bond_index'] = bond_reshape.index
+    if ((label_sizes["ANGLES_INC_HYDROGEN"] + label_sizes['ANGLES_WITHOUT_HYDROGEN']) > 0):
+        # Handle angles
+        angle_df = dl.get_other("angles")
+        angle_reshape = process_topology_section(angle_df, "angles", 4)
 
-    # Add bonds to data layer
-    dl.add_bonds(bond_reshape)
+        # Add angles to data layer
+        dl.add_angles(angle_reshape)
+
+    if ((label_sizes["DIHEDRALS_INC_HYDROGEN"] + label_sizes['DIHEDRALS_WITHOUT_HYDROGEN']) > 0):
+        dihedral_df = dl.get_other("dihedrals")
+        dihedral_reshape = process_topology_section(dihedral_df,"dihedrals", 5)
+        # NYI -
+        # There are also considerations here for multi term torsions, etc
+        #dl.add_dihedrals(dihedral_reshape)
+
 
     file_handle.close()
     return ret_data
