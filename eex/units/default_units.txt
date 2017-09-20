@@ -51,7 +51,7 @@ candela = [luminosity] = cd = candle
 gram = [mass] = g
 mole = [substance] = mol
 kelvin = [temperature]; offset: 0 = K = degK
-radian = [] = rad
+radian = [arcunits] = rad
 bit = []
 count = []
 
