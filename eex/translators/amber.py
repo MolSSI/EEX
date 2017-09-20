@@ -293,6 +293,11 @@ def read_amber_file(dl, filename, blocksize=5000):
 
                 df = _data_flatten(data, _atom_property_names[current_data_category], category_index, "atom_index")
                 category_index += df.shape[0]
+
+                # Scale charge by constant used in AMBER to get units of e
+                if current_data_category == "CHARGE":
+                    df['charge'] = df['charge']/18.2223
+
                 # Add the data to DL
                 dl.add_atoms(df, by_value=True)
 
