@@ -383,9 +383,9 @@ def read_amber_file(dl, filename, blocksize=5000):
 
     # Get stored bond data from data layer
     bond_df = dl.get_other("bonds")
-
     # Reshape data
-    bond_reshape = _data_reshape(bond_df, 3)
+    bond_reshape = _data_reshape(bond_df['Bonds'], 3)
+    print(bond_reshape.shape,"the shape")
 
     # Calculate atom indices for bonds based on internal amber format (see ambermd.org/prmtop.pdf)
     bond_reshape.loc[:,0:1] = (bond_reshape.loc[:,0:1]/3+1).astype(int)

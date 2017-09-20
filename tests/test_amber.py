@@ -37,6 +37,10 @@ def test_amber_spce_read_atoms_value(spce_dl):
     assert np.allclose(np.min(atoms["residue_index"]), 0)
     assert np.allclose(np.max(atoms["residue_index"]), 215)
 
+    # Test bond df
+    bonds = dl.get_bonds()
+    assert bonds.shape[0] == 648
+
 
 # Test AMBER read by_index
 def test_amber_spce_read_atoms_index(spce_dl):
