@@ -14,6 +14,7 @@ if __name__ == "__main__":
             'numpy>=1.7',
             'pandas>=0.18',
             'tables>=3.2',
+            'pint>=0.8',
         ],
         extras_require={
             'docs': [
