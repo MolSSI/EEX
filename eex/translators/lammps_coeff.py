@@ -9,9 +9,11 @@ _valid_bond_variables = {"r": {"units": "[distance]", "description": "Distance b
 
 _valid_angle_variables = {"theta": {"units": "radian", "description": "Angle between three consecutive index atoms"}, "r": {"units": "distance", "description": "Distance between two given atoms in a set of three consecutive index atoms"}}
 
-_valid_angle_variables = {"phi": {"units": "radian", "description": "Dihedral angle arising from four consecutive index atoms"}, "theta": {"units": "radian", "description": "Angle between three consecutive index atoms"}, "r": {"units": "distance", "description": "Distance between two given atoms in a set of three consecutive index atoms"}}
-# Valid columns of dataframe
+_valid_dihedral_variables = {"phi": {"units": "radian", "description": "Dihedral angle arising from four consecutive index atoms"}, "theta": {"units": "radian", "description": "Angle between three consecutive index atoms"}, "r": {"units": "distance", "description": "Distance between two given atoms in a set of three consecutive index atoms"}}
 
+_valid_improper_variables = {"chi": {"units": "radian", "description": "Improper angle"}, "r": {"units": "distance", "description": "Distance between the central atom and the plane formed by the other three atoms"}, "omega":{"units": "radian", "description": "Angle between the vector formed by a non-central atom and the plane formed by the other three atoms"}}
+
+# Valid columns of dataframe
 _valid_bond_indices = {
     "atom_index1": "Index of the first atom.",
     "atom_index2": "Index of the second atom.",
@@ -48,7 +50,21 @@ _valid_dihedral_indices = {
     "dihedral_type": "Index of dihedral_type stored in the DataLayer",
 
     # DataLayer needs to currate input and form unique bond_types
-    "dihedral_style": "Dihedral style name from the _bond_styles dictionary",
+    "dihedral_style": "improper style name from the _bond_styles dictionary",
+    "coeffs": "..."
+}
+
+_valid_improper_indices = {
+    "atom_index1": "Index of the first atom.",
+    "atom_index2": "Index of the second atom.",
+    "atom_index3": "Index of the third atom.",
+    "atom_index4": "Index of the fourth atom.",
+
+    # DataLayers knows the bondtype
+    "improper_type": "Index of improper_type stored in the DataLayer",
+
+    # DataLayer needs to currate input and form unique bond_types
+    "improper_style": "Dihedral style name from the _bond_styles dictionary",
     "coeffs": "..."
 }
 
@@ -145,13 +161,8 @@ _angle_styles = {
     "none": {},
     "class2": {
         "form": "NYI",
-        "terms": OrderedDict({ 
-            "theta0": "degree",
-            "K2": "energy radian^-2",
-            "K3": "energy radian^-3",
-            "K4": "energy radian^-4",
-        })
-        "description": "This is a class2 potential"
+        "terms": "NYI", 
+        "description": "NYI"
     },
     "cosine/squared": {
         "terms": ["K", "theta0"],
@@ -344,10 +355,65 @@ _dihedral_styles = {
 
 _improper_styles = {
     "none": {},
-    "cvff": {},
     "zero": {},
     "harmonic": {},
     "hybrid": {},
     "umbrella": {},
-    "class2": {},
+    "class2": {
+        "form": "NYI",
+        "terms": "NYI",
+        "description": "NYI"
+    },
+    "cossq": {
+        "form": "0.5*K*(cos(chi-chi0))^2",
+        "terms": OrderedDict({ 
+            "K": "energy",
+            "chi0": "degrees"
+        })
+        "description": "This is a cossq improper"
+    },
+    "cvff": {
+        "form": "K*(1+d*cos(n*chi))",
+        "terms": OrderedDict({ 
+            "K": "energy",
+            "d": "dimensionless",
+            "n": "dimensionless"
+        })
+        "description": "This is a cvff improper"
+    },
+    "distance": {
+        "form": "K_2*r^2+K_4*r^4",
+        "terms": OrderedDict({ 
+            "K_1": "energy distance^2",
+            "K_4": "energy distance^4",
+        })
+        "description": "This is a distance improper"
+    },
+    "fourier": {
+        "form": "K*(C0+C1*cos(omega)+C2*cos(2*omega))",
+        "terms": OrderedDict({ 
+            "K": "energy",
+            "C0": "dimensionless",
+            "C1": "dimensionless",
+            "C2": "dimensionless",
+        })
+        "description": "This is a distance improper"
+    },
+    "harmonic": {
+        "form": "K*(chi-chi0)^2",
+        "terms": OrderedDict({ 
+            "K": "energy",
+        })
+        "description": "This is a harmonic improper"
+    },
+    "ring": {
+        "form": "NYI",
+        "terms": "NYI",
+        "description": "NYI"
+    },
+    "umbrella": { #Used in the dreiding force field
+        "form": "NYI",
+        "terms": "NYI",
+        "description": "NYI"
+    },
 }
