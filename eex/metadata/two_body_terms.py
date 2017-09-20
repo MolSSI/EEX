@@ -9,17 +9,17 @@ Each style has the following values:
 
 """
 
-_two_body_styles = {
-    "none": {},
-    "zero": {},
+_two_body_term_styles = {
+    # "none": {},
+    # "zero": {},
     "class2": {
         "form": "K2 * (r-r0) ** 2 + K3 * (r-r0) ** 3 + K4 * (r-r0) ** 4",
         "parameters": ["R0", "K2", "K3", "K4"],
         "units": {
-            "R0": "[distance]",
-            "K2": "[energy] [distance] ** -2",
-            "K3": "[energy] [distance] ** -3",
-            "K4": "[energy] [distance] ** -4"
+            "R0": "[length]",
+            "K2": "[energy] [length] ** -2",
+            "K3": "[energy] [length] ** -3",
+            "K4": "[energy] [length] ** -4"
         },
         "description": "This is a class2 bond"
     },
@@ -27,10 +27,10 @@ _two_body_styles = {
         "form": "-0.5*K*R0 ** 2*ln(1-(r/R0) ** 2) + 4*epsilon((sigma/r) ** 12 - (sigma/r) ** 6)) + epsilon",
         "parameters": ["K", "R0", "epsilon", "sigma"],
         "units": {
-            "K": "[energy] [distance] ** -2",
-            "R0": "[distance]",
+            "K": "[energy] [length] ** -2",
+            "R0": "[length]",
             "epsilon": "[energy]",
-            "sigma": "[distance]"
+            "sigma": "[length]"
         },
         "description": "This is a fene bond!"
     },
@@ -39,22 +39,22 @@ _two_body_styles = {
         "-0.5*K*R0 ** 2*ln(1-((r-delta)/R0) ** 2 + 4*epsilon((sigma/(r-delta)) ** 12 - (sigma/(r-delta)) ** 6)) + epsilon",
         "parameters": ["K", "R0", "epsilon", "sigma", "delta"],
         "units": {
-            "K": "[energy] [distance] ** -2",
-            "R0": "[distance]",
+            "K": "[energy] [length] ** -2",
+            "R0": "[length]",
             "epsilon": "[energy]",
-            "sigma": "[distance]",
-            "delta": "[distance]"
+            "sigma": "[length]",
+            "delta": "[length]"
         },
         "description":
         "This is fene/expand bond"
     },
-    "hybrid": {},  # Special case - allows for more than one bond type in a simulation
+    # "hybrid": {},  # Special case - allows for more than one bond type in a simulation
     "harmonic": {
         "form": "K*(r-R0) ** 2",
         "parameters": ["K", "R0"],
         "units": {
-            "K": "[energy] [distance] ** -2",
-            "R0": "[distance]"
+            "K": "[energy] [length] ** -2",
+            "R0": "[length]"
         },
         "description": "This is a harmonic bond"
     },
@@ -63,8 +63,8 @@ _two_body_styles = {
         "parameters": ["D", "alpha", "R0"],
         "units": {
             "D": "[energy]",
-            "alpha": "[distance] ** -1",
-            "r0": "[distance]"
+            "alpha": "[length] ** -1",
+            "R0": "[length]"
         },
         "description": "This is a class2 bond"
     },
@@ -73,20 +73,20 @@ _two_body_styles = {
         "parameters": ["epsilon", "R0", "lambda"],
         "units": {
             "epsilon": "[energy]",
-            "R0": "[distance]",
-            "lambda": "[distance]"
+            "R0": "[length]",
+            "lambda": "[length]"
         },
         "description": "This is a nonlinear bond"
     },
-    "table": {},  # Special case - creation of interpolation tables.
+    # "table": {},  # Special case - creation of interpolation tables.
     "quartic": {
         "form": "K(r-Rc) ** 2 * (r-Rc-B1)*(r-Rc-B2) + U0 + 4*epsilon*((sigma/r) ** 12 - (sigma/r) ** 6) + epsilon",
         "parameters": ["K", "B1", "B2", "Rc", "U0"],
         "units": {
-            "K": "[energy] [distance] ** -4",
-            "B1": "[distance]",
-            "B2": "[distance]",
-            "Rc": "[distance]",
+            "K": "[energy] [length] ** -4",
+            "B1": "[length]",
+            "B2": "[length]",
+            "Rc": "[length]",
             "U0": "[energy]"
         },
         "description": "This is a quartic bond"
@@ -97,7 +97,7 @@ _two_body_styles = {
 two_body_metadata = {}
 
 # Valid variables used in all two-body terms
-two_body_metadata["variables"] = {"r": {"units": "[distance]", "description": "Distance between the two indexed atoms."}}
+two_body_metadata["variables"] = {"r": {"units": "[length]", "description": "Distance between the two indexed atoms."}}
 
 # Add store data
 two_body_metadata["store_name"] = "2body"
