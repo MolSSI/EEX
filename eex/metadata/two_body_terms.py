@@ -1,110 +1,109 @@
 """
-Metadata for two-body terms
+Metadata for two-body terms listed in alphabetical order
+
+Each style has the following values:
+  - form: The overall mathematical expression of the term
+  - parameters: The ordered name of the terms as they will be stored with their expected unit contexts
+  - units: A dictionary that contains the unit context for each parameter
+  - description: A short word description of the two-body term style
+
 """
 
-from collections import OrderedDict
-
-# Internal store name
-_two_body_store_name = "2body"
-
-# Valid variables used in all two-body terms
-_two_body_variables = {"r": {"units": "[distance]", "description": "Distance between the two indexed atoms."}}
-
-# Valid columns of the store
-_two_body_indices = {
-    "atom_index1": "Index of the first atom.",
-    "atom_index2": "Index of the second atom.",
-    "two_body_type": "Index of two_body_type stored in the DataLayer.",
-}
-
-# Two-body styles listed in alphabetical order
-# Each style has the following values:
-#   - form: The overall mathematical expression of the term
-#   - parameters: The ordered name of the terms as they will be stored with their expected unit contexts
-#   - description: A short word description of the two-body term style
 _two_body_styles = {
     "none": {},
     "zero": {},
     "class2": {
-        "form":
-        "K2 * (r-r0) ** 2 + K3 * (r-r0) ** 3 + K4 * (r-r0) ** 4",
-        "parameters":
-        OrderedDict({
+        "form": "K2 * (r-r0) ** 2 + K3 * (r-r0) ** 3 + K4 * (r-r0) ** 4",
+        "parameters": ["R0", "K2", "K3", "K4"],
+        "units": {
             "R0": "[distance]",
             "K2": "[energy] [distance] ** -2",
             "K3": "[energy] [distance] ** -3",
             "K4": "[energy] [distance] ** -4"
-        }),
-        "description":
-        "This is a class2 bond"
+        },
+        "description": "This is a class2 bond"
     },
     "fene": {
-        "form":
-        "-0.5*K*R0 ** 2*ln(1-(r/R0) ** 2) + 4*epsilon((sigma/r) ** 12 - (sigma/r) ** 6)) + epsilon",
-        "parameters":
-        OrderedDict({
+        "form": "-0.5*K*R0 ** 2*ln(1-(r/R0) ** 2) + 4*epsilon((sigma/r) ** 12 - (sigma/r) ** 6)) + epsilon",
+        "parameters": ["K", "R0", "epsilon", "sigma"],
+        "units": {
             "K": "[energy] [distance] ** -2",
             "R0": "[distance]",
             "epsilon": "[energy]",
             "sigma": "[distance]"
-        }),
-        "description":
-        "This is a fene bond!"
+        },
+        "description": "This is a fene bond!"
     },
     "fene/expand": {
         "form":
         "-0.5*K*R0 ** 2*ln(1-((r-delta)/R0) ** 2 + 4*epsilon((sigma/(r-delta)) ** 12 - (sigma/(r-delta)) ** 6)) + epsilon",
-        "parameters":
-        OrderedDict({
+        "parameters": ["K", "R0", "epsilon", "sigma", "delta"],
+        "units": {
             "K": "[energy] [distance] ** -2",
-            "r0": "[distance]",
+            "R0": "[distance]",
             "epsilon": "[energy]",
             "sigma": "[distance]",
             "delta": "[distance]"
-        }),
+        },
         "description":
         "This is fene/expand bond"
     },
     "hybrid": {},  # Special case - allows for more than one bond type in a simulation
     "harmonic": {
-        "form": "K*(r-r0) ** 2",
-        "parameters": OrderedDict({
+        "form": "K*(r-R0) ** 2",
+        "parameters": ["K", "R0"],
+        "units": {
             "K": "[energy] [distance] ** -2",
-            "r0": "[distance]"
-        }),
+            "R0": "[distance]"
+        },
         "description": "This is a harmonic bond"
     },
     "morse": {
-        "form": "D * (1 - e ** (-alpha * (r-r0))) ** 2",
-        "parameters": OrderedDict({
+        "form": "D * (1 - e ** (-alpha * (r-R0))) ** 2",
+        "parameters": ["D", "alpha", "R0"],
+        "units": {
             "D": "[energy]",
             "alpha": "[distance] ** -1",
             "r0": "[distance]"
-        }),
+        },
         "description": "This is a class2 bond"
     },
     "nonlinear": {
-        "form": "(epsilon*(r-r0) ** 2) / (lambda ** 2-(r-r0) ** 2)",
-        "parameters": OrderedDict({
+        "form": "(epsilon*(r-R0) ** 2) / (lambda ** 2-(r-R0) ** 2)",
+        "parameters": ["epsilon", "R0", "lambda"],
+        "units": {
             "epsilon": "[energy]",
-            "r0": "[distance]",
+            "R0": "[distance]",
             "lambda": "[distance]"
-        }),
+        },
         "description": "This is a nonlinear bond"
     },
     "table": {},  # Special case - creation of interpolation tables.
     "quartic": {
-        "form":
-        "K(r-Rc) ** 2 * (r-Rc-B1)*(r-Rc-B2) + U0 + 4*epsilon*((sigma/r) ** 12 - (sigma/r) ** 6) + epsilon",
-        "parameters":
-        OrderedDict({
+        "form": "K(r-Rc) ** 2 * (r-Rc-B1)*(r-Rc-B2) + U0 + 4*epsilon*((sigma/r) ** 12 - (sigma/r) ** 6) + epsilon",
+        "parameters": ["K", "B1", "B2", "Rc", "U0"],
+        "units": {
             "K": "[energy] [distance] ** -4",
             "B1": "[distance]",
             "B2": "[distance]",
             "Rc": "[distance]",
             "U0": "[energy]"
-        }),
-        "description":
-        "This is a quartic bond"
+        },
+        "description": "This is a quartic bond"
     },
 }
+
+# Internal store name
+two_body_metadata = {}
+
+# Valid variables used in all two-body terms
+two_body_metadata["variables"] = {"r": {"units": "[distance]", "description": "Distance between the two indexed atoms."}}
+
+# Add store data
+two_body_metadata["store_name"] = "2body"
+two_body_metadata["store_indices"] = {
+    "atom_index1": "Index of the first atom.",
+    "atom_index2": "Index of the second atom.",
+    "two_body_type": "Index of two_body_type stored in the DataLayer.",
+}
+two_body_metadata["styles"] = _two_body_term_styles
