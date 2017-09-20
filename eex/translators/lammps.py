@@ -17,7 +17,7 @@ _size_keys = [
     "improper types"
 ]
 
-# Coeff labels to look for and their size
+# Coeff labels to look for and their (size, function, terms, columns)
 _coeff_labels = {
     "Pair Coeffs": ("atom types", "NYI"),
     "Bond Coeffs": ("bond types", "NYI"),
@@ -26,7 +26,7 @@ _coeff_labels = {
     "Improper Coeffs": ("improper types", "NYI"),
 }
 
-# Data labels to look for their size
+# Data labels to look for their (size, DL function, columns)
 _data_labels = {
     "Masses": ("atom types", "NYI"),
     "Atoms": ("atoms", "add_atoms", ["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"]),

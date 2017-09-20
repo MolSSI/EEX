@@ -148,7 +148,7 @@ _bond_styles = {
     },
     "oxdna/fene": {
         "form": "-epsilon / 2 * ln (1 - ( (r - r0) / delta)^2 ) ",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "epsilon": "energy",
             "delta": "distance",
             "r0": "distance"
@@ -161,7 +161,7 @@ _angle_styles = {
     "none": {},
     "class2": {
         "form": "NYI",
-        "terms": "NYI", 
+        "terms": "NYI",
         "description": "NYI"
     },
     "cosine/squared": {
@@ -182,16 +182,16 @@ _angle_styles = {
         "terms": OrderedDict({
             "K": "energy radian^-2",
             "theta0": "degree"
-        })
+        }),
         "description": "This is a harmonic"
     },
     "hybrid": {},  # Special case - allows for more than one angle type in a simulation
     "cosine/delta": {
         "form": "K*(1+cos(theta-theta0))",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "K": "energy",
             "theta0": "degree"
-        })
+        }),
         "description": "This is a cosine/delta potential"
     },
     "table": {},
@@ -211,7 +211,7 @@ _angle_styles = {
             "C": "energy",
             "B": "dimensionless", #1 or -1
             "n": "dimensionless"  # 1 2 3 4 5 or 6
-        })
+        }),
         "description": "This is a cosine/periodic potential"
     },
     "dipole": {
@@ -224,14 +224,14 @@ _angle_styles = {
         "terms": OrderedDict({
             "K": "energy",
             "c0": "dimensionless",
-            "c1": "dimensionless", 
-            "c2": "dimensionless" 
-        })
+            "c1": "dimensionless",
+            "c2": "dimensionless"
+        }),
         "description": "This is a fourier potential"
     },
     "quartic": {
         "form": "K2*(theta-theta0)^2+K3*(theta-theta0)^3+K4*(theta-theta0)^4",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "K2": "energy radian^-2",
             "K3": "energy radian^-3",
             "K4": "energy radian^-4",
@@ -250,12 +250,12 @@ _dihedral_styles = {
     "none": {},
     "charmmfsw": {
         "form": "K*(1 + cos(n*phi-d))",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "K": "energy",
             "n": "dimensionless",  # must be type int, no units
             "d": "degrees",  # must be type int. Differs because units must be degrees regardless of units command ?
             "weight_factor": "dimensionless"
-        })
+        }),
         "description": "This is a charmm dihedral"
     },
     "multi/harmonic": {
@@ -281,64 +281,64 @@ _dihedral_styles = {
     },
     "fourier": {
         "form": "sum_{i=1}^m k_i * (1.0 + cos(n_i * phi - d_i))",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "k_i": "energy",
             "n_i": "dimensionless",
             "d_i": "degrees"
-        })
+        }),
         "description": "This is a fourier dihedral"
     },
     "harmonic": {
         "form": "K*(1+d*cos(n*phi))",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "K": "energy",
             "n": "dimensionless",
             "d": "dimensionless"
-        })
+        }),
         "description": "This is a harmonic dihedral"
     },
     "helix": {
         "form": "A*(1-cos(phi)) + B*(1+cos(3*phi)) + C*(1+cos(phi+pi/4))",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "A": "energy",
             "B": "energy",
             "C": "energy"
-        })
+        }),
         "description": "This is a helix dihedral"
     },
     "hybrid": {},
     "multi/harmonic": {
         "form": "sum_{n=1}^5 A_n*(cos(phi))^(n-1)",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "A_n": "energy",
             "n": "dimensionless"
-        })
+        }),
         "description": "This is a multiharmonic dihedral"
     },
     "nharmonic": {
         "form": "sum_{n=1}^n A_n*(cos(phi))^(n-1)",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "A_n": "energy",
             "n": "dimensionless"
-        })
+        }),
         "description": "This is a nharmonic dihedral"
     },
     "opls": {
         "form": "0.5*K_1*(1+cos(phi))+0.5*K_2*(1-cos(2*phi))+0.5*K_3+(1+cos(3*phi))+0.5*K_4*(1-cos(4*phi))",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "K_1": "energy",
-            "K_2": "energy"
-            "K_3": "energy"
-            "K_4": "energy"
-        })
+            "K_2": "energy",
+            "K_3": "energy",
+            "K_4": "energy",
+        }),
         "description": "This is a opls dihedral"
     },
     "quadratic": {
         "form": "K*(phi-phi0)^2",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "K": "energy",
             "phi0": "degrees"
-        })
+        }),
         "description": "This is a quadratic dihedral"
     },
     "spherical": { #This type includes dihedrals phi and angles theta
@@ -346,7 +346,7 @@ _dihedral_styles = {
         "terms": "NYI",
         "description": "NYI"
     },
-    "table": { 
+    "table": {
         "form": "NYI",
         "terms": "NYI",
         "description": "NYI"
@@ -366,7 +366,7 @@ _improper_styles = {
     },
     "cossq": {
         "form": "0.5*K*(cos(chi-chi0))^2",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "K": "energy",
             "chi0": "degrees"
         })
@@ -374,7 +374,7 @@ _improper_styles = {
     },
     "cvff": {
         "form": "K*(1+d*cos(n*chi))",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "K": "energy",
             "d": "dimensionless",
             "n": "dimensionless"
@@ -383,7 +383,7 @@ _improper_styles = {
     },
     "distance": {
         "form": "K_2*r^2+K_4*r^4",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "K_1": "energy distance^2",
             "K_4": "energy distance^4",
         })
@@ -391,7 +391,7 @@ _improper_styles = {
     },
     "fourier": {
         "form": "K*(C0+C1*cos(omega)+C2*cos(2*omega))",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "K": "energy",
             "C0": "dimensionless",
             "C1": "dimensionless",
@@ -401,7 +401,7 @@ _improper_styles = {
     },
     "harmonic": {
         "form": "K*(chi-chi0)^2",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "K": "energy",
         })
         "description": "This is a harmonic improper"

@@ -9,7 +9,8 @@ Each style has the following values:
 
 """
 
-_two_body_term_styles = {
+
+_two_body_functional_forms = {
     # "none": {},
     # "zero": {},
     "class2": {
@@ -93,6 +94,8 @@ _two_body_term_styles = {
     },
 }
 
+### Please do not edit below this line
+
 # Internal store name
 two_body_metadata = {}
 
@@ -106,4 +109,4 @@ two_body_metadata["store_indices"] = {
     "atom_index2": "Index of the second atom.",
     "two_body_type": "Index of two_body_type stored in the DataLayer.",
 }
-two_body_metadata["styles"] = _two_body_term_styles
+two_body_metadata["styles"] = _two_body_functional_forms
