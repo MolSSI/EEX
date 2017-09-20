@@ -33,7 +33,7 @@ class HDFStore(BaseStore):
     def __init__(self, name, store_location, save_data):
 
         # Init the base class
-        super().__init__(name, store_location, save_data)
+        BaseStore.__init__(self, name, store_location, save_data)
 
         # Setup the store
         self.store_filename = os.path.join(self.store_location, self.name + ".h5")
@@ -98,7 +98,7 @@ class MemoryStore(BaseStore):
     def __init__(self, name, store_location, save_data):
 
         # Init the base class
-        super().__init__(name, store_location, save_data)
+        BaseStore.__init__(self, name, store_location, save_data)
 
         # Table holder dictionary
         self.tables = {}
