@@ -109,4 +109,4 @@ two_body_metadata["store_indices"] = {
     "atom_index2": "Index of the second atom.",
     "two_body_type": "Index of two_body_type stored in the DataLayer.",
 }
-two_body_metadata["styles"] = _two_body_functional_forms
+two_body_metadata["forms"] = _two_body_functional_forms

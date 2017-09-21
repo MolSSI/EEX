@@ -6,14 +6,14 @@ import eex
 import pytest
 
 
-# Test the two-body styles
+# Test the two-body forms
 two_bm = eex.metadata.two_body_metadata
-@pytest.mark.parametrize("functional_form", list(two_bm["styles"]))
+@pytest.mark.parametrize("functional_form", list(two_bm["forms"]))
 def test_two_body_style_metadata(functional_form):
-    assert eex.metadata.validate_functional_form_dict(functional_form, two_bm["styles"][functional_form])
+    assert eex.metadata.validate_functional_form_dict(functional_form, two_bm["forms"][functional_form])
 
-# Test the three-body styles
+# Test the three-body forms
 three_bm = eex.metadata.three_body_metadata
-@pytest.mark.parametrize("functional_form", list(three_bm["styles"]))
+@pytest.mark.parametrize("functional_form", list(three_bm["forms"]))
 def test_three_body_style_metadata(functional_form):
-    assert eex.metadata.validate_functional_form_dict(functional_form, three_bm["styles"][functional_form])
+    assert eex.metadata.validate_functional_form_dict(functional_form, three_bm["forms"][functional_form])

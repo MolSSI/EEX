@@ -2,15 +2,41 @@
 Provides helper functions that validate the functional data.
 """
 
-term_requied_fields = ['variables', 'store_name', 'store_indices', 'styles']
+term_requied_fields = ['variables', 'store_name', 'store_indices', 'forms']
 functional_form_required_fields = ['form', 'parameters', 'units', 'description']
 
 from eex import units
 
 
+def validate_term_dict(name, functional_form, parameters):
+    """
+    Validates a dictionary term
+    """
+
+    if isinstance(parameters, (list, tuple)):
+        if len(parameters) != len(functional_form["parameters"]):
+            raise ValueError("Validate term dict: Nunber of parameters passed is %d, expected %d for terms %s" %
+                             (len(parameters), len(functional_form["parameters"]), name))
+        params = list(parameters)
+    elif isinstance(parameters, dict):
+        params = []
+        for key in functional_form["parameters"]:
+            try:
+                params.append(parameters[key])
+            except KeyError:
+                raise KeyError("Validate term dict: Did not find expected key '%s' from term '%s'." % (key, name))
+
+    for value in params:
+        if not isinstance(value, (int, float)):
+            raise TypeError("Validate term dict: Parameters must be floats, found type %s." % type(value))
+
+    # Cast any ints to floats
+    return list(map(float, params))
+
+
 def validate_functional_form_dict(name, functional_form):
     """
-    Checks an individual
+    Checks an individual functional form for corretness
     """
 
     # First check if the required fields are present
