@@ -48,9 +48,9 @@ class DataLayer(object):
             raise KeyError("DataLayer: Backend of type '%s' not recognized." % backend)
 
         # Setup empty parameters dictionary
-        self.functional_forms = {2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}}
-        self.terms = {2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}}
-        self.atom_metadata = {}
+        self._functional_forms = {2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}}
+        self._terms = {2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}}
+        self._atom_metadata = {}
 
     def _validate_table_input(self, data, needed_cols):
         if isinstance(data, (list, tuple)):
@@ -71,8 +71,8 @@ class DataLayer(object):
         """
 
         field_data = metadata.atom_metadata[parameter_name]
-        if parameter_name not in list(self.atom_metadata):
-            self.atom_metadata[parameter_name] = {"counter": -1, "uvals": {}, "inv_uvals": {}}
+        if parameter_name not in list(self._atom_metadata):
+            self._atom_metadata[parameter_name] = {"counter": -1, "uvals": {}, "inv_uvals": {}}
 
         cols = field_data["required_columns"]
 
@@ -81,7 +81,7 @@ class DataLayer(object):
 
         ret_df = pd.DataFrame(index=df.index)
         ret_df[parameter_name] = 0
-        param_dict = self.atom_metadata[parameter_name]
+        param_dict = self._atom_metadata[parameter_name]
 
         # For each unique value
         for gb_idx, udf in df.groupby(cols):
@@ -105,7 +105,7 @@ class DataLayer(object):
         Expands the unique parameters using the built in parameter_name dictionary.
         """
         field_data = metadata.atom_metadata[parameter_name]
-        param_dict = self.atom_metadata[parameter_name]
+        param_dict = self._atom_metadata[parameter_name]
 
         cols = field_data["required_columns"]
 
@@ -117,7 +117,10 @@ class DataLayer(object):
 
         return ret_df
 
-    def _store_table(self, table_name, df, parameter_name, by_value):
+    def _store_atom_table(self, table_name, df, parameter_name, by_value):
+        """
+        Internal way to store atom tables
+        """
 
         if by_value and not (metadata.atom_metadata[parameter_name]["unique"]):
             tmp_df = self._set_unique_params(df, parameter_name)
@@ -126,7 +129,7 @@ class DataLayer(object):
 
         return self.store.add_table(table_name, tmp_df)
 
-    def _get_table(self, table_name, parameter_name, by_value):
+    def _get_atom_table(self, table_name, parameter_name, by_value):
 
         tmp = self.store.read_table(table_name)
         if by_value and not (metadata.atom_metadata[parameter_name]["unique"]):
@@ -193,7 +196,7 @@ class DataLayer(object):
 
         # Add a single property
         if property_name:
-            self._store_table(property_name, atom_df, property_name, by_value)
+            self._store_atom_table(property_name, atom_df, property_name, by_value)
         # Try to add all possible properties
         else:
             set_cols = set(atom_df.columns)
@@ -201,7 +204,7 @@ class DataLayer(object):
             for k, v in APC_DICT.items():
                 # Check if v is in the set_cols (set logic)
                 if set(v) <= set_cols:
-                    self._store_table(k, atom_df, k, by_value)
+                    self._store_atom_table(k, atom_df, k, by_value)
                     found_one = True
             if not found_one:
                 raise Exception("DataLayer:add_atom: No data was added as no key was matched from input columns:\n%s" %
@@ -239,43 +242,88 @@ class DataLayer(object):
 
         df_data = []
         for prop in properties:
-            tmp = self._get_table(prop, prop, by_value)
+            tmp = self._get_atom_table(prop, prop, by_value)
             df_data.append(tmp)
 
         return pd.concat(df_data, axis=1)
 
     def register_functional_forms(self, order, name, form_dictionary):
         """
-        Registers functional forms with the DL object
-        """
+        Registers a single functional forms with the DL object.
 
-        if order not in self.functional_forms:
-            raise KeyError("DataLayer:register_functional_forms: Did not understand order key '%s'." % str(order))
+        Parameters
+        ----------
+        order : int
+            The order of the functional form (2, 3, 4, ...)
+        name : str
+            The name of the functional form you are adding
+        form_dictionary : dict
+            The metadata for the incoming form. Follows the term order descriptions.
 
-        if name in self.functional_forms[order]:
-            raise KeyError("DataLayer:register_functional_forms: Key '%s' has already been registered." % str(name))
+        Returns
+        -------
+        pass : bool
+            If the operation was sucessfull or not.
 
-        # Make sure the data is valid and add
-        assert metadata.validator.validate_functional_form_dict(name, form_dictionary)
-        self.functional_forms[order][name] = form_dictionary
-
-    def add_parameters(self, order, term_name, term_parameters, uid=None, units=None):
-        """
-        Adds a n-body energy expression to the DataLayer object.
 
         Examples
         --------
 
-        DL = eex.DataLayer(...)
-        uuid = DL.add_parameters(2, "class2", [0, 3, 4, 2], uuid=5)
+        form_metadata = {
+            "form": "K*(r-R0) ** 2",
+            "parameters": ["K", "R0"],
+            "units": {
+                "K": "[energy] [length] ** -2",
+                "R0": "[length]"
+            },
+            "description": "This is a harmonic bond"
+        }
+
+        dl.register_functional_form(2, "harmonic", form_metadata)
+        """
+
+        if order not in self._functional_forms:
+            raise KeyError("DataLayer:register_functional_forms: Did not understand order key '%s'." % str(order))
+
+        if name in self._functional_forms[order]:
+            raise KeyError("DataLayer:register_functional_forms: Key '%s' has already been registered." % str(name))
+
+        # Make sure the data is valid and add
+        assert metadata.validator.validate_functional_form_dict(name, form_dictionary)
+        self._functional_forms[order][name] = form_dictionary
+
+    def add_parameters(self, order, term_name, term_parameters, uid=None, units=None):
+        """
+        Adds the parameters of a registered functional form to the Datalayer object
+
+        Parameters
+        ----------
+        order : int
+            The order of the functional form (2, 3, 4, ...)
+        term_name : str
+            The name of the functional form you are adding.
+        form_parameters : {list, tuple, dict}
+            The parameters to the functional form you are adding. If a list or tuple the order matches the order supplied
+            in the functional form. Otherwise the dictionary matches functional form parameter names.
+        uid : int, optional
+            The uid to assign to this parameterized term.
+        units : list of Pint units, options
+            Custom units for this particular addition, otherwise uses the default units in the registered functional form.
+
+        Examples
+        --------
+
+        assert 0 == dl.add_parameters(2, "harmonic", [4.0, 5.0])
+        assert 0 == dl.add_parameters(2, "harmonic", [4.0, 5.0])
+        assert 1 == dl.add_parameters(2, "harmonic", [4.0, 6.0])
 
         """
 
         # Validate term add
-        if order not in list(self.functional_forms):
+        if order not in list(self._functional_forms):
             raise KeyError("DataLayer:register_functional_forms: Did not understand order key '%s'." % str(order))
 
-        if term_name not in list(self.functional_forms[order]):
+        if term_name not in list(self._functional_forms[order]):
             raise KeyError(
                 "DataLayer:register_functional_forms: Term name '%s' has not been registered." % str(term_name))
 
@@ -283,12 +331,12 @@ class DataLayer(object):
             raise TypeError("DataLayer:register_functional_forms: Units are not yet supported, contact @dgasmith.")
 
         # Obtain the parameters
-        mdata = self.functional_forms[order][term_name]
+        mdata = self._functional_forms[order][term_name]
         params = metadata.validator.validate_term_dict(term_name, mdata, term_parameters)
 
         # First we check if we already have it
         found_key = None
-        for k, v in self.terms[order].items():
+        for k, v in self._terms[order].items():
             if (v[0] == term_name) and np.allclose(v[1:], params):
                 found_key = k
                 break
@@ -300,14 +348,14 @@ class DataLayer(object):
                 return found_key
 
             # We have a new parameter! Find the lowest number that we can add it at.
-            if not len(self.terms[order]):
+            if not len(self._terms[order]):
                 new_key = 0
             else:
-                possible_values = set(range(len(self.terms[order]) + 1))
-                new_key = min(possible_values - set(self.terms[order]))
+                possible_values = set(range(len(self._terms[order]) + 1))
+                new_key = min(possible_values - set(self._terms[order]))
 
             params.insert(0, term_name)
-            self.terms[order][new_key] = params
+            self._terms[order][new_key] = params
 
             return new_key
 
@@ -319,8 +367,8 @@ class DataLayer(object):
                     type(uid))
 
             # If we exist this could get dangerous
-            if uid in self.terms[order]:
-                old_param = self.terms[order][uid]
+            if uid in self._terms[order]:
+                old_param = self._terms[order][uid]
                 match = (old_param[0] == term_name) and np.allclose(old_param[1:], params)
                 if not match:
                     raise KeyError(
@@ -331,7 +379,7 @@ class DataLayer(object):
 
             else:
                 params.insert(0, term_name)
-                self.terms[order][uid] = params
+                self._terms[order][uid] = params
 
                 return uid
 
