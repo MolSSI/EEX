@@ -1,7 +1,7 @@
 """
 Metadata for three-body terms listed in alphabetical order
 
-Each term_style has the following values:
+Each functional_form has the following values:
   - form: The overall mathematical expression of the term
   - parameters: The ordered name of the terms as they will be stored with their expected unit contexts
   - units: A dictionary that contains the unit context for each parameter
@@ -10,7 +10,7 @@ Each term_style has the following values:
 This data will be validated during testing.
 """
 
-_three_body_term_styles = {
+_three_body_functional_forms = {
     # "none": {},
     # "zero": {},
     # "hybrid": {},  # Special case - allows for more than one angle type in a simulation
@@ -107,4 +107,4 @@ three_body_metadata["store_indices"] = {
     "three_body_type": "Index of three_body_type stored in the DataLayer.",
 }
 
-three_body_metadata["styles"] = _three_body_term_styles
+three_body_metadata["styles"] = _three_body_functional_forms

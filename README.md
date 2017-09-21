@@ -19,3 +19,10 @@ pip install -e .
 ## Testing
 Tests can be run using `py.test -v` once installed.
 
+## Language
+
+- Functional Form: An algebraic expression of the energy
+- Parameters: Associated static parameters for Functional Forms
+- Term: A given set of Atoms, Functional Form, and Parameter set
+- Energy Expression: Sum of all terms for a given system
+* Words are arbitrarily capsed until we add in symlinks

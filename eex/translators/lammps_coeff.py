@@ -177,7 +177,7 @@ _angle_styles = {
     },
     "class2": {
         "form": "NYI",
-        "terms": "NYI", 
+        "terms": "NYI",
         "description": "NYI"
     },
     "cosine/squared": {
@@ -205,7 +205,7 @@ _angle_styles = {
         "terms": OrderedDict({
             "K": "[energy] [radian]^-2",
             "theta0": "[degree]"
-        })
+        }),
         "description": "This is a harmonic"
     },
     "hybrid": {
@@ -218,7 +218,7 @@ _angle_styles = {
         "terms": OrderedDict({ 
             "K": "[energy]",
             "theta0": "[degree]"
-        })
+        }), 
         "description": "This is a cosine/delta potential"
     },
     "table": {
@@ -242,7 +242,7 @@ _angle_styles = {
             "C": "[energy]",
             "B": "[dimensionless]", #1 or -1
             "n": "[dimensionless]"  # 1 2 3 4 5 or 6
-        })
+        }),
         "description": "This is a cosine/periodic potential"
     },
     "dipole": {
@@ -257,7 +257,7 @@ _angle_styles = {
             "c0": "[dimensionless]",
             "c1": "[dimensionless]", 
             "c2": "[dimensionless]" 
-        })
+        }),
         "description": "This is a fourier potential"
     },
     "quartic": {
@@ -290,7 +290,7 @@ _dihedral_styles = {
             "n": "[dimensionless]",  # must be type int, no units
             "d": "[degrees]",  # must be type int. Differs because units must be [degrees] regardless of units command ?
             "weight_factor": "[dimensionless]"
-        })
+        }),
         "description": "This is a charmm dihedral"
     },
     "multi/harmonic": {
@@ -323,7 +323,7 @@ _dihedral_styles = {
             "k_i": "[energy]",
             "n_i": "[dimensionless]",
             "d_i": "[degrees]"
-        })
+        }),
         "description": "This is a fourier dihedral"
     },
     "harmonic": {
@@ -332,7 +332,7 @@ _dihedral_styles = {
             "K": "[energy]",
             "n": "[dimensionless]",
             "d": "[dimensionless]"
-        })
+        }),
         "description": "This is a harmonic dihedral"
     },
     "helix": {
@@ -341,7 +341,7 @@ _dihedral_styles = {
             "A": "[energy]",
             "B": "[energy]",
             "C": "[energy]"
-        })
+        }),
         "description": "This is a helix dihedral"
     },
     "hybrid": {
@@ -354,7 +354,7 @@ _dihedral_styles = {
         "terms": OrderedDict({ 
             "A_n": "[energy]",
             "n": "[dimensionless]"
-        })
+        }),
         "description": "This is a multiharmonic dihedral"
     },
     "nharmonic": {
@@ -362,7 +362,7 @@ _dihedral_styles = {
         "terms": OrderedDict({ 
             "A_n": "[energy]",
             "n": "[dimensionless]"
-        })
+        }),
         "description": "This is a nharmonic dihedral"
     },
     "opls": {
@@ -372,7 +372,7 @@ _dihedral_styles = {
             "K_2": "[energy]"
             "K_3": "[energy]"
             "K_4": "[energy]"
-        })
+        }),
         "description": "This is a opls dihedral"
     },
     "quadratic": {
@@ -380,7 +380,7 @@ _dihedral_styles = {
         "terms": OrderedDict({ 
             "K": "[energy]",
             "phi0": "[degrees]"
-        })
+        }),
         "description": "This is a quadratic dihedral"
     },
     "spherical": { #This type includes dihedrals phi and angles theta
@@ -388,7 +388,7 @@ _dihedral_styles = {
         "terms": "NYI",
         "description": "NYI"
     },
-    "table": { 
+    "table": {
         "form": "NYI",
         "terms": "NYI",
         "description": "NYI"
@@ -431,7 +431,7 @@ _improper_styles = {
         "terms": OrderedDict({ 
             "K": "[energy]",
             "chi0": "[degrees]"
-        })
+        }),
         "description": "This is a cossq improper"
     },
     "cvff": {
@@ -440,7 +440,7 @@ _improper_styles = {
             "K": "[energy]",
             "d": "[dimensionless]",
             "n": "[dimensionless]"
-        })
+        }),
         "description": "This is a cvff improper"
     },
     "distance": {
@@ -448,7 +448,7 @@ _improper_styles = {
         "terms": OrderedDict({ 
             "K_1": "[energy] distance^2",
             "K_4": "[energy] distance^4",
-        })
+        }),
         "description": "This is a distance improper"
     },
     "fourier": {
@@ -458,14 +458,14 @@ _improper_styles = {
             "C0": "[dimensionless]",
             "C1": "[dimensionless]",
             "C2": "[dimensionless]",
-        })
+        }),
         "description": "This is a distance improper"
     },
     "harmonic": {
         "form": "K*(chi-chi0)^2",
         "terms": OrderedDict({ 
             "K": "[energy]",
-        })
+        }),
         "description": "This is a harmonic improper"
     },
     "ring": {

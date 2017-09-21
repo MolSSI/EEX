@@ -3,7 +3,7 @@ A file containing the valid categories and fields found in energy expressions.
 """
 
 ### A list of all valid atom properties that EEX can consume
-_valid_atom_properties = {
+atom_metadata = {
     "molecule_index": {
         "required_columns": ["molecule_index"],
         "description": "The associated molecular index for a given atom.",
@@ -76,4 +76,4 @@ _valid_atom_properties = {
 }
 
 ### Build required dictionaries
-atom_property_to_column = {k: v["required_columns"] for k, v in _valid_atom_properties.items()}
+atom_property_to_column = {k: v["required_columns"] for k, v in atom_metadata.items()}

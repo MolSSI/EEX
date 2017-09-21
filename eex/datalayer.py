@@ -10,6 +10,7 @@ import collections
 
 from . import filelayer
 from . import metadata
+from . import units
 
 
 APC_DICT = metadata.atom_property_to_column
@@ -48,6 +49,8 @@ class DataLayer(object):
 
         # Setup empty parameters dictionary
         self.parameters = {}
+        self.terms = {2: {}, 3: {}, 4:{}, 5:{}, 6:{}, 7:{}}
+
 
     def _validate_table_input(self, data, needed_cols):
         if isinstance(data, (list, tuple)):
@@ -67,7 +70,7 @@ class DataLayer(object):
         Hashes the input parameters to build in internal index of unique values.
         """
 
-        field_data = metadata._valid_atom_properties[parameter_name]
+        field_data = metadata.atom_metadata[parameter_name]
         if parameter_name not in list(self.parameters):
             self.parameters[parameter_name] = {"counter": -1, "uvals": {}, "inv_uvals": {}}
 
@@ -102,7 +105,7 @@ class DataLayer(object):
         """
         Expands the unique parameters using the built in parameter_name dictionary.
         """
-        field_data = metadata._valid_atom_properties[parameter_name]
+        field_data = metadata.atom_metadata[parameter_name]
         param_dict = self.parameters[parameter_name]
 
         cols = field_data["required_columns"]
@@ -117,7 +120,7 @@ class DataLayer(object):
 
     def _store_table(self, table_name, df, parameter_name, by_value):
 
-        if by_value and not (metadata._valid_atom_properties[parameter_name]["unique"]):
+        if by_value and not (metadata.atom_metadata[parameter_name]["unique"]):
             tmp_df = self._set_unique_params(df, parameter_name)
         else:
             tmp_df = df[APC_DICT[parameter_name]]
@@ -127,7 +130,7 @@ class DataLayer(object):
     def _get_table(self, table_name, parameter_name, by_value):
 
         tmp = self.store.read_table(table_name)
-        if by_value and not (metadata._valid_atom_properties[parameter_name]["unique"]):
+        if by_value and not (metadata.atom_metadata[parameter_name]["unique"]):
             tmp = self._build_value_params(tmp, parameter_name)
         return tmp
 
@@ -249,10 +252,33 @@ class DataLayer(object):
 
         return pd.concat(df_data, axis=1)
 
-    def add_term(self, term):
+    def add_functional_form(self, order, functional_form, term_parameters, units=None):
         """
         Adds a n-body energy expression to the DataLayer object.
         """
+
+        term_md = metadata.get_term_data(order, functional_form)
+
+        if len(term_parameters) != (term_md["parameters"]):
+            raise ValueError("DataLayer:add_functional_form: Length of parameters is %d, expected %d for term '%s'." %
+                             (len(term_parameters), len(term_md["parameters"]), functional_form))
+
+        # Figure out if this a new term or not
+        if units:
+            if len(term_parameters) != len(units):
+                raise ValueError("DataLayer:add_functional_form: Length of input parameters and units must match.")
+            params = [units.ureg.Quantity(v, u) for v, u in zip(term_parameters, units)]
+
+        self.terms[order]
+
+        # index_1, index_2, term_uuid
+        # DL.register_functional_forms(metadata)
+        # uuid = DL.add_parameters(2, "class2", [0, 3, 4, 2], uuid=xx)
+        # DL.add_term(2, [[index_1, index_2, uuid]])
+        # DL.add_bond([[index_1, index_2, uuid]])
+
+        # DL.add_term([[index_1, index_2, class, [0, 3, 4, 2]])V
+
 
     def add_bonds(self, bonds):
         """
