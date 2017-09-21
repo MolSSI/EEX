@@ -65,13 +65,15 @@ _three_body_functional_forms = {
     #         "theta0": "[arcunits]",
     #     }
     # },
-    # "harmonic": {
-    #     "parameters": ["K", "theta0"],
-    #     "units": {
-    #         "K": "[energy] [arcunits] ** -2",
-    #         "theta0": "[arcunits]"
-    #     }
-    # },
+    "harmonic": {
+        "form": "K * (theta - theta0) ** 2",
+        "parameters": ["K", "theta0"],
+        "units": {
+            "K": "[energy] [arcunits] ** -2",
+            "theta0": "[arcunits]"
+        },
+        "description" : "A harmonic bond"
+    },
 }
 
 ### Do NOT edit below this line
@@ -107,4 +109,4 @@ three_body_metadata["store_indices"] = {
     "three_body_type": "Index of three_body_type stored in the DataLayer.",
 }
 
-three_body_metadata["styles"] = _three_body_functional_forms
+three_body_metadata["forms"] = _three_body_functional_forms

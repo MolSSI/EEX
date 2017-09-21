@@ -73,7 +73,7 @@ _bond_styles = {
         "form": "NYI",
         "terms": "NYI",
         "description": "NYI"
-    } 
+    }, 
     "fene": {
         "form": "-0.5*K*R0 ** 2*ln(1-(r/R0) ** 2) + 4*epsilon((sigma/r) ** 12 - (sigma/r) ** 6)) + epsilon",
         "terms": OrderedDict({
@@ -137,7 +137,7 @@ _bond_styles = {
         "form": "NYI",
         "terms": "NYI",
         "description": "NYI"
-    }
+    },
     "class2": {
         "form": "K2 * (r-r0) ** 2 + K3 * (r-r0) ** 3 + K4 * (r-r0) ** 4",
         "terms": OrderedDict({
@@ -188,11 +188,11 @@ _angle_styles = {
          }),
          "description": "This is a cosine/squared angle"
     },
-    "zero": {,
+    "zero": {
         "form": "NYI",
         "terms": "NYI",
         "description": "NYI"
-    } 
+    },
     "cosine": {
         "form": "K*(1+cos(theta))",
         "terms": OrderedDict({
@@ -369,9 +369,9 @@ _dihedral_styles = {
         "form": "0.5*K_1*(1+cos(phi))+0.5*K_2*(1-cos(2*phi))+0.5*K_3+(1+cos(3*phi))+0.5*K_4*(1-cos(4*phi))",
         "terms": OrderedDict({ 
             "K_1": "[energy]",
-            "K_2": "[energy]"
-            "K_3": "[energy]"
-            "K_4": "[energy]"
+            "K_2": "[energy]",
+            "K_3": "[energy]",
+            "K_4": "[energy]",
         }),
         "description": "This is a opls dihedral"
     },
