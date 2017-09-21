@@ -10,7 +10,7 @@ import eex_find_files
 
 def test_lammps_read():
 
-    fname = eex_find_files.get_example_filename("lammps", "data.spce")
+    fname = eex_find_files.get_example_filename("lammps", "SPCE/data.spce")
 
     dl = eex.datalayer.DataLayer("test_lammps_read")
 
