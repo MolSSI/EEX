@@ -16,6 +16,7 @@ def butane_amber_dl(request):
     yield (data, dl)
     del dl
 
+
 @pytest.fixture(scope="module", params=["HDF5", "Memory"])
 def butane_lammps_dl(request):
     fname = eex_find_files.get_example_filename("lammps", "C4/data.butane")
@@ -27,6 +28,7 @@ def butane_lammps_dl(request):
 
 # Test bond data
 
+
 def test_lammmps_amber_bonds(butane_lammps_dl, butane_amber_dl):
     amber_data, amber_dl = butane_amber_dl
     lammps_data, lammps_dl = butane_lammps_dl
@@ -36,6 +38,7 @@ def test_lammmps_amber_bonds(butane_lammps_dl, butane_amber_dl):
 
     assert amber_bonds.shape[0] == lammps_bonds.shape[0]
     assert set(np.unique(amber_bonds["bond_type"])) == set(np.unique(lammps_bonds["bond_type"]))
+
 
 """
 # Test atom data

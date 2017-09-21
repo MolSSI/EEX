@@ -53,6 +53,7 @@ def test_amber_spce_read_atoms_index(spce_dl):
     assert np.allclose(np.min(atoms["residue_index"]), 0)
     assert np.allclose(np.max(atoms["residue_index"]), 215)
 
+
 def test_amber_spce_read_bonds(spce_dl):
     data, dl = spce_dl
     # Test bond df

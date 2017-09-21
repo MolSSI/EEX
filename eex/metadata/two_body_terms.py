@@ -9,7 +9,6 @@ Each style has the following values:
 
 """
 
-
 _two_body_functional_forms = {
     # "none": {},
     # "zero": {},

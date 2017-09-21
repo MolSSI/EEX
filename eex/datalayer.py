@@ -5,12 +5,11 @@ Contains the DataLayer class (name in progress) which takes and reads various pe
 import os
 import pandas as pd
 import numpy as np
-import tables
 import collections
 
+import eex
 from . import filelayer
 from . import metadata
-from . import units
 
 APC_DICT = metadata.atom_property_to_column
 
@@ -87,7 +86,7 @@ class DataLayer(object):
         for gb_idx, udf in df.groupby(cols):
 
             # Update dictionary if necessary
-            if not gb_idx in list(param_dict["uvals"]):
+            if gb_idx not in list(param_dict["uvals"]):
                 param_dict["counter"] += 1
 
                 # Bidirectional dictionary
@@ -192,7 +191,7 @@ class DataLayer(object):
             if atom_df.index.name != index:
                 raise KeyError("DataLayer:add_atoms: DF index must be the `atom_index`.")
         else:
-            raise KeyError("DataLayer:add_atoms: Data type '%s' not understood." % type(atoms_df))
+            raise KeyError("DataLayer:add_atoms: Data type '%s' not understood." % type(atom_df))
 
         # Add a single property
         if property_name:
@@ -232,7 +231,6 @@ class DataLayer(object):
         valid_properties = list(metadata.atom_property_to_column)
 
         # Our index name
-        index = "atom_index"
         if not isinstance(properties, (tuple, list)):
             properties = [properties]
 
@@ -289,7 +287,7 @@ class DataLayer(object):
             raise KeyError("DataLayer:register_functional_forms: Key '%s' has already been registered." % str(name))
 
         # Make sure the data is valid and add
-        assert metadata.validator.validate_functional_form_dict(name, form_dictionary)
+        assert metadata.validate_functional_form_dict(name, form_dictionary)
         self._functional_forms[order][name] = form_dictionary
 
     def add_parameters(self, order, term_name, term_parameters, uid=None, units=None):
@@ -332,7 +330,7 @@ class DataLayer(object):
 
         # Obtain the parameters
         mdata = self._functional_forms[order][term_name]
-        params = metadata.validator.validate_term_dict(term_name, mdata, term_parameters)
+        params = metadata.validate_term_dict(term_name, mdata, term_parameters)
 
         # First we check if we already have it
         found_key = None

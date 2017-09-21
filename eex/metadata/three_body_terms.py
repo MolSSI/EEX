@@ -72,7 +72,7 @@ _three_body_functional_forms = {
             "K": "[energy] [arcunits] ** -2",
             "theta0": "[arcunits]"
         },
-        "description" : "A harmonic bond"
+        "description": "A harmonic bond"
     },
 }
 

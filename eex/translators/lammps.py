@@ -5,8 +5,7 @@ LAMMPS EEX I/O
 import pandas as pd
 import math
 
-from .. import datalayer
-from .. import utility
+import eex
 
 import logging
 logger = logging.getLogger(__name__)
@@ -63,6 +62,7 @@ def _get_dl_function(label):
 
     return _full_labels[label][1]
 
+
 def _get_df_columns(label):
     if label not in list(_full_labels):
         raise KeyError("LAMMPS: Label '%s' not recognized" % label)
@@ -111,9 +111,9 @@ def read_lammps_file(dl, filename, blocksize=110):
             continue
 
         # We are
-        elif utility.line_fuzzy_list(line, _full_labels_list)[0]:
+        elif eex.utility.line_fuzzy_list(line, _full_labels_list)[0]:
             startline = num + 3  # Skips first row and two blank lines
-            current_data_category = utility.line_fuzzy_list(line, _full_labels_list)[1]
+            current_data_category = eex.utility.line_fuzzy_list(line, _full_labels_list)[1]
             break
 
         # Figure out the dims
@@ -134,7 +134,7 @@ def read_lammps_file(dl, filename, blocksize=110):
                     "LAMMPS Read: The following line looks like a dimension line, but does not match:\n%s" % line)
 
         # Are we a size line?
-        elif utility.line_fuzzy_list(line, _size_keys)[0]:
+        elif eex.utility.line_fuzzy_list(line, _size_keys)[0]:
             dline = line.split()
             size = int(dline[0])
             size_name = " ".join(dline[1:])
@@ -153,7 +153,7 @@ def read_lammps_file(dl, filename, blocksize=110):
     if startline is None:
         raise IOError("LAMMPS Read: Did not find data start in %d header lines." % max_rows)
 
-    if sum((v != None) for k, v in dim_dict.items()) != 6:
+    if sum((v is not None) for k, v in dim_dict.items()) != 6:
         raise IOError("LAMMPS Read: Did not find dimension data in %d header lines." % max_rows)
 
     if ("atoms" not in list(sizes_dict)) or ("atom types" not in list(sizes_dict)):
@@ -210,5 +210,6 @@ def read_lammps_file(dl, filename, blocksize=110):
     data = {}
     data["sizes"] = sizes_dict
     data["dimensions"] = dim_dict
+    data["header"] = header
 
     return data

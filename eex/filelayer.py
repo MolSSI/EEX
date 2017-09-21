@@ -4,7 +4,6 @@ Base class for the filelayer.
 
 import os
 import pandas as pd
-import tables
 
 
 class BaseStore(object):
@@ -41,7 +40,6 @@ class HDFStore(BaseStore):
 
         # Set additional state
         self.created_tables = []
-
 
     def add_table(self, key, data):
         """
@@ -131,5 +129,3 @@ class MemoryStore(BaseStore):
             for k, v in self.tables.items():
                 v.to_hdf(store, k, format="t")
             store.close()
-
-

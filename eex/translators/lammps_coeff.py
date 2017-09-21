@@ -7,11 +7,48 @@ from collections import OrderedDict
 # NYI
 _valid_bond_variables = {"r": {"units": "[distance]", "description": "Distance between the two index atoms"}}
 
-_valid_angle_variables = {"theta": {"units": "[radian]", "description": "Angle between three consecutive atoms"}, "r": {"units": "[distance]", "description": "Distance between two given atoms"}}
+_valid_angle_variables = {
+    "theta": {
+        "units": "[radian]",
+        "description": "Angle between three consecutive atoms"
+    },
+    "r": {
+        "units": "[distance]",
+        "description": "Distance between two given atoms"
+    }
+}
 
-_valid_dihedral_variables = {"phi": {"units": "[radian]", "description": "Dihedral angle arising from four consecutive atoms"}, "theta": {"units": "[radian]", "description": "Angle between three given atoms"}, "r": {"units": "[distance]", "description": "Distance between two given atoms"}}
+_valid_dihedral_variables = {
+    "phi": {
+        "units": "[radian]",
+        "description": "Dihedral angle arising from four consecutive atoms"
+    },
+    "theta": {
+        "units": "[radian]",
+        "description": "Angle between three given atoms"
+    },
+    "r": {
+        "units": "[distance]",
+        "description": "Distance between two given atoms"
+    }
+}
 
-_valid_improper_variables = {"chi": {"units": "[radian]", "description": "Improper angle"}, "r": {"units": "[distance]", "description": "Distance between the central atom and the plane formed by the other three atoms"}, "omega":{"units": "[radian]", "description": "Angle between the vector formed by a non-central atom and the plane formed by the other three atoms"}}
+_valid_improper_variables = {
+    "chi": {
+        "units": "[radian]",
+        "description": "Improper angle"
+    },
+    "r": {
+        "units": "[distance]",
+        "description": "Distance between the central atom and the plane formed by the other three atoms"
+    },
+    "omega": {
+        "units":
+        "[radian]",
+        "description":
+        "Angle between the vector formed by a non-central atom and the plane formed by the other three atoms"
+    }
+}
 
 # Valid columns of dataframe
 _valid_bond_indices = {
@@ -25,7 +62,6 @@ _valid_bond_indices = {
     "bond_style": "Bond style name from the _bond_styles dictionary",
     "coeffs": "..."
 }
-
 
 _valid_angle_indices = {
     "atom_index1": "Index of the first atom.",
@@ -73,7 +109,7 @@ _bond_styles = {
         "form": "NYI",
         "terms": "NYI",
         "description": "NYI"
-    }, 
+    },
     "fene": {
         "form": "-0.5*K*R0 ** 2*ln(1-(r/R0) ** 2) + 4*epsilon((sigma/r) ** 12 - (sigma/r) ** 6)) + epsilon",
         "terms": OrderedDict({
@@ -160,7 +196,7 @@ _bond_styles = {
     },
     "oxdna/fene": {
         "form": "-epsilon / 2 * ln (1 - ( (r - r0) / delta)^2 ) ",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "epsilon": "[energy]",
             "delta": "[distance]",
             "r0": "[distance]"
@@ -183,10 +219,10 @@ _angle_styles = {
     "cosine/squared": {
         "form": "K*(cos(theta)-cos(theta0))^2",
         "terms": OrderedDict({
-            "K": "[energy]", 
+            "K": "[energy]",
             "theta0": "[degrees]"
-         }),
-         "description": "This is a cosine/squared angle"
+        }),
+        "description": "This is a cosine/squared angle"
     },
     "zero": {
         "form": "NYI",
@@ -197,7 +233,7 @@ _angle_styles = {
         "form": "K*(1+cos(theta))",
         "terms": OrderedDict({
             "K": "[energy]"
-         }),
+        }),
         "description": "This is a cosine potential"
     },
     "harmonic": {
@@ -215,35 +251,41 @@ _angle_styles = {
     },  # Special case - allows for more than one angle type in a simulation
     "cosine/delta": {
         "form": "K*(1+cos(theta-theta0))",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "K": "[energy]",
             "theta0": "[degree]"
-        }), 
+        }),
         "description": "This is a cosine/delta potential"
     },
     "table": {
         "form": "NYI",
         "terms": "NYI",
         "description": "NYI"
-     },
+    },
     "charmm": {
-        "form": "k*(theta-theta0)^2 + k_ub*(r-r_ub)^2",
-        "terms": OrderedDict({
+        "form":
+        "k*(theta-theta0)^2 + k_ub*(r-r_ub)^2",
+        "terms":
+        OrderedDict({
             "k": "[energy] [radian]^-2",
             "theta0": "[degree]",
             "k_ub": "[energy] distance^-2",
             "r_ub": "distance"
         }),
-        "description": "This is a charmm angle potential"
+        "description":
+        "This is a charmm angle potential"
     },
     "cosine/periodic": {
-        "form": "C * (1-B*(-1)^n*cos(n*theta))",
-        "terms": OrderedDict({
+        "form":
+        "C * (1-B*(-1)^n*cos(n*theta))",
+        "terms":
+        OrderedDict({
             "C": "[energy]",
-            "B": "[dimensionless]", #1 or -1
+            "B": "[dimensionless]",  #1 or -1
             "n": "[dimensionless]"  # 1 2 3 4 5 or 6
         }),
-        "description": "This is a cosine/periodic potential"
+        "description":
+        "This is a cosine/periodic potential"
     },
     "dipole": {
         "form": "NYI",
@@ -251,24 +293,30 @@ _angle_styles = {
         "description": "NYI"
     },
     "fourier": {
-        "form": "K*(c0+c1*cos(theta)+c2*cos(2*theta))",
-        "terms": OrderedDict({
+        "form":
+        "K*(c0+c1*cos(theta)+c2*cos(2*theta))",
+        "terms":
+        OrderedDict({
             "K": "[energy]",
             "c0": "[dimensionless]",
-            "c1": "[dimensionless]", 
-            "c2": "[dimensionless]" 
+            "c1": "[dimensionless]",
+            "c2": "[dimensionless]"
         }),
-        "description": "This is a fourier potential"
+        "description":
+        "This is a fourier potential"
     },
     "quartic": {
-        "form": "K2*(theta-theta0)^2+K3*(theta-theta0)^3+K4*(theta-theta0)^4",
-        "terms": OrderedDict({ 
+        "form":
+        "K2*(theta-theta0)^2+K3*(theta-theta0)^3+K4*(theta-theta0)^4",
+        "terms":
+        OrderedDict({
             "K2": "[energy] radian^-2",
             "K3": "[energy] radian^-3",
             "K4": "[energy] radian^-4",
-            "theta0": "[degrees]" #Lammps converts this to radians
+            "theta0": "[degrees]"  #Lammps converts this to radians
         }),
-        "description": "This is a quartic bond"
+        "description":
+        "This is a quartic bond"
     },
     "sdk": {
         "form": "NYI",
@@ -282,24 +330,20 @@ _dihedral_styles = {
         "form": "NYI",
         "terms": "NYI",
         "description": "NYI"
-     },
+    },
     "charmmfsw": {
-        "form": "K*(1 + cos(n*phi-d))",
-        "terms": OrderedDict({ 
+        "form":
+        "K*(1 + cos(n*phi-d))",
+        "terms":
+        OrderedDict({
             "K": "[energy]",
             "n": "[dimensionless]",  # must be type int, no units
-            "d": "[degrees]",  # must be type int. Differs because units must be [degrees] regardless of units command ?
+            "d":
+            "[degrees]",  # must be type int. Differs because units must be [degrees] regardless of units command ?
             "weight_factor": "[dimensionless]"
         }),
-        "description": "This is a charmm dihedral"
-    },
-    "multi/harmonic": {
-        "terms": ["A1", "A2", "A3", "A4", "A5"],
-        "A1": "[energy]",
-        "A2": "[energy]",
-        "A3": "[energy]",
-        "A4": "[energy]",
-        "A5": "[energy]",
+        "description":
+        "This is a charmm dihedral"
     },
     "zero": {
         "form": "NYI",
@@ -319,7 +363,7 @@ _dihedral_styles = {
     },
     "fourier": {
         "form": "sum_{i=1}^m k_i * (1.0 + cos(n_i * phi - d_i))",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "k_i": "[energy]",
             "n_i": "[dimensionless]",
             "d_i": "[degrees]"
@@ -328,7 +372,7 @@ _dihedral_styles = {
     },
     "harmonic": {
         "form": "K*(1+d*cos(n*phi))",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "K": "[energy]",
             "n": "[dimensionless]",
             "d": "[dimensionless]"
@@ -337,7 +381,7 @@ _dihedral_styles = {
     },
     "helix": {
         "form": "A*(1-cos(phi)) + B*(1+cos(3*phi)) + C*(1+cos(phi+pi/4))",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "A": "[energy]",
             "B": "[energy]",
             "C": "[energy]"
@@ -351,7 +395,7 @@ _dihedral_styles = {
     },
     "multi/harmonic": {
         "form": "sum_{n=1}^5 A_n*(cos(phi))^(n-1)",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "A_n": "[energy]",
             "n": "[dimensionless]"
         }),
@@ -359,7 +403,7 @@ _dihedral_styles = {
     },
     "nharmonic": {
         "form": "sum_{n=1}^n A_n*(cos(phi))^(n-1)",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "A_n": "[energy]",
             "n": "[dimensionless]"
         }),
@@ -367,7 +411,7 @@ _dihedral_styles = {
     },
     "opls": {
         "form": "0.5*K_1*(1+cos(phi))+0.5*K_2*(1-cos(2*phi))+0.5*K_3+(1+cos(3*phi))+0.5*K_4*(1-cos(4*phi))",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "K_1": "[energy]",
             "K_2": "[energy]",
             "K_3": "[energy]",
@@ -377,13 +421,14 @@ _dihedral_styles = {
     },
     "quadratic": {
         "form": "K*(phi-phi0)^2",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "K": "[energy]",
             "phi0": "[degrees]"
         }),
         "description": "This is a quadratic dihedral"
     },
-    "spherical": { #This type includes dihedrals phi and angles theta
+    "spherical":
+    {  #This type includes dihedrals phi and angles theta
         "form": "NYI",
         "terms": "NYI",
         "description": "NYI"
@@ -406,17 +451,7 @@ _improper_styles = {
         "terms": "NYI",
         "description": "NYI"
     },
-    "harmonic": {
-        "form": "NYI",
-        "terms": "NYI",
-        "description": "NYI"
-    },
-    "hybrid": {        
-        "form": "NYI",
-        "terms": "NYI",
-        "description": "NYI"
-    },
-    "umbrella": {
+    "hybrid": {
         "form": "NYI",
         "terms": "NYI",
         "description": "NYI"
@@ -428,7 +463,7 @@ _improper_styles = {
     },
     "cossq": {
         "form": "0.5*K*(cos(chi-chi0))^2",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "K": "[energy]",
             "chi0": "[degrees]"
         }),
@@ -436,7 +471,7 @@ _improper_styles = {
     },
     "cvff": {
         "form": "K*(1+d*cos(n*chi))",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "K": "[energy]",
             "d": "[dimensionless]",
             "n": "[dimensionless]"
@@ -445,25 +480,28 @@ _improper_styles = {
     },
     "distance": {
         "form": "K_2*r^2+K_4*r^4",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "K_1": "[energy] distance^2",
             "K_4": "[energy] distance^4",
         }),
         "description": "This is a distance improper"
     },
     "fourier": {
-        "form": "K*(C0+C1*cos(omega)+C2*cos(2*omega))",
-        "terms": OrderedDict({ 
+        "form":
+        "K*(C0+C1*cos(omega)+C2*cos(2*omega))",
+        "terms":
+        OrderedDict({
             "K": "[energy]",
             "C0": "[dimensionless]",
             "C1": "[dimensionless]",
             "C2": "[dimensionless]",
         }),
-        "description": "This is a distance improper"
+        "description":
+        "This is a distance improper"
     },
     "harmonic": {
         "form": "K*(chi-chi0)^2",
-        "terms": OrderedDict({ 
+        "terms": OrderedDict({
             "K": "[energy]",
         }),
         "description": "This is a harmonic improper"
@@ -473,7 +511,7 @@ _improper_styles = {
         "terms": "NYI",
         "description": "NYI"
     },
-    "umbrella": { #Used in the dreiding force field
+    "umbrella": {  #Used in the dreiding force field
         "form": "NYI",
         "terms": "NYI",
         "description": "NYI"
