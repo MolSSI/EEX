@@ -77,8 +77,13 @@ def read_lammps_file(dl, filename, blocksize=110):
 
     ### First we need to figure out system dimensions
     max_rows = 100  # How many lines do we attempt to search?
+    header_data = []
     with open(filename, "r") as infile:
-        header_data = [next(infile).strip() for x in range(max_rows)]
+        for num in range(max_rows):
+            try:
+                header_data.append(next(infile).strip())
+            except StopIteration:
+                break
 
     dim_dict = {
         "xlo": None,
