@@ -75,7 +75,7 @@ mol reanalyze top
 pbc set {10.0 10.0 10.0 90.0 90.0 90.0}
 
 # we use a high-level tool from to multiply the system.
-TopoTools::replicatemol top 8 8 8
+TopoTools::replicatemol top 1 1 1
 
 # and write out the result as a lammps data file.
 topo writelammpsdata data.ethane full
