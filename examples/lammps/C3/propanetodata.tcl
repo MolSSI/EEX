@@ -80,7 +80,7 @@ mol reanalyze top
 pbc set {100.0 100.0 100.0 90.0 90.0 90.0}
 
 # we use a high-level tool from to multiply the system.
-TopoTools::replicatemol top 4 4 4
+TopoTools::replicatemol top 1 1 1
 
 # and write out the result as a lammps data file.
 topo writelammpsdata data.propane full
