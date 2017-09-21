@@ -76,6 +76,7 @@ def test_list_bonds(backend):
     dl_df = dl_df.reset_index()
     tmp_df.equals(dl_df)
 
+
 def test_register_functional_forms():
 
     dl = eex.datalayer.DataLayer("test_functional_forms")
@@ -95,14 +96,16 @@ def test_register_functional_forms():
     with pytest.raises(KeyError):
         dl.register_functional_forms(2, "harmonic2", {"form": "(x-x0)**2"})
 
+
 def test_add_parameters():
 
     dl = eex.datalayer.DataLayer("test_functional_forms")
 
     # Add a few functional forms
-    dl.register_functional_forms(2, "harmonic", eex.metadata.get_term_data(2, "forms", "harmonic"))
-    dl.register_functional_forms(3, "harmonic", eex.metadata.get_term_data(3, "forms", "harmonic"))
-
+    two_body_md = eex.metadata.get_term_data(2, "forms", "harmonic")
+    three_body_md = eex.metadata.get_term_data(3, "forms", "harmonic")
+    dl.register_functional_forms(2, "harmonic", two_body_md)
+    dl.register_functional_forms(3, "harmonic", three_body_md)
 
     # Check duplicates
     assert 0 == dl.add_parameters(2, "harmonic", [4.0, 5.0])
@@ -125,6 +128,18 @@ def test_add_parameters():
     assert 15 == dl.add_parameters(2, "harmonic", [22.0, 22.0], uid=15)
     assert 11 == dl.add_parameters(2, "harmonic", [22.0, 22.0], uid=11)
 
+    # Check add by dict
+    mdp = two_body_md["parameters"]
+    assert 0 == dl.add_parameters(2, "harmonic", {mdp[0]: 4.0, mdp[1]: 5.0})
+    assert 1 == dl.add_parameters(2, "harmonic", {mdp[0]: 4.0, mdp[1]: 6.0})
+    assert 3 == dl.add_parameters(2, "harmonic", {mdp[0]: 4.0, mdp[1]: 7.0})
+
+    with pytest.raises(KeyError):
+        dl.add_parameters(2, "harmonic", {mdp[0]: 4.0, "turtle": 5.0})
+
+    mdp = three_body_md["parameters"]
+    assert 0 == dl.add_parameters(3, "harmonic", {mdp[0]: 4.0, mdp[1]: 6.0})
+
     # Check uid type
     with pytest.raises(TypeError):
         dl.add_parameters(2, "harmonic", [11.0, 9.0], uid="turtle")
@@ -142,4 +157,3 @@ def test_add_parameters():
 
     with pytest.raises(KeyError):
         dl.add_parameters(2, "harmonic_abc", [4.0, 5.0])
-
