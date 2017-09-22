@@ -79,9 +79,9 @@ class HDFStore(BaseStore):
 
         return pd.read_hdf(self.store, key)
 
-    def __del__(self):
+    def close(self):
         """
-        On objection deletion close the store and remove store (optional)
+        Closes the FL file.
         """
 
         self.store.close()
@@ -90,6 +90,14 @@ class HDFStore(BaseStore):
                 os.unlink(self.store_filename)
             except IOError:
                 pass
+
+    def __del__(self):
+        """
+        On objection deletion close the store and remove store (optional)
+        """
+
+        self.close()
+
 
 
 class MemoryStore(BaseStore):
@@ -123,9 +131,16 @@ class MemoryStore(BaseStore):
 
         return self.tables[key]
 
-    def __del__(self):
+    def close(self):
+        """
+        Closes the FL file.
+        """
+
         if self.save_data:
             store = pd.HDFStore(self.store_filename)
             for k, v in self.tables.items():
                 v.to_hdf(store, k, format="t")
             store.close()
+
+    def __del__(self):
+       self.close()

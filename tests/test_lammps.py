@@ -7,13 +7,14 @@ import pytest
 import pandas as pd
 import eex_find_files
 
-@pytest.fixture(scope="module", params=["HDF5", "Memory"])
+@pytest.fixture(scope="module", params=["HDF5"])
+# @pytest.fixture(scope="module", params=["HDF5", "Memory"])
 def spce_dl(request):
     fname = eex_find_files.get_example_filename("lammps", "data.spce")
-    dl = eex.datalayer.DataLayer("test_amber_read", backend=request.param)
+    dl = eex.datalayer.DataLayer("test_lammps_read", backend=request.param)
     data = eex.translators.lammps.read_lammps_file(dl, fname)
     yield (data, dl)
-    del dl
+    dl.close()
 
 def test_lammps_read_data(spce_dl):
     data, dl = spce_dl
@@ -24,8 +25,8 @@ def test_lammps_read_data(spce_dl):
     assert data["sizes"]["angles"] == 200
     assert data["sizes"]["angle types"] == 1
 
-    assert data["dimensions"]["xlo"] == -12.362
-    assert data["dimensions"]["xhi"] == 12.362
+    assert data["dimensions"]["xlo"] == pytest.approx(-12.362, 1.e-6)
+    assert data["dimensions"]["xhi"] == pytest.approx(12.362, 1.e-6)
 
 def test_lammps_read_atoms(spce_dl):
     data, dl = spce_dl

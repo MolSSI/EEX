@@ -14,7 +14,7 @@ def spce_dl(request):
     dl = eex.datalayer.DataLayer("test_amber_read", backend=request.param)
     data = eex.translators.amber.read_amber_file(dl, fname)
     yield (data, dl)
-    del dl
+    dl.close()
 
 
 def test_amber_spce_read_data(spce_dl):

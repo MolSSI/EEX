@@ -116,6 +116,12 @@ class DataLayer(object):
 
         return ret_df
 
+    def close(self):
+        """
+        Closes the DL object
+        """
+        self.store.close()
+
     def _store_atom_table(self, table_name, df, parameter_name, by_value):
         """
         Internal way to store atom tables
@@ -498,3 +504,4 @@ class DataLayer(object):
             tmp_data.append(self.store.read_table(k))
 
         return pd.concat(tmp_data, axis=1)
+

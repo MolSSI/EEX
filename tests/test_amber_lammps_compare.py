@@ -14,7 +14,7 @@ def butane_amber_dl(request):
     dl = eex.datalayer.DataLayer("test_amber_read", backend=request.param)
     data = eex.translators.amber.read_amber_file(dl, fname)
     yield (data, dl)
-    del dl
+    dl.close()
 
 
 @pytest.fixture(scope="module", params=["HDF5", "Memory"])
@@ -23,12 +23,10 @@ def butane_lammps_dl(request):
     dl = eex.datalayer.DataLayer("test_amber_read", backend=request.param)
     data = eex.translators.lammps.read_lammps_file(dl, fname)
     yield (data, dl)
-    del dl
+    dl.close()
 
 
 # Test bond data
-
-
 def test_lammmps_amber_bonds(butane_lammps_dl, butane_amber_dl):
     amber_data, amber_dl = butane_amber_dl
     lammps_data, lammps_dl = butane_lammps_dl
