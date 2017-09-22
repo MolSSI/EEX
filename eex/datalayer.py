@@ -5,12 +5,11 @@ Contains the DataLayer class (name in progress) which takes and reads various pe
 import os
 import pandas as pd
 import numpy as np
-import tables
 import collections
 
+import eex
 from . import filelayer
 from . import metadata
-from . import units
 
 APC_DICT = metadata.atom_property_to_column
 
@@ -87,7 +86,7 @@ class DataLayer(object):
         for gb_idx, udf in df.groupby(cols):
 
             # Update dictionary if necessary
-            if not gb_idx in list(param_dict["uvals"]):
+            if gb_idx not in list(param_dict["uvals"]):
                 param_dict["counter"] += 1
 
                 # Bidirectional dictionary
@@ -116,6 +115,12 @@ class DataLayer(object):
             ret_df.loc[udf.index, parameter_name] = param_dict["inv_uvals"][gb_idx]
 
         return ret_df
+
+    def close(self):
+        """
+        Closes the DL object
+        """
+        self.store.close()
 
     def _store_atom_table(self, table_name, df, parameter_name, by_value):
         """
@@ -192,7 +197,7 @@ class DataLayer(object):
             if atom_df.index.name != index:
                 raise KeyError("DataLayer:add_atoms: DF index must be the `atom_index`.")
         else:
-            raise KeyError("DataLayer:add_atoms: Data type '%s' not understood." % type(atoms_df))
+            raise KeyError("DataLayer:add_atoms: Data type '%s' not understood." % type(atom_df))
 
         # Add a single property
         if property_name:
@@ -232,7 +237,6 @@ class DataLayer(object):
         valid_properties = list(metadata.atom_property_to_column)
 
         # Our index name
-        index = "atom_index"
         if not isinstance(properties, (tuple, list)):
             properties = [properties]
 
@@ -289,7 +293,7 @@ class DataLayer(object):
             raise KeyError("DataLayer:register_functional_forms: Key '%s' has already been registered." % str(name))
 
         # Make sure the data is valid and add
-        assert metadata.validator.validate_functional_form_dict(name, form_dictionary)
+        assert metadata.validate_functional_form_dict(name, form_dictionary)
         self._functional_forms[order][name] = form_dictionary
 
     def add_parameters(self, order, term_name, term_parameters, uid=None, units=None):
@@ -332,7 +336,7 @@ class DataLayer(object):
 
         # Obtain the parameters
         mdata = self._functional_forms[order][term_name]
-        params = metadata.validator.validate_term_dict(term_name, mdata, term_parameters)
+        params = metadata.validate_term_dict(term_name, mdata, term_parameters)
 
         # First we check if we already have it
         found_key = None
@@ -391,6 +395,32 @@ class DataLayer(object):
 
         # DL.add_term([[index_1, index_2, class, [0, 3, 4, 2]])V
 
+    def add_terms(self, order, df):
+
+
+        order = metadata.sanitize_term_order_name(order)
+        if order not in list(self._functional_forms):
+            raise KeyError("DataLayer:add_terms: Did not understand order key '%s'." % str(order))
+
+        req_cols = metadata.get_term_metadata(order, "index_columns")
+
+        not_found = set(req_cols) - set(df.columns)
+        if not_found:
+            raise KeyError("DataLayer:add_terms: Missing required columns '%s' for order %d" % (str(not_found), order))
+
+        if "term_index" in df.columns:
+            df = df[req_cols + ["term_index"]]
+        else:
+            raise Exception("NYI: Add terms by *not* term_index")
+        self.store.add_table("term" + str(order), df)
+
+    def read_terms(self, order):
+        order = metadata.sanitize_term_order_name(order)
+        if order not in list(self._functional_forms):
+            raise KeyError("DataLayer:add_terms: Did not understand order key '%s'." % str(order))
+
+        return self.store.read_table("term" + str(order))
+
     def add_bonds(self, bonds):
         """
         Adds bond using a index notation.
@@ -407,20 +437,13 @@ class DataLayer(object):
             Returns a boolean value if the operations was successful or not
         """
 
-        needed_cols = ["bond_index", "atom1_index", "atom2_index", "bond_type"]
-
-        bonds = self._validate_table_input(bonds, needed_cols)
-
-        # Reorder columns
-        bonds = bonds[needed_cols]
-
-        self.store.add_table("bonds", bonds)
+        self.add_terms("bonds", bonds)
 
         return True
 
     def get_bonds(self):
 
-        return self.store.read_table("bonds")
+        return self.read_terms("bonds")
 
     def add_angles(self, angles):
         """
@@ -438,18 +461,11 @@ class DataLayer(object):
             Returns a boolean value if the operations was successful or not
         """
 
-        needed_cols = ["angle_index", "atom1_index", "atom2_index", "atom3_index", "angle_type"]
-
-        angles = self._validate_table_input(angles, needed_cols)
-
-        # Reorder columns
-        angles = angles[needed_cols]
-
-        self.store.add_table("angles", angles)
+        self.add_terms("angles", angles)
 
     def get_angles(self):
 
-        return self.store.read_table("angles")
+        return self.read_terms("angles")
 
     def call_by_string(self, *args, **kwargs):
 
@@ -500,3 +516,4 @@ class DataLayer(object):
             tmp_data.append(self.store.read_table(k))
 
         return pd.concat(tmp_data, axis=1)
+

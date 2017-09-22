@@ -5,8 +5,7 @@ LAMMPS EEX I/O
 import pandas as pd
 import math
 
-from .. import datalayer
-from .. import utility
+import eex
 
 import logging
 logger = logging.getLogger(__name__)
@@ -30,8 +29,8 @@ _coeff_labels = {
 _data_labels = {
     "Masses": ("atom types", "NYI"),
     "Atoms": ("atoms", "add_atoms", ["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"]),
-    "Bonds": ("bonds", "add_bonds", ["bond_index", "bond_type", "atom1_index", "atom2_index"]),
-    "Angles": ("angles", "add_angles", ["angle_index", "angle_type", "atom1_index", "atom2_index", "atom3_index"]),
+    "Bonds": ("bonds", "add_bonds", ["bond_index", "term_index", "atom1", "atom2"]),
+    "Angles": ("angles", "add_angles", ["angle_index", "term_index", "atom1", "atom2", "atom3"]),
     "Dihedrals": ("dihedrals", "NYI"),
     "Impropers": ("impropers", "NYI"),
 }
@@ -63,6 +62,7 @@ def _get_dl_function(label):
 
     return _full_labels[label][1]
 
+
 def _get_df_columns(label):
     if label not in list(_full_labels):
         raise KeyError("LAMMPS: Label '%s' not recognized" % label)
@@ -77,13 +77,7 @@ def read_lammps_file(dl, filename, blocksize=110):
 
     ### First we need to figure out system dimensions
     max_rows = 100  # How many lines do we attempt to search?
-    header_data = []
-    with open(filename, "r") as infile:
-        for num in range(max_rows):
-            try:
-                header_data.append(next(infile).strip())
-            except StopIteration:
-                break
+    header_data = eex.utility.read_lines(filename, max_rows)
 
     dim_dict = {
         "xlo": None,
@@ -111,9 +105,9 @@ def read_lammps_file(dl, filename, blocksize=110):
             continue
 
         # We are
-        elif utility.line_fuzzy_list(line, _full_labels_list)[0]:
+        elif eex.utility.line_fuzzy_list(line, _full_labels_list)[0]:
             startline = num + 3  # Skips first row and two blank lines
-            current_data_category = utility.line_fuzzy_list(line, _full_labels_list)[1]
+            current_data_category = eex.utility.line_fuzzy_list(line, _full_labels_list)[1]
             break
 
         # Figure out the dims
@@ -134,7 +128,7 @@ def read_lammps_file(dl, filename, blocksize=110):
                     "LAMMPS Read: The following line looks like a dimension line, but does not match:\n%s" % line)
 
         # Are we a size line?
-        elif utility.line_fuzzy_list(line, _size_keys)[0]:
+        elif eex.utility.line_fuzzy_list(line, _size_keys)[0]:
             dline = line.split()
             size = int(dline[0])
             size_name = " ".join(dline[1:])
@@ -153,7 +147,7 @@ def read_lammps_file(dl, filename, blocksize=110):
     if startline is None:
         raise IOError("LAMMPS Read: Did not find data start in %d header lines." % max_rows)
 
-    if sum((v != None) for k, v in dim_dict.items()) != 6:
+    if sum((v is not None) for k, v in dim_dict.items()) != 6:
         raise IOError("LAMMPS Read: Did not find dimension data in %d header lines." % max_rows)
 
     if ("atoms" not in list(sizes_dict)) or ("atom types" not in list(sizes_dict)):
@@ -210,5 +204,6 @@ def read_lammps_file(dl, filename, blocksize=110):
     data = {}
     data["sizes"] = sizes_dict
     data["dimensions"] = dim_dict
+    data["header"] = header
 
     return data

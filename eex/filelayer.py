@@ -4,7 +4,6 @@ Base class for the filelayer.
 
 import os
 import pandas as pd
-import tables
 
 
 class BaseStore(object):
@@ -42,7 +41,6 @@ class HDFStore(BaseStore):
         # Set additional state
         self.created_tables = []
 
-
     def add_table(self, key, data):
         """
         Appends or builds a new table
@@ -55,13 +53,18 @@ class HDFStore(BaseStore):
             The data to append to the table
         """
 
+        # We do nothing for zero data
+        if 0 in data.shape:
+            return False
+
         # Do we append, or do we need a new table?
         do_append = True
-        if key not in self.created_tables:
+        if (key not in self.created_tables):
             do_append = False
             self.created_tables.append(key)
 
         data.to_hdf(self.store, key, format="t", append=do_append)
+        return True
 
     def read_table(self, key, rows=None, where=None, chunksize=None):
         """
@@ -81,17 +84,29 @@ class HDFStore(BaseStore):
 
         return pd.read_hdf(self.store, key)
 
-    def __del__(self):
+    def close(self):
         """
-        On objection deletion close the store and remove store (optional)
+        Closes the FL file.
         """
 
         self.store.close()
         if not self.save_data:
             try:
                 os.unlink(self.store_filename)
-            except IOError:
+            except OSError:
                 pass
+
+    def list_tables(self):
+
+        return list(self.created_tables)
+
+    def __del__(self):
+        """
+        On objection deletion close the store and remove store (optional)
+        """
+
+        self.close()
+
 
 
 class MemoryStore(BaseStore):
@@ -125,11 +140,20 @@ class MemoryStore(BaseStore):
 
         return self.tables[key]
 
-    def __del__(self):
+    def close(self):
+        """
+        Closes the FL file.
+        """
+
         if self.save_data:
             store = pd.HDFStore(self.store_filename)
             for k, v in self.tables.items():
                 v.to_hdf(store, k, format="t")
             store.close()
 
+    def list_tables(self):
 
+        return list(self.tables)
+
+    def __del__(self):
+       self.close()

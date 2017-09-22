@@ -8,13 +8,16 @@ import pandas as pd
 import eex_find_files
 
 
-@pytest.fixture(scope="module", params=["HDF5", "Memory"])
+# @pytest.fixture(scope="module", params=["HDF5", "Memory"])
+@pytest.fixture(scope="module", params=["HDF5"])
+# @pytest.fixture(scope="module", params=["Memory"])
 def spce_dl(request):
     fname = eex_find_files.get_example_filename("amber", "water/spce.prmtop")
     dl = eex.datalayer.DataLayer("test_amber_read", backend=request.param)
     data = eex.translators.amber.read_amber_file(dl, fname)
+    print("-- Built AMBER SPCE DL --")
     yield (data, dl)
-    del dl
+    dl.close()
 
 
 def test_amber_spce_read_data(spce_dl):
@@ -53,9 +56,10 @@ def test_amber_spce_read_atoms_index(spce_dl):
     assert np.allclose(np.min(atoms["residue_index"]), 0)
     assert np.allclose(np.max(atoms["residue_index"]), 215)
 
+
 def test_amber_spce_read_bonds(spce_dl):
     data, dl = spce_dl
     # Test bond df
     bonds = dl.get_bonds()
     assert bonds.shape[0] == 648
-    assert set(np.unique(bonds["bond_type"])) == set([1, 2])
+    assert set(np.unique(bonds["term_index"])) == set([1, 2])

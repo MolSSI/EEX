@@ -2,10 +2,10 @@
 Provides helper functions that validate the functional data.
 """
 
+from eex import units
+
 term_requied_fields = ['variables', 'store_name', 'store_indices', 'forms']
 functional_form_required_fields = ['form', 'parameters', 'units', 'description']
-
-from eex import units
 
 
 def validate_term_dict(name, functional_form, parameters):

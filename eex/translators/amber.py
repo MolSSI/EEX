@@ -13,8 +13,8 @@ try:
 except ImportError:
     from io import StringIO
 
-from .. import datalayer
-from .. import utility
+#from .. import eex.utility
+import eex
 
 import logging
 
@@ -82,38 +82,52 @@ _data_units = {
     Gives units of sections with units - for conversions NYI
 
     """
-
-    "CHARGE": ["18.2223*e"],  # Internal units
-    "MASS": ["g mol^-1"],
-    "BOND_FORCE_CONSTANT": ["kcal mol^-1 Angstrom^-2"],
-    "BOND_EQUIL_VALUE": ["Angstrom"],
-    "ANGLE_FORCE_CONSTANT": ["kcal mol^-2 radian^2"],
+    "CHARGE": ["18.2223 * e"],  # Internal units
+    "MASS": ["g * mol ** -1"],
+    "BOND_FORCE_CONSTANT": ["kcal * mol ** -1 angstrom ** -2"],
+    "BOND_EQUIL_VALUE": ["angstrom"],
+    "ANGLE_FORCE_CONSTANT": ["kcal * mol ** -2 radian ** 2"],
     "ANGLE_EQUIL_VALUE": ["radian"],
-    "DIHEDRAL_FORCE_CONSTANT": ["kcal mol^-1"],
+    "DIHEDRAL_FORCE_CONSTANT": ["kcal * mol ** -1"],
     "DIHEDRAL_PHASE": ["radian"],
-    "LENNARD_JONES_ACOEFF": ["kcal mol^-12"],
-    "LENNARD_JONES_BCOEFF": ["kcal mol^-6"],
+    "LENNARD_JONES_ACOEFF": ["kcal * mol ** -12"],
+    "LENNARD_JONES_BCOEFF": ["kcal * mol ** -6"],
 }
 
-_atom_property_names = {"ATOM_NAME": "atom_name",
-                        "CHARGE": "charge",
-                        "MASS": "mass",
-                        "ATOM_TYPE_INDEX": "atom_type",
-                        "ATOMIC_NUMBER": "atomic_number",
-                        # "AMBER_ATOM_TYPE": "atom_type_name",
-                        # "RADII" : "implicit_solvent_radius",
-                        }
+_atom_property_names = {
+    "ATOM_NAME": "atom_name",
+    "CHARGE": "charge",
+    "MASS": "mass",
+    "ATOM_TYPE_INDEX": "atom_type",
+    "ATOMIC_NUMBER": "atomic_number",
+    # "AMBER_ATOM_TYPE": "atom_type_name",
+    # "RADII" : "implicit_solvent_radius",
+}
 
 _residue_store_names = ["RESIDUE_LABEL", "RESIDUE_POINTER"]
 
-_topology_store_names = ["BONDS_INC_HYDROGEN", "BONDS_WITHOUT_HYDROGEN", "ANGLES_INC_HYDROGEN", "ANGLES_WITHOUT_HYDROGEN",
-                         "DIHEDRALS_INC_HYDROGEN", "DIHEDRALS_WITHOUT_HYDROGEN"]
+_topology_store_names = [
+    "BONDS_INC_HYDROGEN", "BONDS_WITHOUT_HYDROGEN", "ANGLES_INC_HYDROGEN", "ANGLES_WITHOUT_HYDROGEN",
+    "DIHEDRALS_INC_HYDROGEN", "DIHEDRALS_WITHOUT_HYDROGEN"
+]
 
+_forcefield_parameters = [
+    "BOND_FORCE_CONSTANT",
+    "BOND_EQUIL_VALUE",
+    "ANGLE_FORCE_CONSTANT",
+    "ANGLE_EQUIL_VALUE",
+    "DIHEDRAL_FORCE_CONSTANT",
+    "DIHEDRAL_PERIODICITY",
+    "DIHEDRAL_PHASE",
+    "LENNARD_JONES_ACOEFF",
+    "LENNARD_JONES_BCOEFF",
+]
 
-_forcefield_parameters = ["BOND_FORCE_CONSTANT", "BOND_EQUIL_VALUE", "ANGLE_FORCE_CONSTANT", "ANGLE_EQUIL_VALUE",
-                          "DIHEDRAL_FORCE_CONSTANT", "DIHEDRAL_PERIODICITY", "DIHEDRAL_PHASE", "LENNARD_JONES_ACOEFF",
-                          "LENNARD_JONES_BCOEFF", ]
-
+_current_topology_indices = {
+    "bonds": [3, 0, np.array([])],
+    "angles": [4, 0, np.array([])],
+    "dihedrals": [5, 0, np.array([])],
+}
 
 def _parse_format(string):
     """
@@ -167,14 +181,16 @@ def _data_flatten(data, column_name, category_index, df_index_name):
     df.dropna(axis=0, how="any", inplace=True)
     return df
 
+
 def _data_reshape(data, num_columns):
     data_values = data.values
     # Remove nans
     data_process = data_values[~np.isnan(data_values)]
     # Reshape data
-    data_shape = data_process.reshape(-1,num_columns)
+    data_shape = data_process.reshape(-1, num_columns)
     df = pd.DataFrame(data=data_shape)
     return df
+
 
 def process_topology_section(keyword_df, keyword, num_columns):
 
@@ -182,22 +198,22 @@ def process_topology_section(keyword_df, keyword, num_columns):
     keyword_reshape = _data_reshape(keyword_df[keyword], num_columns)
 
     # Calculate atom indices for angles
-    keyword_reshape.loc[:, 0:(num_columns-2)] = (keyword_reshape.loc[:, 0:(num_columns-2)] / 3 + 1).astype(int)
+    keyword_reshape.loc[:, 0:(num_columns - 2)] = (keyword_reshape.loc[:, 0:(num_columns - 2)] / 3 + 1).astype(int)
 
     # Figure out column names
-    col_name = ["atom"+str(x)+"_index" for x in range(1,num_columns)]
-    col_name.append(keyword[:-1]+"_type")
+    col_name = ["atom" + str(x) + "_index" for x in range(1, num_columns)]
+    col_name.append(keyword[:-1] + "_type")
 
     keyword_reshape.columns = col_name
-    keyword_reshape[keyword[:-1]+"_index"] = keyword_reshape.index
+    keyword_reshape[keyword[:-1] + "_index"] = keyword_reshape.index
 
     return keyword_reshape
+
 
 def read_amber_file(dl, filename, blocksize=5000):
     ### First we need to figure out system dimensions
     max_rows = 100  # How many lines do we attempt to search?
-    with open(filename, "r") as infile:
-        header_data = [next(infile).strip() for x in range(max_rows)]
+    header_data = eex.utility.read_lines(filename, max_rows)
 
     sizes_dict = {}
     ret_data = {}
@@ -265,7 +281,7 @@ def read_amber_file(dl, filename, blocksize=5000):
     for line in file_handle:
         if counter > 100:
             raise KeyError("AMBER Read: Could not find the line a data category in the first 100 lines.")
-        matched, name = utility.line_fuzzy_list(line, list(_data_labels))
+        matched, name = eex.utility.line_fuzzy_list(line, list(_data_labels))
         if matched:
             current_data_category = name
             current_data_type = _parse_format(next(file_handle))
@@ -314,7 +330,7 @@ def read_amber_file(dl, filename, blocksize=5000):
 
                 # Scale charge by constant used in AMBER to get units of e
                 if current_data_category == "CHARGE":
-                    df['charge'] = df['charge']/18.2223
+                    df['charge'] = df['charge'] / 18.2223
 
                 # Add the data to DL
                 dl.add_atoms(df, by_value=True)
@@ -332,9 +348,54 @@ def read_amber_file(dl, filename, blocksize=5000):
 
             # Store bond, angle, dihedrals
             elif current_data_category in list(_topology_store_names):
+                print(current_data_category, data.shape)
                 category = current_data_category.split("_")[0].lower()
-                df = _data_flatten(data, category, category_index, "index")
-                dl.add_other(category, df.astype(int, inplace=True))
+
+                mod_size, current_size, remaining_data = _current_topology_indices[category]
+
+
+                data = data.values.ravel()
+                data = data[np.isfinite(data)]
+
+                # Prepend remaining data
+                if remaining_data.size:
+                    data = np.hstack((remaining_data))
+
+                # Get current remaining and
+                remaining = data.size % mod_size
+                if remaining:
+                    data = data[:-remaining]
+                    _current_topology_indices[category][-1] = data[-remaining:].copy()
+                else:
+                    _current_topology_indices[category][-1] = np.array([])
+
+
+                data = data.reshape(-1, mod_size).astype(int)
+
+                # Weird AMBER indexing, we have: atom1, atom2, ..., term_index
+                # Atom indices are (index / 3 + 1)
+                data[:, :-1] = data[:, :-1] / 3 + 1
+
+                # Build column names and atom sizes
+                col_name = ["atom" + str(x) for x in range(1, mod_size)]
+                col_name.append("term_index")
+
+                index = np.arange(current_size, data.shape[0] + current_size, dtype=int)
+
+                # Build and curate the data
+                df_dict = {}
+                # df_dict["index"] = index
+                for num, name in enumerate(col_name):
+                    df_dict[name] = data[:, num]
+
+                print("\nDF Shape")
+                df = pd.DataFrame(df_dict, index=index)
+                print(df.shape)
+                df.dropna(axis=0, how="any", inplace=True)
+
+                print(df.shape)
+                print(df.tail())
+                dl.add_terms(mod_size - 1, df)
 
             else:
                 # logger.debug("Did not understand data category.. passing")
@@ -373,7 +434,7 @@ def read_amber_file(dl, filename, blocksize=5000):
             except StopIteration:
                 break
 
-        matched, current_data_category = utility.line_fuzzy_list(category_line, list(_data_labels))
+        matched, current_data_category = eex.utility.line_fuzzy_list(category_line, list(_data_labels))
         if not matched:
             raise KeyError("AMBER Read: Data category '%s' not understood" % category_line)
 
@@ -392,37 +453,13 @@ def read_amber_file(dl, filename, blocksize=5000):
     sizes = np.concatenate((sizes, [last_size])).astype(np.int)
 
     res_df["residue_index"] = np.arange(0, res_df.shape[0])
-    res_df = pd.DataFrame({"residue_index": np.repeat(res_df["residue_index"].values, sizes, axis=0),
-                           "residue_name": np.repeat(res_df["RESIDUE_LABEL"].values.astype('str'), sizes, axis=0)})
+    res_df = pd.DataFrame({
+        "residue_index": np.repeat(res_df["residue_index"].values, sizes, axis=0),
+        "residue_name": np.repeat(res_df["RESIDUE_LABEL"].values.astype('str'), sizes, axis=0)
+    })
 
     res_df.index.name = "atom_index"
     dl.add_atoms(res_df, by_value=True)
-
-
-    # Handle bonds, angles, dihedrals
-
-    # These statements can be combined later. 'if' statements necessary for systems with 0 bonds, angles, or dihedrals
-    if ((label_sizes["BONDS_INC_HYDROGEN"] + label_sizes['BONDS_WITHOUT_HYDROGEN']) > 0):
-        bond_df = dl.get_other("bonds")
-        bond_reshape = process_topology_section(bond_df, "bonds", 3)
-
-        dl.add_bonds(bond_reshape)
-
-    if ((label_sizes["ANGLES_INC_HYDROGEN"] + label_sizes['ANGLES_WITHOUT_HYDROGEN']) > 0):
-        # Handle angles
-        angle_df = dl.get_other("angles")
-        angle_reshape = process_topology_section(angle_df, "angles", 4)
-
-        # Add angles to data layer
-        dl.add_angles(angle_reshape)
-
-    if ((label_sizes["DIHEDRALS_INC_HYDROGEN"] + label_sizes['DIHEDRALS_WITHOUT_HYDROGEN']) > 0):
-        dihedral_df = dl.get_other("dihedrals")
-        dihedral_reshape = process_topology_section(dihedral_df,"dihedrals", 5)
-        # NYI -
-        # There are also considerations here for multi term torsions, etc
-        #dl.add_dihedrals(dihedral_reshape)
-
 
     file_handle.close()
     return ret_data

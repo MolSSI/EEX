@@ -4,23 +4,53 @@ Dictionaries for coeff format and units - http://lammps.sandia.gov/doc/Section_c
 
 from collections import OrderedDict
 
-# NYI
-_valid_bond_variables = {"r": {"parameters": ["","",""],
-        "units": "[length]", "description": "Distance between the two index atoms"}}
+_valid_bond_variables = {
+    "r": {
+        "units": "[length]", 
+        "description": "Distance between the two index atoms"
+    },
+}
 
-_valid_angle_variables = {"theta": {"parameters": ["","",""],
-        "units": "[radian]", "description": "Angle between three consecutive atoms"}, "r": {"parameters": ["","",""],
-        "units": "[length]", "description": "Distance between two given atoms"}}
+_valid_angle_variables = {
+    "theta": {
+        "units": "[radian]",
+        "description": "Angle between three consecutive atoms"
+    },
+    "r": {
+        "units": "[length]",
+        "description": "Distance between two given atoms"
+    }
+}
 
-_valid_dihedral_variables = {"phi": {"parameters": ["","",""],
-        "units": "[radian]", "description": "Dihedral angle arising from four consecutive atoms"}, "theta": {"parameters": ["","",""],
-        "units": "[radian]", "description": "Angle between three given atoms"}, "r": {"parameters": ["","",""],
-        "units": "[length]", "description": "Distance between two given atoms"}}
+_valid_dihedral_variables = {
+    "phi": {
+        "units": "[radian]",
+        "description": "Dihedral angle arising from four consecutive atoms"
+    },
+    "theta": {
+        "units": "[radian]",
+        "description": "Angle between three given atoms"
+    },
+    "r": {
+        "units": "[distance]",
+        "description": "Distance between two given atoms"
+    }
+}
 
-_valid_improper_variables = {"chi": {"parameters": ["","",""],
-        "units": "[radian]", "description": "Improper angle"}, "r": {"parameters": ["","",""],
-        "units": "[length]", "description": "Distance between the central atom and the plane formed by the other three atoms"}, "omega":{"parameters": ["","",""],
-        "units": "[radian]", "description": "Angle between the vector formed by a non-central atom and the plane formed by the other three atoms"}}
+_valid_improper_variables = {
+    "chi": {
+        "units": "[radian]",
+        "description": "Improper angle"
+    },
+    "r": {
+        "units": "[distance]",
+        "description": "Distance between the central atom and the plane formed by the other three atoms"
+    },
+    "omega": {
+        "units": "[radian]",
+        "description": "Angle between the vector formed by a non-central atom and the plane formed by the other three atoms"
+    }
+}
 
 # Valid columns of dataframe
 _valid_bond_indices = {
@@ -34,7 +64,6 @@ _valid_bond_indices = {
     "bond_style": "Bond style name from the _bond_styles dictionary",
     "coeffs": "..."
 }
-
 
 _valid_angle_indices = {
     "atom_index1": "Index of the first atom.",
@@ -83,7 +112,7 @@ _bond_styles = {
         "parameters": "NYI",
         "units": "NYI",
         "description": "NYI"
-    }, 
+    },
     "fene": {
         "form": "-0.5*K*R0 ** 2*ln(1-(r/R0) ** 2) + 4*epsilon((sigma/r) ** 12 - (sigma/r) ** 6)) + epsilon",
         "parameters": ["K","R0","epsilon","sigma"],
@@ -255,7 +284,7 @@ _angle_styles = {
         "parameters": "NYI",
         "units": "NYI",
         "description": "NYI"
-     },
+    },
     "charmm": {
         "form": "k*(theta-theta0)**2 + k_ub*(r-r_ub)**2",
         "parameters": ["k","theta0","k_ub","r_ub"],
@@ -272,7 +301,7 @@ _angle_styles = {
         "parameters": ["C","B","n"],
         "units": {
             "C": "[energy]",
-            "B": "[dimensionless]", #1 or -1
+            "B": "[dimensionless]",  #1 or -1
             "n": "[dimensionless]"  # 1 2 3 4 5 or 6
         },
         "description": "This is a cosine/periodic potential"
@@ -319,7 +348,7 @@ _dihedral_styles = {
         "parameters": "NYI",
         "units": "NYI",
         "description": "NYI"
-     },
+    },
     "charmmfsw": {
         "form": "K*(1 + cos(n*phi-d))",
         "parameters": ["K","n","d"],
@@ -336,23 +365,25 @@ _dihedral_styles = {
         "parameters": ["A_n"], 
         "units": {,
         "A_n": "[energy]",
-    },
+         },
+         "description": "This is a multi/harmonic dihedral"
+    }
     "zero": {
         "form": "NYI",
-        "parameters": ["","",""],
+        "parameters": "NYI",
         "units": "NYI",
         "description": "NYI"
     },
     # Class2 is complicated special case - see http://lammps.sandia.gov/doc/dihedral_class2.html
     "class2": {
         "form": "NYI",
-        "parameters": ["","",""],
+        "parameters": "NYI",
         "units": "NYI",
         "description": "NYI"
     },
     "cosine/shift/exp": {
         "form": "NYI",
-        "parameters": ["","",""],
+        "parameters": "NYI",
         "units": "NYI",
         "description": "NYI"
     },
@@ -421,7 +452,8 @@ _dihedral_styles = {
         },
         "description": "This is a quadratic dihedral"
     },
-    "spherical": { #This type includes dihedrals phi and angles theta
+    "spherical":
+    {  #This type includes dihedrals phi and angles theta
         "form": "NYI",
         "parameters": "NYI",
         "units": "NYI",
@@ -508,7 +540,7 @@ _improper_styles = {
         "units": "NYI",
         "description": "NYI"
     },
-    "umbrella": { #Used in the dreiding force field
+    "umbrella": {  #Used in the dreiding force field
         "form": "NYI",
         "parameters": "NYI",
         "units": "NYI",
