@@ -251,7 +251,7 @@ class DataLayer(object):
 
         return pd.concat(df_data, axis=1)
 
-    def register_functional_forms(self, order, name, form_dictionary):
+    def register_functional_forms(self, order, name, form=None, units=None):
         """
         Registers a single functional forms with the DL object.
 
@@ -273,28 +273,60 @@ class DataLayer(object):
         Examples
         --------
 
+        # Register form by passing in explicit data
         form_metadata = {
             "form": "K*(r-R0) ** 2",
             "parameters": ["K", "R0"],
             "units": {
-                "K": "[energy] [length] ** -2",
-                "R0": "[length]"
+                "K": "kcal * mol ** 2",
+                "R0": "picometers"
             },
             "description": "This is a harmonic bond"
         }
 
-        dl.register_functional_form(2, "harmonic", form_metadata)
+        dl.register_functional_form(2, "harmonic", form=form_metadata)
+
+        # Register form by using EEX build-in forms and setting units
+        dl.register_functional_form(2, "harmonic", units={"K": "kcal / mol ** 2", "R0": "picometers"})
         """
 
-        if order not in self._functional_forms:
-            raise KeyError("DataLayer:register_functional_forms: Did not understand order key '%s'." % str(order))
+        user_order = order
+        order = metadata.sanitize_term_order_name(order)
 
-        if name in self._functional_forms[order]:
-            raise KeyError("DataLayer:register_functional_forms: Key '%s' has already been registered." % str(name))
+        if order not in self._functional_forms:
+            raise KeyError("DataLayer:register_functional_forms: Did not understand order key '%s'." % str(user_order))
+
+        # We are using an internal form
+        if (form is None) and (units is None):
+            raise KeyError(
+                "DataLayer:register_functional_forms: Must either pass in form (external form) or units (internal form)."
+            )
+
+        elif (form is None):
+            if units is None:
+                raise KeyError("DataLayer:register_functional_forms: Must pass in units if using a EEX built-in form."
+                               % str(name))
+
+            try:
+                form = metadata.get_term_metadata(order, "forms", name)
+            except KeyError:
+                raise KeyError(
+                    "DataLayer:register_functional_forms: Could not find built in form of order `%s` and name `%s" %
+                    (str(user_order), str(name)))
+
+            form["units"] = units
+
+        # We are using an external form
+        else:
+            if name in self._functional_forms[order]:
+                raise KeyError(
+                    "DataLayer:register_functional_forms: Key '%s' has already been registered." % str(name))
+            # Pass validator later
+
+        assert metadata.validate_functional_form_dict(name, form)
 
         # Make sure the data is valid and add
-        assert metadata.validate_functional_form_dict(name, form_dictionary)
-        self._functional_forms[order][name] = form_dictionary
+        self._functional_forms[order][name] = form
 
     def add_parameters(self, order, term_name, term_parameters, uid=None, units=None):
         """
@@ -323,9 +355,12 @@ class DataLayer(object):
 
         """
 
+        user_order = order
+        order = metadata.sanitize_term_order_name(order)
+
         # Validate term add
         if order not in list(self._functional_forms):
-            raise KeyError("DataLayer:register_functional_forms: Did not understand order key '%s'." % str(order))
+            raise KeyError("DataLayer:register_functional_forms: Did not understand order key '%s'." % str(user_order))
 
         if term_name not in list(self._functional_forms[order]):
             raise KeyError(
@@ -396,7 +431,6 @@ class DataLayer(object):
         # DL.add_term([[index_1, index_2, class, [0, 3, 4, 2]])V
 
     def add_terms(self, order, df):
-
 
         order = metadata.sanitize_term_order_name(order)
         if order not in list(self._functional_forms):
@@ -510,4 +544,3 @@ class DataLayer(object):
             tmp_data.append(self.store.read_table(k))
 
         return pd.concat(tmp_data, axis=1)
-

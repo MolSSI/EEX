@@ -104,7 +104,7 @@ def test_add_parameters():
     # Add a few functional forms
     two_body_md = eex.metadata.get_term_metadata(2, "forms", "harmonic")
     three_body_md = eex.metadata.get_term_metadata(3, "forms", "harmonic")
-    dl.register_functional_forms(2, "harmonic", two_body_md)
+    dl.register_functional_forms(2, "harmonic", units={"K": "kcal * mol ** -2", "R0": "angstrom"})
     dl.register_functional_forms(3, "harmonic", three_body_md)
 
     # Check duplicates

@@ -21,6 +21,8 @@ _coeff_labels = {
     "Pair Coeffs": ("atom types", "NYI"),
     "Bond Coeffs": ("bond types", "NYI"),
     "Angle Coeffs": ("angle types", "NYI"),
+    # "Bond Coeffs": ("bond types", "add_parameters", [2, "harmonic"]),
+    # "Angle Coeffs": ("angle types", "add_parameters", [3, "harmonic"]),
     "Dihedral Coeffs": ("dihedral types", "NYI"),
     "Improper Coeffs": ("improper types", "NYI"),
 }
