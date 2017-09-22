@@ -40,8 +40,8 @@ _data_labels = {
 # Units for data labels
 # Not sure how we'll implement yet - just getting information in file
 _data_labels_units = {
-    "Masses": "mass",
-    "Atoms": ["N/A", "N/A", "atom_type", "charge", "distance", "distance", "distance"],
+    "Masses": "[mass]",
+    "Atoms": ["N/A", "N/A", "atom_type", "[charge]", "[length]", "[length]", "[length]"],
 }
 
 _full_labels = _coeff_labels.copy()

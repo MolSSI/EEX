@@ -35,6 +35,8 @@ def test_df_atoms(backend):
     """
 
     dl = eex.datalayer.DataLayer("test_df_bonds", backend=backend)
+    dl.register_atom_units("charge", "elementary_charge")
+    dl.register_atom_units("XYZ", "angstrom")
 
     tmp_df = _build_atom_df(10)
 
@@ -63,6 +65,8 @@ def test_list_atoms(backend):
     """
 
     dl = eex.datalayer.DataLayer("test_list_bonds", backend=backend)
+    dl.register_atom_units("charge", "coulomb")
+    dl.register_atom_units("XYZ", "Bohr")
 
     tmp_df = _build_atom_df(10)
     for idx, row in tmp_df.iterrows():
@@ -90,9 +94,12 @@ def test_register_functional_forms():
     with pytest.raises(KeyError):
         dl.register_functional_forms(2, "harmonic", eex.metadata.get_term_metadata(2, "forms", "harmonic"))
 
-    with pytest.raises(KeyError):
-        dl.register_functional_forms("turle", "turle", {})
 
+    # No such order as "turtle"
+    with pytest.raises(KeyError):
+        dl.register_functional_forms("turle", "turle", eex.metadata.get_term_metadata(4, "forms", "harmonic"))
+
+    # Missing keys in the dictionary
     with pytest.raises(KeyError):
         dl.register_functional_forms(2, "harmonic2", {"form": "(x-x0)**2"})
 
@@ -104,7 +111,7 @@ def test_add_parameters():
     # Add a few functional forms
     two_body_md = eex.metadata.get_term_metadata(2, "forms", "harmonic")
     three_body_md = eex.metadata.get_term_metadata(3, "forms", "harmonic")
-    dl.register_functional_forms(2, "harmonic", units={"K": "kcal * mol ** -2", "R0": "angstrom"})
+    dl.register_functional_forms(2, "harmonic", utype={"K": "kcal * mol ** -2", "R0": "angstrom"})
     dl.register_functional_forms(3, "harmonic", three_body_md)
 
     # Check duplicates

@@ -102,3 +102,6 @@ ENV/
 
 # Shell files
 *.swp
+
+# Whoops files
+*.h5

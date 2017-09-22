@@ -9,35 +9,35 @@ atom_metadata = {
         "description": "The associated molecular index for a given atom.",
         "unique": False,
         "dtype": int,
-        "units": "N/A"
+        "units": None,
     },
     "atom_name": {
         "required_columns": ["atom_name"],
         "description": "The unique name of a given atom.",
         "unique": True,
         "dtype": str,
-        "units": "N/A"
+        "units": None,
     },
     "atom_type": {
         "required_columns": ["atom_type"],
         "description": "The integer index of the atom type.",
         "unique": False,
         "dtype": int,
-        "units": "N/A"
+        "units": None,
     },
     "atomic_number": {
         "required_columns": ["atomic_number"],
         "description": "The atomic number of a given atom.",
         "unique": False,
         "dtype": int,
-        "units": "N/A"
+        "units": None,
     },
     "charge": {
         "required_columns": ["charge"],
         "description": "The charge of a given atom.",
         "unique": False,
         "dtype": int,
-        "units": "e",  # Charges are typically stored in units of e (elementary charge)
+        "units": "[current] [time]",
         "tol": 8,
     },
     "XYZ": {
@@ -45,7 +45,7 @@ atom_metadata = {
         "description": "The XYZ coordinates of a given atom.",
         "unique": True,
         "dtype": float,
-        "units": "nanometers",
+        "units": "[length]",
         "tol": 8,
     },
     "mass": {
@@ -53,7 +53,7 @@ atom_metadata = {
         "description": "The mass of the atom.",
         "unique": False,
         "dtype": float,
-        "units": "AMU",
+        "units": "[mass]",
         "tol": 8,
     },
     "residue_index": {
@@ -61,14 +61,14 @@ atom_metadata = {
         "description": "The associated residue of a given atom.",
         "unique": False,
         "dtype": int,
-        "units": "N/A"
+        "units": None,
     },
     "residue_name": {
         "required_columns": ["residue_name"],
         "description": "The name of the associated residue of a given atom.",
         "unique": False,
         "dtype": int,
-        "units": "N/A"
+        "units": None,
     },
 
     # "implicit_solvent_radius":

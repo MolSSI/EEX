@@ -51,27 +51,57 @@ class DataLayer(object):
         self._terms = {2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}}
         self._atom_metadata = {}
 
-    def _validate_table_input(self, data, needed_cols):
-        if isinstance(data, (list, tuple)):
-            if len(data) != len(needed_cols):
-                raise Exception("DataLayer:add_data requires exactly the %s columns" % str(needed_cols))
-            data = pd.DataFrame([data], columns=needed_cols)
-        elif isinstance(data, pd.DataFrame):
-            if collections.Counter(needed_cols) != collections.Counter(data.columns):
-                raise Exception("DataLayer:add_data requires exactly the %s columns" % str(needed_cols))
+### Generic helper close/save/etc functions
+
+    def call_by_string(self, *args, **kwargs):
+        """
+        Adds the ability to call DL function by their string name.
+        """
+
+        if args[0] == "NYI":
+            return False
+
+        try:
+            function = getattr(self, args[0])
+        except:
+            raise KeyError("DataLayer:call_by_string: does not have method %s." % args[0])
+
+        return function(*args[1:], **kwargs)
+
+    def close(self):
+        """
+        Closes the DL object
+        """
+        self.store.close()
+
+### Atom functions
+
+    def _check_atoms_dict(self, parameter_name, utype):
+        if parameter_name in list(self._atom_metadata):
+            return False
+
+        field_data = metadata.atom_metadata[parameter_name]
+        self._atom_metadata[parameter_name] = {"counter": -1, "uvals": {}, "inv_uvals": {}, "units": None}
+        if field_data["units"] is None:
+            self._atom_metadata[parameter_name]["units"] = None
         else:
-            raise TypeError("DataLayer:add_data type %s not recognized" % type(data))
+            if utype is None:
+                raise Exception("Unit type required if atom parameter requires units")
 
-        return data
+            utype = metadata.validate_units(utype, context=field_data["units"])
+            self._atom_metadata[parameter_name]["units"] = utype
 
-    def _set_unique_params(self, df, parameter_name):
+        return False
+
+    def _find_unqiue_atom_values(self, df, parameter_name, utype):
         """
         Hashes the input parameters to build in internal index of unique values.
         """
 
         field_data = metadata.atom_metadata[parameter_name]
-        if parameter_name not in list(self._atom_metadata):
-            self._atom_metadata[parameter_name] = {"counter": -1, "uvals": {}, "inv_uvals": {}}
+
+        self._check_atoms_dict(parameter_name, utype)
+        param_dict = self._atom_metadata[parameter_name]
 
         cols = field_data["required_columns"]
 
@@ -80,7 +110,6 @@ class DataLayer(object):
 
         ret_df = pd.DataFrame(index=df.index)
         ret_df[parameter_name] = 0
-        param_dict = self._atom_metadata[parameter_name]
 
         # For each unique value
         for gb_idx, udf in df.groupby(cols):
@@ -99,7 +128,7 @@ class DataLayer(object):
 
         return ret_df
 
-    def _build_value_params(self, df, parameter_name):
+    def _build_atom_values(self, df, parameter_name):
         """
         Expands the unique parameters using the built in parameter_name dictionary.
         """
@@ -116,19 +145,13 @@ class DataLayer(object):
 
         return ret_df
 
-    def close(self):
-        """
-        Closes the DL object
-        """
-        self.store.close()
-
-    def _store_atom_table(self, table_name, df, parameter_name, by_value):
+    def _store_atom_table(self, table_name, df, parameter_name, by_value, utype):
         """
         Internal way to store atom tables
         """
 
         if by_value and not (metadata.atom_metadata[parameter_name]["unique"]):
-            tmp_df = self._set_unique_params(df, parameter_name)
+            tmp_df = self._find_unqiue_atom_values(df, parameter_name, utype)
         else:
             tmp_df = df[APC_DICT[parameter_name]]
 
@@ -138,10 +161,21 @@ class DataLayer(object):
 
         tmp = self.store.read_table(table_name)
         if by_value and not (metadata.atom_metadata[parameter_name]["unique"]):
-            tmp = self._build_value_params(tmp, parameter_name)
+            tmp = self._build_atom_values(tmp, parameter_name)
         return tmp
 
-    def add_atoms(self, atom_df, property_name=None, by_value=False):
+    def register_atom_units(self, parameter_name, utype):
+        if parameter_name and (parameter_name not in list(APC_DICT)):
+            raise KeyError("DataLayer:set_atom_units: Property name '%s' not recognized." % parameter_name)
+
+        self._check_atoms_dict(parameter_name, utype)
+        if parameter_name not in list(self._atom_metadata):
+            self._atom_metadata[parameter_name] = {"counter": -1, "uvals": {}, "inv_uvals": {}, "units": utype}
+        else:
+            self._atom_metadata[parameter_name]["units"] = utype
+
+
+    def add_atoms(self, atom_df, property_name=None, by_value=False, utype=None):
         """
         Adds atom information to the DataLayer object.
 
@@ -156,9 +190,8 @@ class DataLayer(object):
 
         Returns
         -------
-        return : {bool}
+        return : bool
             If the add was successful or not.
-
 
         Example
         -------
@@ -201,7 +234,7 @@ class DataLayer(object):
 
         # Add a single property
         if property_name:
-            self._store_atom_table(property_name, atom_df, property_name, by_value)
+            self._store_atom_table(property_name, atom_df, property_name, by_value, utype)
         # Try to add all possible properties
         else:
             set_cols = set(atom_df.columns)
@@ -209,7 +242,7 @@ class DataLayer(object):
             for k, v in APC_DICT.items():
                 # Check if v is in the set_cols (set logic)
                 if set(v) <= set_cols:
-                    self._store_atom_table(k, atom_df, k, by_value)
+                    self._store_atom_table(k, atom_df, k, by_value, utype)
                     found_one = True
             if not found_one:
                 raise Exception("DataLayer:add_atom: No data was added as no key was matched from input columns:\n%s" %
@@ -251,7 +284,9 @@ class DataLayer(object):
 
         return pd.concat(df_data, axis=1)
 
-    def register_functional_forms(self, order, name, form=None, units=None):
+### Term functions
+
+    def register_functional_forms(self, order, name, form=None, utype=None):
         """
         Registers a single functional forms with the DL object.
 
@@ -284,7 +319,7 @@ class DataLayer(object):
             "description": "This is a harmonic bond"
         }
 
-        dl.register_functional_form(2, "harmonic", form=form_metadata)
+        dl.register_functional_form(2, "custom_harmonic", form=form_metadata)
 
         # Register form by using EEX build-in forms and setting units
         dl.register_functional_form(2, "harmonic", units={"K": "kcal / mol ** 2", "R0": "picometers"})
@@ -297,13 +332,13 @@ class DataLayer(object):
             raise KeyError("DataLayer:register_functional_forms: Did not understand order key '%s'." % str(user_order))
 
         # We are using an internal form
-        if (form is None) and (units is None):
+        if (form is None) and (utype is None):
             raise KeyError(
                 "DataLayer:register_functional_forms: Must either pass in form (external form) or units (internal form)."
             )
 
         elif (form is None):
-            if units is None:
+            if utype is None:
                 raise KeyError("DataLayer:register_functional_forms: Must pass in units if using a EEX built-in form."
                                % str(name))
 
@@ -314,7 +349,7 @@ class DataLayer(object):
                     "DataLayer:register_functional_forms: Could not find built in form of order `%s` and name `%s" %
                     (str(user_order), str(name)))
 
-            form["units"] = units
+            form["units"] = utype
 
         # We are using an external form
         else:
@@ -328,7 +363,7 @@ class DataLayer(object):
         # Make sure the data is valid and add
         self._functional_forms[order][name] = form
 
-    def add_parameters(self, order, term_name, term_parameters, uid=None, units=None):
+    def add_parameters(self, order, term_name, term_parameters, uid=None, utype=None):
         """
         Adds the parameters of a registered functional form to the Datalayer object
 
@@ -366,7 +401,7 @@ class DataLayer(object):
             raise KeyError(
                 "DataLayer:register_functional_forms: Term name '%s' has not been registered." % str(term_name))
 
-        if units:
+        if utype:
             raise TypeError("DataLayer:register_functional_forms: Units are not yet supported, contact @dgasmith.")
 
         # Obtain the parameters
@@ -495,17 +530,7 @@ class DataLayer(object):
 
         return self.read_terms("dihedrals")
 
-    def call_by_string(self, *args, **kwargs):
-
-        if args[0] == "NYI":
-            return
-
-        try:
-            function = getattr(self, args[0])
-        except:
-            raise KeyError("DataLayer:call_by_string: does not have method %s." % args[0])
-
-        return function(*args[1:], **kwargs)
+### Other quantities
 
     def add_other(self, key, df):
         """

@@ -58,3 +58,19 @@ def validate_functional_form_dict(name, functional_form):
             raise KeyError("Validate term style: term '%s' has unknown dimension '%s'" % (name, v))
 
     return True
+
+
+def validate_units(unit_data, raise_exception=True, context=None):
+    """
+    Attempts to parse a Pint unit expression
+    """
+
+    unit_data = units.ureg.parse_expression(unit_data)
+
+    # Make sure the units are valid
+    if context is not None:
+        print(context)
+        print(unit_data)
+        units.ureg.check(context)(lambda x: x)(unit_data)
+
+    return unit_data
