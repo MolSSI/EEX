@@ -42,7 +42,7 @@ def test_lammps_read_bonds(spce_dl):
     # Check Bonds
     bonds = dl.get_bonds()
     assert bonds.shape[0] == 400
-    assert np.allclose(np.unique(bonds["bond_type"]), [1])
+    assert np.allclose(np.unique(bonds["term_index"]), [1])
 
 def test_lammps_read_angles(spce_dl):
     data, dl = spce_dl
@@ -50,4 +50,4 @@ def test_lammps_read_angles(spce_dl):
     # Check Angles
     angles = dl.get_angles()
     assert angles.shape[0] == 200
-    assert np.allclose(np.unique(angles["angle_type"]), [1])
+    assert np.allclose(np.unique(angles["term_index"]), [1])

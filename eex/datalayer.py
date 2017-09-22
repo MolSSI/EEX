@@ -419,7 +419,6 @@ class DataLayer(object):
         if order not in list(self._functional_forms):
             raise KeyError("DataLayer:add_terms: Did not understand order key '%s'." % str(order))
 
-        print(self.store.list_tables())
         return self.store.read_table("term" + str(order))
 
     def add_bonds(self, bonds):
@@ -438,14 +437,7 @@ class DataLayer(object):
             Returns a boolean value if the operations was successful or not
         """
 
-        needed_cols = ["bond_index", "atom1_index", "atom2_index", "bond_type"]
-
-        bonds = self._validate_table_input(bonds, needed_cols)
-
-        # Reorder columns
-        bonds = bonds[needed_cols]
-
-        self.store.add_table("bonds", bonds)
+        self.add_terms("bonds", bonds)
 
         return True
 
@@ -469,14 +461,7 @@ class DataLayer(object):
             Returns a boolean value if the operations was successful or not
         """
 
-        needed_cols = ["angle_index", "atom1_index", "atom2_index", "atom3_index", "angle_type"]
-
-        angles = self._validate_table_input(angles, needed_cols)
-
-        # Reorder columns
-        angles = angles[needed_cols]
-
-        self.store.add_table("angles", angles)
+        self.add_terms("angles", angles)
 
     def get_angles(self):
 

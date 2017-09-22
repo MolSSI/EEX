@@ -98,7 +98,6 @@ class HDFStore(BaseStore):
 
     def list_tables(self):
 
-        print(self.store)
         return list(self.created_tables)
 
     def __del__(self):
