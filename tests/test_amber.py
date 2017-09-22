@@ -8,14 +8,12 @@ import pandas as pd
 import eex_find_files
 
 
-# @pytest.fixture(scope="module", params=["HDF5", "Memory"])
-@pytest.fixture(scope="module", params=["HDF5"])
-# @pytest.fixture(scope="module", params=["Memory"])
+@pytest.fixture(scope="module", params=["HDF5", "Memory"])
 def spce_dl(request):
     fname = eex_find_files.get_example_filename("amber", "water/spce.prmtop")
     dl = eex.datalayer.DataLayer("test_amber_read", backend=request.param)
     data = eex.translators.amber.read_amber_file(dl, fname)
-    print("-- Built AMBER SPCE DL --")
+    # print("-- Built AMBER SPCE DL --")
     yield (data, dl)
     dl.close()
 

@@ -348,7 +348,6 @@ def read_amber_file(dl, filename, blocksize=5000):
 
             # Store bond, angle, dihedrals
             elif current_data_category in list(_topology_store_names):
-                print(current_data_category, data.shape)
                 category = current_data_category.split("_")[0].lower()
 
                 mod_size, current_size, remaining_data = _current_topology_indices[category]
@@ -384,17 +383,11 @@ def read_amber_file(dl, filename, blocksize=5000):
 
                 # Build and curate the data
                 df_dict = {}
-                # df_dict["index"] = index
                 for num, name in enumerate(col_name):
                     df_dict[name] = data[:, num]
 
-                print("\nDF Shape")
+                # Form the DF and add!
                 df = pd.DataFrame(df_dict, index=index)
-                print(df.shape)
-                df.dropna(axis=0, how="any", inplace=True)
-
-                print(df.shape)
-                print(df.tail())
                 dl.add_terms(mod_size - 1, df)
 
             else:
