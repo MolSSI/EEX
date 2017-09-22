@@ -7,11 +7,10 @@ import pytest
 import pandas as pd
 import eex_find_files
 
-@pytest.fixture(scope="module", params=["HDF5"])
-# @pytest.fixture(scope="module", params=["HDF5", "Memory"])
+@pytest.fixture(scope="module", params=["HDF5", "Memory"])
 def spce_dl(request):
-    fname = eex_find_files.get_example_filename("lammps", "data.spce")
-    dl = eex.datalayer.DataLayer("test_lammps_read", backend=request.param)
+    fname = eex_find_files.get_example_filename("lammps", "SPCE/data.spce")
+    dl = eex.datalayer.DataLayer("test_lammps_read")
     data = eex.translators.lammps.read_lammps_file(dl, fname)
     yield (data, dl)
     dl.close()
