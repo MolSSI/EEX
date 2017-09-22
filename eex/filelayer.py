@@ -88,7 +88,7 @@ class HDFStore(BaseStore):
         if not self.save_data:
             try:
                 os.unlink(self.store_filename)
-            except IOError:
+            except OSError:
                 pass
 
     def __del__(self):
