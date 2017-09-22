@@ -103,10 +103,11 @@ three_body_metadata["variables"] = {
 # Add store data
 three_body_metadata["store_name"] = "3body"
 three_body_metadata["store_indices"] = {
-    "atom_index1": "Index of the first atom.",
-    "atom_index2": "Index of the second atom.",
-    "atom_index3": "Index of the third atom.",
-    "three_body_type": "Index of three_body_type stored in the DataLayer.",
+    "atom1": "Index of the first atom.",
+    "atom2": "Index of the second atom.",
+    "atom3": "Index of the third atom.",
+    "term_index": "Index of three_body_type stored in the DataLayer.",
 }
 
+three_body_metadata["index_columns"] = ["atom1", "atom2", "atom3"]
 three_body_metadata["forms"] = _three_body_functional_forms

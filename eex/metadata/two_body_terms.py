@@ -104,8 +104,9 @@ two_body_metadata["variables"] = {"r": {"units": "[length]", "description": "Dis
 # Add store data
 two_body_metadata["store_name"] = "2body"
 two_body_metadata["store_indices"] = {
-    "atom_index1": "Index of the first atom.",
-    "atom_index2": "Index of the second atom.",
-    "two_body_type": "Index of two_body_type stored in the DataLayer.",
+    "atom1": "Index of the first atom.",
+    "atom2": "Index of the second atom.",
+    "term_index": "Index of two_body_type stored in the DataLayer.",
 }
+two_body_metadata["index_columns"] = ["atom1", "atom2"]
 two_body_metadata["forms"] = _two_body_functional_forms
