@@ -53,13 +53,18 @@ class HDFStore(BaseStore):
             The data to append to the table
         """
 
+        # We do nothing for zero data
+        if 0 in data.shape:
+            return False
+
         # Do we append, or do we need a new table?
         do_append = True
-        if key not in self.created_tables:
+        if (key not in self.created_tables):
             do_append = False
             self.created_tables.append(key)
 
         data.to_hdf(self.store, key, format="t", append=do_append)
+        return True
 
     def read_table(self, key, rows=None, where=None, chunksize=None):
         """
@@ -90,6 +95,11 @@ class HDFStore(BaseStore):
                 os.unlink(self.store_filename)
             except OSError:
                 pass
+
+    def list_tables(self):
+
+        print(self.store)
+        return list(self.created_tables)
 
     def __del__(self):
         """
@@ -141,6 +151,10 @@ class MemoryStore(BaseStore):
             for k, v in self.tables.items():
                 v.to_hdf(store, k, format="t")
             store.close()
+
+    def list_tables(self):
+
+        return list(self.tables)
 
     def __del__(self):
        self.close()

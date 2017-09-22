@@ -82,13 +82,13 @@ def test_register_functional_forms():
     dl = eex.datalayer.DataLayer("test_functional_forms")
 
     # Add a few functional forms
-    dl.register_functional_forms(2, "harmonic", eex.metadata.get_term_data(2, "forms", "harmonic"))
-    dl.register_functional_forms(2, "fene", eex.metadata.get_term_data(2, "forms", "fene"))
-    dl.register_functional_forms(3, "harmonic", eex.metadata.get_term_data(3, "forms", "harmonic"))
+    dl.register_functional_forms(2, "harmonic", eex.metadata.get_term_metadata(2, "forms", "harmonic"))
+    dl.register_functional_forms(2, "fene", eex.metadata.get_term_metadata(2, "forms", "fene"))
+    dl.register_functional_forms(3, "harmonic", eex.metadata.get_term_metadata(3, "forms", "harmonic"))
 
     # Bound ineligable
     with pytest.raises(KeyError):
-        dl.register_functional_forms(2, "harmonic", eex.metadata.get_term_data(2, "forms", "harmonic"))
+        dl.register_functional_forms(2, "harmonic", eex.metadata.get_term_metadata(2, "forms", "harmonic"))
 
     with pytest.raises(KeyError):
         dl.register_functional_forms("turle", "turle", {})
@@ -102,8 +102,8 @@ def test_add_parameters():
     dl = eex.datalayer.DataLayer("test_functional_forms")
 
     # Add a few functional forms
-    two_body_md = eex.metadata.get_term_data(2, "forms", "harmonic")
-    three_body_md = eex.metadata.get_term_data(3, "forms", "harmonic")
+    two_body_md = eex.metadata.get_term_metadata(2, "forms", "harmonic")
+    three_body_md = eex.metadata.get_term_metadata(3, "forms", "harmonic")
     dl.register_functional_forms(2, "harmonic", two_body_md)
     dl.register_functional_forms(3, "harmonic", three_body_md)
 

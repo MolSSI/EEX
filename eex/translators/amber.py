@@ -124,9 +124,9 @@ _forcefield_parameters = [
 ]
 
 _current_topology_indices = {
-    "BONDS": [3, 0, np.array([])],
-    "ANGLES": [4, 0, np.array([])],
-    "DIHEDRALS": [5, 0, np.array([])],
+    "bonds": [3, 0, np.array([])],
+    "angles": [4, 0, np.array([])],
+    "dihedrals": [5, 0, np.array([])],
 }
 
 def _parse_format(string):
@@ -348,17 +348,29 @@ def read_amber_file(dl, filename, blocksize=5000):
 
             # Store bond, angle, dihedrals
             elif current_data_category in list(_topology_store_names):
+                print(current_data_category, data.shape)
                 category = current_data_category.split("_")[0].lower()
 
                 mod_size, current_size, remaining_data = _current_topology_indices[category]
 
-                # Get current remaining and
-                size = remaining_data.size + data.values.size
-                remaining = size % mod_size
-                flat_data = np.hstack((remaining_data, data.values.ravel()[:-remaining]))
-                _current_topology_indices[category][-1] = data.values.ravel()[-remaining:].copy()
 
-                data = flat_data.reshape(-1, mod_size).astype(int)
+                data = data.values.ravel()
+                data = data[np.isfinite(data)]
+
+                # Prepend remaining data
+                if remaining_data.size:
+                    data = np.hstack((remaining_data))
+
+                # Get current remaining and
+                remaining = data.size % mod_size
+                if remaining:
+                    data = data[:-remaining]
+                    _current_topology_indices[category][-1] = data[-remaining:].copy()
+                else:
+                    _current_topology_indices[category][-1] = np.array([])
+
+
+                data = data.reshape(-1, mod_size).astype(int)
 
                 # Weird AMBER indexing, we have: atom1, atom2, ..., term_index
                 # Atom indices are (index / 3 + 1)
@@ -368,18 +380,22 @@ def read_amber_file(dl, filename, blocksize=5000):
                 col_name = ["atom" + str(x) for x in range(1, mod_size)]
                 col_name.append("term_index")
 
-                index = np.arange(current_size, flat_data.shape[0] + current_size, dtype=int)
+                index = np.arange(current_size, data.shape[0] + current_size, dtype=int)
 
                 # Build and curate the data
                 df_dict = {}
-                df_dict["index"] = index
+                # df_dict["index"] = index
                 for num, name in enumerate(col_name):
                     df_dict[name] = data[:, num]
 
-                df = pd.DataFrame(df_dict)
+                print("\nDF Shape")
+                df = pd.DataFrame(df_dict, index=index)
+                print(df.shape)
                 df.dropna(axis=0, how="any", inplace=True)
 
-                dl.add_term(mod_size - 1, df)
+                print(df.shape)
+                print(df.tail())
+                dl.add_terms(mod_size - 1, df)
 
             else:
                 # logger.debug("Did not understand data category.. passing")
@@ -444,31 +460,6 @@ def read_amber_file(dl, filename, blocksize=5000):
 
     res_df.index.name = "atom_index"
     dl.add_atoms(res_df, by_value=True)
-
-    # Handle bonds, angles, dihedrals
-
-    # These statements can be combined later. 'if' statements necessary for systems with 0 bonds, angles, or dihedrals
-    if ((label_sizes["BONDS_INC_HYDROGEN"] + label_sizes['BONDS_WITHOUT_HYDROGEN']) > 0):
-        bond_df = dl.get_other("bonds")
-        bond_reshape = process_topology_section(bond_df, "bonds", 3)
-
-        dl.add_bonds(bond_reshape)
-
-    if ((label_sizes["ANGLES_INC_HYDROGEN"] + label_sizes['ANGLES_WITHOUT_HYDROGEN']) > 0):
-        # Handle angles
-        angle_df = dl.get_other("angles")
-        angle_reshape = process_topology_section(angle_df, "angles", 4)
-
-        # Add angles to data layer
-        dl.add_angles(angle_reshape)
-
-    if ((label_sizes["DIHEDRALS_INC_HYDROGEN"] + label_sizes['DIHEDRALS_WITHOUT_HYDROGEN']) > 0):
-        pass
-        #dihedral_df = dl.get_other("dihedrals")
-        #dihedral_reshape = process_topology_section(dihedral_df,"dihedrals", 5)
-        # NYI -
-        # There are also considerations here for multi term torsions, etc
-        #dl.add_dihedrals(dihedral_reshape)
 
     file_handle.close()
     return ret_data

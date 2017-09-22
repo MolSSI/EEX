@@ -395,6 +395,33 @@ class DataLayer(object):
 
         # DL.add_term([[index_1, index_2, class, [0, 3, 4, 2]])V
 
+    def add_terms(self, order, df):
+
+
+        order = metadata.sanitize_term_order_name(order)
+        if order not in list(self._functional_forms):
+            raise KeyError("DataLayer:add_terms: Did not understand order key '%s'." % str(order))
+
+        req_cols = metadata.get_term_metadata(order, "index_columns")
+
+        not_found = set(req_cols) - set(df.columns)
+        if not_found:
+            raise KeyError("DataLayer:add_terms: Missing required columns '%s' for order %d" % (str(not_found), order))
+
+        if "term_index" in df.columns:
+            df = df[req_cols + ["term_index"]]
+        else:
+            raise Exception("NYI: Add terms by *not* term_index")
+        self.store.add_table("term" + str(order), df)
+
+    def read_terms(self, order):
+        order = metadata.sanitize_term_order_name(order)
+        if order not in list(self._functional_forms):
+            raise KeyError("DataLayer:add_terms: Did not understand order key '%s'." % str(order))
+
+        print(self.store.list_tables())
+        return self.store.read_table("term" + str(order))
+
     def add_bonds(self, bonds):
         """
         Adds bond using a index notation.
@@ -424,7 +451,7 @@ class DataLayer(object):
 
     def get_bonds(self):
 
-        return self.store.read_table("bonds")
+        return self.read_terms("bonds")
 
     def add_angles(self, angles):
         """
@@ -453,7 +480,7 @@ class DataLayer(object):
 
     def get_angles(self):
 
-        return self.store.read_table("angles")
+        return self.read_terms("angles")
 
     def call_by_string(self, *args, **kwargs):
 
