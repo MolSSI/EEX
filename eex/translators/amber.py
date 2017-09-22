@@ -82,16 +82,16 @@ _data_units = {
     Gives units of sections with units - for conversions NYI
 
     """
-    "CHARGE": ["18.2223*e"],  # Internal units
-    "MASS": ["g mol^-1"],
-    "BOND_FORCE_CONSTANT": ["kcal mol^-1 Angstrom^-2"],
-    "BOND_EQUIL_VALUE": ["Angstrom"],
-    "ANGLE_FORCE_CONSTANT": ["kcal mol^-2 radian^2"],
+    "CHARGE": ["18.2223 * e"],  # Internal units
+    "MASS": ["g * mol ** -1"],
+    "BOND_FORCE_CONSTANT": ["kcal * mol ** -1 angstrom ** -2"],
+    "BOND_EQUIL_VALUE": ["angstrom"],
+    "ANGLE_FORCE_CONSTANT": ["kcal * mol ** -2 radian ** 2"],
     "ANGLE_EQUIL_VALUE": ["radian"],
-    "DIHEDRAL_FORCE_CONSTANT": ["kcal mol^-1"],
+    "DIHEDRAL_FORCE_CONSTANT": ["kcal * mol ** -1"],
     "DIHEDRAL_PHASE": ["radian"],
-    "LENNARD_JONES_ACOEFF": ["kcal mol^-12"],
-    "LENNARD_JONES_BCOEFF": ["kcal mol^-6"],
+    "LENNARD_JONES_ACOEFF": ["kcal * mol ** -12"],
+    "LENNARD_JONES_BCOEFF": ["kcal * mol ** -6"],
 }
 
 _atom_property_names = {
@@ -123,6 +123,11 @@ _forcefield_parameters = [
     "LENNARD_JONES_BCOEFF",
 ]
 
+_current_topology_indices = {
+    "BONDS": [3, 0, np.array([])],
+    "ANGLES": [4, 0, np.array([])],
+    "DIHEDRALS": [5, 0, np.array([])],
+}
 
 def _parse_format(string):
     """
@@ -344,8 +349,37 @@ def read_amber_file(dl, filename, blocksize=5000):
             # Store bond, angle, dihedrals
             elif current_data_category in list(_topology_store_names):
                 category = current_data_category.split("_")[0].lower()
-                df = _data_flatten(data, category, category_index, "index")
-                dl.add_other(category, df.astype(int, inplace=True))
+
+                mod_size, current_size, remaining_data = _current_topology_indices[category]
+
+                # Get current remaining and
+                size = remaining_data.size + data.values.size
+                remaining = size % mod_size
+                flat_data = np.hstack((remaining_data, data.values.ravel()[:-remaining]))
+                _current_topology_indices[category][-1] = data.values.ravel()[-remaining:].copy()
+
+                data = flat_data.reshape(-1, mod_size).astype(int)
+
+                # Weird AMBER indexing, we have: atom1, atom2, ..., term_index
+                # Atom indices are (index / 3 + 1)
+                data[:, :-1] = data[:, :-1] / 3 + 1
+
+                # Build column names and atom sizes
+                col_name = ["atom" + str(x) for x in range(1, mod_size)]
+                col_name.append("term_index")
+
+                index = np.arange(current_size, flat_data.shape[0] + current_size, dtype=int)
+
+                # Build and curate the data
+                df_dict = {}
+                df_dict["index"] = index
+                for num, name in enumerate(col_name):
+                    df_dict[name] = data[:, num]
+
+                df = pd.DataFrame(df_dict)
+                df.dropna(axis=0, how="any", inplace=True)
+
+                dl.add_term(mod_size - 1, df)
 
             else:
                 # logger.debug("Did not understand data category.. passing")
