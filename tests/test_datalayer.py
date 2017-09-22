@@ -29,7 +29,7 @@ def _build_atom_df(nmols):
 
 
 @pytest.mark.parametrize("backend", _backend_list)
-def test_df_bonds(backend):
+def test_df_atoms(backend):
     """
     Tests adding bonds as a DataFrame
     """
@@ -57,7 +57,7 @@ def test_df_bonds(backend):
 
 
 @pytest.mark.parametrize("backend", _backend_list)
-def test_list_bonds(backend):
+def test_list_atoms(backend):
     """
     Tests adding bonds as a list
     """
