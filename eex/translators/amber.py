@@ -298,17 +298,15 @@ def read_amber_file(dl, filename, blocksize=5000):
         widths = [current_data_type[2]] * current_data_type[0]
 
         # Read in the data, in chunks
-        remaining = nrows
-        # print(remaining)
-        # print(current_data_category, nsize, nrows, current_data_type)
+        remaining_read = nrows
         num_blocks = int(math.ceil(nrows / float(blocksize)))
         category_index = 0
         for block in range(num_blocks):
 
             # Figure out the size of the read
             read_size = blocksize
-            if remaining < blocksize:
-                read_size = remaining
+            if remaining_read < blocksize:
+                read_size = remaining_read
 
             # read_fwf will push the file pointer *at least 4* so lets just read it in
             if read_size < 4:
@@ -348,7 +346,6 @@ def read_amber_file(dl, filename, blocksize=5000):
 
             # Store bond, angle, dihedrals
             elif current_data_category in list(_topology_store_names):
-                print(current_data_category, data.shape)
                 category = current_data_category.split("_")[0].lower()
 
                 mod_size, current_size, remaining_data = _current_topology_indices[category]
@@ -359,7 +356,7 @@ def read_amber_file(dl, filename, blocksize=5000):
 
                 # Prepend remaining data
                 if remaining_data.size:
-                    data = np.hstack((remaining_data))
+                    data = np.hstack((remaining_data, data))
 
                 # Get current remaining and
                 remaining = data.size % mod_size
@@ -384,17 +381,11 @@ def read_amber_file(dl, filename, blocksize=5000):
 
                 # Build and curate the data
                 df_dict = {}
-                # df_dict["index"] = index
                 for num, name in enumerate(col_name):
                     df_dict[name] = data[:, num]
 
-                print("\nDF Shape")
+                # Form the DF and add!
                 df = pd.DataFrame(df_dict, index=index)
-                print(df.shape)
-                df.dropna(axis=0, how="any", inplace=True)
-
-                print(df.shape)
-                print(df.tail())
                 dl.add_terms(mod_size - 1, df)
 
             else:
@@ -410,7 +401,7 @@ def read_amber_file(dl, filename, blocksize=5000):
             # dl.call_by_string(dl_func, data)
 
             # Update remaining
-            remaining -= blocksize
+            remaining_read -= blocksize
 
         # If we are doing nothing, we still have a blank line
         if nrows == 0:

@@ -446,26 +446,20 @@ class DataLayer(object):
         return self.read_terms("bonds")
 
     def add_angles(self, angles):
-        """
-        Adds angles using a index notation.
-
-        Parameters
-        ----------
-        bonds : pd.DataFrame
-            Adds a DataFrame containing the angle information by index
-            Required columns: ["bond_index", "atom1_index", "atom2_index", "atom3_index", "bond_type"]
-
-        Returns
-        -------
-        return : bool
-            Returns a boolean value if the operations was successful or not
-        """
 
         self.add_terms("angles", angles)
 
     def get_angles(self):
 
         return self.read_terms("angles")
+
+    def add_dihedrals(self, dihedrals):
+
+        self.add_terms("dihedrals", dihedrals)
+
+    def get_dihedrals(self):
+
+        return self.read_terms("dihedrals")
 
     def call_by_string(self, *args, **kwargs):
 
