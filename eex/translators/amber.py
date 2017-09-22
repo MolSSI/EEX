@@ -298,17 +298,15 @@ def read_amber_file(dl, filename, blocksize=5000):
         widths = [current_data_type[2]] * current_data_type[0]
 
         # Read in the data, in chunks
-        remaining = nrows
-        # print(remaining)
-        # print(current_data_category, nsize, nrows, current_data_type)
+        remaining_read = nrows
         num_blocks = int(math.ceil(nrows / float(blocksize)))
         category_index = 0
         for block in range(num_blocks):
 
             # Figure out the size of the read
             read_size = blocksize
-            if remaining < blocksize:
-                read_size = remaining
+            if remaining_read < blocksize:
+                read_size = remaining_read
 
             # read_fwf will push the file pointer *at least 4* so lets just read it in
             if read_size < 4:
@@ -358,7 +356,7 @@ def read_amber_file(dl, filename, blocksize=5000):
 
                 # Prepend remaining data
                 if remaining_data.size:
-                    data = np.hstack((remaining_data))
+                    data = np.hstack((remaining_data, data))
 
                 # Get current remaining and
                 remaining = data.size % mod_size
@@ -403,7 +401,7 @@ def read_amber_file(dl, filename, blocksize=5000):
             # dl.call_by_string(dl_func, data)
 
             # Update remaining
-            remaining -= blocksize
+            remaining_read -= blocksize
 
         # If we are doing nothing, we still have a blank line
         if nrows == 0:

@@ -12,7 +12,7 @@ import eex_find_files
 def spce_dl(request):
     fname = eex_find_files.get_example_filename("amber", "water/spce.prmtop")
     dl = eex.datalayer.DataLayer("test_amber_read", backend=request.param)
-    data = eex.translators.amber.read_amber_file(dl, fname)
+    data = eex.translators.amber.read_amber_file(dl, fname, blocksize=55)
     # print("-- Built AMBER SPCE DL --")
     yield (data, dl)
     dl.close()
