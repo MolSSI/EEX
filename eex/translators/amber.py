@@ -208,13 +208,7 @@ def process_topology_section(keyword_df, keyword, num_columns):
 def read_amber_file(dl, filename, blocksize=5000):
     ### First we need to figure out system dimensions
     max_rows = 100  # How many lines do we attempt to search?
-    header_data = []
-    with open(filename, "r") as infile:
-        for x in range(max_rows):
-            try:
-                header_data.append(next(infile).strip())
-            except StopIteration:
-                break
+    header_data = eex.utility.read_lines(filename, max_rows)
 
     sizes_dict = {}
     ret_data = {}

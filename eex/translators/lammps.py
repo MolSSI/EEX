@@ -77,13 +77,7 @@ def read_lammps_file(dl, filename, blocksize=110):
 
     ### First we need to figure out system dimensions
     max_rows = 100  # How many lines do we attempt to search?
-    header_data = []
-    with open(filename, "r") as infile:
-        for num in range(max_rows):
-            try:
-                header_data.append(next(infile).strip())
-            except StopIteration:
-                break
+    header_data = eex.utility.read_lines(filename, max_rows)
 
     dim_dict = {
         "xlo": None,
