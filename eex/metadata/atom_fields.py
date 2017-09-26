@@ -40,7 +40,7 @@ atom_metadata = {
         "units": "[current] [time]",
         "tol": 8,
     },
-    "XYZ": {
+    "xyz": {
         "required_columns": ["X", "Y", "Z"],
         "description": "The XYZ coordinates of a given atom.",
         "unique": True,
@@ -53,7 +53,7 @@ atom_metadata = {
         "description": "The mass of the atom.",
         "unique": False,
         "dtype": float,
-        "units": "[mass]",
+        "units": "[mass] / [substance]",
         "tol": 8,
     },
     "residue_index": {

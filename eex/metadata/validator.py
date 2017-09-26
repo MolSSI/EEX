@@ -69,8 +69,6 @@ def validate_units(unit_data, raise_exception=True, context=None):
 
     # Make sure the units are valid
     if context is not None:
-        print(context)
-        print(unit_data)
         units.ureg.check(context)(lambda x: x)(unit_data)
 
     return unit_data
