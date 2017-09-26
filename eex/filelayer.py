@@ -134,7 +134,7 @@ class MemoryStore(BaseStore):
 
         # Concat any fragments
         if len(self.table_frags[key]):
-            self.table_frags[key].append(self.tables[key])
+            self.table_frags[key].insert(0, self.tables[key])
             self.tables[key] = pd.concat(self.table_frags[key])
             self.table_frags[key] = []
 
