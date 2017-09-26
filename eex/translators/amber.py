@@ -77,13 +77,12 @@ _data_labels = {
     # "POLARIZABILITY": ["NATOM if IPOL else 0"]
 }
 
-_data_units = {
-    """
-    Gives units of sections with units - for conversions NYI
+_atom_data_units = {
+    "charge": "18.2223 * e",  # Internal units
+    "mass": "g * mol ** -1",
+}
 
-    """
-    "CHARGE": ["18.2223 * e"],  # Internal units
-    "MASS": ["g * mol ** -1"],
+_term_data_units = {
     "BOND_FORCE_CONSTANT": ["kcal * mol ** -1 angstrom ** -2"],
     "BOND_EQUIL_VALUE": ["angstrom"],
     "ANGLE_FORCE_CONSTANT": ["kcal * mol ** -2 radian ** 2"],
@@ -211,6 +210,11 @@ def process_topology_section(keyword_df, keyword, num_columns):
 
 
 def read_amber_file(dl, filename, blocksize=5000):
+
+    ### First we register relevant parameters
+    for k, v in _atom_data_units.items():
+        dl.register_atom_units(k, v)
+
     ### First we need to figure out system dimensions
     max_rows = 100  # How many lines do we attempt to search?
     header_data = eex.utility.read_lines(filename, max_rows)
