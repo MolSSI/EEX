@@ -12,11 +12,14 @@ Each style has the following values:
 _two_body_functional_forms = {
     # "none": {},
     # "zero": {},
+    # "nonlinear": {},
+    # "hybrid": {},  # Special case - allows for more than one bond type in a simulation
+    # "table": {},  # Special case - creation of interpolation tables.
     "class2": {
         "form": "K2 * (r-r0) ** 2 + K3 * (r-r0) ** 3 + K4 * (r-r0) ** 4",
-        "parameters": ["R0", "K2", "K3", "K4"],
+        "parameters": ["r0", "K2", "K3", "K4"],
         "units": {
-            "R0": "[length]",
+            "r0": "[length]",
             "K2": "[energy] [length] ** -2",
             "K3": "[energy] [length] ** -3",
             "K4": "[energy] [length] ** -4"
@@ -48,7 +51,6 @@ _two_body_functional_forms = {
         "description":
         "This is fene/expand bond"
     },
-    # "hybrid": {},  # Special case - allows for more than one bond type in a simulation
     "harmonic": {
         "form": "K*(r-R0) ** 2",
         "parameters": ["K", "R0"],
@@ -78,7 +80,6 @@ _two_body_functional_forms = {
         },
         "description": "This is a nonlinear bond"
     },
-    # "table": {},  # Special case - creation of interpolation tables.
     "quartic": {
         "form": "K(r-Rc) ** 2 * (r-Rc-B1)*(r-Rc-B2) + U0 + 4*epsilon*((sigma/r) ** 12 - (sigma/r) ** 6) + epsilon",
         "parameters": ["K", "B1", "B2", "Rc", "U0"],
@@ -91,6 +92,29 @@ _two_body_functional_forms = {
         },
         "description": "This is a quartic bond"
     },
+    "harmonic/shift": {
+        "form": "U_min/(R0 - R_c)**2 * ((r - R0) ** 2 - (r_c - R0) ** 2)",
+        "parameters": ["U_min", "R0", "R_c"],
+        "units": {
+            "U_min": "[energy]",
+            "R0": "[length]", 
+            "R_c": "[length]"
+        },
+        "description": "This is a harmonic/shift bond"
+    },
+
+    "oxdna/fene": {
+        "form": "-epsilon / 2 * ln (1 - ( (r - r0) / delta)**2 ) ",
+        "parameters": ["epsilon","delta","r0"],
+        "units": {
+            "epsilon": "[energy]",
+            "delta": "[length]",
+            "r0": "[length]"
+        },
+        "description": "This is a oxdna/fene bond"
+    },
+
+
 }
 
 ### Please do not edit below this line
