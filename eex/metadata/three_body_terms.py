@@ -19,6 +19,7 @@ _three_body_functional_forms = {
     # "dipole": {},
     # "fourier": {},
     # "sdk": {},
+    # "cosine/shift": {},
     "cosine/squared": {
         "form": "K*(cos(theta)-cos(theta0))**2",
         "parameters": ["K","theta0"],
@@ -95,21 +96,40 @@ _three_body_functional_forms = {
             "K4": "[energy] [arcunits]**-4",
             "theta0": "[arcunits]" #Lammps converts this to radians
         },
-        "description": "This is a quartic bond"
+        "description": "This is a quartic angle"
     },
-
-
-    "class2": {
-        "form": "NYI",
-        "parameters": ["theta0", "K2", "K3", "K4"],
+    "cosine/shift": {
+        "form": "-U_min / 2 * (1 + cos(theta - theta0))",
+        "parameters": ["U_min","theta0"],
         "units": {
-            "theta0": "[arcunits]",
-            "K2": "[energy] [arcunits] ** -2",
-            "K3": "[energy] [arcunits] ** -3",
-            "K4": "[energy] [arcunits] ** -4",
+            "U_min": "[energy]", 
+            "theta0": "[arcunits]"
         },
-        "description": "A generalized class 2 force field."
+        "description": "This is a cosine/shift angle"
     },
+    "fourier/simple": {
+        "form": "K*(1 + c*cos(n*theta))",
+        "parameters": ["K","c","n"],
+        "units": {
+            "K": "[energy]",
+            "c": "[]",
+            "n": "[]",
+        },
+        "description": "This is a fourier/simple angle"
+    },
+
+
+    #"class2": {
+    #    "form": "NYI",
+    #    "parameters": ["theta0", "K2", "K3", "K4"],
+    #    "units": {
+    #        "theta0": "[arcunits]",
+    #        "K2": "[energy] [arcunits] ** -2",
+    #        "K3": "[energy] [arcunits] ** -3",
+    #        "K4": "[energy] [arcunits] ** -4",
+    #    },
+    #    "description": "A generalized class 2 force field."
+    #},
     # "cosine": {
     #     "parameters": ["K"],
     #     "units": {
