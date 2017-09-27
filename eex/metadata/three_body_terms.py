@@ -12,11 +12,50 @@ This data will be validated during testing.
 
 _three_body_functional_forms = {
     # "none": {},
+    # "class2": {},
     # "zero": {},
     # "hybrid": {},  # Special case - allows for more than one angle type in a simulation
     # "table": {},
+    # "dipole": {},
+    # "fourier": {},
+    # "sdk": {},
+    "cosine/squared": {
+        "form": "K*(cos(theta)-cos(theta0))**2",
+        "parameters": ["K","theta0"],
+        "units": {
+            "K": "[energy]",
+            "theta0": "[arcunits]"
+         },
+         "description": "This is a cosine/squared angle"
+    },
+    "cosine": {
+        "form": "K*(1+cos(theta))",
+        "parameters": ["K"],
+        "units": {
+            "K": "[energy]"
+         },
+        "description": "This is a cosine potential"
+    },
+    "harmonic": {
+        "form": "K * (theta - theta0) ** 2",
+        "parameters": ["K", "theta0"],
+        "units": {
+            "K": "[energy] [arcunits] ** -2",
+            "theta0": "[arcunits]"
+        },
+        "description": "A harmonic angle"
+    },
+    "cosine/delta": {
+        "form": "K*(1+cos(theta-theta0))",
+        "parameters": ["K","theta0"],
+        "units": {
+            "K": "[energy]",
+            "theta0": "[arcunits]"
+        },
+        "description": "This is a cosine/delta potential"
+    },
     "charmm": {
-        "form": "NYI",
+        "form": "k*(theta-theta0)**2 + k_ub*(r13-r_ub)**2",
         "parameters": ["K", "theta0", "K_ub", "r_ub"],
         "units": {
             "K": "[energy] [arcunits] ** 2",
@@ -26,6 +65,40 @@ _three_body_functional_forms = {
         },
         "description": "A CHARMM angle term?"
     },
+    "cosine/periodic": {
+        "form": "C * (1-B*(-1)**n*cos(n*theta))",
+        "parameters": ["C","B","n"],
+        "units": {
+            "C": "[energy]",
+            "B": "[]",  #1 or -1
+            "n": "[]"  # 1 2 3 4 5 or 6
+        },
+        "description": "This is a cosine/periodic potential"
+    },
+    "fourier": {
+        "form": "K*(c0+c1*cos(theta)+c2*cos(2*theta))",
+        "parameters": ["K","c0","c1","c2"],
+        "units": {
+            "K": "[energy]",
+            "c0": "[]",
+            "c1": "[]",
+            "c2": "[]"
+        },
+        "description": "This is a fourier potential"
+    },
+    "quartic": {
+        "form": "K2*(theta-theta0)**2+K3*(theta-theta0)**3+K4*(theta-theta0)**4",
+        "parameters": ["K2","K3","K4","theta0"],
+        "units": {
+            "K2": "[energy] [arcunits]**-2", #Lammps uses radians
+            "K3": "[energy] [arcunits]**-3",
+            "K4": "[energy] [arcunits]**-4",
+            "theta0": "[arcunits]" #Lammps converts this to radians
+        },
+        "description": "This is a quartic bond"
+    },
+
+
     "class2": {
         "form": "NYI",
         "parameters": ["theta0", "K2", "K3", "K4"],
@@ -65,15 +138,6 @@ _three_body_functional_forms = {
     #         "theta0": "[arcunits]",
     #     }
     # },
-    "harmonic": {
-        "form": "K * (theta - theta0) ** 2",
-        "parameters": ["K", "theta0"],
-        "units": {
-            "K": "[energy] [arcunits] ** -2",
-            "theta0": "[arcunits]"
-        },
-        "description": "A harmonic bond"
-    },
 }
 
 ### Do NOT edit below this line
