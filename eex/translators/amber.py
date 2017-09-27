@@ -128,6 +128,7 @@ _current_topology_indices = {
     "dihedrals": [5, 0, np.array([])],
 }
 
+
 def _parse_format(string):
     """
     Parses an AMBER style format string.
@@ -179,34 +180,6 @@ def _data_flatten(data, column_name, category_index, df_index_name):
     df = pd.DataFrame({df_index_name: index, dl_col_name: flat_data})
     df.dropna(axis=0, how="any", inplace=True)
     return df
-
-
-def _data_reshape(data, num_columns):
-    data_values = data.values
-    # Remove nans
-    data_process = data_values[~np.isnan(data_values)]
-    # Reshape data
-    data_shape = data_process.reshape(-1, num_columns)
-    df = pd.DataFrame(data=data_shape)
-    return df
-
-
-def process_topology_section(keyword_df, keyword, num_columns):
-
-    # Reshape data
-    keyword_reshape = _data_reshape(keyword_df[keyword], num_columns)
-
-    # Calculate atom indices for angles
-    keyword_reshape.loc[:, 0:(num_columns - 2)] = (keyword_reshape.loc[:, 0:(num_columns - 2)] / 3 + 1).astype(int)
-
-    # Figure out column names
-    col_name = ["atom" + str(x) + "_index" for x in range(1, num_columns)]
-    col_name.append(keyword[:-1] + "_type")
-
-    keyword_reshape.columns = col_name
-    keyword_reshape[keyword[:-1] + "_index"] = keyword_reshape.index
-
-    return keyword_reshape
 
 
 def read_amber_file(dl, filename, blocksize=5000):
@@ -354,7 +327,6 @@ def read_amber_file(dl, filename, blocksize=5000):
 
                 mod_size, current_size, remaining_data = _current_topology_indices[category]
 
-
                 data = data.values.ravel()
                 data = data[np.isfinite(data)]
 
@@ -369,7 +341,6 @@ def read_amber_file(dl, filename, blocksize=5000):
                     _current_topology_indices[category][-1] = data[-remaining:].copy()
                 else:
                     _current_topology_indices[category][-1] = np.array([])
-
 
                 data = data.reshape(-1, mod_size).astype(int)
 

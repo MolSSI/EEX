@@ -60,7 +60,7 @@ def validate_functional_form_dict(name, functional_form):
     return True
 
 
-def validate_units(unit_data, raise_exception=True, context=None):
+def validate_units(unit_data, context=None):
     """
     Attempts to parse a Pint unit expression
     """

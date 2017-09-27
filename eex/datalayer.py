@@ -175,7 +175,6 @@ class DataLayer(object):
         else:
             self._atom_metadata[property_name]["units"] = utype
 
-
     def add_atoms(self, atom_df, property_name=None, by_value=False, utype=None):
         """
         Adds atom information to the DataLayer object.
@@ -188,6 +187,8 @@ class DataLayer(object):
             The atom property that is added, only necessary if a list is passed in.
         by_value : bool
             If data is passed by_value the DL automatically hashes the parameters to unique components.
+        utype : {dict, pint.Unit}
+            The unit type of the atom_df.
 
         Returns
         -------
@@ -262,6 +263,8 @@ class DataLayer(object):
         ----------
         properties : {list, str}
             The properties to obtain for the atom data.
+        by_value : bool
+            If true returns the property by value, otherwise returns by index.
 
         Returns
         -------
@@ -302,8 +305,10 @@ class DataLayer(object):
             The order of the functional form (2, 3, 4, ...)
         name : str
             The name of the functional form you are adding
-        form_dictionary : dict
+        form : dict
             The metadata for the incoming form. Follows the term order descriptions.
+        utype : {dict, pint.Unit}
+            The unit type of the functional form.
 
         Returns
         -------
@@ -343,10 +348,9 @@ class DataLayer(object):
                 "DataLayer:register_functional_forms: Must either pass in form (external form) or units (internal form)."
             )
 
-        elif (form is None):
+        elif form is None:
             if utype is None:
-                raise KeyError("DataLayer:register_functional_forms: Must pass in units if using a EEX built-in form."
-                               % str(name))
+                raise KeyError("DataLayer:register_functional_forms: Must pass in units if using a EEX built-in form.")
 
             try:
                 form = metadata.get_term_metadata(order, "forms", name)
@@ -379,12 +383,12 @@ class DataLayer(object):
             The order of the functional form (2, 3, 4, ...)
         term_name : str
             The name of the functional form you are adding.
-        form_parameters : {list, tuple, dict}
+        term_parameters : {list, tuple, dict}
             The parameters to the functional form you are adding. If a list or tuple the order matches the order supplied
             in the functional form. Otherwise the dictionary matches functional form parameter names.
         uid : int, optional
             The uid to assign to this parameterized term.
-        units : list of Pint units, options
+        utype : list of Pint units, options
             Custom units for this particular addition, otherwise uses the default units in the registered functional form.
 
         Examples
@@ -462,14 +466,6 @@ class DataLayer(object):
                 self._terms[order][uid] = params
 
                 return uid
-
-        # index_1, index_2, term_uuid
-        # DL.register_functional_forms(metadata)
-        # uuid = DL.add_parameters(2, "class2", [0, 3, 4, 2], uuid=xx)
-        # DL.add_term(2, [[index_1, index_2, uuid]])
-        # DL.add_bond([[index_1, index_2, uuid]])
-
-        # DL.add_term([[index_1, index_2, class, [0, 3, 4, 2]])V
 
     def add_terms(self, order, df):
 
