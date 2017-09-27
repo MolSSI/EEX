@@ -13,7 +13,7 @@ _valid_bond_variables = {
 
 _valid_angle_variables = {
     "theta": {
-        "units": "[radian]",
+        "units": "degree",
         "description": "Angle between three consecutive atoms"
     },
     "r": {
@@ -24,11 +24,11 @@ _valid_angle_variables = {
 
 _valid_dihedral_variables = {
     "phi": {
-        "units": "[radian]",
+        "units": "degree",
         "description": "Dihedral angle arising from four consecutive atoms"
     },
     "theta": {
-        "units": "[radian]",
+        "units": "degree",
         "description": "Angle between three given atoms"
     },
     "r": {
@@ -39,7 +39,7 @@ _valid_dihedral_variables = {
 
 _valid_improper_variables = {
     "chi": {
-        "units": "[radian]",
+        "units": "degree",
         "description": "Improper angle"
     },
     "r": {
@@ -47,7 +47,7 @@ _valid_improper_variables = {
         "description": "Distance between the central atom and the plane formed by the other three atoms"
     },
     "omega": {
-        "units": "[radian]",
+        "units": "degree",
         "description": "Angle between the vector formed by a non-central atom and the plane formed by the other three atoms"
     }
 }
@@ -217,6 +217,19 @@ _bond_styles = {
         },
         "description": "This is a oxdna/fene bond"
     },
+
+    "harmonic/shift": {
+        "form": "U_min/(R0 - R_c)**2 * ((r - R0) ** 2 - (r_c - R0) ** 2)",
+        "parameters": ["U_min", "R0", "R_c"],
+        "units": {
+            "U_min": "[energy]",
+            "R0": "[length]",
+            "R_c": "[length]"
+        },
+        "description": "This is a harmonic/shift bond"
+    },
+
+
 }
 
 _angle_styles = {
@@ -237,7 +250,7 @@ _angle_styles = {
         "parameters": ["K","theta0"],
         "units": {
             "K": "[energy]", 
-            "theta0": "[degrees]"
+            "theta0": "degree"
          },
          "description": "This is a cosine/squared angle"
     },
@@ -259,8 +272,8 @@ _angle_styles = {
         "form": "K*(theta-theta0)**2",
         "parameters": ["K","theta0"],
         "units": {
-            "K": "[energy] [radian]**-2",
-            "theta0": "[degree]"
+            "K": "[energy] radian**-2",
+            "theta0": "degree"
         },
         "description": "This is a harmonic"
     },
@@ -275,7 +288,7 @@ _angle_styles = {
         "parameters": ["K","theta0"],
         "units": { 
             "K": "[energy]",
-            "theta0": "[degree]"
+            "theta0": "degree"
         }, 
         "description": "This is a cosine/delta potential"
     },
@@ -289,8 +302,8 @@ _angle_styles = {
         "form": "k*(theta-theta0)**2 + k_ub*(r-r_ub)**2",
         "parameters": ["k","theta0","k_ub","r_ub"],
         "units": {
-            "k": "[energy] [radian]**-2",
-            "theta0": "[degree]",
+            "k": "[energy] radian**-2",
+            "theta0": "degree",
             "k_ub": "[energy] length**-2",
             "r_ub": "length"
         },
@@ -301,8 +314,8 @@ _angle_styles = {
         "parameters": ["C","B","n"],
         "units": {
             "C": "[energy]",
-            "B": "[dimensionless]",  #1 or -1
-            "n": "[dimensionless]"  # 1 2 3 4 5 or 6
+            "B": "[]",  #1 or -1
+            "n": "[]"  # 1 2 3 4 5 or 6
         },
         "description": "This is a cosine/periodic potential"
     },
@@ -317,9 +330,9 @@ _angle_styles = {
         "parameters": ["K","c0","c1","c2"],
         "units": {
             "K": "[energy]",
-            "c0": "[dimensionless]",
-            "c1": "[dimensionless]", 
-            "c2": "[dimensionless]" 
+            "c0": "[]",
+            "c1": "[]", 
+            "c2": "[]" 
         },
         "description": "This is a fourier potential"
     },
@@ -330,7 +343,7 @@ _angle_styles = {
             "K2": "[energy] radian**-2",
             "K3": "[energy] radian**-3",
             "K4": "[energy] radian**-4",
-            "theta0": "[degrees]" #Lammps converts this to radians
+            "theta0": "degree" #Lammps converts this to radians
         },
         "description": "This is a quartic bond"
     },
@@ -340,6 +353,26 @@ _angle_styles = {
         "units": "NYI",
         "description": "NYI"
     }
+    "cosine/shift": {
+        "form": "-U_min / 2 * (1 + cos(theta - theta0))",
+        "parameters": ["U_min","theta0"],
+        "units": {
+            "U_min": "[energy]",
+            "theta0": "[arcunits]"
+        },
+        "description": "This is a cosine/shift angle"
+    },
+    "fourier/simple": {
+        "form": "K*(1 + c*cos(n*theta))",
+        "parameters": ["K","c","n"],
+        "units": {
+            "K": "[energy]",
+            "c": "[]",
+            "n": "[]",
+        },
+        "description": "This is a fourier/simple angle"
+    },
+
 }
 
 _dihedral_styles = {
@@ -354,8 +387,8 @@ _dihedral_styles = {
         "parameters": ["K","n","d"],
         "units": { 
             "K": "[energy]",
-            "n": "[dimensionless]",  # must be type int, no units
-            "d": "[degrees]",  # must be type int. Differs because units must be [degrees] regardless of units command ?
+            "n": "[]",  # must be type int, no units
+            "d": "degree",  # must be type int. Differs because units must be degree regardless of units command ?
         },
         "description": "This is a charmm dihedral"
     },
@@ -363,7 +396,7 @@ _dihedral_styles = {
     "multi/harmonic": {
         "form": "Sum(A_n * (cos(phi))**(n-1))", #n goes from 1 to 5
         "parameters": ["A_n"], 
-        "units": {,
+        "units": {
         "A_n": "[energy]",
          },
          "description": "This is a multi/harmonic dihedral"
@@ -392,8 +425,8 @@ _dihedral_styles = {
         "parameters": ["k_i","n_i","d_i"],
         "units": { 
             "k_i": "[energy]",
-            "n_i": "[dimensionless]",
-            "d_i": "[degrees]"
+            "n_i": "[]",
+            "d_i": "degree"
         },
         "description": "This is a fourier dihedral"
     },
@@ -402,8 +435,8 @@ _dihedral_styles = {
         "parameters": ["K","n","d"],
         "units": { 
             "K": "[energy]",
-            "n": "[dimensionless]",
-            "d": "[dimensionless]"
+            "n": "[]",
+            "d": "[]"
         },
         "description": "This is a harmonic dihedral"
     },
@@ -428,7 +461,7 @@ _dihedral_styles = {
         "parameters": ["A_n","n"],
         "units": { 
             "A_n": "[energy]",
-            "n": "[dimensionless]"
+            "n": "[]"
         },
         "description": "This is a nharmonic dihedral"
     },
@@ -447,8 +480,8 @@ _dihedral_styles = {
         "form": "K*(phi-phi0)**2",
         "parameters": ["K","phi0"],
         "units": { 
-            "K": "[energy]",
-            "phi0": "[degrees]"
+            "K": "[energy] radian ** -2",
+            "phi0": "degree"
         },
         "description": "This is a quadratic dihedral"
     },
@@ -479,7 +512,7 @@ _improper_styles = {
         "parameters": ["K","chi0"],
         "units": { 
             "K": "[energy]",
-            "chi0": "[degrees]"
+            "chi0": "degree"
         },
         "description": "This is a cossq improper"
     },
@@ -488,8 +521,8 @@ _improper_styles = {
         "parameters": ["K","d","n"],
         "units": { 
             "K": "[energy]",
-            "d": "[dimensionless]",
-            "n": "[dimensionless]"
+            "d": "[]",
+            "n": "[]"
         },
         "description": "This is a cvff improper"
     },
@@ -507,9 +540,9 @@ _improper_styles = {
         "parameters": ["K","C0","C1","C2"],
         "units": { 
             "K": "[energy]",
-            "C0": "[dimensionless]",
-            "C1": "[dimensionless]",
-            "C2": "[dimensionless]",
+            "C0": "[]",
+            "C1": "[]",
+            "C2": "[]",
         },
         "description": "This is a fourier improper"
     },
@@ -518,7 +551,7 @@ _improper_styles = {
         "parameters": ["K","chi0"],
         "units": { 
             "K": "[energy]",
-            "chi0": "[degrees]",
+            "chi0": "degree",
         },
         "description": "This is a harmonic improper"
     },
