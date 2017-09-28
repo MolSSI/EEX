@@ -21,12 +21,14 @@ build_script:
   - conda update -q conda
   - conda info -a
   - conda create -q -n eex_env numpy pandas pymongo pytest pytables matplotlib pint -c conda-forge
-  - source activate eex_env
+  - activate eex_env
 
     # Install anything not in conda
   - pip install codecov
   - pip install pytest-cov
   - conda list
+
+build_script:
   - pip install -e .
 
 test_script:
