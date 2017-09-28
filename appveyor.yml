@@ -28,7 +28,7 @@ build_script:
   - pip install pytest-cov
   - conda list
 
-build_script:
+    # Install the package locally
   - pip install -e .
 
 test_script:
