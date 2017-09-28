@@ -1,0 +1,33 @@
+skip_tags: true
+clone_depth: 1
+
+os: Visual Studio 2015
+
+environment:
+  matrix:
+    - PY_MAJOR_VER: 2
+      PYTHON_ARCH: "x86"
+    - PY_MAJOR_VER: 3
+      PYTHON_ARCH: "x86_64"
+
+build_script:
+    # Pull down a miniconda
+  - ps: Start-FileDownload "https://repo.continuum.io/miniconda/Miniconda$env:PY_MAJOR_VER-latest-Windows-$env:PYTHON_ARCH.exe" C:\Miniconda.exe; echo "Finished downloading miniconda"
+  - cmd: C:\Miniconda.exe /S /D=C:\Py
+  - SET PATH=C:\Py;C:\Py\Scripts;C:\Py\Library\bin;%PATH%
+
+    # Build out the environment
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
+  - conda create -q -n eex_env python=$TRAVIS_PYTHON_VERSION numpy pandas pymongo pytest pytables matplotlib pint -c conda-forge
+  - source activate eex_env
+
+    # Install anything not in conda
+  - pip install codecov
+  - pip install pytest-cov
+  - conda list
+  - pip install -e .
+
+test_script:
+  - py.test -v --cov=eex/ --durations=5
