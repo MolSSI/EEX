@@ -83,15 +83,20 @@ _atom_data_units = {
 }
 
 _term_data_units = {
-    "BOND_FORCE_CONSTANT": ["kcal * mol ** -1 angstrom ** -2"],
-    "BOND_EQUIL_VALUE": ["angstrom"],
-    "ANGLE_FORCE_CONSTANT": ["kcal * mol ** -2 radian ** 2"],
-    "ANGLE_EQUIL_VALUE": ["radian"],
+    # "BOND_FORCE_CONSTANT": ["kcal * mol ** -1 angstrom ** -2"],
+    # "BOND_EQUIL_VALUE": ["angstrom"],
+    # "ANGLE_FORCE_CONSTANT": ["kcal * mol ** -2 radian ** 2"],
+    # "ANGLE_EQUIL_VALUE": ["radian"],
     "DIHEDRAL_FORCE_CONSTANT": ["kcal * mol ** -1"],
     "DIHEDRAL_PHASE": ["radian"],
     "LENNARD_JONES_ACOEFF": ["kcal * mol ** -12"],
     "LENNARD_JONES_BCOEFF": ["kcal * mol ** -6"],
 }
+_register_forms = [
+    (2, "harmonic", {"K": "kcal * mol ** -1 angstrom ** -2", "R0": "angstrom"}),
+    (3, "harmonic", {"K": "kcal * mol ** -2 radian ** 2", "theta0": "radian"}),
+
+]
 
 _atom_property_names = {
     "ATOM_NAME": "atom_name",
@@ -110,17 +115,34 @@ _topology_store_names = [
     "DIHEDRALS_INC_HYDROGEN", "DIHEDRALS_WITHOUT_HYDROGEN"
 ]
 
-_forcefield_parameters = [
-    "BOND_FORCE_CONSTANT",
-    "BOND_EQUIL_VALUE",
-    "ANGLE_FORCE_CONSTANT",
-    "ANGLE_EQUIL_VALUE",
-    "DIHEDRAL_FORCE_CONSTANT",
-    "DIHEDRAL_PERIODICITY",
-    "DIHEDRAL_PHASE",
-    "LENNARD_JONES_ACOEFF",
-    "LENNARD_JONES_BCOEFF",
-]
+_forcefield_parameters = {
+    "bond": {
+        "order": 2,
+        "form": "harmonic",
+        "units": {
+            "K": "kcal * mol ** -1 angstrom ** -2",
+            "R0": "angstrom"
+        },
+        "column_names": {
+            "BOND_FORCE_CONSTANT": "K",
+            "BOND_EQUIL_VALUE": "R0"
+        }
+    },
+    "angle": {
+        "order": 3,
+        "form": "harmonic",
+        "units": {
+            "K": "kcal * mol ** -1 angstrom ** -2",
+            "theta0": "angstrom"
+        },
+        "column_names": {
+            "BOND_FORCE_CONSTANT": "K",
+            "BOND_EQUIL_VALUE": "theta0"
+        }
+    }
+    # "dihedral": ["DIHEDRAL_FORCE_CONSTANT", "DIHEDRAL_PERIODICITY", "DIHEDRAL_PHASE"],
+    # "non-bonded": ["LENNARD_JONES_ACOEFF", "LENNARD_JONES_BCOEFF"]
+}
 
 _current_topology_indices = {
     "bonds": [3, 0, np.array([])],
@@ -128,6 +150,10 @@ _current_topology_indices = {
     "dihedrals": [5, 0, np.array([])],
 }
 
+_store_other = []
+for k, v in _forcefield_parameters.items():
+    _store_other.extend(list(v["column_names"]))
+_store_other.extend(_residue_store_names)
 
 def _parse_format(string):
     """
@@ -187,6 +213,9 @@ def read_amber_file(dl, filename, blocksize=5000):
     ### First we register relevant parameters
     for k, v in _atom_data_units.items():
         dl.register_atom_units(k, v)
+
+    for order, form_name, units in _register_forms:
+        dl.register_functional_forms(order, "harmonic", utype=units)
 
     ### First we need to figure out system dimensions
     max_rows = 100  # How many lines do we attempt to search?
@@ -310,7 +339,7 @@ def read_amber_file(dl, filename, blocksize=5000):
                 # Add the data to DL
                 dl.add_atoms(df, by_value=True)
 
-            elif current_data_category in list(_residue_store_names):
+            elif current_data_category in _store_other:
                 df = _data_flatten(data, current_data_category, category_index, "res_index")
 
                 # Force residue pointer to be type int
@@ -411,7 +440,6 @@ def read_amber_file(dl, filename, blocksize=5000):
     ### Handle any data we added to the other columns
 
     # Expand residue values
-
     res_df = dl.get_other(_residue_store_names)
 
     sizes = np.diff(res_df["RESIDUE_POINTER"])
@@ -426,6 +454,22 @@ def read_amber_file(dl, filename, blocksize=5000):
 
     res_df.index.name = "atom_index"
     dl.add_atoms(res_df, by_value=True)
+
+    # Handle bond parameters
+    other_tables = dl.list_other_tables()
+    bond_data = _forcefield_parameters["bond"]
+    bond_col_names = list(bond_data["column_names"])
+    if len(set(bond_col_names) - set(other_tables)):
+        raise KeyError("AMBER Read: Did not find bond parameters in file.")
+
+    cnt = 1 # Start counting from one
+    for ind, row in dl.get_other(bond_col_names).iterrows():
+        params = {}
+        for k, v in bond_data["column_names"].items():
+            params[v] = row[k]
+        dl.add_parameters(bond_data["order"], bond_data["form"], params)
+
+    # raise Exception(str(row))
 
     file_handle.close()
     return ret_data
