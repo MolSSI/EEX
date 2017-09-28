@@ -144,12 +144,6 @@ _forcefield_parameters = {
     # "non-bonded": ["LENNARD_JONES_ACOEFF", "LENNARD_JONES_BCOEFF"]
 }
 
-_current_topology_indices = {
-    "bonds": [3, 0, np.array([])],
-    "angles": [4, 0, np.array([])],
-    "dihedrals": [5, 0, np.array([])],
-}
-
 _store_other = []
 for k, v in _forcefield_parameters.items():
     _store_other.extend(list(v["column_names"]))
@@ -295,6 +289,14 @@ def read_amber_file(dl, filename, blocksize=5000):
             break
         counter += 1
 
+    # Build any required temporaries
+    _current_topology_indices = {
+        "bonds": [3, 0, np.array([])],
+        "angles": [4, 0, np.array([])],
+        "dihedrals": [5, 0, np.array([])],
+    }
+
+    # Iterate over the file
     while True:
 
         # Type out the sizes and types
