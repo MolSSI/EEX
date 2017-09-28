@@ -22,19 +22,19 @@ _three_body_functional_forms = {
     # "cosine/shift": {},
     "cosine/squared": {
         "form": "K*(cos(theta)-cos(theta0))**2",
-        "parameters": ["K","theta0"],
+        "parameters": ["K", "theta0"],
         "units": {
             "K": "[energy]",
             "theta0": "[arcunits]"
-         },
-         "description": "This is a cosine/squared angle"
+        },
+        "description": "This is a cosine/squared angle"
     },
     "cosine": {
         "form": "K*(1+cos(theta))",
         "parameters": ["K"],
         "units": {
             "K": "[energy]"
-         },
+        },
         "description": "This is a cosine potential"
     },
     "harmonic": {
@@ -48,7 +48,7 @@ _three_body_functional_forms = {
     },
     "cosine/delta": {
         "form": "K*(1+cos(theta-theta0))",
-        "parameters": ["K","theta0"],
+        "parameters": ["K", "theta0"],
         "units": {
             "K": "[energy]",
             "theta0": "[arcunits]"
@@ -68,7 +68,7 @@ _three_body_functional_forms = {
     },
     "cosine/periodic": {
         "form": "C * (1-B*(-1)**n*cos(n*theta))",
-        "parameters": ["C","B","n"],
+        "parameters": ["C", "B", "n"],
         "units": {
             "C": "[energy]",
             "B": "[]",  #1 or -1
@@ -78,7 +78,7 @@ _three_body_functional_forms = {
     },
     "fourier": {
         "form": "K*(c0+c1*cos(theta)+c2*cos(2*theta))",
-        "parameters": ["K","c0","c1","c2"],
+        "parameters": ["K", "c0", "c1", "c2"],
         "units": {
             "K": "[energy]",
             "c0": "[]",
@@ -89,27 +89,27 @@ _three_body_functional_forms = {
     },
     "quartic": {
         "form": "K2*(theta-theta0)**2+K3*(theta-theta0)**3+K4*(theta-theta0)**4",
-        "parameters": ["K2","K3","K4","theta0"],
+        "parameters": ["K2", "K3", "K4", "theta0"],
         "units": {
-            "K2": "[energy] [arcunits]**-2", #Lammps uses radians
+            "K2": "[energy] [arcunits]**-2",  #Lammps uses radians
             "K3": "[energy] [arcunits]**-3",
             "K4": "[energy] [arcunits]**-4",
-            "theta0": "[arcunits]" #Lammps converts this to radians
+            "theta0": "[arcunits]"  #Lammps converts this to radians
         },
         "description": "This is a quartic angle"
     },
     "cosine/shift": {
         "form": "-U_min / 2 * (1 + cos(theta - theta0))",
-        "parameters": ["U_min","theta0"],
+        "parameters": ["U_min", "theta0"],
         "units": {
-            "U_min": "[energy]", 
+            "U_min": "[energy]",
             "theta0": "[arcunits]"
         },
         "description": "This is a cosine/shift angle"
     },
     "fourier/simple": {
         "form": "K*(1 + c*cos(n*theta))",
-        "parameters": ["K","c","n"],
+        "parameters": ["K", "c", "n"],
         "units": {
             "K": "[energy]",
             "c": "[]",
@@ -117,7 +117,6 @@ _three_body_functional_forms = {
         },
         "description": "This is a fourier/simple angle"
     },
-
 
     #"class2": {
     #    "form": "NYI",
