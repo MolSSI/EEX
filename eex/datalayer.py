@@ -68,11 +68,25 @@ class DataLayer(object):
 
         return function(*args[1:], **kwargs)
 
+### Store functions
+
     def close(self):
         """
         Closes the DL object
         """
         self.store.close()
+
+    def list_tables(self):
+        """
+        Lists tables loaded into the store.
+        """
+        return [x for x in self.store.list_tables() if "other" not in x]
+
+    def list_other_tables(self):
+        """
+        Lists "other" tables loaded into the store.
+        """
+        return [x.replace("other_", "") for x in self.store.list_tables() if "other" in x]
 
 ### Atom functions
 
@@ -333,7 +347,7 @@ class DataLayer(object):
         dl.register_functional_form(2, "custom_harmonic", form=form_metadata)
 
         # Register form by using EEX build-in forms and setting units
-        dl.register_functional_form(2, "harmonic", units={"K": "kcal / mol ** 2", "R0": "picometers"})
+        dl.register_functional_form(2, "harmonic", units={"K": "(kcal / mol) / angstrom ** 2", "R0": "picometers"})
         """
 
         user_order = order
