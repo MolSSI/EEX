@@ -73,7 +73,7 @@ term_data_units = {
 }
 register_forms = [
     (2, "harmonic", {"K": "kcal * mol ** -1 angstrom ** -2", "R0": "angstrom"}),
-    (3, "harmonic", {"K": "kcal * mol ** -2 radian ** 2", "theta0": "radian"}),
+    (3, "harmonic", {"K": "kcal * mol ** -1 radian ** -2", "theta0": "radian"}),
 
 ]
 
@@ -111,8 +111,8 @@ forcefield_parameters = {
         "order": 3,
         "form": "harmonic",
         "units": {
-            "K": "kcal * mol ** -1 angstrom ** -2",
-            "theta0": "angstrom"
+            "K": "kcal * mol ** -1 radian ** -2",
+            "theta0": "radian"
         },
         "column_names": {
             "BOND_FORCE_CONSTANT": "K",
@@ -122,6 +122,7 @@ forcefield_parameters = {
     # "dihedral": ["DIHEDRAL_FORCE_CONSTANT", "DIHEDRAL_PERIODICITY", "DIHEDRAL_PHASE"],
     # "non-bonded": ["LENNARD_JONES_ACOEFF", "LENNARD_JONES_BCOEFF"]
 }
+
 
 store_other = []
 for k, v in forcefield_parameters.items():
