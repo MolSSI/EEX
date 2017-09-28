@@ -59,7 +59,7 @@ class HDFStore(BaseStore):
 
         # Do we append, or do we need a new table?
         do_append = True
-        if (key not in self.created_tables):
+        if key not in self.created_tables:
             do_append = False
             self.created_tables.append(key)
 
@@ -108,12 +108,12 @@ class HDFStore(BaseStore):
         self.close()
 
 
-
 class MemoryStore(BaseStore):
     def __init__(self, name, store_location, save_data):
 
         # Init the base class
         BaseStore.__init__(self, name, store_location, save_data)
+        self.store_filename = os.path.join(self.store_location, self.name + ".h5")
 
         # Table holder dictionary
         self.tables = {}
@@ -156,4 +156,4 @@ class MemoryStore(BaseStore):
         return list(self.tables)
 
     def __del__(self):
-       self.close()
+        self.close()
