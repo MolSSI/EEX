@@ -23,9 +23,9 @@ _four_body_functional_forms = {
         "parameters": ["K", "n", "d"],
         "units": {
             "K": "[energy]",
-            "n": "[]",  # must be type int, no units
+            "n": "phase",  # must be type int, no units
             "d":
-            "[arcunits]",  # must be type int. Differs because units must be [degrees] regardless of units command ?
+            "[arcunit]",  # must be type int. Differs because units must be [degrees] regardless of units command ?
         },
         "description": "This is a charmm dihedral"
     },
@@ -42,8 +42,8 @@ _four_body_functional_forms = {
         "parameters": ["k_i", "n_i", "d_i"],
         "units": {
             "k_i": "[energy]",
-            "n_i": "[]",
-            "d_i": "[arcunits]"
+            "n_i": "phase",
+            "d_i": "[arcunit]"
         },
         "description": "This is a fourier dihedral"
     },
@@ -52,8 +52,8 @@ _four_body_functional_forms = {
         "parameters": ["K", "n", "d"],
         "units": {
             "K": "[energy]",
-            "n": "[]", # + / 1
-            "d": "[]"
+            "n": "phase",  # + / 1
+            "d": "dimensionless"
         },
         "description": "A harmonic dihedral"
     },
@@ -72,7 +72,7 @@ _four_body_functional_forms = {
         "parameters": ["A_n", "n"],
         "units": {
             "A_n": "[energy]",
-            "n": "[]"
+            "n": "count"
         },
         "description": "This is a nharmonic dihedral"
     },
@@ -92,7 +92,7 @@ _four_body_functional_forms = {
         "parameters": ["K", "phi0"],
         "units": {
             "K": "[energy]",
-            "phi0": "[arcunits]"
+            "phi0": "[arcunit]"
         },
         "description": "This is a quadratic dihedral"
     },
@@ -108,7 +108,7 @@ _four_body_functional_forms = {
         "parameters": ["K", "chi0"],
         "units": {
             "K": "[energy]",
-            "chi0": "[arcunits]"
+            "chi0": "[arcunit]"
         },
         "description": "This is a cossq improper"
     },
@@ -117,8 +117,8 @@ _four_body_functional_forms = {
         "parameters": ["K", "d", "n"],
         "units": {
             "K": "[energy]",
-            "d": "[]",
-            "n": "[]"
+            "d": "dimensionless",
+            "n": "phase"
         },
         "description": "This is a cvff improper"
     },
@@ -136,9 +136,9 @@ _four_body_functional_forms = {
         "parameters": ["K", "C0", "C1", "C2"],
         "units": {
             "K": "[energy]",
-            "C0": "[]",
-            "C1": "[]",
-            "C2": "[]",
+            "C0": "dimensionless",
+            "C1": "dimensionless",
+            "C2": "dimensionless",
         },
         "description": "This is a fourier improper"
     },
@@ -147,7 +147,7 @@ _four_body_functional_forms = {
         "parameters": ["K", "chi0"],
         "units": {
             "K": "[energy]",
-            "chi0": "[arcunits]",
+            "chi0": "[arcunit]",
         },
         "description": "This is a harmonic improper"
     },
@@ -160,11 +160,11 @@ four_body_metadata = {}
 # Valid variables used in all four-body terms
 four_body_metadata["variables"] = {
     "phi": {
-        "units": "[arcunits]",
+        "units": "[arcunit]",
         "description": "The dihedral between the indexed atom1, atom2, atom3, and atom4.",
     },
     "theta": {
-        "units": "[arcunits]",
+        "units": "[arcunit]",
         "description": "Angle between three given atoms"
     },
     "r": {
@@ -172,12 +172,12 @@ four_body_metadata["variables"] = {
         "description": "Distance between two given atoms"
     },
     "chi": {
-        "units": "[arcunits]",
+        "units": "[arcunit]",
         "description": "Improper angle"
     },
     "omega": {
         "units":
-        "[arcunits]",
+        "[arcunit]",
         "description":
         "Angle between the vector formed by a non-central atom and the plane formed by the other three atoms"
     }

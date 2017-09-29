@@ -25,7 +25,7 @@ _three_body_functional_forms = {
         "parameters": ["K", "theta0"],
         "units": {
             "K": "[energy]",
-            "theta0": "[arcunits]"
+            "theta0": "[arcunit]"
         },
         "description": "This is a cosine/squared angle"
     },
@@ -41,8 +41,8 @@ _three_body_functional_forms = {
         "form": "K * (theta - theta0) ** 2",
         "parameters": ["K", "theta0"],
         "units": {
-            "K": "[energy] [arcunits] ** -2",
-            "theta0": "[arcunits]"
+            "K": "[energy] [arcunit] ** -2",
+            "theta0": "[arcunit]"
         },
         "description": "A harmonic angle"
     },
@@ -51,7 +51,7 @@ _three_body_functional_forms = {
         "parameters": ["K", "theta0"],
         "units": {
             "K": "[energy]",
-            "theta0": "[arcunits]"
+            "theta0": "[arcunit]"
         },
         "description": "This is a cosine/delta potential"
     },
@@ -59,8 +59,8 @@ _three_body_functional_forms = {
         "form": "k*(theta-theta0)**2 + k_ub*(r13-r_ub)**2",
         "parameters": ["K", "theta0", "K_ub", "r_ub"],
         "units": {
-            "K": "[energy] [arcunits] ** 2",
-            "theta0": "[arcunits]",
+            "K": "[energy] [arcunit] ** 2",
+            "theta0": "[arcunit]",
             "K_ub": "[energy] [length] ** -2",
             "r_ub": "[length]",
         },
@@ -71,8 +71,8 @@ _three_body_functional_forms = {
         "parameters": ["C", "B", "n"],
         "units": {
             "C": "[energy]",
-            "B": "[]",  #1 or -1
-            "n": "[]"  # 1 2 3 4 5 or 6
+            "B": "phase",  #1 or -1
+            "n": "count"  # 1 2 3 4 5 or 6
         },
         "description": "This is a cosine/periodic potential"
     },
@@ -81,9 +81,9 @@ _three_body_functional_forms = {
         "parameters": ["K", "c0", "c1", "c2"],
         "units": {
             "K": "[energy]",
-            "c0": "[]",
-            "c1": "[]",
-            "c2": "[]"
+            "c0": "dimensionless",
+            "c1": "dimensionless",
+            "c2": "dimensionless"
         },
         "description": "This is a fourier potential"
     },
@@ -91,10 +91,10 @@ _three_body_functional_forms = {
         "form": "K2*(theta-theta0)**2+K3*(theta-theta0)**3+K4*(theta-theta0)**4",
         "parameters": ["K2", "K3", "K4", "theta0"],
         "units": {
-            "K2": "[energy] [arcunits]**-2",  #Lammps uses radians
-            "K3": "[energy] [arcunits]**-3",
-            "K4": "[energy] [arcunits]**-4",
-            "theta0": "[arcunits]"  #Lammps converts this to radians
+            "K2": "[energy] [arcunit]**-2",  #Lammps uses radians
+            "K3": "[energy] [arcunit]**-3",
+            "K4": "[energy] [arcunit]**-4",
+            "theta0": "[arcunit]"  #Lammps converts this to radians
         },
         "description": "This is a quartic angle"
     },
@@ -103,7 +103,7 @@ _three_body_functional_forms = {
         "parameters": ["U_min", "theta0"],
         "units": {
             "U_min": "[energy]",
-            "theta0": "[arcunits]"
+            "theta0": "[arcunit]"
         },
         "description": "This is a cosine/shift angle"
     },
@@ -112,8 +112,8 @@ _three_body_functional_forms = {
         "parameters": ["K", "c", "n"],
         "units": {
             "K": "[energy]",
-            "c": "[]",
-            "n": "[]",
+            "c": "dimensionless",
+            "n": "phase",
         },
         "description": "This is a fourier/simple angle"
     },
@@ -122,10 +122,10 @@ _three_body_functional_forms = {
     #    "form": "NYI",
     #    "parameters": ["theta0", "K2", "K3", "K4"],
     #    "units": {
-    #        "theta0": "[arcunits]",
-    #        "K2": "[energy] [arcunits] ** -2",
-    #        "K3": "[energy] [arcunits] ** -3",
-    #        "K4": "[energy] [arcunits] ** -4",
+    #        "theta0": "[arcunit]",
+    #        "K2": "[energy] [arcunit] ** -2",
+    #        "K3": "[energy] [arcunit] ** -3",
+    #        "K4": "[energy] [arcunit] ** -4",
     #    },
     #    "description": "A generalized class 2 force field."
     #},
@@ -139,7 +139,7 @@ _three_body_functional_forms = {
     #     "parameters": ["K", "theta0"],
     #     "units": {
     #         "K": "[energy]",
-    #         "theta0": "[arcunits]"
+    #         "theta0": "[arcunit]"
     #     }
     # },
     # "cosine/periodic": {
@@ -154,7 +154,7 @@ _three_body_functional_forms = {
     #     "parameters": ["K", "theta0"],
     #     "units": {
     #         "K": "[energy]",
-    #         "theta0": "[arcunits]",
+    #         "theta0": "[arcunit]",
     #     }
     # },
 }
@@ -166,7 +166,7 @@ three_body_metadata = {}
 # Valid variables used in all three-body terms
 three_body_metadata["variables"] = {
     "theta": {
-        "units": "[arcunits]",
+        "units": "[arcunit]",
         "description": "The angle between the indexed atom1, atom2, and atom3.",
     },
     "r12": {

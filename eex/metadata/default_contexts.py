@@ -7,5 +7,8 @@ default_contexts = {
     "[length]": "angstrom",
     "[charge]": "elementary_charge",
     "[arcunit]": "radian",
-    "[substance]": "mol"
+    "[substance]": "mol",
+    "[mass]": "g / mol",
+    "[temperature]": "kelvin",
+    "[time]": "picosecond",
 }
