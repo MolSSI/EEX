@@ -17,4 +17,4 @@ pint_default_units_path = os.path.join(file_dir, "default_units.txt")
 
 # Build the ureg and set context
 ureg = pint.UnitRegistry(pint_default_units_path)
-ureg.enable_contexts('chemistry')
+# ureg.enable_contexts('chemistry')
