@@ -52,10 +52,10 @@ _units_style = {
     },
     "cgs": {
         "[mass]": "(gram)",
-        "[length]": "(cen[time]ters)",
+        "[length]": "(centimeters)",
         "[time]": "(second)",
         "[energy]": "(ergs)",
-        "[velocity]": "(cen[time]ters second ** -1)",
+        "[velocity]": "(centimeters second ** -1)",
         "[force]": "(dyne)",
         "[torque]": "(dyne cen[time]ters)",
         "[temperature]": "(kelvin)",

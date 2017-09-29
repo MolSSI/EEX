@@ -37,7 +37,7 @@ atom_metadata = {
         "description": "The charge of a given atom.",
         "unique": False,
         "dtype": int,
-        "units": "[charge]",
+        "units": "[current] [time]",
         "tol": 8,
     },
     "xyz": {
@@ -53,7 +53,7 @@ atom_metadata = {
         "description": "The mass of the atom.",
         "unique": False,
         "dtype": float,
-        "units": "[mass]",
+        "units": "[mass] / [substance]",
         "tol": 8,
     },
     "residue_index": {

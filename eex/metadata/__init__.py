@@ -3,7 +3,7 @@ Contains all metadata and wrappers used within EEX
 """
 
 # Bring in atom metadata
-from .atom_fields import atom_property_to_column, atom_metadata
+from .atom_metadata import atom_property_to_column, atom_metadata
 
 # Bring in term metadata
 from .two_body_terms import two_body_metadata

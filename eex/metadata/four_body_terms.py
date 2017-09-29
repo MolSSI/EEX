@@ -52,7 +52,7 @@ _four_body_functional_forms = {
         "parameters": ["K", "n", "d"],
         "units": {
             "K": "[energy]",
-            "n": "[]",
+            "n": "[]", # + / 1
             "d": "[]"
         },
         "description": "A harmonic dihedral"

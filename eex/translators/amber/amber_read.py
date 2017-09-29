@@ -14,11 +14,10 @@ except ImportError:
     from io import StringIO
 
 import eex
-
 import logging
 
+# AMBER local imports
 from . import amber_metadata as amd
-
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +82,7 @@ def read_amber_file(dl, filename, blocksize=5000):
         dl.register_atom_units(k, v)
 
     for order, form_name, units in amd.register_forms:
-        dl.register_functional_forms(order, "harmonic", utype=units)
+        dl.register_functional_forms(order, form_name, utype=units)
 
     ### First we need to figure out system dimensions
     max_rows = 100  # How many lines do we attempt to search?
@@ -343,7 +342,8 @@ def read_amber_file(dl, filename, blocksize=5000):
         params = {}
         for k, v in bond_data["column_names"].items():
             params[v] = row[k]
-        dl.add_parameters(bond_data["order"], bond_data["form"], params)
+        dl.add_parameters(bond_data["order"], bond_data["form"], params, uid=cnt)
+        cnt += 1
 
     # raise Exception(str(row))
 
