@@ -37,7 +37,7 @@ atom_metadata = {
         "description": "The charge of a given atom.",
         "unique": False,
         "dtype": int,
-        "units": "[current] [time]",
+        "units": "[charge]",
         "tol": 8,
     },
     "xyz": {

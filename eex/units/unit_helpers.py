@@ -66,7 +66,8 @@ def convert_contexts(context, converter=default_contexts):
         uc = "[" + uc + "]"
 
         if uc not in list(default_contexts):
-            raise KeyError("Input context '%s' not understood.")
+            print(uc)
+            raise KeyError("Input context '%s' not understood." % uc)
 
         # Adds parenthesis just in case
         tmp_conv = "(" + default_contexts[uc] + ")"

@@ -8,7 +8,8 @@ default_contexts = {
     "[charge]": "elementary_charge",
     "[arcunit]": "radian",
     "[substance]": "mol",
-    "[mass]": "g / mol",
+    "[mass]": "g",
+    "[substance]": "mol",
     "[temperature]": "kelvin",
     "[time]": "picosecond",
 }

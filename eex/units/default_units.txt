@@ -53,7 +53,7 @@ mole = [substance] = mol
 kelvin = [temperature]; offset: 0 = K = degK
 radian = [] = rad
 bit = []
-count = []
+count = [] # 0...n
 phase = [] # + / - 1
 
 # acceleration
