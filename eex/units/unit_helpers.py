@@ -3,6 +3,7 @@ A file for unit helpers
 """
 
 import re
+import pint
 
 from .ureg import ureg
 from ..metadata import default_contexts
@@ -25,7 +26,27 @@ def conversion_factor(base_unit, conv_unit):
 
     """
 
-    return ureg.convert(1, base_unit, conv_unit)
+    # Add a little magic incase the incoming values have scalars
+
+    factor = 1.0
+
+    # First make sure we either have Units or Quantities
+    if isinstance(base_unit, str):
+        base_unit = ureg.parse_expression(base_unit)
+
+    if isinstance(conv_unit, str):
+        conv_unit = ureg.parse_expression(conv_unit)
+
+    # Need to play with prevector if we have Quantities
+    if isinstance(base_unit, pint.quantity._Quantity):
+        factor /= base_unit.magnitude
+        base_unit = base_unit.units
+
+    if isinstance(conv_unit, pint.quantity._Quantity):
+        factor *= conv_unit.magnitude
+        conv_unit = conv_unit.units
+
+    return ureg.convert(factor, base_unit, conv_unit)
 
 
 def convert_contexts(context, converter=default_contexts):
