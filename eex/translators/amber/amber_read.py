@@ -13,120 +13,14 @@ try:
 except ImportError:
     from io import StringIO
 
-#from .. import eex.utility
 import eex
 
 import logging
 
+from . import amber_metadata as amd
+
+
 logger = logging.getLogger(__name__)
-
-# Possible size keys to look for in the header
-_size_keys = [
-    "NATOM", "NTYPES", "NBONH", "MBONA", "NTHETH", "MTHETA", "NPHIH", "MPHIA", "NHPARM", "NPARM", "NNB", "NRES",
-    "NBONA", "NTHETA", "NPHIA", "NUMBND", "NUMANG", "NPTRA", "NATYP", "NPHB", "IFPERT", "NBPER", "NGPER", "NDPER",
-    "MBPER", "MGPER", "MDPER", "IFBOX", "NMXRS", "IFCAP", "NUMEXTRA"
-]
-
-_data_labels = {
-    "ATOM_NAME": ["NATOM"],
-    "CHARGE": ["NATOM"],
-    "ATOMIC_NUMBER": ["NATOM"],
-    "MASS": ["NATOM"],
-    "ATOM_TYPE_INDEX": ["NATOM"],
-    "NUMBER_EXCLUDED_ATOMS": ["NATOM"],
-    "NONBONDED_PARM_INDEX": ["NTYPES ** 2"],
-    "RESIDUE_LABEL": ["NRES"],
-    "RESIDUE_POINTER": ["NRES"],
-    "BOND_FORCE_CONSTANT": ["NUMBND"],
-    "BOND_EQUIL_VALUE": ["NUMBND"],
-    "ANGLE_FORCE_CONSTANT": ["NUMANG"],
-    "ANGLE_EQUIL_VALUE": ["NUMANG"],
-    "DIHEDRAL_FORCE_CONSTANT": ["NPTRA"],
-    "DIHEDRAL_PERIODICITY": ["NPTRA"],
-    "DIHEDRAL_PHASE": ["NPTRA"],
-    "SCEE_SCALE_FACTOR": ["NPTRA"],
-    "SCNB_SCALE_FACTOR": ["NPTRA"],
-    "SOLTY": ["NATYP"],
-    "LENNARD_JONES_ACOEF": ["(NTYPES * (NTYPES + 1)) / 2"],
-    "LENNARD_JONES_BCOEF": ["(NTYPES * (NTYPES + 1)) / 2"],
-    "BONDS_INC_HYDROGEN": ["3 * NBONH"],
-    "BONDS_WITHOUT_HYDROGEN": ["3 * NBONA"],
-    "ANGLES_INC_HYDROGEN": ["4 * NTHETH"],
-    "ANGLES_WITHOUT_HYDROGEN": ["4 * NTHETA"],
-    "DIHEDRALS_INC_HYDROGEN": ["5 * NPHIH"],
-    "DIHEDRALS_WITHOUT_HYDROGEN": ["5 * NPHIA"],
-    "EXCLUDED_ATOMS_LIST": ["NNB"],
-    "HBOND_ACOEF": ["NPHB"],
-    "HBOND_BCOEF": ["NPHB"],
-    "HBCUT": ["NPHB"],
-    "AMBER_ATOM_TYPE": ["NATOM"],
-    "TREE_CHAIN_CLASSIFICATION": ["NATOM"],
-    "JOIN_ARRAY": ["NATOM"],  # This section is filled with zeros, but is unused. We should not store it.
-    "IROTAT": ["NATOM"],
-    "SOLVENT_POINTERS": ["3 if IFBOX else 0"],
-    "ATOMS_PER_MOLECULE": ["NATOM"],
-    # "ATOMS_PER_MOLECULE": ["SOLVENT_POINTERS[1] if IFBOX else 0"], # SOLVENT_POINTERS[1] == NPSM
-    "BOX_DIMENSIONS": [4],
-    "CAP_INFO": ["1 if IFCAP else 0"],
-    "CAP_INFO2": ["4 if IFCAP else 0"],
-    "RADIUS_SET": [1],
-    "RADII": ["NATOM"],
-    "SCREEN": ["NATOM"],
-    "IPOL": [1],
-    "POLARIZABILITY": [0]
-    # "POLARIZABILITY": ["NATOM if IPOL else 0"]
-}
-
-_atom_data_units = {
-    "charge": "18.2223 * e",  # Internal units
-    "mass": "g * mol ** -1",
-}
-
-_term_data_units = {
-    "BOND_FORCE_CONSTANT": ["kcal * mol ** -1 angstrom ** -2"],
-    "BOND_EQUIL_VALUE": ["angstrom"],
-    "ANGLE_FORCE_CONSTANT": ["kcal * mol ** -2 radian ** 2"],
-    "ANGLE_EQUIL_VALUE": ["radian"],
-    "DIHEDRAL_FORCE_CONSTANT": ["kcal * mol ** -1"],
-    "DIHEDRAL_PHASE": ["radian"],
-    "LENNARD_JONES_ACOEFF": ["kcal * mol ** -12"],
-    "LENNARD_JONES_BCOEFF": ["kcal * mol ** -6"],
-}
-
-_atom_property_names = {
-    "ATOM_NAME": "atom_name",
-    "CHARGE": "charge",
-    "MASS": "mass",
-    "ATOM_TYPE_INDEX": "atom_type",
-    "ATOMIC_NUMBER": "atomic_number",
-    # "AMBER_ATOM_TYPE": "atom_type_name",
-    # "RADII" : "implicit_solvent_radius",
-}
-
-_residue_store_names = ["RESIDUE_LABEL", "RESIDUE_POINTER"]
-
-_topology_store_names = [
-    "BONDS_INC_HYDROGEN", "BONDS_WITHOUT_HYDROGEN", "ANGLES_INC_HYDROGEN", "ANGLES_WITHOUT_HYDROGEN",
-    "DIHEDRALS_INC_HYDROGEN", "DIHEDRALS_WITHOUT_HYDROGEN"
-]
-
-_forcefield_parameters = [
-    "BOND_FORCE_CONSTANT",
-    "BOND_EQUIL_VALUE",
-    "ANGLE_FORCE_CONSTANT",
-    "ANGLE_EQUIL_VALUE",
-    "DIHEDRAL_FORCE_CONSTANT",
-    "DIHEDRAL_PERIODICITY",
-    "DIHEDRAL_PHASE",
-    "LENNARD_JONES_ACOEFF",
-    "LENNARD_JONES_BCOEFF",
-]
-
-_current_topology_indices = {
-    "bonds": [3, 0, np.array([])],
-    "angles": [4, 0, np.array([])],
-    "dihedrals": [5, 0, np.array([])],
-}
 
 
 def _parse_format(string):
@@ -185,8 +79,11 @@ def _data_flatten(data, column_name, category_index, df_index_name):
 def read_amber_file(dl, filename, blocksize=5000):
 
     ### First we register relevant parameters
-    for k, v in _atom_data_units.items():
+    for k, v in amd.atom_data_units.items():
         dl.register_atom_units(k, v)
+
+    for order, form_name, units in amd.register_forms:
+        dl.register_functional_forms(order, "harmonic", utype=units)
 
     ### First we need to figure out system dimensions
     max_rows = 100  # How many lines do we attempt to search?
@@ -222,10 +119,10 @@ def read_amber_file(dl, filename, blocksize=5000):
                 dline = [dtype(dline[i:(i + width)]) for i in range(0, len(dline), width)]
                 parsed_sizes.extend(dline)
 
-            if len(parsed_sizes) != len(_size_keys):
+            if len(parsed_sizes) != len(amd.size_keys):
                 raise IndexError("AMBER Read: The size of the FLAG POINTERS does not match the FLAG NAMES.")
 
-            for k, v in zip(_size_keys, parsed_sizes):
+            for k, v in zip(amd.size_keys, parsed_sizes):
                 sizes_dict[k] = v
 
             found_sizes = True
@@ -240,7 +137,7 @@ def read_amber_file(dl, filename, blocksize=5000):
 
     # Figure out the size of each label
     label_sizes = {}
-    for k, v in _data_labels.items():
+    for k, v in amd.data_labels.items():
         if isinstance(v[0], int):
             label_sizes[k] = v[0]
         elif v[0] in list(sizes_dict):
@@ -258,7 +155,7 @@ def read_amber_file(dl, filename, blocksize=5000):
     for line in file_handle:
         if counter > 100:
             raise KeyError("AMBER Read: Could not find the line a data category in the first 100 lines.")
-        matched, name = eex.utility.line_fuzzy_list(line, list(_data_labels))
+        matched, name = eex.utility.line_fuzzy_list(line, list(amd.data_labels))
         if matched:
             current_data_category = name
             current_data_type = _parse_format(next(file_handle))
@@ -266,6 +163,14 @@ def read_amber_file(dl, filename, blocksize=5000):
             break
         counter += 1
 
+    # Build any required temporaries
+    _current_topology_indices = {
+        "bonds": [3, 0, np.array([])],
+        "angles": [4, 0, np.array([])],
+        "dihedrals": [5, 0, np.array([])],
+    }
+
+    # Iterate over the file
     while True:
 
         # Type out the sizes and types
@@ -298,9 +203,9 @@ def read_amber_file(dl, filename, blocksize=5000):
             data = pd.read_fwf(tmp_handle, nrows=read_size, widths=widths, dtypes=dtypes, header=None)
 
             # 1D atom properties
-            if current_data_category in list(_atom_property_names):
+            if current_data_category in list(amd.atom_property_names):
 
-                df = _data_flatten(data, _atom_property_names[current_data_category], category_index, "atom_index")
+                df = _data_flatten(data, amd.atom_property_names[current_data_category], category_index, "atom_index")
                 category_index += df.shape[0]
 
                 # Scale charge by constant used in AMBER to get units of e
@@ -310,7 +215,7 @@ def read_amber_file(dl, filename, blocksize=5000):
                 # Add the data to DL
                 dl.add_atoms(df, by_value=True)
 
-            elif current_data_category in list(_residue_store_names):
+            elif current_data_category in amd.store_other:
                 df = _data_flatten(data, current_data_category, category_index, "res_index")
 
                 # Force residue pointer to be type int
@@ -322,7 +227,7 @@ def read_amber_file(dl, filename, blocksize=5000):
                 dl.add_other(current_data_category, df)
 
             # Store bond, angle, dihedrals
-            elif current_data_category in list(_topology_store_names):
+            elif current_data_category in list(amd.topology_store_names):
                 category = current_data_category.split("_")[0].lower()
 
                 mod_size, current_size, remaining_data = _current_topology_indices[category]
@@ -400,7 +305,7 @@ def read_amber_file(dl, filename, blocksize=5000):
             except StopIteration:
                 break
 
-        matched, current_data_category = eex.utility.line_fuzzy_list(category_line, list(_data_labels))
+        matched, current_data_category = eex.utility.line_fuzzy_list(category_line, list(amd.data_labels))
         if not matched:
             raise KeyError("AMBER Read: Data category '%s' not understood" % category_line)
 
@@ -411,8 +316,7 @@ def read_amber_file(dl, filename, blocksize=5000):
     ### Handle any data we added to the other columns
 
     # Expand residue values
-
-    res_df = dl.get_other(_residue_store_names)
+    res_df = dl.get_other(amd.residue_store_names)
 
     sizes = np.diff(res_df["RESIDUE_POINTER"])
     last_size = sizes_dict["NATOM"] - res_df["RESIDUE_POINTER"].iloc[-1] + 1
@@ -426,6 +330,22 @@ def read_amber_file(dl, filename, blocksize=5000):
 
     res_df.index.name = "atom_index"
     dl.add_atoms(res_df, by_value=True)
+
+    # Handle bond parameters
+    other_tables = dl.list_other_tables()
+    bond_data = amd.forcefield_parameters["bond"]
+    bond_col_names = list(bond_data["column_names"])
+    if len(set(bond_col_names) - set(other_tables)):
+        raise KeyError("AMBER Read: Did not find bond parameters in file.")
+
+    cnt = 1 # Start counting from one
+    for ind, row in dl.get_other(bond_col_names).iterrows():
+        params = {}
+        for k, v in bond_data["column_names"].items():
+            params[v] = row[k]
+        dl.add_parameters(bond_data["order"], bond_data["form"], params)
+
+    # raise Exception(str(row))
 
     file_handle.close()
     return ret_data

@@ -61,3 +61,12 @@ def test_amber_spce_read_bonds(spce_dl):
     bonds = dl.get_bonds()
     assert bonds.shape[0] == 648
     assert set(np.unique(bonds["term_index"])) == set([1, 2])
+
+
+# def test_amber_spce_parameters(spce_dl):
+#     data, dl = spce_dl
+
+#     # Test bond df
+#     bonds = dl.get_bonds()
+#     assert bonds.shape[0] == 648
+#     assert set(np.unique(bonds["term_index"])) == set([1, 2])

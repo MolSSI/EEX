@@ -97,15 +97,14 @@ _two_body_functional_forms = {
         "parameters": ["U_min", "R0", "R_c"],
         "units": {
             "U_min": "[energy]",
-            "R0": "[length]", 
+            "R0": "[length]",
             "R_c": "[length]"
         },
         "description": "This is a harmonic/shift bond"
     },
-
     "oxdna/fene": {
         "form": "-epsilon / 2 * ln (1 - ( (r - r0) / delta)**2 ) ",
-        "parameters": ["epsilon","delta","r0"],
+        "parameters": ["epsilon", "delta", "r0"],
         "units": {
             "epsilon": "[energy]",
             "delta": "[length]",
@@ -113,8 +112,6 @@ _two_body_functional_forms = {
         },
         "description": "This is a oxdna/fene bond"
     },
-
-
 }
 
 ### Please do not edit below this line

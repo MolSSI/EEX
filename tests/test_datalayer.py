@@ -86,9 +86,13 @@ def test_register_functional_forms():
     dl = eex.datalayer.DataLayer("test_functional_forms")
 
     # Add a few functional forms
-    dl.register_functional_forms(2, "harmonic", eex.metadata.get_term_metadata(2, "forms", "harmonic"))
-    dl.register_functional_forms(2, "fene", eex.metadata.get_term_metadata(2, "forms", "fene"))
-    dl.register_functional_forms(3, "harmonic", eex.metadata.get_term_metadata(3, "forms", "harmonic"))
+    dl.register_functional_forms(2, "harmonic", utype={"K": "(kcal / mol) / angstrom ** 2", "R0": "picometers"})
+
+    dl.register_functional_forms(2, "harmonic2", eex.metadata.get_term_metadata(2, "forms", "harmonic"))
+    dl.register_functional_forms(2, "fene2", eex.metadata.get_term_metadata(2, "forms", "fene"))
+    dl.register_functional_forms(3, "harmonic2", eex.metadata.get_term_metadata(3, "forms", "harmonic"))
+
+
 
     # Bound ineligable
     with pytest.raises(KeyError):
