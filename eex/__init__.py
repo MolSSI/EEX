@@ -6,6 +6,7 @@ from . import translators
 from . import datalayer
 from . import filelayer
 from . import utility
+from . import testing
 
 # Import individual layers
 from .units import ureg
