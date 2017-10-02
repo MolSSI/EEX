@@ -145,6 +145,10 @@ def test_add_parameters_units():
     utype_2b = {"K": "2.0 * (kJ / mol) * angstrom ** -2", "R0": "picometers"}
     assert 0 == dl.add_parameters(2, "harmonic", [8.0, 500.0], utype=utype_2b)
 
+    # Finally a different parameter type alltogether
+    utype_2b = {"K": "2.0 * (kJ / mol) * angstrom ** -2", "R0": "picometers"}
+    assert 1 == dl.add_parameters(2, "harmonic", [8.0, 5.0], utype=utype_2b)
+
 
 def test_atom_units():
     """
