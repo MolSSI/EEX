@@ -89,7 +89,6 @@ def test_add_parameters():
     assert 1 == dl.add_parameters(2, "harmonic", {mdp[0]: 4.0, mdp[1]: 6.0})
     assert 3 == dl.add_parameters(2, "harmonic", {mdp[0]: 4.0, mdp[1]: 7.0})
 
-
     with pytest.raises(KeyError):
         dl.add_parameters(2, "harmonic", {mdp[0]: 4.0, "turtle": 5.0})
 
@@ -114,6 +113,7 @@ def test_add_parameters():
     with pytest.raises(KeyError):
         dl.add_parameters(2, "harmonic_abc", [4.0, 5.0])
 
+
 def test_add_parameters_units():
 
     dl = eex.datalayer.DataLayer("test_functional_forms")
@@ -134,7 +134,7 @@ def test_add_parameters_units():
     assert 0 == dl.add_parameters(2, "harmonic", [4.0, 5.0], utype=utype_2bl)
 
     # Scale by 2
-    utype_2b = {"K": "2.0 * (kJ / mol) * angstrom ** -2", "R0": "2.0 * angstrom"}
+    utype_2b = {"K": "0.5 * (kJ / mol) * angstrom ** -2", "R0": "0.5 * angstrom"}
     utype_2bl = [utype_2b["K"], utype_2b["R0"]]
     assert 0 == dl.add_parameters(2, "harmonic", {"K": 8.0, "R0": 10.0}, utype=utype_2b)
     assert 0 == dl.add_parameters(2, "harmonic", {"K": 8.0, "R0": 10.0}, utype=utype_2bl)
@@ -142,11 +142,11 @@ def test_add_parameters_units():
     assert 0 == dl.add_parameters(2, "harmonic", [8.0, 10.0], utype=utype_2bl)
 
     # Different unit type
-    utype_2b = {"K": "2.0 * (kJ / mol) * angstrom ** -2", "R0": "picometers"}
+    utype_2b = {"K": "0.5 * (kJ / mol) * angstrom ** -2", "R0": "picometers"}
     assert 0 == dl.add_parameters(2, "harmonic", [8.0, 500.0], utype=utype_2b)
 
-    # Finally a different parameter type alltogether
-    utype_2b = {"K": "2.0 * (kJ / mol) * angstrom ** -2", "R0": "picometers"}
+    # Finally a different parameter type all together
+    utype_2b = {"K": "0.5 * (kJ / mol) * angstrom ** -2", "R0": "picometers"}
     assert 1 == dl.add_parameters(2, "harmonic", [8.0, 5.0], utype=utype_2b)
 
 

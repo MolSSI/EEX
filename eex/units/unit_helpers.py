@@ -8,8 +8,8 @@ import pint
 from .ureg import ureg
 from ..metadata import default_contexts
 
-
 __all__ = ["conversion_factor", "convert_contexts"]
+
 
 def conversion_factor(base_unit, conv_unit):
     """
@@ -39,11 +39,11 @@ def conversion_factor(base_unit, conv_unit):
 
     # Need to play with prevector if we have Quantities
     if isinstance(base_unit, pint.quantity._Quantity):
-        factor /= base_unit.magnitude
+        factor *= base_unit.magnitude
         base_unit = base_unit.units
 
     if isinstance(conv_unit, pint.quantity._Quantity):
-        factor *= conv_unit.magnitude
+        factor /= conv_unit.magnitude
         conv_unit = conv_unit.units
 
     return ureg.convert(factor, base_unit, conv_unit)
@@ -95,4 +95,3 @@ def convert_contexts(context, converter=default_contexts):
         context = context.replace(uc, tmp_conv)
 
     return ureg.Quantity(context)
-

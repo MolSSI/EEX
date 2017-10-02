@@ -7,14 +7,17 @@ import pytest
 import pandas as pd
 import eex_find_files
 
+
 @pytest.fixture(scope="module", params=["Memory"])
 # @pytest.fixture(scope="module", params=["HDF5", "Memory"])
 def spce_dl(request):
     fname = eex_find_files.get_example_filename("lammps", "SPCE", "data.spce")
-    dl = eex.datalayer.DataLayer("test_lammps_read",)
+    dl = eex.datalayer.DataLayer(
+        "test_lammps_read", )
     data = eex.translators.lammps.read_lammps_file(dl, fname, blocksize=55)
     yield (data, dl)
     dl.close()
+
 
 def test_lammps_read_data(spce_dl):
     data, dl = spce_dl
@@ -28,6 +31,7 @@ def test_lammps_read_data(spce_dl):
     assert data["dimensions"]["xlo"] == pytest.approx(-12.362, 1.e-6)
     assert data["dimensions"]["xhi"] == pytest.approx(12.362, 1.e-6)
 
+
 def test_lammps_read_atoms(spce_dl):
     data, dl = spce_dl
 
@@ -37,6 +41,7 @@ def test_lammps_read_atoms(spce_dl):
     assert np.allclose(np.unique(atoms["atom_type"]), [1, 2])
     assert np.allclose(np.unique(atoms["charge"]), [-0.8476, 0.4238])
 
+
 def test_lammps_read_bonds(spce_dl):
     data, dl = spce_dl
 
@@ -44,6 +49,7 @@ def test_lammps_read_bonds(spce_dl):
     bonds = dl.get_bonds()
     assert bonds.shape[0] == 400
     assert np.allclose(np.unique(bonds["term_index"]), [1])
+
 
 def test_lammps_read_angles(spce_dl):
     data, dl = spce_dl

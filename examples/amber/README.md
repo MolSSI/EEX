@@ -40,4 +40,25 @@ Flag                     | Symbol            | Units                   | Special
  LENNARD_JONES_ACOEF     | A_ij       | Angstrom^12 kcal/mol    | Used in prmtop file only
  LENNARD_JONES_BCOEF     | B_ij       | Angstrom^6 kcal/mol     | Used in prmtop file only
  SCEE_SCALE_FACTOR       |            |                         | Scaling factor for 1-4 electrostatics
-SCNB_SCALE_FACTOR       |            |                         | Scaling factor for 1-4 onbonded interactions
+ SCNB_SCALE_FACTOR       |            |                         | Scaling factor for 1-4 onbonded interactions
+
+
+INCPRD Format data
+```
+FORMAT(20A4) ITITL
+  ITITL  : the title of the current run, from the AMBER
+           parameter/topology file
+FORMAT(I5,5E15.7) NATOM,TIME,TEMP
+  NATOM  : total number of atoms in coordinate file
+  TIME   : (optional, dynamics only) current time in the simulation (picoseconds)
+  TEMP   : (optional, REMD only) current simulation temperature (K)
+FORMAT(6F12.7) (X(i), Y(i), Z(i), i = 1,NATOM)
+  X,Y,Z  : coordinates
+IF dynamics
+FORMAT(6F12.7) (VX(i), VY(i), VZ(i), i = 1,NATOM)
+  VX,VY,VZ : velocities (units: Angstroms per 1/20.455 ps)
+IF constant pressure (in 4.1, also constant volume)
+FORMAT(6F12.7) BOX(1), BOX(2), BOX(3)
+  BOX    : size of the periodic box
+Note: in AMBER 4.1 if the EWALD option is turned on, the box angles will also be written out in the same format.
+```

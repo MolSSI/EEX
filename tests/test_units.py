@@ -23,15 +23,15 @@ def test_complex_contexts():
 
 def test_conversion_factor_magnitude():
 
-    assert pytest.approx(0.1) == conversion_factor("10 * meter", "meter")
-    assert pytest.approx(10) == conversion_factor("meter", "10 * meter")
+    assert pytest.approx(10) == conversion_factor("10 * meter", "meter")
+    assert pytest.approx(0.1) == conversion_factor("meter", "10 * meter")
 
-    assert pytest.approx(0.5) == conversion_factor("10 * meter", "5 * meter")
-    assert pytest.approx(2) == conversion_factor("5 * meter", "10 * meter")
+    assert pytest.approx(2) == conversion_factor("10 * meter", "5 * meter")
+    assert pytest.approx(0.5) == conversion_factor("5 * meter", "10 * meter")
 
-    assert pytest.approx(0.5) == conversion_factor("10 * kcal/mol", "5 * kcal/mol")
-    assert pytest.approx(2) == conversion_factor("5 * kcal/mol", "10 * kcal/mol")
+    assert pytest.approx(2) == conversion_factor("10 * kcal/mol", "5 * kcal/mol")
+    assert pytest.approx(0.5) == conversion_factor("5 * kcal/mol", "10 * kcal/mol")
 
-    assert pytest.approx(8.90098122e-21) == conversion_factor("18 * elementary_charge", "coulomb")
+    assert pytest.approx(2.8839179174400003e-18, 1.e-20) == conversion_factor("18 * elementary_charge", "coulomb")
 
     assert pytest.approx(1.e12) == conversion_factor("meter", "picometer")
