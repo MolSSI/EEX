@@ -12,6 +12,8 @@ def df_compare(left, right, columns=None, atol=1.e-8, rtol=1.e-5, equal_nan=True
     """
 
     if columns is not None:
+        if not isinstance(columns, (list, tuple)):
+            columns = [columns]
         col_set = set(columns)
         if not (set(left.columns) >= col_set):
             raise KeyError("Left DataFrame did not contain all tested columns")
