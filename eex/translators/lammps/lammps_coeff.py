@@ -2,109 +2,6 @@
 Dictionaries for coeff format and units - http://lammps.sandia.gov/doc/Section_commands.html
 """
 
-from collections import OrderedDict
-
-_valid_bond_variables = {
-    "r": {
-        "units": "[length]", 
-        "description": "Distance between the two index atoms"
-    },
-}
-
-_valid_angle_variables = {
-    "theta": {
-        "units": "degree",
-        "description": "Angle between three consecutive atoms"
-    },
-    "r": {
-        "units": "[length]",
-        "description": "Distance between two given atoms"
-    }
-}
-
-_valid_dihedral_variables = {
-    "phi": {
-        "units": "degree",
-        "description": "Dihedral angle arising from four consecutive atoms"
-    },
-    "theta": {
-        "units": "degree",
-        "description": "Angle between three given atoms"
-    },
-    "r": {
-        "units": "[distance]",
-        "description": "Distance between two given atoms"
-    }
-}
-
-_valid_improper_variables = {
-    "chi": {
-        "units": "degree",
-        "description": "Improper angle"
-    },
-    "r": {
-        "units": "[distance]",
-        "description": "Distance between the central atom and the plane formed by the other three atoms"
-    },
-    "omega": {
-        "units": "degree",
-        "description": "Angle between the vector formed by a non-central atom and the plane formed by the other three atoms"
-    }
-}
-
-# Valid columns of dataframe
-_valid_bond_indices = {
-    "atom_index1": "Index of the first atom.",
-    "atom_index2": "Index of the second atom.",
-
-    # DataLayers knows the bondtype
-    "bond_type": "Index of bond_type stored in the DataLayer",
-
-    # DataLayer needs to currate input and form unique bond_types
-    "bond_style": "Bond style name from the _bond_styles dictionary",
-    "coeffs": "..."
-}
-
-_valid_angle_indices = {
-    "atom_index1": "Index of the first atom.",
-    "atom_index2": "Index of the second atom.",
-    "atom_index3": "Index of the third atom.",
-
-    # DataLayers knows the bondtype
-    "angle_type": "Index of angle_type stored in the DataLayer",
-
-    # DataLayer needs to currate input and form unique bond_types
-    "angle_style": "Bond style name from the _bond_styles dictionary",
-    "coeffs": "..."
-}
-
-_valid_dihedral_indices = {
-    "atom_index1": "Index of the first atom.",
-    "atom_index2": "Index of the second atom.",
-    "atom_index3": "Index of the third atom.",
-    "atom_index4": "Index of the fourth atom.",
-
-    # DataLayers knows the bondtype
-    "dihedral_type": "Index of dihedral_type stored in the DataLayer",
-
-    # DataLayer needs to currate input and form unique bond_types
-    "dihedral_style": "improper style name from the _bond_styles dictionary",
-    "coeffs": "..."
-}
-
-_valid_improper_indices = {
-    "atom_index1": "Index of the first atom.",
-    "atom_index2": "Index of the second atom.",
-    "atom_index3": "Index of the third atom.",
-    "atom_index4": "Index of the fourth atom.",
-
-    # DataLayers knows the bondtype
-    "improper_type": "Index of improper_type stored in the DataLayer",
-
-    # DataLayer needs to currate input and form unique bond_types
-    "improper_style": "Dihedral style name from the _bond_styles dictionary",
-    "coeffs": "..."
-}
 
 _bond_styles = {
     "none": {
@@ -136,7 +33,7 @@ _bond_styles = {
     },
     "zero": {
         "form": "NYI",
-        "parameters": "NYI":
+        "parameters": "NYI",
         "units": "NYI",
         "description": "NYI"
     },
@@ -210,7 +107,7 @@ _bond_styles = {
     "oxdna/fene": {
         "form": "-epsilon / 2 * ln (1 - ( (r - r0) / delta)**2 ) ",
         "parameters": ["epsilon","delta","r0"],
-        "units": { 
+        "units": {
             "epsilon": "[energy]",
             "delta": "[length]",
             "r0": "[length]"
@@ -247,12 +144,12 @@ _angle_styles = {
     },
     "cosine/squared": {
         "form": "K*(cos(theta)-cos(theta0))**2",
-        "parameters": ["K","theta0"],
+        "parameters": ["K", "theta0"],
         "units": {
-            "K": "[energy]", 
+            "K": "[energy]",
             "theta0": "degree"
-         },
-         "description": "This is a cosine/squared angle"
+        },
+        "description": "This is a cosine/squared angle"
     },
     "zero": {
         "form": "NYI",
@@ -265,12 +162,12 @@ _angle_styles = {
         "parameters": ["K"],
         "units": {
             "K": "[energy]"
-         },
+        },
         "description": "This is a cosine potential"
     },
     "harmonic": {
         "form": "K*(theta-theta0)**2",
-        "parameters": ["K","theta0"],
+        "parameters": ["K", "theta0"],
         "units": {
             "K": "[energy] radian**-2",
             "theta0": "degree"
@@ -285,11 +182,11 @@ _angle_styles = {
     },  # Special case - allows for more than one angle type in a simulation
     "cosine/delta": {
         "form": "K*(1+cos(theta-theta0))",
-        "parameters": ["K","theta0"],
-        "units": { 
+        "parameters": ["K", "theta0"],
+        "units": {
             "K": "[energy]",
             "theta0": "degree"
-        }, 
+        },
         "description": "This is a cosine/delta potential"
     },
     "table": {
@@ -300,7 +197,7 @@ _angle_styles = {
     },
     "charmm": {
         "form": "k*(theta-theta0)**2 + k_ub*(r-r_ub)**2",
-        "parameters": ["k","theta0","k_ub","r_ub"],
+        "parameters": ["k", "theta0", "k_ub", "r_ub"],
         "units": {
             "k": "[energy] radian**-2",
             "theta0": "degree",
@@ -311,7 +208,7 @@ _angle_styles = {
     },
     "cosine/periodic": {
         "form": "C * (1-B*(-1)**n*cos(n*theta))",
-        "parameters": ["C","B","n"],
+        "parameters": ["C", "B", "n"],
         "units": {
             "C": "[energy]",
             "B": "[]",  #1 or -1
@@ -327,23 +224,23 @@ _angle_styles = {
     },
     "fourier": {
         "form": "K*(c0+c1*cos(theta)+c2*cos(2*theta))",
-        "parameters": ["K","c0","c1","c2"],
+        "parameters": ["K", "c0", "c1", "c2"],
         "units": {
             "K": "[energy]",
             "c0": "[]",
-            "c1": "[]", 
-            "c2": "[]" 
+            "c1": "[]",
+            "c2": "[]"
         },
         "description": "This is a fourier potential"
     },
     "quartic": {
         "form": "K2*(theta-theta0)**2+K3*(theta-theta0)**3+K4*(theta-theta0)**4",
-        "parameters": ["K2","K3","K4","theta0"],
-        "units": { 
+        "parameters": ["K2", "K3", "K4", "theta0"],
+        "units": {
             "K2": "[energy] radian**-2",
             "K3": "[energy] radian**-3",
             "K4": "[energy] radian**-4",
-            "theta0": "degree" #Lammps converts this to radians
+            "theta0": "degree"  #Lammps converts this to radians
         },
         "description": "This is a quartic bond"
     },
@@ -352,10 +249,10 @@ _angle_styles = {
         "parameters": "NYI",
         "units": "NYI",
         "description": "NYI"
-    }
+    },
     "cosine/shift": {
         "form": "-U_min / 2 * (1 + cos(theta - theta0))",
-        "parameters": ["U_min","theta0"],
+        "parameters": ["U_min", "theta0"],
         "units": {
             "U_min": "[energy]",
             "theta0": "[arcunits]"
@@ -364,7 +261,7 @@ _angle_styles = {
     },
     "fourier/simple": {
         "form": "K*(1 + c*cos(n*theta))",
-        "parameters": ["K","c","n"],
+        "parameters": ["K", "c", "n"],
         "units": {
             "K": "[energy]",
             "c": "[]",
@@ -372,7 +269,6 @@ _angle_styles = {
         },
         "description": "This is a fourier/simple angle"
     },
-
 }
 
 _dihedral_styles = {
@@ -385,7 +281,7 @@ _dihedral_styles = {
     "charmmfsw": {
         "form": "K*(1 + cos(n*phi-d))",
         "parameters": ["K","n","d"],
-        "units": { 
+        "units": {
             "K": "[energy]",
             "n": "[]",  # must be type int, no units
             "d": "degree",  # must be type int. Differs because units must be degree regardless of units command ?
@@ -395,12 +291,12 @@ _dihedral_styles = {
 
     "multi/harmonic": {
         "form": "Sum(A_n * (cos(phi))**(n-1))", #n goes from 1 to 5
-        "parameters": ["A_n"], 
+        "parameters": ["A_n"],
         "units": {
         "A_n": "[energy]",
          },
          "description": "This is a multi/harmonic dihedral"
-    }
+    },
     "zero": {
         "form": "NYI",
         "parameters": "NYI",
@@ -423,7 +319,7 @@ _dihedral_styles = {
     "fourier": {
         "form": "Sum(k_i * (1.0 + cos(n_i * phi - d_i)))",
         "parameters": ["k_i","n_i","d_i"],
-        "units": { 
+        "units": {
             "k_i": "[energy]",
             "n_i": "[]",
             "d_i": "degree"
@@ -433,7 +329,7 @@ _dihedral_styles = {
     "harmonic": {
         "form": "K*(1+d*cos(n*phi))",
         "parameters": ["K","n","d"],
-        "units": { 
+        "units": {
             "K": "[energy]",
             "n": "[]",
             "d": "[]"
@@ -443,7 +339,7 @@ _dihedral_styles = {
     "helix": {
         "form": "A*(1-cos(phi)) + B*(1+cos(3*phi)) + C*(1+cos(phi+pi/4))",
         "parameters": ["A","B","C"],
-        "units": { 
+        "units": {
             "A": "[energy]",
             "B": "[energy]",
             "C": "[energy]"
@@ -459,7 +355,7 @@ _dihedral_styles = {
     "nharmonic": {
         "form": "Sum( A_n*(cos(phi))**(n-1))",
         "parameters": ["A_n","n"],
-        "units": { 
+        "units": {
             "A_n": "[energy]",
             "n": "[]"
         },
@@ -468,7 +364,7 @@ _dihedral_styles = {
     "opls": {
         "form": "0.5*K_1*(1+cos(phi))+0.5*K_2*(1-cos(2*phi))+0.5*K_3+(1+cos(3*phi))+0.5*K_4*(1-cos(4*phi))",
         "parameters": ["K_1","K_2","K_3", "K_4"],
-        "units": { 
+        "units": {
             "K_1": "[energy]",
             "K_2": "[energy]",
             "K_3": "[energy]",
@@ -479,7 +375,7 @@ _dihedral_styles = {
     "quadratic": {
         "form": "K*(phi-phi0)**2",
         "parameters": ["K","phi0"],
-        "units": { 
+        "units": {
             "K": "[energy] radian ** -2",
             "phi0": "degree"
         },
@@ -503,14 +399,14 @@ _dihedral_styles = {
 _improper_styles = {
     "class2": {
         "form": "NYI",
-        "parameters": ["","",""],
+        "parameters": ["", "", ""],
         "units": "NYI",
         "description": "NYI"
     },
     "cossq": {
         "form": "0.5*K*(cos(chi-chi0))**2",
-        "parameters": ["K","chi0"],
-        "units": { 
+        "parameters": ["K", "chi0"],
+        "units": {
             "K": "[energy]",
             "chi0": "degree"
         },
@@ -518,8 +414,8 @@ _improper_styles = {
     },
     "cvff": {
         "form": "K*(1+d*cos(n*chi))",
-        "parameters": ["K","d","n"],
-        "units": { 
+        "parameters": ["K", "d", "n"],
+        "units": {
             "K": "[energy]",
             "d": "[]",
             "n": "[]"
@@ -528,8 +424,8 @@ _improper_styles = {
     },
     "distance": {
         "form": "K_2*r**2+K_4*r**4",
-        "parameters": ["K_2","K_4"],
-        "units": { 
+        "parameters": ["K_2", "K_4"],
+        "units": {
             "K_2": "[energy] [length]**2",
             "K_4": "[energy] [length]**4",
         },
@@ -537,8 +433,8 @@ _improper_styles = {
     },
     "fourier": {
         "form": "K*(C0+C1*cos(omega)+C2*cos(2*omega))",
-        "parameters": ["K","C0","C1","C2"],
-        "units": { 
+        "parameters": ["K", "C0", "C1", "C2"],
+        "units": {
             "K": "[energy]",
             "C0": "[]",
             "C1": "[]",
@@ -548,14 +444,14 @@ _improper_styles = {
     },
     "harmonic": {
         "form": "K*(chi-chi0)**2",
-        "parameters": ["K","chi0"],
-        "units": { 
+        "parameters": ["K", "chi0"],
+        "units": {
             "K": "[energy]",
             "chi0": "degree",
         },
         "description": "This is a harmonic improper"
     },
-    "hybrid": {        
+    "hybrid": {
         "form": "NYI",
         "parameters": "NYI",
         "units": "NYI",
@@ -573,13 +469,14 @@ _improper_styles = {
         "units": "NYI",
         "description": "NYI"
     },
-    "umbrella": {  #Used in the dreiding force field
+    "umbrella":
+    {  #Used in the dreiding force field
         "form": "NYI",
         "parameters": "NYI",
         "units": "NYI",
         "description": "NYI"
     },
-    "zero": { 
+    "zero": {
         "form": "NYI",
         "parameters": "NYI",
         "units": "NYI",
