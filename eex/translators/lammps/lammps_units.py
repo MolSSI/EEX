@@ -1,6 +1,6 @@
 # Units based LAMMPS unit styles (http://lammps.sandia.gov/doc/units.html)
 
-_units_style = {
+units_style = {
     "lj": {},
     "real": {
         "[mass]": "(gram mol ** -1)",
@@ -16,7 +16,7 @@ _units_style = {
         "[charge]": "e",
         "[dipole]": "e * angstrom",
         "[electric field]": "(volt angstrom ** -1)",
-        "[density]": "(gram cm ** -dim"
+        "[density]": "(gram cm ** -dim)"
     },
     "metal": {
         "[mass]": "(gram mol ** -1)",
@@ -57,12 +57,12 @@ _units_style = {
         "[energy]": "(ergs)",
         "[velocity]": "(centimeters second ** -1)",
         "[force]": "(dyne)",
-        "[torque]": "(dyne cen[time]ters)",
+        "[torque]": "(dyne centimeters)",
         "[temperature]": "(kelvin)",
         "[pressure]": "(dyne cm ** -2)",
         "[dynamic viscosity]": "(poise)",
         "[charge]": "(statcoulombs)",
-        "[dipole]": "(statcoulombs cen[time]ter)",
+        "[dipole]": "(statcoulombs centimeter)",
         "[electric field]": "(statvolt cm ** -1)",
         "[density]": "(gram cm ** -dim)",
     },
@@ -71,7 +71,7 @@ _units_style = {
         "[length]": "(Bohr)",
         "[time]": "(femtosecond)",
         "[energy]": "(hartree)",
-        "[velocity]": "(Bohr (atomic [time] unit) ** -1)",
+        "[velocity]": "(Bohr (atomic time unit) ** -1)",
         "[force]": "(hartree Bohr ** -1)",
         "[temperature]": "(kelvin)",
         "[pressure]": "(pascal)",
@@ -93,7 +93,7 @@ _units_style = {
         "[charge]": "(picocoulomb)",
         "[dipole]": "(picocoulomb micrometer)",
         "[electric field]": "(volt micrometer ** -1)",
-        "[density]": "(picogram micrometer ** -dim"
+        "[density]": "(picogram micrometer ** -dim)"
     },
     "nano": {
         "[mass]": "(attogram)",
@@ -111,13 +111,3 @@ _units_style = {
         "[electric field]": "(volt nanometer ** -1)",
     },
 }
-
-if __name__ == "__main__":
-    from eex.units import ureg
-    for k, v in _units_style.items():
-        for k, v in _units_style[k].items():
-            try:
-                u = ureg.parse_expression(v)
-                # print(u)
-            except:
-                print("Pint could not parse %s" % v)

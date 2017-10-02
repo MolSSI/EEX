@@ -3,7 +3,7 @@ Dictionaries for coeff format and units - http://lammps.sandia.gov/doc/Section_c
 """
 
 
-_bond_styles = {
+bond_styles = {
     "none": {
         "form": "NYI",
         "parameters": "NYI",
@@ -129,7 +129,7 @@ _bond_styles = {
 
 }
 
-_angle_styles = {
+angle_styles = {
     "none": {
         "form": "NYI",
         "parameters": "NYI",
@@ -202,7 +202,7 @@ _angle_styles = {
             "k": "[energy] radian**-2",
             "theta0": "degree",
             "k_ub": "[energy] length**-2",
-            "r_ub": "length"
+            "r_ub": "[length]"
         },
         "description": "This is a charmm angle potential"
     },
@@ -271,7 +271,7 @@ _angle_styles = {
     },
 }
 
-_dihedral_styles = {
+dihedral_styles = {
     "none": {
         "form": "NYI",
         "parameters": "NYI",
@@ -396,7 +396,7 @@ _dihedral_styles = {
     },
 }
 
-_improper_styles = {
+improper_styles = {
     "class2": {
         "form": "NYI",
         "parameters": ["", "", ""],
