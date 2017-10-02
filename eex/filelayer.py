@@ -138,7 +138,7 @@ class MemoryStore(BaseStore):
             self.tables[key] = pd.concat(self.table_frags[key])
             self.table_frags[key] = []
 
-        return self.tables[key]
+        return self.tables[key].copy()
 
     def close(self):
         """

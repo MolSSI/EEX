@@ -14,11 +14,10 @@ except ImportError:
     from io import StringIO
 
 import eex
-
 import logging
 
+# AMBER local imports
 from . import amber_metadata as amd
-
 
 logger = logging.getLogger(__name__)
 
@@ -79,11 +78,8 @@ def _data_flatten(data, column_name, category_index, df_index_name):
 def read_amber_file(dl, filename, blocksize=5000):
 
     ### First we register relevant parameters
-    for k, v in amd.atom_data_units.items():
-        dl.register_atom_units(k, v)
-
     for order, form_name, units in amd.register_forms:
-        dl.register_functional_forms(order, "harmonic", utype=units)
+        dl.register_functional_forms(order, form_name, utype=units)
 
     ### First we need to figure out system dimensions
     max_rows = 100  # How many lines do we attempt to search?
@@ -208,12 +204,8 @@ def read_amber_file(dl, filename, blocksize=5000):
                 df = _data_flatten(data, amd.atom_property_names[current_data_category], category_index, "atom_index")
                 category_index += df.shape[0]
 
-                # Scale charge by constant used in AMBER to get units of e
-                if current_data_category == "CHARGE":
-                    df['charge'] = df['charge'] / 18.2223
-
                 # Add the data to DL
-                dl.add_atoms(df, by_value=True)
+                dl.add_atoms(df, by_value=True, utype=amd.atom_data_units)
 
             elif current_data_category in amd.store_other:
                 df = _data_flatten(data, current_data_category, category_index, "res_index")
@@ -343,7 +335,8 @@ def read_amber_file(dl, filename, blocksize=5000):
         params = {}
         for k, v in bond_data["column_names"].items():
             params[v] = row[k]
-        dl.add_parameters(bond_data["order"], bond_data["form"], params)
+        dl.add_parameters(bond_data["order"], bond_data["form"], params, uid=cnt)
+        cnt += 1
 
     # raise Exception(str(row))
 

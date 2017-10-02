@@ -2,12 +2,16 @@
 Contains all metadata and wrappers used within EEX
 """
 
+# Bring in the default units
+from .default_contexts import default_contexts
+
 # Bring in atom metadata
-from .atom_fields import atom_property_to_column, atom_metadata
+from .atom_metadata import atom_property_to_column, atom_metadata
 
 # Bring in term metadata
 from .two_body_terms import two_body_metadata
 from .three_body_terms import three_body_metadata
+from .four_body_terms import four_body_metadata
 
 # Bring in the helper functions
 from .md_helper import *

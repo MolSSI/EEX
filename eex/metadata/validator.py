@@ -53,7 +53,7 @@ def validate_functional_form_dict(name, functional_form):
     # Validate the unit contexts
     for k, v in functional_form["units"].items():
         try:
-            units.ureg.check(v)
+            units.convert_contexts(v)
         except:
             raise KeyError("Validate term style: term '%s' has unknown dimension '%s'" % (name, v))
 
