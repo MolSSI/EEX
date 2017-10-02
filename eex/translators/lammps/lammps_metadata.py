@@ -3,6 +3,9 @@ A helper file to produce LAMMPS metadata based on the type of computation
 """
 import copy
 
+from . import lammps_ff
+import eex
+
 # Possible size keys to look for in the header
 size_keys = [
     "atoms", "atom types", "bonds", "bond types", "angles", "angle types", "dihedrals", "dihedral types", "impropers",
@@ -163,25 +166,30 @@ _operation_table = {
         "kwargs": {
             "utype": None
         },
+        "call_type": "single",
     },
     "Bonds": {
         "size": "bonds",
         "dl_func": "add_bonds",
         "df_cols": ["bond_index", "term_index", "atom1", "atom2"],
+        "call_type": "single",
     },
     "Angles": {
         "size": "angles",
         "dl_func": "add_angles",
         "df_cols": ["angle_index", "term_index", "atom1", "atom2", "atom3"],
+        "call_type": "single",
     },
     "Dihedrals": {
         "size": "dihedrals",
         "dl_func": "add_dihedrals",
         "df_cols": ["dihedral_index", "term_index", "atom1", "atom2", "atom3", "atom4"],
+        "call_type": "single",
     },
     "Impropers": {
         "size": "impropers",
-        "dl_func": "NYI"
+        "dl_func": "NYI",
+        "call_type": "single",
     },
     # "Masses": {
     #     "size": "atom types",
@@ -197,33 +205,37 @@ _operation_table = {
         # "dl_func": "add_atom_parameters",
         "kwargs": {
             "utype": None
-        }
+        },
+        "call_type": "loop",
     },
     "Pair Coeffs": {
         "size": "atom types",
         "dl_func": "NYI",
         # "dl_func": "add_parameters",
-        "args": "tmp"
+        "call_type": "parameter",
     },
     "Bond Coeffs": {
         "size": "bond types",
-        "dl_func": "NYI",
-        # "dl_func": "add_parameters",
-        "args": "tmp"
+        "dl_func": "add_parameters",
+        "call_type": "parameter",
+        "args": {"order": 2, "form_name": "harmonic"},
     },
     "Angle Coeffs": {
         "size": "angle types",
-        "dl_func": "NYI",
-        # "dl_func": "add_parameters"
+        "dl_func": "add_parameters",
+        "call_type": "parameter",
+        "args": {"order": 3, "form_name": "harmonic"},
     },
     "Dihedral Coeffs": {
         "size": "dihedral types",
         "dl_func": "NYI",
+        "call_type": "parameter",
         # "dl_func": "add_parameters"
     },
     "Improper Coeffs": {
         "size": "improper types",
         "dl_func": "NYI",
+        "call_type": "parameter",
         # "dl_func": "add_parameters"
     },
 }
@@ -268,6 +280,22 @@ def build_operation_table(unit_type, size_dict):
 
     return ret
 
+def build_term_table(utype):
+
+    ustyle = units_style[utype]
+    ret = copy.deepcopy(lammps_ff.term_data)
+
+    # Loop over order
+    for ok, ov in ret.items():
+        # Loop over terms
+        for k, v in ov.items():
+            # Loop over parameters
+            utype = {}
+            for pk, pv in v["units"].items():
+                utype[pk] = eex.units.convert_contexts(pv, ustyle)
+            v["utype"] = utype
+    return ret
+
 if __name__ == "__main__":
     from eex.units import ureg
 
@@ -282,3 +310,4 @@ if __name__ == "__main__":
 
     build_atom_units("real")
     build_operation_table("real")
+    build_term_table("real")

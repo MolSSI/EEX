@@ -4,17 +4,17 @@ Dictionaries for coeff format and units - http://lammps.sandia.gov/doc/Section_c
 
 
 bond_styles = {
-    "none": {
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
+    # "none": {
+    #     "form": "NYI",
+    #     "parameters": "NYI",
+    #     "units": "NYI",
+    #     "description": "NYI"
+    # },
     "fene": {
         "form": "-0.5*K*R0 ** 2*ln(1-(r/R0) ** 2) + 4*epsilon((sigma/r) ** 12 - (sigma/r) ** 6)) + epsilon",
         "parameters": ["K","R0","epsilon","sigma"],
         "units": {
-            "K": "[energy] [length] ** -2",
+            "K": "[energy] * [length] ** -2",
             "R0": "[length]",
             "epsilon": "[energy]",
             "sigma": "[length]"
@@ -31,17 +31,17 @@ bond_styles = {
         },
         "description": "This is a nonlinear bond"
     },
-    "zero": {
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
+    # "zero": {
+    #     "form": "NYI",
+    #     "parameters": "NYI",
+    #     "units": "NYI",
+    #     "description": "NYI"
+    # },
     "fene/expand": {
         "form": "-0.5*K*R0 ** 2*ln(1-((r-delta)/R0) ** 2 + 4*epsilon((sigma/(r-delta)) ** 12 - (sigma/(r-delta)) ** 6)) + epsilon",
         "parameters": ["K", "R0", "epsilon", "sigma", "delta"],
         "units": {
-            "K": "[energy] [length] ** -2",
+            "K": "[energy] * [length] ** -2",
             "R0": "[length]",
             "epsilon": "[energy]",
             "sigma": "[length]",
@@ -53,7 +53,7 @@ bond_styles = {
         "form": "K(r-Rc) ** 2 * (r-Rc-B1)*(r-Rc-B2) + U0 + 4*epsilon*((sigma/r) ** 12 - (sigma/r) ** 6) + epsilon",
         "parameters": ["K", "B1", "B2", "Rc", "U0"],
         "units": {
-            "K": "[energy] [length] ** -4",
+            "K": "[energy] * [length] ** -4",
             "B1": "[length]",
             "B2": "[length]",
             "Rc": "[length]",
@@ -61,35 +61,35 @@ bond_styles = {
         },
         "description": "This is a quartic bond"
     },
-    "hybrid": {  # Special case - allows for more than one bond type in a simulation
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
+    # "hybrid": {  # Special case - allows for more than one bond type in a simulation
+    #     "form": "NYI",
+    #     "parameters": "NYI",
+    #     "units": "NYI",
+    #     "description": "NYI"
+    # },
     "harmonic": {
-        "form": "K*(r-r0) ** 2",
-        "parameters": ["K", "r0"],
+        "form": "K*(r-R0) ** 2",
+        "parameters": ["K", "R0"],
         "units": {
-            "K": "[energy] [length] ** -2",
-            "r0": "[length]"
+            "K": "[energy] * [length] ** -2",
+            "R0": "[length]"
         },
         "description": "This is a harmonic bond"
     },
-    "table": {  # Special case - creation of interpolation tables.
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
+    # "table": {  # Special case - creation of interpolation tables.
+    #     "form": "NYI",
+    #     "parameters": "NYI",
+    #     "units": "NYI",
+    #     "description": "NYI"
+    # },
     "class2": {
         "form": "K2 * (r-R0) ** 2 + K3 * (r-R0) ** 3 + K4 * (r-R0) ** 4",
         "parameters": ["R0","K2","K3","K4"],
         "units": {
             "R0": "[length]",
-            "K2": "[energy] [length] ** -2",
-            "K3": "[energy] [length] ** -3",
-            "K4": "[energy] [length] ** -4"
+            "K2": "[energy] * [length] ** -2",
+            "K3": "[energy] * [length] ** -3",
+            "K4": "[energy] * [length] ** -4"
         },
         "description": "This is a class2 bond"
     },
@@ -130,18 +130,18 @@ bond_styles = {
 }
 
 angle_styles = {
-    "none": {
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
-    "class2": {
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
+    # "none": {
+    #     "form": "NYI",
+    #     "parameters": "NYI",
+    #     "units": "NYI",
+    #     "description": "NYI"
+    # },
+    # "class2": {
+    #     "form": "NYI",
+    #     "parameters": "NYI",
+    #     "units": "NYI",
+    #     "description": "NYI"
+    # },
     "cosine/squared": {
         "form": "K*(cos(theta)-cos(theta0))**2",
         "parameters": ["K", "theta0"],
@@ -151,12 +151,12 @@ angle_styles = {
         },
         "description": "This is a cosine/squared angle"
     },
-    "zero": {
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
+    # "zero": {
+    #     "form": "NYI",
+    #     "parameters": "NYI",
+    #     "units": "NYI",
+    #     "description": "NYI"
+    # },
     "cosine": {
         "form": "K*(1+cos(theta))",
         "parameters": ["K"],
@@ -174,12 +174,12 @@ angle_styles = {
         },
         "description": "This is a harmonic"
     },
-    "hybrid": {
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },  # Special case - allows for more than one angle type in a simulation
+    # "hybrid": {
+    #     "form": "NYI",
+    #     "parameters": "NYI",
+    #     "units": "NYI",
+    #     "description": "NYI"
+    # },  # Special case - allows for more than one angle type in a simulation
     "cosine/delta": {
         "form": "K*(1+cos(theta-theta0))",
         "parameters": ["K", "theta0"],
@@ -189,19 +189,19 @@ angle_styles = {
         },
         "description": "This is a cosine/delta potential"
     },
-    "table": {
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
+    # "table": {
+    #     "form": "NYI",
+    #     "parameters": "NYI",
+    #     "units": "NYI",
+    #     "description": "NYI"
+    # },
     "charmm": {
         "form": "k*(theta-theta0)**2 + k_ub*(r-r_ub)**2",
         "parameters": ["k", "theta0", "k_ub", "r_ub"],
         "units": {
-            "k": "[energy] radian**-2",
+            "k": "[energy] * radian**-2",
             "theta0": "degree",
-            "k_ub": "[energy] length**-2",
+            "k_ub": "[energy] * [length] **-2",
             "r_ub": "[length]"
         },
         "description": "This is a charmm angle potential"
@@ -211,25 +211,25 @@ angle_styles = {
         "parameters": ["C", "B", "n"],
         "units": {
             "C": "[energy]",
-            "B": "[]",  #1 or -1
-            "n": "[]"  # 1 2 3 4 5 or 6
+            "B": "phase",  #1 or -1
+            "n": "count"  # 1 2 3 4 5 or 6
         },
         "description": "This is a cosine/periodic potential"
     },
-    "dipole": {
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
+    # "dipole": {
+    #     "form": "NYI",
+    #     "parameters": "NYI",
+    #     "units": "NYI",
+    #     "description": "NYI"
+    # },
     "fourier": {
         "form": "K*(c0+c1*cos(theta)+c2*cos(2*theta))",
         "parameters": ["K", "c0", "c1", "c2"],
         "units": {
             "K": "[energy]",
-            "c0": "[]",
-            "c1": "[]",
-            "c2": "[]"
+            "c0": "dimensionless",
+            "c1": "dimensionless",
+            "c2": "dimensionless"
         },
         "description": "This is a fourier potential"
     },
@@ -244,31 +244,31 @@ angle_styles = {
         },
         "description": "This is a quartic bond"
     },
-    "sdk": {
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
-    "cosine/shift": {
-        "form": "-U_min / 2 * (1 + cos(theta - theta0))",
-        "parameters": ["U_min", "theta0"],
-        "units": {
-            "U_min": "[energy]",
-            "theta0": "[arcunits]"
-        },
-        "description": "This is a cosine/shift angle"
-    },
-    "fourier/simple": {
-        "form": "K*(1 + c*cos(n*theta))",
-        "parameters": ["K", "c", "n"],
-        "units": {
-            "K": "[energy]",
-            "c": "[]",
-            "n": "[]",
-        },
-        "description": "This is a fourier/simple angle"
-    },
+    # "sdk": {
+    #     "form": "NYI",
+    #     "parameters": "NYI",
+    #     "units": "NYI",
+    #     "description": "NYI"
+    # },
+    # "cosine/shift": {
+    #     "form": "-U_min / 2 * (1 + cos(theta - theta0))",
+    #     "parameters": ["U_min", "theta0"],
+    #     "units": {
+    #         "U_min": "[energy]",
+    #         "theta0": "[arcunits]"
+    #     },
+    #     "description": "This is a cosine/shift angle"
+    # },
+    # "fourier/simple": {
+    #     "form": "K*(1 + c*cos(n*theta))",
+    #     "parameters": ["K", "c", "n"],
+    #     "units": {
+    #         "K": "[energy]",
+    #         "c": "[]",
+    #         "n": "[]",
+    #     },
+    #     "description": "This is a fourier/simple angle"
+    # },
 }
 
 dihedral_styles = {
@@ -426,8 +426,8 @@ improper_styles = {
         "form": "K_2*r**2+K_4*r**4",
         "parameters": ["K_2", "K_4"],
         "units": {
-            "K_2": "[energy] [length]**2",
-            "K_4": "[energy] [length]**4",
+            "K_2": "[energy] * [length]**2",
+            "K_4": "[energy] * [length]**4",
         },
         "description": "This is a distance improper"
     },
@@ -483,3 +483,8 @@ improper_styles = {
         "description": "NYI"
     },
 }
+
+term_data = {}
+term_data[2] = bond_styles
+term_data[3] = angle_styles
+# term_data[4] = dihedral_styles

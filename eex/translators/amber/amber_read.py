@@ -370,7 +370,5 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         df.dropna(axis=0, how="any", inplace=True)
         df.index.name = "atom_index"
         dl.add_atoms(df, utype={"XYZ": "angstrom"})
-        # raise Exception(inpcrd_file + "\n", df.shape, df.head(), df.tail())
-
 
     return ret_data

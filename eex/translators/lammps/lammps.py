@@ -13,7 +13,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-
 def read_lammps_file(dl, filename, blocksize=110):
 
     ### Figure out system dimensions and general header data
@@ -97,6 +96,9 @@ def read_lammps_file(dl, filename, blocksize=110):
 
     ### Create temporaries specific to the current unit specification
     op_table = lmd.build_operation_table("real", sizes_dict)
+    term_table = lmd.build_term_table("real")
+
+    # term_table = {"Bond Coeffs": {"order": 2, "name":"harmonic", "utype":""}, "Angle Coeffs": {}}
 
     ### Iterate over the primary data portion of the object
 
@@ -127,9 +129,31 @@ def read_lammps_file(dl, filename, blocksize=110):
 
             # Read and update DL
             data = reader.get_chunk(read_size).dropna(axis=1, how="all")
-            if "df_cols" in op:
-                data.columns = op["df_cols"]
-            dl.call_by_string(op["dl_func"], data, **op["kwargs"])
+
+            # Nothing defined
+            if op["dl_func"] == "NYI":
+                pass
+
+            # Single call
+            elif op["call_type"] == "single":
+                if "df_cols" in op:
+                    data.columns = op["df_cols"]
+                dl.call_by_string(op["dl_func"], data, **op["kwargs"])
+
+            # Adding parameters call
+            elif op["call_type"] == "parameter":
+                order = op["args"]["order"]
+                fname = op["args"]["form_name"]
+                cols = term_table[order][fname]["parameters"]
+                data.columns = ["uid"] + cols
+
+                for idx, row in data.iterrows():
+                    params = list(row[cols])
+                    utype = term_table[order][fname]["utype"]
+                    dl.add_parameters(order, fname, params, uid=int(row["uid"]), utype=utype)
+
+            else:
+                raise KeyError("Operation table call '%s' not understoop" % op["call_type"])
 
             # Update remaining
             remaining -= blocksize
