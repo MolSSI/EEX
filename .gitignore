@@ -105,3 +105,7 @@ ENV/
 
 # Whoops files
 *.h5
+
+# Files to generate LAMMPS data
+*.tcl
+*.xyz
