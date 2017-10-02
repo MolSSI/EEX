@@ -56,40 +56,11 @@ def test_df_atoms(backend):
     assert eex.testing.df_compare(rand_df, dl_rand_df)
 
 
-
-def test_register_functional_forms():
-
-    dl = eex.datalayer.DataLayer("test_functional_forms")
-
-    # Add a few functional forms
-    dl.register_functional_forms(2, "harmonic", utype={"K": "(kcal / mol) / angstrom ** 2", "R0": "picometers"})
-
-    dl.register_functional_forms(2, "harmonic2", eex.metadata.get_term_metadata(2, "forms", "harmonic"))
-    dl.register_functional_forms(2, "fene2", eex.metadata.get_term_metadata(2, "forms", "fene"))
-    dl.register_functional_forms(3, "harmonic2", eex.metadata.get_term_metadata(3, "forms", "harmonic"))
-
-    # Bound ineligable
-    with pytest.raises(KeyError):
-        dl.register_functional_forms(2, "harmonic", eex.metadata.get_term_metadata(2, "forms", "harmonic"))
-
-    # No such order as "turtle"
-    with pytest.raises(KeyError):
-        dl.register_functional_forms("turle", "turle", eex.metadata.get_term_metadata(4, "forms", "harmonic"))
-
-    # Missing keys in the dictionary
-    with pytest.raises(KeyError):
-        dl.register_functional_forms(2, "harmonic2", {"form": "(x-x0)**2"})
-
-
 def test_add_parameters():
 
     dl = eex.datalayer.DataLayer("test_functional_forms")
-
-    # Add a few functional forms
     two_body_md = eex.metadata.get_term_metadata(2, "forms", "harmonic")
     three_body_md = eex.metadata.get_term_metadata(3, "forms", "harmonic")
-    dl.register_functional_forms(2, "harmonic", utype={"K": "kcal * mol ** -2", "R0": "angstrom"})
-    dl.register_functional_forms(3, "harmonic", three_body_md)
 
     # Check duplicates
     assert 0 == dl.add_parameters(2, "harmonic", [4.0, 5.0])
@@ -118,6 +89,7 @@ def test_add_parameters():
     assert 1 == dl.add_parameters(2, "harmonic", {mdp[0]: 4.0, mdp[1]: 6.0})
     assert 3 == dl.add_parameters(2, "harmonic", {mdp[0]: 4.0, mdp[1]: 7.0})
 
+
     with pytest.raises(KeyError):
         dl.add_parameters(2, "harmonic", {mdp[0]: 4.0, "turtle": 5.0})
 
@@ -141,6 +113,38 @@ def test_add_parameters():
 
     with pytest.raises(KeyError):
         dl.add_parameters(2, "harmonic_abc", [4.0, 5.0])
+
+def test_add_parameters_units():
+
+    dl = eex.datalayer.DataLayer("test_functional_forms")
+    two_body_md = eex.metadata.get_term_metadata(2, "forms", "harmonic")
+    three_body_md = eex.metadata.get_term_metadata(3, "forms", "harmonic")
+
+    # Test unit types
+
+    assert 0 == dl.add_parameters(2, "harmonic", [4.0, 5.0])
+    assert 0 == dl.add_parameters(2, "harmonic", [4.0, 5.0])
+
+    # Same units
+    utype_2b = {"K": "(kJ / mol) * angstrom ** -2", "R0": "angstrom"}
+    utype_2bl = [utype_2b["K"], utype_2b["R0"]]
+    assert 0 == dl.add_parameters(2, "harmonic", {"K": 4.0, "R0": 5.0}, utype=utype_2b)
+    assert 0 == dl.add_parameters(2, "harmonic", {"K": 4.0, "R0": 5.0}, utype=utype_2bl)
+    assert 0 == dl.add_parameters(2, "harmonic", [4.0, 5.0], utype=utype_2b)
+    assert 0 == dl.add_parameters(2, "harmonic", [4.0, 5.0], utype=utype_2bl)
+
+    # Scale by 2
+    utype_2b = {"K": "2.0 * (kJ / mol) * angstrom ** -2", "R0": "2.0 * angstrom"}
+    utype_2bl = [utype_2b["K"], utype_2b["R0"]]
+    assert 0 == dl.add_parameters(2, "harmonic", {"K": 8.0, "R0": 10.0}, utype=utype_2b)
+    assert 0 == dl.add_parameters(2, "harmonic", {"K": 8.0, "R0": 10.0}, utype=utype_2bl)
+    assert 0 == dl.add_parameters(2, "harmonic", [8.0, 10.0], utype=utype_2b)
+    assert 0 == dl.add_parameters(2, "harmonic", [8.0, 10.0], utype=utype_2bl)
+
+    # Different unit type
+    utype_2b = {"K": "2.0 * (kJ / mol) * angstrom ** -2", "R0": "picometers"}
+    assert 0 == dl.add_parameters(2, "harmonic", [8.0, 500.0], utype=utype_2b)
+
 
 def test_atom_units():
     """

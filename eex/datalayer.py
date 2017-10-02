@@ -329,15 +329,14 @@ class DataLayer(object):
         user_order = order
         order = metadata.sanitize_term_order_name(order)
 
-        # Validate term add
+        # Make sure we know what this is
         try:
-            term_md = get_term_metadata(order, term_name)
+            term_md = metadata.get_term_metadata(order, "forms", term_name)
         except KeyError:
-            raise KeyError("DataLayer:register_functional_forms: Did not understand term '%d, %s'." % (order, term_name))
+            raise KeyError("DataLayer:add_parameters: Did not understand term '%d, %s'." % (order, term_name))
 
-        # Obtain the parameters
-        mdata = self._functional_forms[order][term_name]
-        params = metadata.validate_term_dict(term_name, mdata, term_parameters)
+        # Validate and converate data as needed
+        params = metadata.validate_term_dict(term_name, term_md, term_parameters, utype=utype)
 
         # First we check if we already have it
         found_key = None
