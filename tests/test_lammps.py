@@ -9,7 +9,7 @@ import eex_find_files
 
 @pytest.fixture(scope="module", params=["HDF5", "Memory"])
 def spce_dl(request):
-    fname = eex_find_files.get_example_filename("lammps", "SPCE/data.spce")
+    fname = eex_find_files.get_example_filename("lammps", "SPCE", "data.spce")
     dl = eex.datalayer.DataLayer("test_lammps_read",)
     data = eex.translators.lammps.read_lammps_file(dl, fname, blocksize=55)
     yield (data, dl)

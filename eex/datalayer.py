@@ -52,7 +52,7 @@ class DataLayer(object):
         self._terms = {2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}}
         self._atom_metadata = {}
 
-### Generic helper close/save/etc functions
+### Generic helper close/save/list/etc functions
 
     def call_by_string(self, *args, **kwargs):
         """
@@ -68,8 +68,6 @@ class DataLayer(object):
             raise KeyError("DataLayer:call_by_string: does not have method %s." % args[0])
 
         return function(*args[1:], **kwargs)
-
-### Store functions
 
     def close(self):
         """
@@ -168,7 +166,6 @@ class DataLayer(object):
         else:
             tmp_df = df[APC_DICT[property_name]]
 
-
         return self.store.add_table(table_name, tmp_df)
 
     def _get_atom_table(self, table_name, property_name, by_value, utype):
@@ -181,11 +178,7 @@ class DataLayer(object):
         field_data = metadata.atom_metadata[property_name]
         if by_value and (field_data["units"] is not None) and (utype is not None):
             scale_factor = units.conversion_factor(field_data["utype"], utype)
-            print(property_name, field_data["utype"], utype, scale_factor)
-            print(tmp[field_data["required_columns"]])
             tmp[field_data["required_columns"]] *= scale_factor
-            print(tmp[field_data["required_columns"]])
-            print('-----')
 
         return tmp
 
@@ -212,11 +205,6 @@ class DataLayer(object):
         Example
         -------
         dl = DataLayer("test")
-
-        # Add the atoms to the same molecule
-        dl.add_atoms([0, 1], properties="molecule_index")
-        dl.add_atoms([1, 1], properties="molecule_index")
-        dl.add_atoms([2, 1], properties="molecule_index")
 
         # Add the XYZ information for five random atoms
         tmp_df = pd.DataFrame(np.random.rand(5, 3), columns=["X", "Y", "Z"])
