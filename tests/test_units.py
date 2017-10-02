@@ -21,7 +21,7 @@ def test_complex_contexts():
     assert convert_contexts("[energy] ** 2 * [length] ** -4") == Q_("kilojoules ** 2  mol ** -2 * angstrom ** -4")
 
 
-def test_conversion_factor():
+def test_conversion_factor_magnitude():
 
     assert pytest.approx(0.1) == conversion_factor("10 * meter", "meter")
     assert pytest.approx(10) == conversion_factor("meter", "10 * meter")
@@ -33,3 +33,5 @@ def test_conversion_factor():
     assert pytest.approx(2) == conversion_factor("5 * kcal/mol", "10 * kcal/mol")
 
     assert pytest.approx(8.90098122e-21) == conversion_factor("18 * elementary_charge", "coulomb")
+
+    assert pytest.approx(1.e12) == conversion_factor("meter", "picometer")

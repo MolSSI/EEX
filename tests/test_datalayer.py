@@ -25,6 +25,7 @@ def _build_atom_df(nmols):
     bond_df["X"] = np.random.rand(ncols)
     bond_df["Y"] = np.random.rand(ncols)
     bond_df["Z"] = np.random.rand(ncols)
+    bond_df.set_index("atom_index", inplace=True)
     return bond_df
 
 
@@ -35,8 +36,6 @@ def test_df_atoms(backend):
     """
 
     dl = eex.datalayer.DataLayer("test_df_bonds", backend=backend)
-    dl.register_atom_units("charge", "elementary_charge")
-    dl.register_atom_units("XYZ", "angstrom")
 
     tmp_df = _build_atom_df(10)
 
@@ -44,41 +43,18 @@ def test_df_atoms(backend):
     rand_df = pd.DataFrame(np.random.rand(4, 4))
     dl.add_other("atoms", rand_df)
 
-    dl.add_atoms(tmp_df.loc[:5], by_value=True)
-    dl.add_atoms(tmp_df.loc[5:], by_value=True)
+    dl.add_atoms(tmp_df.iloc[:5], by_value=True)
+    dl.add_atoms(tmp_df.iloc[5:], by_value=True)
 
     dl_df = dl.get_atoms(["molecule_index", "atom_type", "charge", "XYZ"], by_value=True)
-    dl_df = dl_df.reset_index()
 
     # Compare DL df
-    tmp_df.equals(dl_df)
+    assert eex.testing.df_compare(tmp_df, dl_df)
 
     # Compare rand DF
     dl_rand_df = dl.get_other("atoms")
-    rand_df.equals(dl_rand_df)
+    assert eex.testing.df_compare(rand_df, dl_rand_df)
 
-
-@pytest.mark.parametrize("backend", _backend_list)
-def test_list_atoms(backend):
-    """
-    Tests adding bonds as a list
-    """
-
-    dl = eex.datalayer.DataLayer("test_list_bonds", backend=backend)
-    dl.register_atom_units("charge", "coulomb")
-    dl.register_atom_units("XYZ", "Bohr")
-
-    tmp_df = _build_atom_df(10)
-    for idx, row in tmp_df.iterrows():
-        data = list(row)
-        dl.add_atoms([data[0], data[1]], property_name="molecule_index", by_value=True)
-        dl.add_atoms([data[0], data[2]], property_name="atom_type", by_value=True)
-        dl.add_atoms([data[0], data[3]], property_name="charge", by_value=True)
-        dl.add_atoms([data[0], data[4], data[5], data[6]], property_name="XYZ", by_value=True)
-
-    dl_df = dl.get_atoms(["molecule_index", "atom_type", "charge", "XYZ"], by_value=True)
-    dl_df = dl_df.reset_index()
-    tmp_df.equals(dl_df)
 
 
 def test_register_functional_forms():
@@ -92,12 +68,9 @@ def test_register_functional_forms():
     dl.register_functional_forms(2, "fene2", eex.metadata.get_term_metadata(2, "forms", "fene"))
     dl.register_functional_forms(3, "harmonic2", eex.metadata.get_term_metadata(3, "forms", "harmonic"))
 
-
-
     # Bound ineligable
     with pytest.raises(KeyError):
         dl.register_functional_forms(2, "harmonic", eex.metadata.get_term_metadata(2, "forms", "harmonic"))
-
 
     # No such order as "turtle"
     with pytest.raises(KeyError):
@@ -168,3 +141,32 @@ def test_add_parameters():
 
     with pytest.raises(KeyError):
         dl.add_parameters(2, "harmonic_abc", [4.0, 5.0])
+
+def test_atom_units():
+    """
+    Tests adding bonds as a DataFrame
+    """
+
+    dl = eex.datalayer.DataLayer("test_df_bonds", backend="memory")
+    utypes = {"charge": "elementary_charge", "XYZ": "picometers"}
+
+    tmp_df = _build_atom_df(2)
+    tmp_df.index.name = "atom_index"
+    dl.add_atoms(tmp_df, by_value=True, utype=utypes)
+
+    assert eex.testing.df_compare(tmp_df, dl.get_atoms("charge", by_value=True), columns="charge")
+
+    # Check multiple output types
+    xyz_pm = dl.get_atoms("XYZ", by_value=True, utype={"xyz": "picometers"})
+    assert eex.testing.df_compare(xyz_pm, tmp_df[["X", "Y", "Z"]])
+
+    # Check twice incase we accidently scale internal data
+    xyz_pm = dl.get_atoms("XYZ", by_value=True, utype={"xyz": "picometers"})
+    assert eex.testing.df_compare(xyz_pm, tmp_df[["X", "Y", "Z"]])
+
+    # Check default and specified
+    xyz_ang1 = dl.get_atoms("XYZ", by_value=True, utype={"xyz": "angstrom"})
+    xyz_ang2 = dl.get_atoms("XYZ", by_value=True)
+
+    assert eex.testing.df_compare(xyz_ang1, xyz_ang2)
+    assert eex.testing.df_compare(xyz_ang1, xyz_pm * 0.01)

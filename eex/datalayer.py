@@ -10,6 +10,7 @@ import collections
 import eex
 from . import filelayer
 from . import metadata
+from . import units
 
 APC_DICT = metadata.atom_property_to_column
 
@@ -90,31 +91,21 @@ class DataLayer(object):
 
 ### Atom functions
 
-    def _check_atoms_dict(self, property_name, utype):
+    def _check_atoms_dict(self, property_name):
         if property_name in list(self._atom_metadata):
             return False
 
         field_data = metadata.atom_metadata[property_name]
-        self._atom_metadata[property_name] = {"counter": -1, "uvals": {}, "inv_uvals": {}, "units": None}
-        if field_data["units"] is None:
-            self._atom_metadata[property_name]["units"] = None
-        else:
-            if utype is None:
-                raise Exception("Unit type required if atom parameter requires units")
+        self._atom_metadata[property_name] = {"counter": -1, "uvals": {}, "inv_uvals": {}}
 
-            utype = metadata.validate_units(utype, context=field_data["units"])
-            self._atom_metadata[property_name]["units"] = utype
+        return True
 
-        return False
-
-    def _find_unqiue_atom_values(self, df, property_name, utype):
+    def _find_unqiue_atom_values(self, df, property_name):
         """
         Hashes the input parameters to build in internal index of unique values.
         """
 
         field_data = metadata.atom_metadata[property_name]
-
-        self._check_atoms_dict(property_name, utype)
         param_dict = self._atom_metadata[property_name]
 
         cols = field_data["required_columns"]
@@ -164,30 +155,39 @@ class DataLayer(object):
         Internal way to store atom tables
         """
 
+        self._check_atoms_dict(property_name)
+        field_data = metadata.atom_metadata[property_name]
+
+        # Figure out unit scaling factors
+        if by_value and (field_data["units"] is not None) and (utype is not None):
+            scale_factor = units.conversion_factor(utype, field_data["utype"])
+            df = df[field_data["required_columns"]] * scale_factor
+
         if by_value and not (metadata.atom_metadata[property_name]["unique"]):
-            tmp_df = self._find_unqiue_atom_values(df, property_name, utype)
+            tmp_df = self._find_unqiue_atom_values(df, property_name)
         else:
             tmp_df = df[APC_DICT[property_name]]
 
+
         return self.store.add_table(table_name, tmp_df)
 
-    def _get_atom_table(self, table_name, property_name, by_value):
+    def _get_atom_table(self, table_name, property_name, by_value, utype):
 
         tmp = self.store.read_table(table_name)
         if by_value and not (metadata.atom_metadata[property_name]["unique"]):
             tmp = self._build_atom_values(tmp, property_name)
+
+        # Figure out unit scaling factors
+        field_data = metadata.atom_metadata[property_name]
+        if by_value and (field_data["units"] is not None) and (utype is not None):
+            scale_factor = units.conversion_factor(field_data["utype"], utype)
+            print(property_name, field_data["utype"], utype, scale_factor)
+            print(tmp[field_data["required_columns"]])
+            tmp[field_data["required_columns"]] *= scale_factor
+            print(tmp[field_data["required_columns"]])
+            print('-----')
+
         return tmp
-
-    def register_atom_units(self, property_name, utype):
-        property_name = property_name.lower()
-        if property_name not in list(APC_DICT):
-            raise KeyError("DataLayer:set_atom_units: Property name '%s' not recognized." % property_name)
-
-        self._check_atoms_dict(property_name, utype)
-        if property_name not in list(self._atom_metadata):
-            self._atom_metadata[property_name] = {"counter": -1, "uvals": {}, "inv_uvals": {}, "units": utype}
-        else:
-            self._atom_metadata[property_name]["units"] = utype
 
     def add_atoms(self, atom_df, property_name=None, by_value=False, utype=None):
         """
@@ -226,50 +226,42 @@ class DataLayer(object):
 
         # Our index name
         index = "atom_index"
-        if property_name:
-            property_name = property_name.lower()
 
-            if property_name not in list(APC_DICT):
-                raise KeyError("DataLayer:add_atoms: Property name '%s' not recognized." % property_name)
-
-        # Parse list and DataFrame object and check validity
-        if isinstance(atom_df, (list, tuple)):
-            if property_name is None:
-                raise KeyError("DataLayer:add_atoms: If data type is list, 'property_name' must be set.")
-            if len(atom_df) != (len(APC_DICT[property_name]) + 1):
-                raise KeyError("DataLayer:add_atoms: Property name '%s' not recognized." % property_name)
-
-            atom_df = pd.DataFrame([atom_df], columns=[index] + APC_DICT[property_name])
-            atom_df.set_index(index, drop=True, inplace=True)
-
-        elif isinstance(atom_df, pd.DataFrame):
-            if index in atom_df.columns:
-                atom_df = atom_df.set_index(index, drop=True)
-
-            if atom_df.index.name != index:
-                raise KeyError("DataLayer:add_atoms: DF index must be the `atom_index`.")
-        else:
+        # Validate DataFrame
+        if not isinstance(atom_df, pd.DataFrame):
             raise KeyError("DataLayer:add_atoms: Data type '%s' not understood." % type(atom_df))
 
-        # Add a single property
-        if property_name:
-            self._store_atom_table(property_name, atom_df, property_name, by_value, utype)
-        # Try to add all possible properties
+        if index in atom_df.columns:
+            atom_df = atom_df.set_index(index, drop=True)
+
+        if atom_df.index.name != index:
+            raise KeyError("DataLayer:add_atoms: DF index must be the `atom_index` not '%s'." % atom_df.index.name)
+
+        if utype is None:
+            utype = {}
+        elif isinstance(utype, dict):
+            utype = {k.lower(): v for k, v in utype.items()}
         else:
-            set_cols = set(atom_df.columns)
-            found_one = False
-            for k, v in APC_DICT.items():
-                # Check if v is in the set_cols (set logic)
-                if set(v) <= set_cols:
-                    self._store_atom_table(k, atom_df, k, by_value, utype)
-                    found_one = True
-            if not found_one:
-                raise Exception("DataLayer:add_atom: No data was added as no key was matched from input columns:\n%s" %
-                                (" " * 11 + str(atom_df.columns)))
+            raise TypeError("utype type not understood")
+
+        # Try to add all possible properties
+        set_cols = set(atom_df.columns)
+        found_one = False
+        for k, v in APC_DICT.items():
+            # Check if v is in the set_cols (set logic)
+            if set(v) <= set_cols:
+                uval = None
+                if k in utype:
+                    uval = utype[k]
+                self._store_atom_table(k, atom_df, k, by_value, uval)
+                found_one = True
+        if not found_one:
+            raise Exception("DataLayer:add_atom: No data was added as no key was matched from input columns:\n%s" %
+                            (" " * 11 + str(atom_df.columns)))
 
         return True
 
-    def get_atoms(self, properties, by_value=False):
+    def get_atoms(self, properties, by_value=False, utype=None):
         """
         Obtains atom information to the DataLayer object.
 
@@ -300,9 +292,19 @@ class DataLayer(object):
             invalid_props = set(properties) - set(list(valid_properties))
             raise KeyError("DataLayer:add_atoms: Property name(s) '%s' not recognized." % str(list(invalid_props)))
 
+        if utype is None:
+            utype = {}
+        elif isinstance(utype, dict):
+            utype = {k.lower(): v for k, v in utype.items()}
+        else:
+            raise TypeError("utype type not understood")
+
         df_data = []
         for prop in properties:
-            tmp = self._get_atom_table(prop, prop, by_value)
+            uval = None
+            if prop in utype:
+                uval = utype[prop]
+            tmp = self._get_atom_table(prop, prop, by_value, uval)
             df_data.append(tmp)
 
         return pd.concat(df_data, axis=1)
