@@ -126,8 +126,8 @@ _four_body_functional_forms = {
         "form": "K_2*r**2+K_4*r**4",
         "parameters": ["K_2", "K_4"],
         "units": {
-            "K_2": "[energy] [length]**2",
-            "K_4": "[energy] [length]**4",
+            "K_2": "[energy] * [length]**2",
+            "K_4": "[energy] * [length]**4",
         },
         "description": "This is a distance improper"
     },

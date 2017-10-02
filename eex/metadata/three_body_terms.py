@@ -41,7 +41,7 @@ _three_body_functional_forms = {
         "form": "K * (theta - theta0) ** 2",
         "parameters": ["K", "theta0"],
         "units": {
-            "K": "[energy] [arcunit] ** -2",
+            "K": "[energy] * [arcunit] ** -2",
             "theta0": "[arcunit]"
         },
         "description": "A harmonic angle"
@@ -59,9 +59,9 @@ _three_body_functional_forms = {
         "form": "k*(theta-theta0)**2 + k_ub*(r13-r_ub)**2",
         "parameters": ["K", "theta0", "K_ub", "r_ub"],
         "units": {
-            "K": "[energy] [arcunit] ** 2",
+            "K": "[energy] * [arcunit] ** 2",
             "theta0": "[arcunit]",
-            "K_ub": "[energy] [length] ** -2",
+            "K_ub": "[energy] * [length] ** -2",
             "r_ub": "[length]",
         },
         "description": "A CHARMM angle term?"
@@ -91,9 +91,9 @@ _three_body_functional_forms = {
         "form": "K2*(theta-theta0)**2+K3*(theta-theta0)**3+K4*(theta-theta0)**4",
         "parameters": ["K2", "K3", "K4", "theta0"],
         "units": {
-            "K2": "[energy] [arcunit]**-2",  #Lammps uses radians
-            "K3": "[energy] [arcunit]**-3",
-            "K4": "[energy] [arcunit]**-4",
+            "K2": "[energy] * [arcunit]**-2",  #Lammps uses radians
+            "K3": "[energy] * [arcunit]**-3",
+            "K4": "[energy] * [arcunit]**-4",
             "theta0": "[arcunit]"  #Lammps converts this to radians
         },
         "description": "This is a quartic angle"
@@ -123,9 +123,9 @@ _three_body_functional_forms = {
     #    "parameters": ["theta0", "K2", "K3", "K4"],
     #    "units": {
     #        "theta0": "[arcunit]",
-    #        "K2": "[energy] [arcunit] ** -2",
-    #        "K3": "[energy] [arcunit] ** -3",
-    #        "K4": "[energy] [arcunit] ** -4",
+    #        "K2": "[energy] * [arcunit] ** -2",
+    #        "K3": "[energy] * [arcunit] ** -3",
+    #        "K4": "[energy] * [arcunit] ** -4",
     #    },
     #    "description": "A generalized class 2 force field."
     #},
