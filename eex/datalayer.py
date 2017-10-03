@@ -49,8 +49,8 @@ class DataLayer(object):
             raise KeyError("DataLayer: Backend of type '%s' not recognized." % backend)
 
         # Setup empty parameters dictionary
-        self._functional_forms = {2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}}
-        self._terms = {2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}}
+        self._functional_forms = {2: {}, 3: {}, 4: {}}
+        self._terms = {2: {}, 3: {}, 4: {}}
         self._atom_metadata = {}
 
 ### Generic helper close/save/list/etc functions
@@ -420,6 +420,20 @@ class DataLayer(object):
             parameters[key] *= units.conversion_factor(term_md["utype"][key], utype[key])
 
         return (data[0], parameters)
+
+    def list_parameter_uids(self, order=None):
+
+        # Return everything
+        if order is None:
+            ret = {}
+            for k, v in self._terms.items():
+                ret[k] = list(v)
+            return ret
+
+        # Just return a specific order
+        order = metadata.sanitize_term_order_name(order)
+
+        return list(self._terms[order])
 
     def add_terms(self, order, df):
 

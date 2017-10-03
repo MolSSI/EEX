@@ -149,6 +149,7 @@ def test_add_parameters_units():
     utype_2b = {"K": "0.5 * (kJ / mol) * angstrom ** -2", "R0": "picometers"}
     assert 1 == dl.add_parameters(2, "harmonic", [8.0, 5.0], utype=utype_2b)
 
+
 def test_get_parameters():
 
     dl = eex.datalayer.DataLayer("test_get_parameters")
@@ -189,6 +190,31 @@ def test_get_parameters_units():
 
     with pytest.raises(TypeError):
         dl.get_parameters(2, 0, utype=set([5, 6]))
+
+
+def test_list_parameters():
+
+    dl = eex.datalayer.DataLayer("test_list_parameters")
+
+    # Add two-body
+    assert 0 == dl.add_parameters(2, "harmonic", [4.0, 5.0])
+    assert 1 == dl.add_parameters(2, "harmonic", [4.0, 6.0])
+    assert 9 == dl.add_parameters(2, "harmonic", [6.0, 7.0], uid=9)
+
+    # Add three-body
+    assert 0 == dl.add_parameters(3, "harmonic", [4.0, 5.0])
+    assert 1 == dl.add_parameters(3, "harmonic", [4.0, 6.0])
+    assert 9 == dl.add_parameters(3, "harmonic", [6.0, 7.0], uid=9)
+
+    full_list = dl.list_parameter_uids()
+    assert set([2, 3, 4]) == set(full_list)
+    assert set([0, 1, 9]) == set(full_list[2])
+    assert set([0, 1, 9]) == set(full_list[3])
+    assert set([]) == set(full_list[4])
+
+    bond_list = dl.list_parameter_uids(2)
+    assert set([0, 1, 9]) == set(bond_list)
+
 
 def test_atom_units():
     """
