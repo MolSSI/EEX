@@ -103,7 +103,7 @@ forcefield_parameters = {
         "order": 2,
         "form": "harmonic",
         "units": {
-            "K": "2.0 * kcal * mol ** -1 angstrom ** -2",
+            "K": "kcal * mol ** -1 angstrom ** -2",
             "R0": "angstrom"
         },
         "column_names": {
@@ -115,7 +115,7 @@ forcefield_parameters = {
         "order": 3,
         "form": "harmonic",
         "units": {
-            "K": "2.0 * kcal * mol ** -1 radian ** -2",
+            "K": "kcal * mol ** -1 radian ** -2",
             "theta0": "radian"
         },
         "column_names": {
