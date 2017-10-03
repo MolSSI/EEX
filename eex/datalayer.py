@@ -185,13 +185,49 @@ class DataLayer(object):
 
         return tmp
 
-    def add_atom_parameters(self, property_name, uid, utype=None):
+    def add_atom_parameters(self, property_name, value, uid=None, utype=None):
 
+        property_name = property_name.lower()
         self._check_atoms_dict(property_name)
+        param_dict = self._atom_metadata[property_name]
         field_data = metadata.atom_metadata[property_name]
-        scale_factor = units.conversion_factor(field_data["utype"], utype)
 
+        if (utype is not None) and (field_data["units"] is not None):
+            value = value * units.conversion_factor(field_data["utype"], utype)
 
+        if field_data["dtype"] == float:
+            value = round(value, field_data["tol"])
+
+        # Check if we have this key
+        found_key = None
+        for k, v in param_dict["inv_uvals"].items():
+            if v == value:
+                found_key = k
+
+        # Brand new uid, return next in sequence
+        if uid is None:
+            if found_key is not None:
+                return found_key
+
+            new_key = utility.find_lowest_hole(list(param_dict["inv_uvals"]))
+            param_dict["uvals"][value] = new_key
+            param_dict["inv_uvals"][new_key] = value
+            return new_key
+
+        # We have a uid
+        else:
+            # Fine if it matches internally, otherwise throw
+            if (found_key is not None):
+                if (found_key == uid):
+                    return found_key
+                else:
+                    raise KeyError(
+                        "DataLayer:add_atom_parameters: Tried to add value %s, but found in uid (%d) and current keys (%d)"
+                        % (value, uid, found_key))
+
+            param_dict["inv_uvals"][uid] = value
+            param_dict["uvals"][value] = uid
+            return uid
 
     def list_atom_properties(self):
         """

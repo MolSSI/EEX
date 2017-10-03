@@ -58,6 +58,27 @@ def test_df_atoms(backend):
     dl_rand_df = dl.get_other("atoms")
     assert eex.testing.df_compare(rand_df, dl_rand_df)
 
+def test_add_atom_parameters():
+    dl = eex.datalayer.DataLayer("test_add_atom_parameters")
+
+    # Test duplicate and uid add of same
+    assert 0 == dl.add_atom_parameters("mass", 5.0)
+    assert 0 == dl.add_atom_parameters("mass", 5.0)
+    assert 0 == dl.add_atom_parameters("mass", 5.0, uid=0)
+
+    # Once more
+    assert 1 == dl.add_atom_parameters("mass", 6.0)
+    assert 1 == dl.add_atom_parameters("mass", 6.0, uid=1)
+
+    # Test out of order adds
+    assert 2 == dl.add_atom_parameters("mass", 7.0, uid=2)
+    assert 5 == dl.add_atom_parameters("mass", 8.0, uid=5)
+    assert 3 == dl.add_atom_parameters("mass", 9.0)
+
+    # Test possible raises
+    with pytest.raises(KeyError):
+        dl.add_atom_parameters("mass", 6.0, uid=0)
+
 
 def test_add_parameters():
     """
