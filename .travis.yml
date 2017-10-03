@@ -28,7 +28,7 @@ install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
-  - conda create -q -n eex_env python=$TRAVIS_PYTHON_VERSION numpy pandas pymongo pytest pytables matplotlib pint -c conda-forge
+  - conda create -q -n eex_env python=$TRAVIS_PYTHON_VERSION numpy pandas pytest pytables pint
   - source activate eex_env
 
     # Install anything not in conda
