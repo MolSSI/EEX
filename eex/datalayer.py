@@ -466,7 +466,7 @@ class DataLayer(object):
             raise Exception("NYI: Add terms by *not* term_index")
         self.store.add_table("term" + str(order), df)
 
-    def read_terms(self, order):
+    def get_terms(self, order):
         order = metadata.sanitize_term_order_name(order)
         if order not in list(self._functional_forms):
             raise KeyError("DataLayer:add_terms: Did not understand order key '%s'." % str(order))
@@ -495,7 +495,7 @@ class DataLayer(object):
 
     def get_bonds(self):
 
-        return self.read_terms("bonds")
+        return self.get_terms("bonds")
 
     def add_angles(self, angles):
 
@@ -503,7 +503,7 @@ class DataLayer(object):
 
     def get_angles(self):
 
-        return self.read_terms("angles")
+        return self.get_terms("angles")
 
     def add_dihedrals(self, dihedrals):
 
@@ -511,7 +511,7 @@ class DataLayer(object):
 
     def get_dihedrals(self):
 
-        return self.read_terms("dihedrals")
+        return self.get_terms("dihedrals")
 
 ### Other quantities
 

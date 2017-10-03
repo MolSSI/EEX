@@ -7,43 +7,35 @@ import numpy as np
 import pytest
 import eex_find_files
 
+_alkane_molecules = ["ethane", "propane", "butane", "propane"]
 
-@pytest.fixture(scope="module", params=["Memory"])
-def butane_amber_dl(request):
-    fname = eex_find_files.get_example_filename("amber", "alkanes", "trappe_butane_single_molecule.prmtop")
-    dl = eex.datalayer.DataLayer("test_amber_read", backend=request.param)
-    data = eex.translators.amber.read_amber_file(dl, fname)
-    yield (data, dl)
+def build_dl(program, molecule):
+    if program.lower() == "amber":
+        file_name = "trappe_%s_single_molecule.prmtop" % molecule
+        fname = eex_find_files.get_example_filename("amber", "alkanes", file_name)
+        dl = eex.datalayer.DataLayer("test_amber")
+        data = eex.translators.amber.read_amber_file(dl, fname)
+        return (data, dl)
+    elif program.lower() == "lammps":
+        file_name = "data.trappe_%s_single_molecule" % molecule
+        fname = eex_find_files.get_example_filename("lammps", "alkanes", file_name)
+        dl = eex.datalayer.DataLayer("test_lammps")
+        data = eex.translators.lammps.read_lammps_file(dl, fname)
+        return (data, dl)
+    else:
+        raise KeyError("Program %s not understood" % program)
+
+
+@pytest.fixture(scope="module")
+def ethane_bench(request):
+    data, dl = build_dl("lammps", "ethane")
+    yield dl
     dl.close()
 
+@pytest.mark.parametrize("program", ["amber"])
+def test_ethane(ethane_bench, program):
 
-@pytest.fixture(scope="module", params=["Memory"])
-def butane_lammps_dl(request):
-    fname = eex_find_files.get_example_filename("lammps", "alkanes", "data.trappe_butane_single_molecule")
-    dl = eex.datalayer.DataLayer("test_lammps_read", backend=request.param)
-    data = eex.translators.lammps.read_lammps_file(dl, fname)
-    yield (data, dl)
-    dl.close()
+    test_dl = build_dl(program, "ethane")[1]
+    assert eex.testing.dl_compare(ethane_bench, test_dl)
 
 
-# Test bond data
-def test_lammmps_amber_bonds(butane_lammps_dl, butane_amber_dl):
-    amber_data, amber_dl = butane_amber_dl
-    lammps_data, lammps_dl = butane_lammps_dl
-
-    amber_bonds = amber_dl.get_bonds()
-    lammps_bonds = lammps_dl.get_bonds()
-
-    assert amber_bonds.shape[0] == lammps_bonds.shape[0]
-    assert set(np.unique(amber_bonds["term_index"])) == set(np.unique(lammps_bonds["term_index"]))
-
-
-"""
-# Test atom data
-def test_lammps_amber_atoms(butane_lammps_dl, butane_amber_dl):
-    amber_data, amber_dl = butane_amber_dl
-    lammps_data, lammps_dl = butane_lammps_dl
-
-    amber_atoms = amber_dl.get_atoms(properties=["mass"])
-    lammps_atoms = lammps_dl.get_atoms(properties=["mass"])
-"""
