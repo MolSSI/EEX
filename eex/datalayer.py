@@ -12,6 +12,7 @@ import eex
 from . import filelayer
 from . import metadata
 from . import units
+from . import utility
 
 APC_DICT = metadata.atom_property_to_column
 
@@ -96,7 +97,7 @@ class DataLayer(object):
             return False
 
         field_data = metadata.atom_metadata[property_name]
-        self._atom_metadata[property_name] = {"counter": -1, "uvals": {}, "inv_uvals": {}}
+        self._atom_metadata[property_name] = {"uvals": {}, "inv_uvals": {}}
 
         return True
 
@@ -121,11 +122,11 @@ class DataLayer(object):
 
             # Update dictionary if necessary
             if gb_idx not in list(param_dict["uvals"]):
-                param_dict["counter"] += 1
 
                 # Bidirectional dictionary
-                param_dict["uvals"][gb_idx] = param_dict["counter"]
-                param_dict["inv_uvals"][param_dict["counter"]] = gb_idx
+                new_key = utility.find_lowest_hole(list(param_dict["inv_uvals"]))
+                param_dict["uvals"][gb_idx] = new_key
+                param_dict["inv_uvals"][new_key] = gb_idx
 
             # Grab the unique and set
             uidx = param_dict["uvals"][gb_idx]
@@ -183,6 +184,14 @@ class DataLayer(object):
             tmp[field_data["required_columns"]] *= scale_factor
 
         return tmp
+
+    def add_atom_parameters(self, property_name, uid, utype=None):
+
+        self._check_atoms_dict(property_name)
+        field_data = metadata.atom_metadata[property_name]
+        scale_factor = units.conversion_factor(field_data["utype"], utype)
+
+
 
     def list_atom_properties(self):
         """
@@ -369,8 +378,7 @@ class DataLayer(object):
             if not len(self._terms[order]):
                 new_key = 0
             else:
-                possible_values = set(range(len(self._terms[order]) + 1))
-                new_key = min(possible_values - set(self._terms[order]))
+                new_key = utility.find_lowest_hole(self._terms[order])
 
             params.insert(0, term_name)
             self._terms[order][new_key] = params
