@@ -46,7 +46,7 @@ def test_df_atoms(backend):
     dl.add_atoms(tmp_df.iloc[:5], by_value=True)
     dl.add_atoms(tmp_df.iloc[5:], by_value=True)
 
-    dl_df = dl.get_atoms(["molecule_index", "atom_type", "charge", "XYZ"], by_value=True)
+    dl_df = dl.get_atoms(None, by_value=True)
 
     # Compare DL df
     assert eex.testing.df_compare(tmp_df, dl_df)

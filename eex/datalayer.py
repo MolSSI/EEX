@@ -52,6 +52,7 @@ class DataLayer(object):
         self._functional_forms = {2: {}, 3: {}, 4: {}}
         self._terms = {2: {}, 3: {}, 4: {}}
         self._atom_metadata = {}
+        self._atom_sets = set()
 
 ### Generic helper close/save/list/etc functions
 
@@ -183,6 +184,13 @@ class DataLayer(object):
 
         return tmp
 
+    def list_atom_properties(self):
+        """
+        Lists all the valid atom properties that have been added.
+
+        """
+        return list(self._atom_sets)
+
     def add_atoms(self, atom_df, property_name=None, by_value=False, utype=None):
         """
         Adds atom information to the DataLayer object.
@@ -244,6 +252,8 @@ class DataLayer(object):
                     uval = utype[k]
                 self._store_atom_table(k, atom_df, k, by_value, uval)
                 found_one = True
+                # Update what we have
+                self._atom_sets |= set([k])
         if not found_one:
             raise Exception("DataLayer:add_atom: No data was added as no key was matched from input columns:\n%s" %
                             (" " * 11 + str(atom_df.columns)))
@@ -271,10 +281,13 @@ class DataLayer(object):
 
         valid_properties = list(metadata.atom_property_to_column)
 
-        # Our index name
+        if properties is None:
+            properties = self.list_atom_properties()
+
         if not isinstance(properties, (tuple, list)):
             properties = [properties]
 
+        # Make sure they are lower case
         properties = [x.lower() for x in properties]
 
         if not set(properties) <= set(list(valid_properties)):
