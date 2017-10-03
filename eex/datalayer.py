@@ -52,6 +52,7 @@ class DataLayer(object):
         self._functional_forms = {2: {}, 3: {}, 4: {}}
         self._terms = {2: {}, 3: {}, 4: {}}
         self._atom_metadata = {}
+        self._atom_sets = set()
 
 ### Generic helper close/save/list/etc functions
 
@@ -183,6 +184,13 @@ class DataLayer(object):
 
         return tmp
 
+    def list_atom_properties(self):
+        """
+        Lists all the valid atom properties that have been added.
+
+        """
+        return list(self._atom_sets)
+
     def add_atoms(self, atom_df, property_name=None, by_value=False, utype=None):
         """
         Adds atom information to the DataLayer object.
@@ -244,6 +252,8 @@ class DataLayer(object):
                     uval = utype[k]
                 self._store_atom_table(k, atom_df, k, by_value, uval)
                 found_one = True
+                # Update what we have
+                self._atom_sets |= set([k])
         if not found_one:
             raise Exception("DataLayer:add_atom: No data was added as no key was matched from input columns:\n%s" %
                             (" " * 11 + str(atom_df.columns)))
@@ -271,10 +281,13 @@ class DataLayer(object):
 
         valid_properties = list(metadata.atom_property_to_column)
 
-        # Our index name
+        if properties is None:
+            properties = self.list_atom_properties()
+
         if not isinstance(properties, (tuple, list)):
             properties = [properties]
 
+        # Make sure they are lower case
         properties = [x.lower() for x in properties]
 
         if not set(properties) <= set(list(valid_properties)):
@@ -453,7 +466,7 @@ class DataLayer(object):
             raise Exception("NYI: Add terms by *not* term_index")
         self.store.add_table("term" + str(order), df)
 
-    def read_terms(self, order):
+    def get_terms(self, order):
         order = metadata.sanitize_term_order_name(order)
         if order not in list(self._functional_forms):
             raise KeyError("DataLayer:add_terms: Did not understand order key '%s'." % str(order))
@@ -482,7 +495,7 @@ class DataLayer(object):
 
     def get_bonds(self):
 
-        return self.read_terms("bonds")
+        return self.get_terms("bonds")
 
     def add_angles(self, angles):
 
@@ -490,7 +503,7 @@ class DataLayer(object):
 
     def get_angles(self):
 
-        return self.read_terms("angles")
+        return self.get_terms("angles")
 
     def add_dihedrals(self, dihedrals):
 
@@ -498,7 +511,7 @@ class DataLayer(object):
 
     def get_dihedrals(self):
 
-        return self.read_terms("dihedrals")
+        return self.get_terms("dihedrals")
 
 ### Other quantities
 

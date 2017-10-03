@@ -15,6 +15,9 @@ _backend_list = ["HDF5", "Memory"]
 
 
 def _build_atom_df(nmols):
+    """
+    Builds a random testing DataFrame
+    """
 
     ncols = nmols * 3
     bond_df = pd.DataFrame(columns=["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"])
@@ -46,7 +49,7 @@ def test_df_atoms(backend):
     dl.add_atoms(tmp_df.iloc[:5], by_value=True)
     dl.add_atoms(tmp_df.iloc[5:], by_value=True)
 
-    dl_df = dl.get_atoms(["molecule_index", "atom_type", "charge", "XYZ"], by_value=True)
+    dl_df = dl.get_atoms(None, by_value=True)
 
     # Compare DL df
     assert eex.testing.df_compare(tmp_df, dl_df)
@@ -57,6 +60,9 @@ def test_df_atoms(backend):
 
 
 def test_add_parameters():
+    """
+    Test adding parameters to the DL object
+    """
 
     dl = eex.datalayer.DataLayer("test_add_parameters")
     two_body_md = eex.metadata.get_term_metadata(2, "forms", "harmonic")
@@ -115,6 +121,9 @@ def test_add_parameters():
 
 
 def test_add_parameters_units():
+    """
+    Test adding parameters to the DL object with units
+    """
 
     dl = eex.datalayer.DataLayer("test_add_parameters_units")
     two_body_md = eex.metadata.get_term_metadata(2, "forms", "harmonic")
@@ -151,6 +160,9 @@ def test_add_parameters_units():
 
 
 def test_get_parameters():
+    """
+    Test obtaining parameters from the DL
+    """
 
     dl = eex.datalayer.DataLayer("test_get_parameters")
 
@@ -172,6 +184,9 @@ def test_get_parameters():
 
 
 def test_get_parameters_units():
+    """
+    Test obtaining parameters from the DL with units
+    """
 
     dl = eex.datalayer.DataLayer("test_get_parameters_units")
 
@@ -193,6 +208,9 @@ def test_get_parameters_units():
 
 
 def test_list_parameters():
+    """
+    Test listing parameters uids
+    """
 
     dl = eex.datalayer.DataLayer("test_list_parameters")
 
