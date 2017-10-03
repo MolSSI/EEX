@@ -1,7 +1,7 @@
-%VERSION  VERSION_STAMP = V0001.000  DATE = 09/05/17  17:54:13                  
+%VERSION  VERSION_STAMP = V0001.000  DATE = 10/03/17  16:16:39                  
 %FLAG TITLE                                                                     
 %FORMAT(20a4)                                                                   
-butane                                                                          
+Cpptraj                                                                         
 %FLAG POINTERS                                                                  
 %FORMAT(10I8)                                                                   
        2       1       0       1       0       0       0       0       0       0

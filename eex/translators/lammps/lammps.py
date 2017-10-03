@@ -140,7 +140,7 @@ def read_lammps_file(dl, filename, blocksize=110):
                     data.columns = op["df_cols"]
                 dl.call_by_string(op["dl_func"], data, **op["kwargs"])
 
-            # Adding parameters call
+            # Adding parameters
             elif op["call_type"] == "parameter":
                 order = op["args"]["order"]
                 fname = op["args"]["form_name"]

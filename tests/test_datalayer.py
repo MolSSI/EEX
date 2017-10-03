@@ -15,6 +15,9 @@ _backend_list = ["HDF5", "Memory"]
 
 
 def _build_atom_df(nmols):
+    """
+    Builds a random testing DataFrame
+    """
 
     ncols = nmols * 3
     bond_df = pd.DataFrame(columns=["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"])
@@ -46,7 +49,7 @@ def test_df_atoms(backend):
     dl.add_atoms(tmp_df.iloc[:5], by_value=True)
     dl.add_atoms(tmp_df.iloc[5:], by_value=True)
 
-    dl_df = dl.get_atoms(["molecule_index", "atom_type", "charge", "XYZ"], by_value=True)
+    dl_df = dl.get_atoms(None, by_value=True)
 
     # Compare DL df
     assert eex.testing.df_compare(tmp_df, dl_df)
@@ -55,8 +58,32 @@ def test_df_atoms(backend):
     dl_rand_df = dl.get_other("atoms")
     assert eex.testing.df_compare(rand_df, dl_rand_df)
 
+def test_add_atom_parameters():
+    dl = eex.datalayer.DataLayer("test_add_atom_parameters")
+
+    # Test duplicate and uid add of same
+    assert 0 == dl.add_atom_parameters("mass", 5.0)
+    assert 0 == dl.add_atom_parameters("mass", 5.0)
+    assert 0 == dl.add_atom_parameters("mass", 5.0, uid=0)
+
+    # Once more
+    assert 1 == dl.add_atom_parameters("mass", 6.0)
+    assert 1 == dl.add_atom_parameters("mass", 6.0, uid=1)
+
+    # Test out of order adds
+    assert 2 == dl.add_atom_parameters("mass", 7.0, uid=2)
+    assert 5 == dl.add_atom_parameters("mass", 8.0, uid=5)
+    assert 3 == dl.add_atom_parameters("mass", 9.0)
+
+    # Test possible raises
+    with pytest.raises(KeyError):
+        dl.add_atom_parameters("mass", 6.0, uid=0)
+
 
 def test_add_parameters():
+    """
+    Test adding parameters to the DL object
+    """
 
     dl = eex.datalayer.DataLayer("test_add_parameters")
     two_body_md = eex.metadata.get_term_metadata(2, "forms", "harmonic")
@@ -115,6 +142,9 @@ def test_add_parameters():
 
 
 def test_add_parameters_units():
+    """
+    Test adding parameters to the DL object with units
+    """
 
     dl = eex.datalayer.DataLayer("test_add_parameters_units")
     two_body_md = eex.metadata.get_term_metadata(2, "forms", "harmonic")
@@ -151,6 +181,9 @@ def test_add_parameters_units():
 
 
 def test_get_parameters():
+    """
+    Test obtaining parameters from the DL
+    """
 
     dl = eex.datalayer.DataLayer("test_get_parameters")
 
@@ -172,6 +205,9 @@ def test_get_parameters():
 
 
 def test_get_parameters_units():
+    """
+    Test obtaining parameters from the DL with units
+    """
 
     dl = eex.datalayer.DataLayer("test_get_parameters_units")
 
@@ -193,6 +229,9 @@ def test_get_parameters_units():
 
 
 def test_list_parameters():
+    """
+    Test listing parameters uids
+    """
 
     dl = eex.datalayer.DataLayer("test_list_parameters")
 

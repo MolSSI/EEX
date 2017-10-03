@@ -1,7 +1,7 @@
-%VERSION  VERSION_STAMP = V0001.000  DATE = 09/05/17  17:39:23                  
+%VERSION  VERSION_STAMP = V0001.000  DATE = 10/03/17  16:16:39                  
 %FLAG TITLE                                                                     
 %FORMAT(20a4)                                                                   
-default_name                                                                    
+Cpptraj                                                                         
 %FLAG POINTERS                                                                  
 %FORMAT(10I8)                                                                   
        4       2       0       3       0       2       0       3       0       0
@@ -43,7 +43,7 @@ BUT
   1.54000000E+00  1.54000000E+00
 %FLAG ANGLE_FORCE_CONSTANT                                                      
 %FORMAT(5E16.8)                                                                 
-  2.48400450E+02
+  6.21001125E+01
 %FLAG ANGLE_EQUIL_VALUE                                                         
 %FORMAT(5E16.8)                                                                 
   1.98967620E+00
