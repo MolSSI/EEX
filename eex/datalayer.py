@@ -6,6 +6,7 @@ import os
 import pandas as pd
 import numpy as np
 import collections
+import copy
 
 import eex
 from . import filelayer
@@ -16,7 +17,7 @@ APC_DICT = metadata.atom_property_to_column
 
 
 class DataLayer(object):
-    def __init__(self, name, store_location=None, save_data=False, backend="HDF5"):
+    def __init__(self, name, store_location=None, save_data=False, backend="Memory"):
         """
         Initializes the DataLayer class
 
@@ -48,8 +49,8 @@ class DataLayer(object):
             raise KeyError("DataLayer: Backend of type '%s' not recognized." % backend)
 
         # Setup empty parameters dictionary
-        self._functional_forms = {2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}}
-        self._terms = {2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}}
+        self._functional_forms = {2: {}, 3: {}, 4: {}}
+        self._terms = {2: {}, 3: {}, 4: {}}
         self._atom_metadata = {}
 
 ### Generic helper close/save/list/etc functions
@@ -79,13 +80,13 @@ class DataLayer(object):
         """
         Lists tables loaded into the store.
         """
-        return [x for x in self.store.list_tables() if "other" not in x]
+        return [x for x in self.store.list_tables() if not x.startswith("other_")]
 
     def list_other_tables(self):
         """
         Lists "other" tables loaded into the store.
         """
-        return [x.replace("other_", "") for x in self.store.list_tables() if "other" in x]
+        return [x.replace("other_", "") for x in self.store.list_tables() if x.startswith("other_")]
 
 ### Atom functions
 
@@ -299,84 +300,6 @@ class DataLayer(object):
 
 ### Term functions
 
-    def register_functional_forms(self, order, name, form=None, utype=None):
-        """
-        Registers a single functional forms with the DL object.
-
-        Parameters
-        ----------
-        order : int
-            The order of the functional form (2, 3, 4, ...)
-        name : str
-            The name of the functional form you are adding
-        form : dict
-            The metadata for the incoming form. Follows the term order descriptions.
-        utype : {dict, pint.Unit}
-            The unit type of the functional form.
-
-        Returns
-        -------
-        pass : bool
-            If the operation was sucessfull or not.
-
-
-        Examples
-        --------
-
-        # Register form by passing in explicit data
-        form_metadata = {
-            "form": "K*(r-R0) ** 2",
-            "parameters": ["K", "R0"],
-            "units": {
-                "K": "kcal * mol ** 2",
-                "R0": "picometers"
-            },
-            "description": "This is a harmonic bond"
-        }
-
-        dl.register_functional_form(2, "custom_harmonic", form=form_metadata)
-
-        # Register form by using EEX build-in forms and setting units
-        dl.register_functional_form(2, "harmonic", units={"K": "(kcal / mol) / angstrom ** 2", "R0": "picometers"})
-        """
-
-        user_order = order
-        order = metadata.sanitize_term_order_name(order)
-
-        if order not in self._functional_forms:
-            raise KeyError("DataLayer:register_functional_forms: Did not understand order key '%s'." % str(user_order))
-
-        # We are using an internal form
-        if (form is None) and (utype is None):
-            raise KeyError(
-                "DataLayer:register_functional_forms: Must either pass in form (external form) or units (internal form)."
-            )
-
-        elif form is None:
-            if utype is None:
-                raise KeyError("DataLayer:register_functional_forms: Must pass in units if using a EEX built-in form.")
-
-            try:
-                form = metadata.get_term_metadata(order, "forms", name)
-            except KeyError:
-                raise KeyError(
-                    "DataLayer:register_functional_forms: Could not find built in form of order `%s` and name `%s" %
-                    (str(user_order), str(name)))
-
-            form["units"] = utype
-
-        # We are using an external form
-        else:
-            if name in self._functional_forms[order]:
-                raise KeyError(
-                    "DataLayer:register_functional_forms: Key '%s' has already been registered." % str(name))
-            # Pass validator later
-
-        assert metadata.validate_functional_form_dict(name, form)
-
-        # Make sure the data is valid and add
-        self._functional_forms[order][name] = form
-
     def add_parameters(self, order, term_name, term_parameters, uid=None, utype=None):
         """
         Adds the parameters of a registered functional form to the Datalayer object
@@ -407,20 +330,14 @@ class DataLayer(object):
         user_order = order
         order = metadata.sanitize_term_order_name(order)
 
-        # Validate term add
-        if order not in list(self._functional_forms):
-            raise KeyError("DataLayer:register_functional_forms: Did not understand order key '%s'." % str(user_order))
+        # Make sure we know what this is
+        try:
+            term_md = metadata.get_term_metadata(order, "forms", term_name)
+        except KeyError:
+            raise KeyError("DataLayer:add_parameters: Did not understand term '%d, %s'." % (order, term_name))
 
-        if term_name not in list(self._functional_forms[order]):
-            raise KeyError(
-                "DataLayer:register_functional_forms: Term name '%s' has not been registered." % str(term_name))
-
-        if utype:
-            raise TypeError("DataLayer:register_functional_forms: Units are not yet supported, contact @dgasmith.")
-
-        # Obtain the parameters
-        mdata = self._functional_forms[order][term_name]
-        params = metadata.validate_term_dict(term_name, mdata, term_parameters)
+        # Validate and converate data as needed
+        params = metadata.validate_term_dict(term_name, term_md, term_parameters, utype=utype)
 
         # First we check if we already have it
         found_key = None
@@ -470,6 +387,53 @@ class DataLayer(object):
                 self._terms[order][uid] = params
 
                 return uid
+
+    def get_parameters(self, order, uid, utype=None):
+
+        order = metadata.sanitize_term_order_name(order)
+
+        if (uid not in self._terms[order]):
+            raise KeyError("DataLayer:get_parameters: Did not find term '%d %d" % (order, uid))
+
+        # Stored as [term_name, parameters...]
+        data = self._terms[order][uid]
+
+        term_md = metadata.get_term_metadata(order, "forms", data[0])
+
+        # Zip up the parameters
+        parameters = {k: v for k, v in zip(term_md["parameters"], data[1:])}
+
+        # Were done
+        if utype is None:
+            return (data[0], parameters)
+
+        # Need to convert
+        if isinstance(utype, (list, tuple)):
+            if len(utype) != len(term_md["parameters"]):
+                raise KeyError("DataLayer:get_parameters: length of utype should match the length of parameters.")
+            utype = {k: v for k, v in zip(term_md["parameters"], utype)}
+
+        if not isinstance(utype, dict):
+            raise TypeError("DataLayer:get_parameters: Input utype '%s' is not understood." % str(type(utype)))
+
+        for key in term_md["parameters"]:
+            parameters[key] *= units.conversion_factor(term_md["utype"][key], utype[key])
+
+        return (data[0], parameters)
+
+    def list_parameter_uids(self, order=None):
+
+        # Return everything
+        if order is None:
+            ret = {}
+            for k, v in self._terms.items():
+                ret[k] = list(v)
+            return ret
+
+        # Just return a specific order
+        order = metadata.sanitize_term_order_name(order)
+
+        return list(self._terms[order])
 
     def add_terms(self, order, df):
 

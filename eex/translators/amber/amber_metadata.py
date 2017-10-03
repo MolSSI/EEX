@@ -1,4 +1,3 @@
-
 # Possible size keys to look for in the header
 size_keys = [
     "NATOM", "NTYPES", "NBONH", "MBONA", "NTHETH", "MTHETA", "NPHIH", "MPHIA", "NHPARM", "NPARM", "NNB", "NRES",
@@ -57,7 +56,7 @@ data_labels = {
 }
 
 atom_data_units = {
-    "charge": "18.2223 * e",  # Internal units
+    "charge": "e / 18.2223",  # Internal units
     "mass": "g * mol ** -1",
 }
 
@@ -72,9 +71,14 @@ term_data_units = {
     "LENNARD_JONES_BCOEFF": ["kcal * mol ** -6"],
 }
 register_forms = [
-    (2, "harmonic", {"K": "kcal * mol ** -1 angstrom ** -2", "R0": "angstrom"}),
-    (3, "harmonic", {"K": "kcal * mol ** -1 radian ** -2", "theta0": "radian"}),
-
+    (2, "harmonic", {
+        "K": "kcal * mol ** -1 angstrom ** -2",
+        "R0": "angstrom"
+    }),
+    (3, "harmonic", {
+        "K": "kcal * mol ** -1 radian ** -2",
+        "theta0": "radian"
+    }),
 ]
 
 atom_property_names = {
@@ -122,7 +126,6 @@ forcefield_parameters = {
     # "dihedral": ["DIHEDRAL_FORCE_CONSTANT", "DIHEDRAL_PERIODICITY", "DIHEDRAL_PHASE"],
     # "non-bonded": ["LENNARD_JONES_ACOEFF", "LENNARD_JONES_BCOEFF"]
 }
-
 
 store_other = []
 for k, v in forcefield_parameters.items():

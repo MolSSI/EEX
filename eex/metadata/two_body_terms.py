@@ -20,9 +20,9 @@ _two_body_functional_forms = {
         "parameters": ["r0", "K2", "K3", "K4"],
         "units": {
             "r0": "[length]",
-            "K2": "[energy] [length] ** -2",
-            "K3": "[energy] [length] ** -3",
-            "K4": "[energy] [length] ** -4"
+            "K2": "[energy] * [length] ** -2",
+            "K3": "[energy] * [length] ** -3",
+            "K4": "[energy] * [length] ** -4"
         },
         "description": "This is a class2 bond"
     },
@@ -30,7 +30,7 @@ _two_body_functional_forms = {
         "form": "-0.5*K*R0 ** 2*ln(1-(r/R0) ** 2) + 4*epsilon((sigma/r) ** 12 - (sigma/r) ** 6)) + epsilon",
         "parameters": ["K", "R0", "epsilon", "sigma"],
         "units": {
-            "K": "[energy] [length] ** -2",
+            "K": "[energy] * [length] ** -2",
             "R0": "[length]",
             "epsilon": "[energy]",
             "sigma": "[length]"
@@ -42,7 +42,7 @@ _two_body_functional_forms = {
         "-0.5*K*R0 ** 2*ln(1-((r-delta)/R0) ** 2 + 4*epsilon((sigma/(r-delta)) ** 12 - (sigma/(r-delta)) ** 6)) + epsilon",
         "parameters": ["K", "R0", "epsilon", "sigma", "delta"],
         "units": {
-            "K": "[energy] [length] ** -2",
+            "K": "[energy] * [length] ** -2",
             "R0": "[length]",
             "epsilon": "[energy]",
             "sigma": "[length]",
@@ -55,7 +55,7 @@ _two_body_functional_forms = {
         "form": "K*(r-R0) ** 2",
         "parameters": ["K", "R0"],
         "units": {
-            "K": "[energy] [length] ** -2",
+            "K": "[energy] * [length] ** -2",
             "R0": "[length]"
         },
         "description": "This is a harmonic bond"
@@ -84,7 +84,7 @@ _two_body_functional_forms = {
         "form": "K(r-Rc) ** 2 * (r-Rc-B1)*(r-Rc-B2) + U0 + 4*epsilon*((sigma/r) ** 12 - (sigma/r) ** 6) + epsilon",
         "parameters": ["K", "B1", "B2", "Rc", "U0"],
         "units": {
-            "K": "[energy] [length] ** -4",
+            "K": "[energy] * [length] ** -4",
             "B1": "[length]",
             "B2": "[length]",
             "Rc": "[length]",

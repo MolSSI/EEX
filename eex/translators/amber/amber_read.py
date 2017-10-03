@@ -75,11 +75,20 @@ def _data_flatten(data, column_name, category_index, df_index_name):
     return df
 
 
-def read_amber_file(dl, filename, blocksize=5000):
+def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
+    """
 
-    ### First we register relevant parameters
-    for order, form_name, units in amd.register_forms:
-        dl.register_functional_forms(order, form_name, utype=units)
+    Parameters
+    ----------
+    dl : eex.DataLayer
+        The datalayer to add data to
+    filename : str
+        The name of the prmtop file
+    inpcrd : str, optional
+        If None, attempts to read the file filename.replace("prmtop", "inpcrd") otherwise passes.
+
+
+    """
 
     ### First we need to figure out system dimensions
     max_rows = 100  # How many lines do we attempt to search?
@@ -302,8 +311,9 @@ def read_amber_file(dl, filename, blocksize=5000):
             raise KeyError("AMBER Read: Data category '%s' not understood" % category_line)
 
         current_data_type = _parse_format(format_line)
-        # break
-        # raise Exception("")
+
+    # Close out the file handle
+    file_handle.close()
 
     ### Handle any data we added to the other columns
 
@@ -330,15 +340,35 @@ def read_amber_file(dl, filename, blocksize=5000):
     if len(set(bond_col_names) - set(other_tables)):
         raise KeyError("AMBER Read: Did not find bond parameters in file.")
 
-    cnt = 1 # Start counting from one
+    cnt = 1  # Start counting from one
     for ind, row in dl.get_other(bond_col_names).iterrows():
         params = {}
         for k, v in bond_data["column_names"].items():
             params[v] = row[k]
-        dl.add_parameters(bond_data["order"], bond_data["form"], params, uid=cnt)
+        dl.add_parameters(bond_data["order"], bond_data["form"], params, uid=cnt, utype=bond_data["units"])
         cnt += 1
 
-    # raise Exception(str(row))
+    ### Try to pull in an inpcrd file for XYZ coordinates
+    inpcrd_file = filename.replace('.prmtop', '.inpcrd')
+    try:
+        header_data = eex.utility.read_lines(inpcrd_file, 2)
+    except OSError:
+        header_data = []
 
-    file_handle.close()
+    if header_data:
+        inpcrd_size = header_data[1].split()
+        if len(inpcrd_size) > 1:
+            raise Exception("Cannot handle velocities or pressure in INPCRD file yet.")
+
+        read_size = math.ceil(float(inpcrd_size[0]) / 2)
+
+        file_handle = open(inpcrd_file, "r")
+        data = pd.read_fwf(file_handle, nrows=read_size, widths=([12] * 6), dtypes=([float] * 6), header=None, skiprows=2)
+        file_handle.close()
+
+        df = pd.DataFrame(data.values.reshape(-1, 3), columns=["X", "Y", "Z"])
+        df.dropna(axis=0, how="any", inplace=True)
+        df.index.name = "atom_index"
+        dl.add_atoms(df, utype={"XYZ": "angstrom"})
+
     return ret_data

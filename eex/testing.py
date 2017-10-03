@@ -53,3 +53,26 @@ def df_compare(left, right, columns=None, atol=1.e-8, rtol=1.e-5, equal_nan=True
         raise AssertionError("DF_compare: Mismatch in non-numeric columns.")
 
     return True
+
+
+def dict_compare(left, right, atol=1.e-9, rtol=1.e-5):
+
+    if set(left) != set(right):
+        raise KeyError("Right and Left dicts do not contain the same keys.")
+
+    for key in list(left):
+        lv = left[key]
+        rv = right[key]
+
+        match = True
+        if isinstance(lv, (int, str)):
+            match = lv == rv
+        elif isinstance(lv, (float, np.ndarray)):
+            match = np.allclose(lv, rv, atol=atol, rtol=rtol)
+        else:
+            raise TypeError("dict_compare: Misunderstood compare type '%s'." % str(type(lv)))
+
+        if match is False:
+            raise AssertionError("dict_compare: Mismatch for key %s, comparing %s to %s" % (key, str(lv), str(rv)))
+
+    return True

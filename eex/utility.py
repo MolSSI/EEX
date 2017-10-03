@@ -2,6 +2,8 @@
 A EEX utility folder
 """
 
+import os
+
 
 def line_fuzzy_list(line, ldata):
     """
@@ -31,6 +33,9 @@ def read_lines(filename, nlines, start=0):
     """
     Reads the first nlines of a file with a `start` offset. Care is taken
     """
+
+    if not os.path.isfile(filename):
+        raise OSError("Could not find file '%s'" % filename)
 
     ret_data = []
     with open(filename, "r") as infile:

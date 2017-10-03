@@ -7,77 +7,15 @@ import math
 
 import eex
 
+from . import lammps_metadata as lmd
+
 import logging
 logger = logging.getLogger(__name__)
-
-# Possible size keys to look for in the header
-_size_keys = [
-    "atoms", "atom types", "bonds", "bond types", "angles", "angle types", "dihedrals", "dihedral types", "impropers",
-    "improper types"
-]
-
-# Coeff labels to look for and their (size, function, terms, columns)
-_coeff_labels = {
-    "Pair Coeffs": ("atom types", "NYI"),
-    "Bond Coeffs": ("bond types", "NYI"),
-    "Angle Coeffs": ("angle types", "NYI"),
-    # "Bond Coeffs": ("bond types", "add_parameters", [2, "harmonic"]),
-    # "Angle Coeffs": ("angle types", "add_parameters", [3, "harmonic"]),
-    "Dihedral Coeffs": ("dihedral types", "NYI"),
-    "Improper Coeffs": ("improper types", "NYI"),
-}
-
-# Data labels to look for their (size, DL function, columns)
-_data_labels = {
-    "Masses": ("atom types", "NYI"),
-    "Atoms": ("atoms", "add_atoms", ["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"]),
-    "Bonds": ("bonds", "add_bonds", ["bond_index", "term_index", "atom1", "atom2"]),
-    "Angles": ("angles", "add_angles", ["angle_index", "term_index", "atom1", "atom2", "atom3"]),
-    "Dihedrals": ("dihedrals", "add_dihedrals", ["dihedral_index", "term_index", "atom1", "atom2", "atom3", "atom4"]),
-    "Impropers": ("impropers", "NYI"),
-}
-
-# Units for data labels
-# Not sure how we'll implement yet - just getting information in file
-_data_labels_units = {
-    "Masses": "[mass]",
-    "Atoms": ["N/A", "N/A", "atom_type", "[charge]", "[length]", "[length]", "[length]"],
-}
-
-_full_labels = _coeff_labels.copy()
-_full_labels.update(_data_labels)
-
-_full_labels_list = list(_full_labels)
-
-
-def _get_size(label, sizes_dict):
-    if label not in list(_full_labels):
-        raise KeyError("LAMMPS: Label '%s' not recognized" % label)
-
-    skey = _full_labels[label][0]
-    return sizes_dict[skey]
-
-
-def _get_dl_function(label):
-    if label not in list(_full_labels):
-        raise KeyError("LAMMPS: Label '%s' not recognized" % label)
-
-    return _full_labels[label][1]
-
-
-def _get_df_columns(label):
-    if label not in list(_full_labels):
-        raise KeyError("LAMMPS: Label '%s' not recognized" % label)
-
-    if len(_full_labels[label]) >= 3:
-        return _full_labels[label][2]
-    else:
-        return False
 
 
 def read_lammps_file(dl, filename, blocksize=110):
 
-    ### First we need to figure out system dimensions
+    ### Figure out system dimensions and general header data
     max_rows = 100  # How many lines do we attempt to search?
     header_data = eex.utility.read_lines(filename, max_rows)
 
@@ -94,6 +32,7 @@ def read_lammps_file(dl, filename, blocksize=110):
 
     startline = None
     current_data_category = None
+    category_list = lmd.build_valid_category_list()
 
     header = header_data[0]
     for num, line in enumerate(header_data[1:]):
@@ -107,9 +46,9 @@ def read_lammps_file(dl, filename, blocksize=110):
             continue
 
         # We are
-        elif eex.utility.line_fuzzy_list(line, _full_labels_list)[0]:
+        elif eex.utility.line_fuzzy_list(line, category_list)[0]:
             startline = num + 3  # Skips first row and two blank lines
-            current_data_category = eex.utility.line_fuzzy_list(line, _full_labels_list)[1]
+            current_data_category = eex.utility.line_fuzzy_list(line, category_list)[1]
             break
 
         # Figure out the dims
@@ -130,14 +69,14 @@ def read_lammps_file(dl, filename, blocksize=110):
                     "LAMMPS Read: The following line looks like a dimension line, but does not match:\n%s" % line)
 
         # Are we a size line?
-        elif eex.utility.line_fuzzy_list(line, _size_keys)[0]:
+        elif eex.utility.line_fuzzy_list(line, lmd.size_keys)[0]:
             dline = line.split()
             size = int(dline[0])
             size_name = " ".join(dline[1:])
 
             if size_name in list(sizes_dict):
                 raise KeyError("LAMMPS Read: KeyError size key %s already found." % size_name)
-            elif size_name not in _size_keys:
+            elif size_name not in lmd.size_keys:
                 raise KeyError("LAMMPS Read: KeyError size key %s not recognized." % size_name)
             else:
                 sizes_dict[size_name] = size
@@ -155,6 +94,12 @@ def read_lammps_file(dl, filename, blocksize=110):
     if ("atoms" not in list(sizes_dict)) or ("atom types" not in list(sizes_dict)):
         raise IOError("LAMMPS Read: Did not find size data on 'atoms' or 'atom types' in %d header lines." % max_rows)
 
+    ### Create temporaries specific to the current unit specification
+    op_table = lmd.build_operation_table("real", sizes_dict)
+    term_table = lmd.build_term_table("real")
+
+    # term_table = {"Bond Coeffs": {"order": 2, "name":"harmonic", "utype":""}, "Angle Coeffs": {}}
+
     ### Iterate over the primary data portion of the object
 
     reader = pd.read_table(
@@ -170,13 +115,11 @@ def read_lammps_file(dl, filename, blocksize=110):
     while True:
 
         # Figure out the size of the chunk to read
-        size = _get_size(current_data_category, sizes_dict)
-        dl_func = _get_dl_function(current_data_category)
-        df_cols = _get_df_columns(current_data_category)
+        op = op_table[current_data_category]
 
         # Read in the data, in chunks
-        remaining = size
-        num_blocks = int(math.ceil(size / float(blocksize)))
+        remaining = op["size"]
+        num_blocks = int(math.ceil(op["size"] / float(blocksize)))
         for block in range(num_blocks):
 
             # Figure out the size of the read
@@ -186,10 +129,31 @@ def read_lammps_file(dl, filename, blocksize=110):
 
             # Read and update DL
             data = reader.get_chunk(read_size).dropna(axis=1, how="all")
-            if dl_func != "NYI":
-                # print(data)
-                data.columns = df_cols
-            dl.call_by_string(dl_func, data)
+
+            # Nothing defined
+            if op["dl_func"] == "NYI":
+                pass
+
+            # Single call
+            elif op["call_type"] == "single":
+                if "df_cols" in op:
+                    data.columns = op["df_cols"]
+                dl.call_by_string(op["dl_func"], data, **op["kwargs"])
+
+            # Adding parameters call
+            elif op["call_type"] == "parameter":
+                order = op["args"]["order"]
+                fname = op["args"]["form_name"]
+                cols = term_table[order][fname]["parameters"]
+                data.columns = ["uid"] + cols
+
+                for idx, row in data.iterrows():
+                    params = list(row[cols])
+                    utype = term_table[order][fname]["utype"]
+                    dl.add_parameters(order, fname, params, uid=int(row["uid"]), utype=utype)
+
+            else:
+                raise KeyError("Operation table call '%s' not understoop" % op["call_type"])
 
             # Update remaining
             remaining -= blocksize

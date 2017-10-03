@@ -28,7 +28,7 @@ def test_amber_spce_read_atoms_value(spce_dl):
     data, dl = spce_dl
 
     atoms = dl.get_atoms(
-        ["atom_name", "charge", "atomic_number", "mass", "residue_name", "residue_index"], by_value=True)
+        ["atom_name", "charge", "atomic_number", "mass", "residue_name", "residue_index", "xyz"], by_value=True)
     assert atoms.shape[0] == 648
     assert set(np.unique(atoms["atom_name"])) == set(["H1", "H2", "O"])
     assert np.allclose(np.unique(atoms["charge"]), [-0.8476, 0.4238])
@@ -38,13 +38,16 @@ def test_amber_spce_read_atoms_value(spce_dl):
     assert np.allclose(np.min(atoms["residue_index"]), 0)
     assert np.allclose(np.max(atoms["residue_index"]), 215)
 
+    assert np.allclose(atoms[["X", "Y", "Z"]].min(), [-0.757235, -0.519927, -0.872856])
+    assert np.allclose(atoms[["X", "Y", "Z"]].max(), [19.388333, 19.213448, 19.423807])
+
 
 # Test AMBER read by_index
 def test_amber_spce_read_atoms_index(spce_dl):
     data, dl = spce_dl
 
     atoms = dl.get_atoms(
-        ["atom_name", "charge", "atomic_number", "mass", "residue_name", "residue_index"], by_value=False)
+        ["atom_name", "charge", "atomic_number", "mass", "residue_name", "residue_index", "xyz"], by_value=False)
     assert atoms.shape[0] == 648
     assert set(np.unique(atoms["atom_name"])) == set(["H1", "H2", "O"])
     assert np.allclose(np.unique(atoms["charge"]), [0, 1])
@@ -53,6 +56,8 @@ def test_amber_spce_read_atoms_index(spce_dl):
     assert set(np.unique(atoms["residue_name"])) == set([0])
     assert np.allclose(np.min(atoms["residue_index"]), 0)
     assert np.allclose(np.max(atoms["residue_index"]), 215)
+    assert np.allclose(atoms[["X", "Y", "Z"]].min(), [-0.757235, -0.519927, -0.872856])
+    assert np.allclose(atoms[["X", "Y", "Z"]].max(), [19.388333, 19.213448, 19.423807])
 
 
 def test_amber_spce_read_bonds(spce_dl):

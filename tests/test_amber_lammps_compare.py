@@ -8,7 +8,7 @@ import pytest
 import eex_find_files
 
 
-@pytest.fixture(scope="module", params=["HDF5", "Memory"])
+@pytest.fixture(scope="module", params=["Memory"])
 def butane_amber_dl(request):
     fname = eex_find_files.get_example_filename("amber", "alkanes", "trappe_butane_single_molecule.prmtop")
     dl = eex.datalayer.DataLayer("test_amber_read", backend=request.param)
@@ -17,7 +17,7 @@ def butane_amber_dl(request):
     dl.close()
 
 
-@pytest.fixture(scope="module", params=["HDF5", "Memory"])
+@pytest.fixture(scope="module", params=["Memory"])
 def butane_lammps_dl(request):
     fname = eex_find_files.get_example_filename("lammps", "alkanes", "data.trappe_butane_single_molecule")
     dl = eex.datalayer.DataLayer("test_lammps_read", backend=request.param)
