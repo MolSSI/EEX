@@ -52,3 +52,16 @@ def read_lines(filename, nlines, start=0):
                 break
 
     return ret_data
+
+def find_lowest_hole(data):
+    """
+    Finds the next lowest value in a list
+
+
+    >>> find_lowest([0, 1, 3, 4])
+    2
+    """
+
+    possible_values = set(range(len(data) + 1))
+    new_key = min(possible_values - set(data))
+    return new_key
