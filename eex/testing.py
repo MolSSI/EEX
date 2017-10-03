@@ -100,7 +100,7 @@ def dict_compare(left, right, atol=1.e-9, rtol=1.e-5):
     return True
 
 
-def dl_compare(left, right, atom_checks=["xyz"]):
+def dl_compare(left, right, atom_checks=["charge", "xyz"]):
     """
     Attempts to compare two dataframes
 

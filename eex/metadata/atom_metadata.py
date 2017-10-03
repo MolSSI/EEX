@@ -7,7 +7,7 @@ atom_metadata = {
     "molecule_index": {
         "required_columns": ["molecule_index"],
         "description": "The associated molecular index for a given atom.",
-        "unique": False,
+        "unique": True,
         "dtype": int,
         "units": None,
     },

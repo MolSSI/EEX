@@ -38,6 +38,16 @@ def test_lammps_read_atoms(spce_dl):
     # Check Atoms
     atoms = dl.get_atoms(["atom_type", "charge"])
     assert atoms.shape[0] == 600
+    assert np.allclose(np.unique(atoms["atom_type"]), [0, 1])
+    assert np.allclose(np.unique(atoms["charge"]), [0, 1])
+
+
+def test_lammps_read_atoms_value(spce_dl):
+    data, dl = spce_dl
+
+    # Check Atoms
+    atoms = dl.get_atoms(["atom_type", "charge"], by_value=True)
+    assert atoms.shape[0] == 600
     assert np.allclose(np.unique(atoms["atom_type"]), [1, 2])
     assert np.allclose(np.unique(atoms["charge"]), [-0.8476, 0.4238])
 

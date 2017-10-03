@@ -164,7 +164,8 @@ _operation_table = {
         "dl_func": "add_atoms",
         "df_cols": ["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"],
         "kwargs": {
-            "utype": None
+            "utype": None,
+            "by_value": True,
         },
         "call_type": "single",
     },
