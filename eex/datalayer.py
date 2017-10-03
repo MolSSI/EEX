@@ -6,6 +6,7 @@ import os
 import pandas as pd
 import numpy as np
 import collections
+import copy
 
 import eex
 from . import filelayer
@@ -79,13 +80,13 @@ class DataLayer(object):
         """
         Lists tables loaded into the store.
         """
-        return [x for x in self.store.list_tables() if "other" not in x]
+        return [x for x in self.store.list_tables() if not x.startswith("other_")]
 
     def list_other_tables(self):
         """
         Lists "other" tables loaded into the store.
         """
-        return [x.replace("other_", "") for x in self.store.list_tables() if "other" in x]
+        return [x.replace("other_", "") for x in self.store.list_tables() if x.startswith("other_")]
 
 ### Atom functions
 
@@ -386,6 +387,39 @@ class DataLayer(object):
                 self._terms[order][uid] = params
 
                 return uid
+
+    def get_parameters(self, order, uid, utype=None):
+
+        order = metadata.sanitize_term_order_name(order)
+
+        if (uid not in self._terms[order]):
+            raise KeyError("DataLayer:get_parameters: Did not find term '%d %d" % (order, uid))
+
+        # Stored as [term_name, parameters...]
+        data = self._terms[order][uid]
+
+        term_md = metadata.get_term_metadata(order, "forms", data[0])
+
+        # Zip up the parameters
+        parameters = {k: v for k, v in zip(term_md["parameters"], data[1:])}
+
+        # Were done
+        if utype is None:
+            return (data[0], parameters)
+
+        # Need to convert
+        if isinstance(utype, (list, tuple)):
+            if len(utype) != len(term_md["parameters"]):
+                raise KeyError("DataLayer:get_parameters: length of utype should match the length of parameters.")
+            utype = {k: v for k, v in zip(term_md["parameters"], utype)}
+
+        if not isinstance(utype, dict):
+            raise TypeError("DataLayer:get_parameters: Input utype '%s' is not understood." % str(type(utype)))
+
+        for key in term_md["parameters"]:
+            parameters[key] *= units.conversion_factor(term_md["utype"][key], utype[key])
+
+        return (data[0], parameters)
 
     def add_terms(self, order, df):
 

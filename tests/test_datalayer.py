@@ -58,7 +58,7 @@ def test_df_atoms(backend):
 
 def test_add_parameters():
 
-    dl = eex.datalayer.DataLayer("test_functional_forms")
+    dl = eex.datalayer.DataLayer("test_add_parameters")
     two_body_md = eex.metadata.get_term_metadata(2, "forms", "harmonic")
     three_body_md = eex.metadata.get_term_metadata(3, "forms", "harmonic")
 
@@ -116,7 +116,7 @@ def test_add_parameters():
 
 def test_add_parameters_units():
 
-    dl = eex.datalayer.DataLayer("test_functional_forms")
+    dl = eex.datalayer.DataLayer("test_add_parameters_units")
     two_body_md = eex.metadata.get_term_metadata(2, "forms", "harmonic")
     three_body_md = eex.metadata.get_term_metadata(3, "forms", "harmonic")
 
@@ -149,6 +149,46 @@ def test_add_parameters_units():
     utype_2b = {"K": "0.5 * (kJ / mol) * angstrom ** -2", "R0": "picometers"}
     assert 1 == dl.add_parameters(2, "harmonic", [8.0, 5.0], utype=utype_2b)
 
+def test_get_parameters():
+
+    dl = eex.datalayer.DataLayer("test_get_parameters")
+
+    # Add a few parameters
+    assert 0 == dl.add_parameters(2, "harmonic", {"K": 4.0, "R0": 5.0})
+    assert 1 == dl.add_parameters(2, "harmonic", {"K": 6.0, "R0": 7.0})
+
+    parm1 = dl.get_parameters(2, 0)
+    assert parm1[0] == "harmonic"
+    assert eex.testing.dict_compare(parm1[1], {"K": 4.0, "R0": 5.0})
+    assert eex.testing.dict_compare(parm1[1], {"K": 4.0, "R0": 5.0 + 1.e-12})
+
+    parm2 = dl.get_parameters(2, 1)
+    assert parm2[0] == "harmonic"
+    assert eex.testing.dict_compare(parm2[1], {"K": 6.0, "R0": 7.0})
+
+    with pytest.raises(KeyError):
+        dl.get_parameters(2, 1231234123)
+
+
+def test_get_parameters_units():
+
+    dl = eex.datalayer.DataLayer("test_get_parameters_units")
+
+    utype_2b = {"K": "(kJ / mol) * angstrom ** -2", "R0": "angstrom"}
+    assert 0 == dl.add_parameters(2, "harmonic", {"K": 4.0, "R0": 5.0}, utype=utype_2b)
+    assert 1 == dl.add_parameters(2, "harmonic", {"K": 6.0, "R0": 7.0}, utype=utype_2b)
+
+    utype_2scale = {"K": "2.0 * (kJ / mol) * angstrom ** -2", "R0": "2.0 * angstrom"}
+    parm1 = dl.get_parameters(2, 0, utype=utype_2scale)
+    assert parm1[0] == "harmonic"
+    assert eex.testing.dict_compare(parm1[1], {"K": 2.0, "R0": 2.5})
+
+    parm2 = dl.get_parameters(2, 0, utype=[utype_2scale["K"], utype_2scale["R0"]])
+    assert parm2[0] == "harmonic"
+    assert eex.testing.dict_compare(parm2[1], {"K": 2.0, "R0": 2.5})
+
+    with pytest.raises(TypeError):
+        dl.get_parameters(2, 0, utype=set([5, 6]))
 
 def test_atom_units():
     """
