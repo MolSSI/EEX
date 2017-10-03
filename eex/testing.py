@@ -8,7 +8,14 @@ import numpy as np
 
 def df_compare(left, right, columns=None, atol=1.e-8, rtol=1.e-5, equal_nan=True):
     """
-    Compares to float dataframes
+    Compares two dataframe in an approximate manner.
+
+    Checks:
+    - Columns
+    - Indices
+    - Float columns (through tolerances)
+    - Integer columns
+    - Other columns
     """
 
     if columns is not None:
@@ -56,6 +63,15 @@ def df_compare(left, right, columns=None, atol=1.e-8, rtol=1.e-5, equal_nan=True
 
 
 def dict_compare(left, right, atol=1.e-9, rtol=1.e-5):
+    """
+    A testing function that attempts to compare two different complex dictionaries.
+    This function can currently handle the following data types:
+    - int
+    - str
+    - float
+    - np.ndarray
+    - pd.DataFrame
+    """
 
     if set(left) != set(right):
         raise KeyError("Right and Left dicts do not contain the same keys.")
@@ -69,6 +85,8 @@ def dict_compare(left, right, atol=1.e-9, rtol=1.e-5):
             match = lv == rv
         elif isinstance(lv, (float, np.ndarray)):
             match = np.allclose(lv, rv, atol=atol, rtol=rtol)
+        elif isinstance(lv, (pd.DataFrame)):
+            match = df_compare(lv, rv, atol=atol, rtol=rtol)
         else:
             raise TypeError("dict_compare: Misunderstood compare type '%s'." % str(type(lv)))
 
