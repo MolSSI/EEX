@@ -17,7 +17,7 @@ APC_DICT = metadata.atom_property_to_column
 
 
 class DataLayer(object):
-    def __init__(self, name, store_location=None, save_data=False, backend="HDF5"):
+    def __init__(self, name, store_location=None, save_data=False, backend="Memory"):
         """
         Initializes the DataLayer class
 
