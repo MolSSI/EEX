@@ -166,7 +166,6 @@ class DataLayer(object):
 
         # Make sure our ints are ints and not accidentally floats
         if field_data["dtype"] == int:
-            print(property_name)
             df[field_data["required_columns"]] = df[field_data["required_columns"]].astype(int)
 
         if by_value and not (metadata.atom_metadata[property_name]["unique"]):

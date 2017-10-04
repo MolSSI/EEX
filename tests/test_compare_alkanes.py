@@ -32,10 +32,23 @@ def ethane_bench(request):
     yield dl
     dl.close()
 
+@pytest.fixture(scope="module")
+def propane_bench(request):
+    data, dl = build_dl("lammps", "propane")
+    yield dl
+    dl.close()
+
 @pytest.mark.parametrize("program", ["amber"])
 def test_ethane(ethane_bench, program):
 
     test_dl = build_dl(program, "ethane")[1]
     assert eex.testing.dl_compare(ethane_bench, test_dl)
+
+@pytest.mark.parametrize("program", ["amber"])
+def test_propane(propane_bench, program):
+
+    test_dl = build_dl(program, "propane")[1]
+    assert eex.testing.dl_compare(propane_bench, test_dl)
+
 
 
