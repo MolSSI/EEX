@@ -4,6 +4,7 @@ Evaluates the EEX energy expresions.
 
 import numpy as np
 
+
 def _norm(points):
     """
     Return the Frobenius norm across axis=-1, NumPy's internal norm is crazy slow (~4x)
@@ -11,6 +12,7 @@ def _norm(points):
 
     tmp = np.atleast_2d(points)
     return np.sqrt(np.einsum("ij,ij->i", tmp, tmp))
+
 
 def compute_distance(points1, points2):
     """
@@ -37,6 +39,7 @@ def compute_distance(points1, points2):
     points2 = np.atleast_2d(points2)
 
     return _norm(points1 - points2)
+
 
 def compute_angle(points1, points2, points3, degrees=False):
     """
@@ -80,6 +83,7 @@ def compute_angle(points1, points2, points3, degrees=False):
     else:
         return angle
 
+
 def compute_dihedral(points1, points2, points3, points4, degrees=False):
     """
     Computes the dihedral angle (p1, p2, p3, p4) between the provided points on a per-row basis.
@@ -120,12 +124,12 @@ def compute_dihedral(points1, points2, points3, points4, degrees=False):
     # Build vectors normal to the two planes
     n123 = np.cross(v12, v23)
     n234 = np.cross(v23, v34)
+    n1234 = np.cross(n123, n234)
 
-    # Find angle between two normal planes
-    denom = _norm(n123) * _norm(n234)
-    cosine_angle = -np.einsum("ij,ij->i", n123, n234) / denom
+    left = np.einsum("ij,ij->i", n1234, v23) / _norm(v23)
+    right = np.einsum("ij,ij->i", n123, n234)
 
-    angle = np.pi - np.arccos(cosine_angle)
+    angle = np.arctan2(left, right)
 
     if degrees:
         return np.degrees(angle)
