@@ -105,7 +105,7 @@ _two_body_functional_forms = {
         "description": "This is a harmonic/shift bond"
     },
     "oxdna/fene": {
-        "form": "-epsilon / 2 * log(1 - ( (r - R0) / delta)**2 ) ",
+        "form": "-epsilon / 2 * log(1 - ((r - R0) / delta)**2 ) ",
         "parameters": ["epsilon", "delta", "R0"],
         "units": {
             "epsilon": "[energy]",

@@ -67,7 +67,7 @@ _three_body_functional_forms = {
         "description": "A CHARMM angle term?"
     },
     "cosine/periodic": {
-        "form": "C * (1-B*(-1)**n*cos(n*theta))",
+        "form": "C * (1-B*((-1)**n) * cos(n*theta))",
         "parameters": ["C", "B", "n"],
         "units": {
             "C": "[energy]",

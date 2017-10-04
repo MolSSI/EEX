@@ -38,9 +38,14 @@ def test_evaluate_metadata(order, form):
 
     global_dict = {k: (np.random.rand(4) + 1) for k in list(term_dict[order]["variables"])}
     local_dict = {k: random.random() for k in md["parameters"]}
+    for ival in ["n", "phase"]:
+        if ival in local_dict:
+            local_dict[ival] = int(local_dict[ival])
+
+    if form == "oxdna/fene":
+        local_dict["R0"] = np.mean(global_dict["r"])
 
     # First compare that the input is valid
-    # try:
     expr = eex.energy_eval.evaluate_form(md["form"], local_dict, evaluate=False)
 
     expr_names = set(expr.input_names)
@@ -51,4 +56,4 @@ def test_evaluate_metadata(order, form):
                                                                                               str(missing_names)))
 
     # Looks like we have a few singularities, wait on that
-    # assert np.all(np.isfinite(eex.energy_eval.evaluate_form(md["form"], local_dict, global_dict)))
+    assert np.all(np.isfinite(eex.energy_eval.evaluate_form(md["form"], local_dict, global_dict)))
