@@ -13,6 +13,7 @@ from . import filelayer
 from . import metadata
 from . import units
 from . import utility
+from . import energy_eval
 
 APC_DICT = metadata.atom_property_to_column
 
@@ -600,3 +601,6 @@ class DataLayer(object):
             tmp_data.append(self.store.read_table(k))
 
         return pd.concat(tmp_data, axis=1)
+
+    def evaluate(self):
+        return energy_eval.evaluate_energy_expression(self)

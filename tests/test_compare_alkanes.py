@@ -39,6 +39,10 @@ def test_alkane(lammps_bench, program):
     bench_dl, molecule = lammps_bench
 
     test_dl = build_dl(program, molecule)[1]
+
+    # print(molecule, test_dl.evaluate())
+    # print(molecule, bench_dl.evaluate())
+    # assert False
     assert eex.testing.dl_compare(bench_dl, test_dl)
 
 

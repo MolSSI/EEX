@@ -161,6 +161,8 @@ def dl_compare(left, right, atom_checks=["charge", "xyz"]):
 
     left_atom = left.get_atoms(atom_checks, by_value=True)
     right_atom = right.get_atoms(atom_checks, by_value=True)
+    print(left_atom)
+    print(right_atom)
 
     if left_atom.shape != right_atom.shape:
         raise IndexError("dl_compare: The number of atoms in the left and right DL's does not match.")

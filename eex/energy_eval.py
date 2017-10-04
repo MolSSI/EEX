@@ -4,6 +4,7 @@ Evaluates the EEX energy expresions.
 
 import numpy as np
 import numexpr as ne
+from . import metadata
 
 
 def _norm(points):
@@ -156,3 +157,28 @@ def evaluate_form(form, parameters, global_dict=None, out=None, evaluate=True):
         return ne.evaluate(form, local_dict=parameters, global_dict=global_dict, out=out)
     else:
         return ne.NumExpr(form)
+
+
+def evaluate_energy_expression(dl):
+
+    energy = {2: 0.0, 3: 0.0, 4: 0.0}
+
+    # Two-body
+    xyz = dl.get_atoms("xyz")
+    bonds = dl.get_bonds()
+    print(xyz)
+    print(bonds)
+
+    # Loop over unique parameters/terms
+
+    for idx, df in bonds.groupby("term_index"):
+        two_body_dict = {}
+        two_body_dict["r"] = compute_distance(xyz.loc[df["atom1"]].values, xyz.loc[df["atom2"]].values)
+
+        form_type, parameters = dl.get_parameters(2, idx)
+
+        form = metadata.get_term_metadata(2, "forms", form_type)["form"]
+
+        energy[2] += evaluate_form(form, parameters, two_body_dict)
+
+    print(energy)
