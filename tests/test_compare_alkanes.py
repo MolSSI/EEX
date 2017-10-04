@@ -25,30 +25,20 @@ def build_dl(program, molecule):
     else:
         raise KeyError("Program %s not understood" % program)
 
-
-@pytest.fixture(scope="module")
-def ethane_bench(request):
-    data, dl = build_dl("lammps", "ethane")
-    yield dl
+# Loop over alkane molecules
+@pytest.fixture(scope="module", params=_alkane_molecules[:2])
+def lammps_bench(request):
+    molecule = request.param
+    data, dl = build_dl("lammps", molecule)
+    yield (dl, molecule)
     dl.close()
 
-@pytest.fixture(scope="module")
-def propane_bench(request):
-    data, dl = build_dl("lammps", "propane")
-    yield dl
-    dl.close()
-
+# Loop over programs
 @pytest.mark.parametrize("program", ["amber"])
-def test_ethane(ethane_bench, program):
+def test_alkane(lammps_bench, program):
+    bench_dl, molecule = lammps_bench
 
-    test_dl = build_dl(program, "ethane")[1]
-    assert eex.testing.dl_compare(ethane_bench, test_dl)
-
-@pytest.mark.parametrize("program", ["amber"])
-def test_propane(propane_bench, program):
-
-    test_dl = build_dl(program, "propane")[1]
-    assert eex.testing.dl_compare(propane_bench, test_dl)
-
+    test_dl = build_dl(program, molecule)[1]
+    assert eex.testing.dl_compare(bench_dl, test_dl)
 
 
