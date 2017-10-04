@@ -164,6 +164,11 @@ class DataLayer(object):
             scale_factor = units.conversion_factor(utype, field_data["utype"])
             df = df[field_data["required_columns"]] * scale_factor
 
+        # Make sure our ints are ints and not accidentally floats
+        if field_data["dtype"] == int:
+            print(property_name)
+            df[field_data["required_columns"]] = df[field_data["required_columns"]].astype(int)
+
         if by_value and not (metadata.atom_metadata[property_name]["unique"]):
             tmp_df = self._find_unqiue_atom_values(df, property_name)
         else:
