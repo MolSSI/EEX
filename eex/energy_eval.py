@@ -48,7 +48,7 @@ def compute_angle(points1, points2, points3, degrees=False):
         The first list of points, can be 1D or 2D
     points2 : np.ndarray
         The second list of points, can be 1D or 2D
-    points2 : np.ndarray
+    points3 : np.ndarray
         The third list of points, can be 1D or 2D
     degrees : bool, options
         Returns the angle in degress rather than radians if True
@@ -80,4 +80,54 @@ def compute_angle(points1, points2, points3, degrees=False):
     else:
         return angle
 
+def compute_dihedral(points1, points2, points3, points4, degrees=False):
+    """
+    Computes the dihedral angle (p1, p2, p3, p4) between the provided points on a per-row basis.
 
+    Parameters
+    ----------
+    points1 : np.ndarray
+        The first list of points, can be 1D or 2D
+    points2 : np.ndarray
+        The second list of points, can be 1D or 2D
+    points3 : np.ndarray
+        The third list of points, can be 1D or 2D
+    points4 : np.ndarray
+        The third list of points, can be 1D or 2D
+    degrees : bool, options
+        Returns the dihedral angle in degress rather than radians if True
+
+    Returns
+    -------
+    dihedrals : np.ndarray
+        The dihedral angle between the three points in radians
+
+    Notes
+    -----
+    Units are not considered inside these expressions, please preconvert to the same units before using.
+    """
+
+    points1 = np.atleast_2d(points1)
+    points2 = np.atleast_2d(points2)
+    points3 = np.atleast_2d(points3)
+    points4 = np.atleast_2d(points4)
+
+    # Build the three vectors
+    v12 = points1 - points2
+    v23 = points2 - points3
+    v34 = points3 - points4
+
+    # Build vectors normal to the two planes
+    n123 = np.cross(v12, v23)
+    n234 = np.cross(v23, v34)
+
+    # Find angle between two normal planes
+    denom = _norm(n123) * _norm(n234)
+    cosine_angle = -np.einsum("ij,ij->i", n123, n234) / denom
+
+    angle = np.pi - np.arccos(cosine_angle)
+
+    if degrees:
+        return np.degrees(angle)
+    else:
+        return angle
