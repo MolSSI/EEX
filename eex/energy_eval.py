@@ -135,3 +135,19 @@ def compute_dihedral(points1, points2, points3, points4, degrees=False):
         return np.degrees(angle)
     else:
         return angle
+
+def evaluate_form(form, parameters, global_dict=None, out=None):
+    """
+    Evaluates a functional form from a string.
+
+    """
+
+    # Optionally wrap numexpr in a ifdef
+    try:
+        import numexpr as ne
+    except ImportError:
+        raise ImportError("evaluate_form: numexpr not found, please install numexpr and try again.")
+
+
+    return ne.evaluate(form, local_dict=parameters, global_dict=global_dict, out=out)
+

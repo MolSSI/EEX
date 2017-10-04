@@ -86,3 +86,28 @@ def test_dihedral():
     _test_dihedral(p1, p2, p3, [3, 2, 0], 0)
     _test_dihedral(p1, p2, p3, [3, 2 + 1.e14, 0], 180)
     _test_dihedral(p1, p2, p3, [3, 2 - 1.e14, 0], 0)
+
+
+def test_evaluate():
+    def _test_evaluate(value, expr, local, info=None):
+        tmp = eex.energy_eval.evaluate_form(expr, local, global_dict=info)
+        print(value, tmp)
+        assert np.allclose(value, tmp)
+
+    local_dict = {"a": np.arange(5), "b": np.arange(5) * 2 + 1}
+    global_dict = {"a": np.arange(4), "b": np.arange(4) * 2 + 1}
+
+    _test_evaluate(local_dict["a"] + 5, "a + 5", local_dict)
+    _test_evaluate(local_dict["a"] + 5, "a + 5", local_dict, global_dict)
+    _test_evaluate(global_dict["a"] + 5, "a + 5", {}, global_dict)
+
+    # Logarithms and exponentials
+    _test_evaluate(local_dict["b"], "log(exp(b))", local_dict)
+    _test_evaluate(np.log(local_dict["b"]), "log(b)", local_dict)
+    _test_evaluate(local_dict["b"], "log10(10**b)", local_dict)
+    _test_evaluate(np.log10(local_dict["b"]), "log10(b)", local_dict)
+
+    # Sums
+    _test_evaluate(np.sum(local_dict["a"] ** 2), "sum(a ** 2)", local_dict)
+
+
