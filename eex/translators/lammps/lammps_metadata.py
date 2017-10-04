@@ -192,14 +192,6 @@ _operation_table = {
         "dl_func": "NYI",
         "call_type": "single",
     },
-    # "Masses": {
-    #     "size": "atom types",
-    #     "dl_func": "add_atoms",
-    #     "df_cols": ["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"],
-    #     "kwargs": {
-    #         "utypes": None
-    #     }
-    # }
     "Masses": {
         "size": "atom types",
         "dl_func": "NYI",

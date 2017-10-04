@@ -3,6 +3,7 @@ Evaluates the EEX energy expresions.
 """
 
 import numpy as np
+import numexpr as ne
 
 
 def _norm(points):
@@ -104,7 +105,7 @@ def compute_dihedral(points1, points2, points3, points4, degrees=False):
     Returns
     -------
     dihedrals : np.ndarray
-        The dihedral angle between the three points in radians
+        The dihedral angle between the four points in radians
 
     Notes
     -----
@@ -136,18 +137,22 @@ def compute_dihedral(points1, points2, points3, points4, degrees=False):
     else:
         return angle
 
-def evaluate_form(form, parameters, global_dict=None, out=None):
+
+def evaluate_form(form, parameters, global_dict=None, out=None, evaluate=True):
     """
     Evaluates a functional form from a string.
 
     """
 
-    # Optionally wrap numexpr in a ifdef
-    try:
-        import numexpr as ne
-    except ImportError:
-        raise ImportError("evaluate_form: numexpr not found, please install numexpr and try again.")
+    known_vals = {"PI": np.pi}
 
+    if global_dict is None:
+        global_dict = known_vals
+    else:
+        global_dict = global_dict.copy()
+        global_dict.update(known_vals)
 
-    return ne.evaluate(form, local_dict=parameters, global_dict=global_dict, out=out)
-
+    if evaluate:
+        return ne.evaluate(form, local_dict=parameters, global_dict=global_dict, out=out)
+    else:
+        return ne.NumExpr(form)

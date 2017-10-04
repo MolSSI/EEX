@@ -91,7 +91,6 @@ def test_dihedral():
 def test_evaluate():
     def _test_evaluate(value, expr, local, info=None):
         tmp = eex.energy_eval.evaluate_form(expr, local, global_dict=info)
-        print(value, tmp)
         assert np.allclose(value, tmp)
 
     local_dict = {"a": np.arange(5), "b": np.arange(5) * 2 + 1}
