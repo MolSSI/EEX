@@ -161,7 +161,7 @@ def evaluate_form(form, parameters, global_dict=None, out=None, evaluate=True):
 
 def evaluate_energy_expression(dl):
 
-    energy = {2: 0.0, 3: 0.0, 4: 0.0}
+    energy = {"two-body": 0.0, "three-body": 0.0, "four-body": 0.0, "total": 0.0}
 
     # Two-body
     xyz = dl.get_atoms("xyz")
@@ -172,6 +172,8 @@ def evaluate_energy_expression(dl):
     # Loop over unique parameters/terms
 
     for idx, df in bonds.groupby("term_index"):
+        if df.shape[0] == 0: continue
+
         two_body_dict = {}
         two_body_dict["r"] = compute_distance(xyz.loc[df["atom1"]].values, xyz.loc[df["atom2"]].values)
 
@@ -179,6 +181,24 @@ def evaluate_energy_expression(dl):
 
         form = metadata.get_term_metadata(2, "forms", form_type)["form"]
 
-        energy[2] += evaluate_form(form, parameters, two_body_dict)
+        energy["two-body"] += np.sum(evaluate_form(form, parameters, two_body_dict))
 
-    print(energy)
+    angles = dl.get_angles()
+    for idx, df in angles.groupby("term_index"):
+        print(df)
+        if df.shape[0] == 0: continue
+
+        three_body_dict = {}
+        three_body_dict["theta"] = compute_angle(xyz.loc[df["atom1"]].values, xyz.loc[df["atom2"]].values, xyz.loc[df["atom3"]].values)
+
+        form_type, parameters = dl.get_parameters(3, idx)
+        print(form_type, parameters)
+
+        form = metadata.get_term_metadata(3, "forms", form_type)["form"]
+
+        energy["three-body"] += np.sum(evaluate_form(form, parameters, three_body_dict))
+
+    for k, v in energy.items():
+        energy["total"] += v
+
+    return energy

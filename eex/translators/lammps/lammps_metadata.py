@@ -211,13 +211,19 @@ _operation_table = {
         "size": "bond types",
         "dl_func": "add_parameters",
         "call_type": "parameter",
-        "args": {"order": 2, "form_name": "harmonic"},
+        "args": {
+            "order": 2,
+            "form_name": "harmonic"
+        },
     },
     "Angle Coeffs": {
         "size": "angle types",
         "dl_func": "add_parameters",
         "call_type": "parameter",
-        "args": {"order": 3, "form_name": "harmonic"},
+        "args": {
+            "order": 3,
+            "form_name": "harmonic"
+        },
     },
     "Dihedral Coeffs": {
         "size": "dihedral types",
@@ -273,6 +279,7 @@ def build_operation_table(unit_type, size_dict):
 
     return ret
 
+
 def build_term_table(utype):
 
     ustyle = units_style[utype]
@@ -288,6 +295,7 @@ def build_term_table(utype):
                 utype[pk] = eex.units.convert_contexts(pv, ustyle)
             v["utype"] = utype
     return ret
+
 
 if __name__ == "__main__":
     from eex.units import ureg

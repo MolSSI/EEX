@@ -119,8 +119,8 @@ forcefield_parameters = {
             "theta0": "radian"
         },
         "column_names": {
-            "BOND_FORCE_CONSTANT": "K",
-            "BOND_EQUIL_VALUE": "theta0"
+            "ANGLE_FORCE_CONSTANT": "K",
+            "ANGLE_EQUIL_VALUE": "theta0"
         }
     }
     # "dihedral": ["DIHEDRAL_FORCE_CONSTANT", "DIHEDRAL_PERIODICITY", "DIHEDRAL_PHASE"],
