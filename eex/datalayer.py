@@ -540,7 +540,11 @@ class DataLayer(object):
         if order not in list(self._terms):
             raise KeyError("DataLayer:add_terms: Did not understand order key '%s'." % str(order))
 
-        return self.store.read_table("term" + str(order))
+        try:
+            return self.store.read_table("term" + str(order))
+        except KeyError:
+            cols = metadata.get_term_metadata(order, "index_columns") + ["term_index"]
+            return pd.DataFrame(columns=cols)
 
     def add_bonds(self, bonds):
         """
