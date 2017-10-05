@@ -72,6 +72,7 @@ def _data_flatten(data, column_name, category_index, df_index_name):
     # Build and curate the data
     df = pd.DataFrame({df_index_name: index, dl_col_name: flat_data})
     df.dropna(axis=0, how="any", inplace=True)
+    df.set_index(df_index_name, inplace=True)
     return df
 
 
@@ -187,7 +188,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         # Read in the data, in chunks
         remaining_read = nrows
         num_blocks = int(math.ceil(nrows / float(blocksize)))
-        category_index = 0
+        category_index = 1
         for block in range(num_blocks):
 
             # Figure out the size of the read
@@ -324,12 +325,13 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     last_size = sizes_dict["NATOM"] - res_df["RESIDUE_POINTER"].iloc[-1] + 1
     sizes = np.concatenate((sizes, [last_size])).astype(np.int)
 
-    res_df["residue_index"] = np.arange(0, res_df.shape[0])
+    res_df["residue_index"] = np.arange(res_df.shape[0])
     res_df = pd.DataFrame({
         "residue_index": np.repeat(res_df["residue_index"].values, sizes, axis=0),
         "residue_name": np.repeat(res_df["RESIDUE_LABEL"].values.astype('str'), sizes, axis=0)
     })
 
+    res_df.index = np.arange(1, res_df.shape[0] + 1)
     res_df.index.name = "atom_index"
     dl.add_atoms(res_df, by_value=True)
 
@@ -368,7 +370,8 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
         df = pd.DataFrame(data.values.reshape(-1, 3), columns=["X", "Y", "Z"])
         df.dropna(axis=0, how="any", inplace=True)
-        # df.index = np.arange(1, df.shape[0] + 1)
+        df.index = np.arange(1, df.shape[0] + 1)
+
         df.index.name = "atom_index"
         dl.add_atoms(df, utype={"XYZ": "angstrom"})
 
