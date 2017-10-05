@@ -7,6 +7,7 @@ import pandas as pd
 import math
 import re
 import numpy as np
+from collections import OrderedDict
 
 # Python 2/3 compat
 try:
@@ -385,27 +386,28 @@ def write_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     inpcrd : str, optional
         If None, attempts to read the file filename.replace("prmtop", "inpcrd") otherwise passes. #NYI
     """
+
     ### First get information into Amber pointers. I hope there is a better way to do this, but I can't think of one since
-    ### each key is specific
-    sizes = {}
+    ### each key is specific. Some keys are filled with 0 below. Ones that should be implemented eventually are marked with TODO
+    sizes = OrderedDict()
     sizes['NATOM'] = dl.get_atoms("atom_type").shape[0]             # Number of atoms
     sizes["NTYPES"] = len((np.unique(dl.get_atoms("atom_type"))))   # Number of distinct LJ atom types
-    sizes["NBONH"] = 0                                              # Number of bonds containing hydrogen NYI
-    sizes["MBONA"] = dl.get_bonds().shape[0]                        # Number of bonds not containing hydrogem
-    sizes["NTHETH"] = 0                                             # Number of angles containing hydrogen
-    sizes["MTHETA"] = 0 # dl.get_angles().shape[0] when implemented # Number of angles not containing hydrogen
-    sizes["NPHIH"]= 0                                               # Number of torsions containing hydrogen
-    sizes["MPHIA"] = 0                                              # Number of torsions not containing hydrogen
+    sizes["NBONH"] = 0                                              # TODO Number of bonds containing hydrogen NYI
+    sizes["MBONA"] = dl.get_bonds().shape[0]                        # TODO Number of bonds not containing hydrogen
+    sizes["NTHETH"] = 0                                             # TODO Number of angles containing hydrogen
+    sizes["MTHETA"] = 0 # dl.get_angles().shape[0] when implemented # TODO Number of angles not containing hydrogen
+    sizes["NPHIH"]= 0                                               # TODO Number of torsions containing hydrogen
+    sizes["MPHIA"] = 0                                              # TODO Number of torsions not containing hydrogen
     sizes["NHPARM"] =  0                                            # Not used
     sizes["NPARM"] = 0                                              # Used to determine if this is a LES-compatible prmtop
-    sizes["NNB"] = 0                                                # Number of excluded atoms
+    sizes["NNB"] = 0                                                # TODO Number of excluded atoms
     sizes["NRES"] = len(np.unique(dl.get_atoms("residue_index")))   # Number of residues
     sizes["NBONA"] = sizes["MBONA"]                                 # MBONA + number of constraint bonds (no longer supported)
     sizes["NTHETA"] = sizes["MTHETA"]                               # MTHETA  + number of constraint angles (no longer supported)
     sizes["NPHIA"] = sizes["MPHIA"]                                 # MPHIA + number of constraint torsions (no longer supported)
     sizes["NUMBND"] = len(np.unique(dl.get_bonds()["term_index"]))  # Number of unique bond types
-    sizes["NUMANG"] = 0                                             # Number of unique atom types
-    sizes["NPTRA"] = 0                                              # Number of unique torsion types
+    sizes["NUMANG"] = 0                                             # TODO Number of unique angle types
+    sizes["NPTRA"] = 0                                              # TODO Number of unique torsion types
     sizes["NATYP"] = 0                                              # Number of SOLTY terms - unused
     sizes["NPHB"] = 0                                               # Number of distinct 10-12 hbond pair types (no longer supported)
     sizes["IFPERT"] = 0                                             # Set to 1 if top contains res perturbation info (no longer supported)
@@ -414,36 +416,27 @@ def write_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     sizes["NDPER"] = 0                                              # Number of perturbed torsions (no longer supported)
     sizes["MGPER"] = 0
     sizes["MDPER"] = 0
-    sizes["IFBOX"] = 0                                              #
-    sizes["NMXRS"] = 0
-    sizes["IFCAP"] = 0
-    sizes["NUMEXTRA"] = 0
-    
-    print(sizes)
-
-    ### First fill in amber metadata which gives section for each size.
-    label_sizes = {}
-    for k, v in amd.data_labels.items():
-        if v[0] == "NATOM":
-            # Will probably be better to have a function built into dl which gives num atoms
-            label_sizes[k] = dl.get_atoms("mass").shape[0]
-        elif v[0] == "NUMBND":
-            label_sizes[k] = dl.get_bonds().shape[0]
-        else:
-            pass
-
-    label_size_df = pd.DataFrame(data = label_sizes, index=[0])
-    #print(label_size_df)
+    sizes["IFBOX"] = 0                                              # TODO Flag indicating whether a periodic box is present
+                                                                    # 0 - no box, 1 - orthorhombic box, 2 - truncated octahedron
+    sizes["NMXRS"] = 0                                              # TODO Number of atoms in the largest residue
+    sizes["IFCAP"] = 0                                              # Set to 1 if a solvent CAP is being used
+    sizes["NUMEXTRA"] = 0                                           # Number of extra points in the topology file
 
     ### Write title and version information
-
     f = open(filename, "w")
     f.write('%%VERSION  VERSION_STAMP = V0001.000  DATE = %s  %s\n' %(time.strftime("%x"), time.strftime("%H:%M:%S")))
     f.write("%FLAG TITLE\n%FORMAT(20a4)\n")
     f.write("prmtop generated by EEX\n")
 
     # Write pointers section
-    f.write("%FLAG POINTERS\n%FORMAT(10I8)\n")
+    f.write("%%FLAG POINTERS\n%s\n" %(amd.data_labels["POINTERS"][1]))
+    ncols, dtype, width = _parse_format(amd.data_labels["POINTERS"][1])
+    pointer_list = list(sizes.values())
+    print(pointer_list)
+
+
+    ### First fill in amber metadata which gives section for each size.
+
     f.close()
 
     return 0

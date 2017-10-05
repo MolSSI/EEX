@@ -6,6 +6,7 @@ size_keys = [
 ]
 
 data_labels = {
+    "POINTERS" : [31, "%FORMAT(10I8)"],
     "ATOM_NAME": ["NATOM", "%FORMAT(20a4)"],
     "CHARGE": ["NATOM", "%FORMAT(5E16.8)"],
     "ATOMIC_NUMBER": ["NATOM", "%FORMAT" ],
