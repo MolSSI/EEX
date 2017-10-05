@@ -45,8 +45,7 @@ class DataLayer(object):
 
         self.store = filelayer.build_store(backend, self.name, self.store_location, save_data)
 
-        # Setup empty parameters dictionary
-        self._functional_forms = {2: {}, 3: {}, 4: {}}
+        # Setup empty data holders
         self._terms = {2: {}, 3: {}, 4: {}}
         self._atom_metadata = {}
         self._atom_sets = set()
@@ -63,8 +62,8 @@ class DataLayer(object):
 
         try:
             function = getattr(self, args[0])
-        except:
-            raise KeyError("DataLayer:call_by_string: does not have method %s." % args[0])
+        except AttributeError:
+            raise AttributeError("DataLayer:call_by_string: does not have method %s." % args[0])
 
         return function(*args[1:], **kwargs)
 
@@ -89,12 +88,13 @@ class DataLayer(object):
 ### Atom functions
 
     def _check_atoms_dict(self, property_name):
+        """
+        Builds the correct data struct in the atom metadata
+        """
         if property_name in list(self._atom_metadata):
             return False
 
-        field_data = metadata.atom_metadata[property_name]
         self._atom_metadata[property_name] = {"uvals": {}, "inv_uvals": {}}
-
         return True
 
     def _find_unqiue_atom_values(self, df, property_name):
@@ -164,6 +164,7 @@ class DataLayer(object):
         if field_data["dtype"] == int:
             df[field_data["required_columns"]] = df[field_data["required_columns"]].astype(int)
 
+        # Handle the unique or filter data
         if by_value and not (metadata.atom_metadata[property_name]["unique"]):
             tmp_df = self._find_unqiue_atom_values(df, property_name)
         else:
@@ -174,6 +175,8 @@ class DataLayer(object):
     def _get_atom_table(self, table_name, property_name, by_value, utype):
 
         tmp = self.store.read_table(table_name)
+
+        # Expand the data from unique
         if by_value and not (metadata.atom_metadata[property_name]["unique"]):
             tmp = self._build_atom_values(tmp, property_name)
 
@@ -186,6 +189,29 @@ class DataLayer(object):
         return tmp
 
     def add_atom_parameters(self, property_name, value, uid=None, utype=None):
+        """
+        Adds atom paramters to the Datalayer object
+
+        Parameters
+        ----------
+        property_name : str
+            The name of the atom property to be added
+        value : float
+            The value of the property to be added
+        uid : int, optional
+            The uid to assign to this parameterized term.
+        utype : list of Pint units, options
+            Custom units for this particular addition, otherwise uses the default units in the registered functional form.
+
+        Examples
+        --------
+
+        assert 0 == dl.add_atom_parameters("charge", -0.8)
+        assert 0 == dl.add_atom_parameters("charge", -0.8, uid=0)
+
+        assert 5 == dl.add_atom_parameters("charge", -1.2, uid=5)
+        assert 6 == dl.add_atom_parameters("charge", -2.e-19, uid=6, utype="coulomb")
+        """
 
         property_name = property_name.lower()
         self._check_atoms_dict(property_name)
@@ -231,8 +257,7 @@ class DataLayer(object):
 
     def list_atom_properties(self):
         """
-        Lists all the valid atom properties that have been added.
-
+        Lists all atom properties contained in the DataLayer.
         """
         return list(self._atom_sets)
 
@@ -495,7 +520,7 @@ class DataLayer(object):
     def add_terms(self, order, df):
 
         order = metadata.sanitize_term_order_name(order)
-        if order not in list(self._functional_forms):
+        if order not in list(self._terms):
             raise KeyError("DataLayer:add_terms: Did not understand order key '%s'." % str(order))
 
         req_cols = metadata.get_term_metadata(order, "index_columns")
@@ -512,10 +537,14 @@ class DataLayer(object):
 
     def get_terms(self, order):
         order = metadata.sanitize_term_order_name(order)
-        if order not in list(self._functional_forms):
+        if order not in list(self._terms):
             raise KeyError("DataLayer:add_terms: Did not understand order key '%s'." % str(order))
 
-        return self.store.read_table("term" + str(order))
+        try:
+            return self.store.read_table("term" + str(order))
+        except KeyError:
+            cols = metadata.get_term_metadata(order, "index_columns") + ["term_index"]
+            return pd.DataFrame(columns=cols)
 
     def add_bonds(self, bonds):
         """

@@ -2,7 +2,6 @@
 Dictionaries for coeff format and units - http://lammps.sandia.gov/doc/Section_commands.html
 """
 
-
 bond_styles = {
     # "none": {
     #     "form": "NYI",
@@ -12,7 +11,7 @@ bond_styles = {
     # },
     "fene": {
         "form": "-0.5*K*R0 ** 2*ln(1-(r/R0) ** 2) + 4*epsilon((sigma/r) ** 12 - (sigma/r) ** 6)) + epsilon",
-        "parameters": ["K","R0","epsilon","sigma"],
+        "parameters": ["K", "R0", "epsilon", "sigma"],
         "units": {
             "K": "[energy] * [length] ** -2",
             "R0": "[length]",
@@ -23,7 +22,7 @@ bond_styles = {
     },
     "nonlinear": {
         "form": "(epsilon*(r-r0) ** 2) / (lambda ** 2-(r-r0) ** 2)",
-        "parameters": ["epsilon","r0","lambda"],
+        "parameters": ["epsilon", "r0", "lambda"],
         "units": {
             "epsilon": "[energy]",
             "r0": "[length]",
@@ -38,7 +37,8 @@ bond_styles = {
     #     "description": "NYI"
     # },
     "fene/expand": {
-        "form": "-0.5*K*R0 ** 2*ln(1-((r-delta)/R0) ** 2 + 4*epsilon((sigma/(r-delta)) ** 12 - (sigma/(r-delta)) ** 6)) + epsilon",
+        "form":
+        "-0.5*K*R0 ** 2*ln(1-((r-delta)/R0) ** 2 + 4*epsilon((sigma/(r-delta)) ** 12 - (sigma/(r-delta)) ** 6)) + epsilon",
         "parameters": ["K", "R0", "epsilon", "sigma", "delta"],
         "units": {
             "K": "[energy] * [length] ** -2",
@@ -47,7 +47,8 @@ bond_styles = {
             "sigma": "[length]",
             "delta": "[length]"
         },
-        "description": "This is fene/expand bond"
+        "description":
+        "This is fene/expand bond"
     },
     "quartic": {
         "form": "K(r-Rc) ** 2 * (r-Rc-B1)*(r-Rc-B2) + U0 + 4*epsilon*((sigma/r) ** 12 - (sigma/r) ** 6) + epsilon",
@@ -84,7 +85,7 @@ bond_styles = {
     # },
     "class2": {
         "form": "K2 * (r-R0) ** 2 + K3 * (r-R0) ** 3 + K4 * (r-R0) ** 4",
-        "parameters": ["R0","K2","K3","K4"],
+        "parameters": ["R0", "K2", "K3", "K4"],
         "units": {
             "R0": "[length]",
             "K2": "[energy] * [length] ** -2",
@@ -95,18 +96,17 @@ bond_styles = {
     },
     "morse": {
         "form": "D * (1 - e ** (-alpha * (r-r0))) ** 2",
-        "parameters": ["D","alpha","r0"],
+        "parameters": ["D", "alpha", "r0"],
         "units": {
             "D": "[energy]",
             "alpha": "[length] ** -1",
             "r0": "[length]"
         },
         "description": "This is a class2 bond"
-
     },
     "oxdna/fene": {
         "form": "-epsilon / 2 * ln (1 - ( (r - r0) / delta)**2 ) ",
-        "parameters": ["epsilon","delta","r0"],
+        "parameters": ["epsilon", "delta", "r0"],
         "units": {
             "epsilon": "[energy]",
             "delta": "[length]",
@@ -114,7 +114,6 @@ bond_styles = {
         },
         "description": "This is a oxdna/fene bond"
     },
-
     "harmonic/shift": {
         "form": "U_min/(R0 - R_c)**2 * ((r - R0) ** 2 - (r_c - R0) ** 2)",
         "parameters": ["U_min", "R0", "R_c"],
@@ -125,8 +124,6 @@ bond_styles = {
         },
         "description": "This is a harmonic/shift bond"
     },
-
-
 }
 
 angle_styles = {
