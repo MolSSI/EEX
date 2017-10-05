@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 import eex_find_files
 
-_alkane_molecules = ["ethane", "propane", "butane", "propane"]
+_alkane_molecules = ["ethane", "propane", "butane"]
 
 def build_dl(program, molecule):
     if program.lower() == "amber":
@@ -30,19 +30,18 @@ def build_dl(program, molecule):
 def lammps_bench(request):
     molecule = request.param
     data, dl = build_dl("lammps", molecule)
-    yield (dl, molecule)
+    energy = dl.evaluate()
+    yield (molecule, dl, energy)
     dl.close()
 
 # Loop over programs
 @pytest.mark.parametrize("program", ["amber"])
 def test_alkane(lammps_bench, program):
-    bench_dl, molecule = lammps_bench
+    molecule, bench_dl, bench_energy = lammps_bench
 
     test_dl = build_dl(program, molecule)[1]
 
-    # print(molecule, test_dl.evaluate())
-    # print(molecule, bench_dl.evaluate())
-    # assert False
     assert eex.testing.dl_compare(bench_dl, test_dl)
+    assert eex.testing.dict_compare(bench_energy, test_dl.evaluate())
 
 
