@@ -159,44 +159,49 @@ def evaluate_form(form, parameters, global_dict=None, out=None, evaluate=True):
         return ne.NumExpr(form)
 
 
+def _compute_temporaries(order, xyz, indices):
+    if order == 2:
+        two_body_dict = {}
+        two_body_dict["r"] = compute_distance(xyz.loc[indices["atom1"]].values, xyz.loc[indices["atom2"]].values)
+        return two_body_dict
+    elif order == 3:
+        three_body_dict = {}
+        three_body_dict["theta"] = compute_angle(xyz.loc[indices["atom1"]].values, xyz.loc[indices["atom2"]].values,
+                                                 xyz.loc[indices["atom3"]].values)
+        return three_body_dict
+    else:
+        raise KeyError("_compute_temporaries: order %d not understood" % order)
+
+
 def evaluate_energy_expression(dl):
 
     energy = {"two-body": 0.0, "three-body": 0.0, "four-body": 0.0, "total": 0.0}
+    loop_data = {
+        "two-body": {
+            "order": 2,
+            "get_data": "get_bonds"
+        },
+        "three-body": {
+            "order": 3,
+            "get_data": "get_angles"
+        }
+    }
 
     # Two-body
     xyz = dl.get_atoms("xyz")
     bonds = dl.get_bonds()
-    print(xyz)
-    print(bonds)
 
-    # Loop over unique parameters/terms
+    for order_key, inst in loop_data.items():
+        indices = dl.call_by_string(inst["get_data"])
+        order = inst["order"]
+        for idx, df in indices.groupby("term_index"):
+            if df.shape[0] == 0: continue
 
-    for idx, df in bonds.groupby("term_index"):
-        if df.shape[0] == 0: continue
+            variables = _compute_temporaries(order, xyz, df)
+            form_type, parameters = dl.get_parameters(order, idx)
+            form = metadata.get_term_metadata(order, "forms", form_type)["form"]
 
-        two_body_dict = {}
-        two_body_dict["r"] = compute_distance(xyz.loc[df["atom1"]].values, xyz.loc[df["atom2"]].values)
-
-        form_type, parameters = dl.get_parameters(2, idx)
-
-        form = metadata.get_term_metadata(2, "forms", form_type)["form"]
-
-        energy["two-body"] += np.sum(evaluate_form(form, parameters, two_body_dict))
-
-    angles = dl.get_angles()
-    for idx, df in angles.groupby("term_index"):
-        print(df)
-        if df.shape[0] == 0: continue
-
-        three_body_dict = {}
-        three_body_dict["theta"] = compute_angle(xyz.loc[df["atom1"]].values, xyz.loc[df["atom2"]].values, xyz.loc[df["atom3"]].values)
-
-        form_type, parameters = dl.get_parameters(3, idx)
-        print(form_type, parameters)
-
-        form = metadata.get_term_metadata(3, "forms", form_type)["form"]
-
-        energy["three-body"] += np.sum(evaluate_form(form, parameters, three_body_dict))
+            energy[order_key] += np.sum(evaluate_form(form, parameters, variables))
 
     for k, v in energy.items():
         energy["total"] += v
