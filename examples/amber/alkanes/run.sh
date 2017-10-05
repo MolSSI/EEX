@@ -39,3 +39,5 @@ do
     awk '/NSTEP/, /minimization/' single_point_$i.out >> energies.txt
     echo "" >> energies.txt
 done
+
+rm *.nc
