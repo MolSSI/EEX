@@ -43,12 +43,7 @@ class DataLayer(object):
         if self.store_location is None:
             self.store_location = os.getcwd()
 
-        if backend.upper() == "HDF5":
-            self.store = filelayer.HDFStore(self.name, self.store_location, save_data)
-        elif backend.upper() == "MEMORY":
-            self.store = filelayer.MemoryStore(self.name, self.store_location, save_data)
-        else:
-            raise KeyError("DataLayer: Backend of type '%s' not recognized." % backend)
+        self.store = filelayer.build_store(backend, self.name, self.store_location, save_data)
 
         # Setup empty parameters dictionary
         self._functional_forms = {2: {}, 3: {}, 4: {}}
