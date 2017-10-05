@@ -117,6 +117,16 @@ class HDFStore(BaseStore):
 
         self.close()
 
+    def copy_table(self, from_key, to_key, columns_rename=None):
+        """
+        Copies a table from one key to another
+        """
+
+        for chunk in pd.read_hdf(self.store, from_key, iterator=True, chunksize=1.e6):
+            if columns_rename is not None:
+                chunk.rename(columns=columns_rename, inplace=True)
+            self.add_table(to_key, chunk)
+
 
 class MemoryStore(BaseStore):
     def __init__(self, name, store_location, save_data):
@@ -164,6 +174,18 @@ class MemoryStore(BaseStore):
     def list_tables(self):
 
         return list(self.tables)
+
+    def copy_table(self, from_key, to_key, columns_rename=None):
+        """
+        Copies a table from one key to another
+        """
+
+        tmp = self.read_table(from_key)
+
+        if columns_rename is not None:
+            tmp.rename(columns=columns_rename, inplace=True)
+
+        self.add_table(to_key, tmp)
 
     def __del__(self):
         self.close()
