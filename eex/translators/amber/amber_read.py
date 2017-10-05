@@ -335,35 +335,21 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     res_df.index.name = "atom_index"
     dl.add_atoms(res_df, by_value=True)
 
-    # Handle bond parameters
+    # Handle term parameters
     other_tables = dl.list_other_tables()
-    bond_data = amd.forcefield_parameters["bond"]
-    bond_col_names = list(bond_data["column_names"])
-    if len(set(bond_col_names) - set(other_tables)):
-        raise KeyError("AMBER Read: Did not find bond parameters in file.")
+    for key, param_data in amd.forcefield_parameters.items():
+        param_col_names = list(param_data["column_names"])
 
-    cnt = 1  # Start counting from one
-    for ind, row in dl.get_other(bond_col_names).iterrows():
-        params = {}
-        for k, v in bond_data["column_names"].items():
-            params[v] = row[k]
-        dl.add_parameters(bond_data["order"], bond_data["form"], params, uid=cnt, utype=bond_data["units"])
-        cnt += 1
-
-    # Handle bond parameters
-    other_tables = dl.list_other_tables()
-    angle_data = amd.forcefield_parameters["angle"]
-    angle_col_names = list(angle_data["column_names"])
-    if not len(set(angle_col_names) - set(other_tables)):
-        # raise KeyError("AMBER Read: Did not find angle parameters in file.")
+        # No data to store
+        if len(set(param_col_names) - set(other_tables)):
+            continue
 
         cnt = 1  # Start counting from one
-        for ind, row in dl.get_other(angle_col_names).iterrows():
+        for ind, row in dl.get_other(param_col_names).iterrows():
             params = {}
-            for k, v in angle_data["column_names"].items():
+            for k, v in param_data["column_names"].items():
                 params[v] = row[k]
-            print(angle_data["units"])
-            dl.add_parameters(angle_data["order"], angle_data["form"], params, uid=cnt, utype=angle_data["units"])
+            uid = dl.add_parameters(param_data["order"], param_data["form"], params, uid=cnt, utype=param_data["units"])
             cnt += 1
 
     ### Try to pull in an inpcrd file for XYZ coordinates
@@ -381,7 +367,8 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         read_size = math.ceil(float(inpcrd_size[0]) / 2)
 
         file_handle = open(inpcrd_file, "r")
-        data = pd.read_fwf(file_handle, nrows=read_size, widths=([12] * 6), dtypes=([float] * 6), header=None, skiprows=2)
+        data = pd.read_fwf(
+            file_handle, nrows=read_size, widths=([12] * 6), dtypes=([float] * 6), header=None, skiprows=2)
         file_handle.close()
 
         df = pd.DataFrame(data.values.reshape(-1, 3), columns=["X", "Y", "Z"])

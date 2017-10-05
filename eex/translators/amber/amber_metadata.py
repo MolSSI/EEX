@@ -122,8 +122,21 @@ forcefield_parameters = {
             "ANGLE_FORCE_CONSTANT": "K",
             "ANGLE_EQUIL_VALUE": "theta0"
         }
+    },
+    "dihedral": {
+        "order": 4,
+        "form": "charmmfsw",
+        "units": {
+            "K": "kcal * mol ** -1",
+            "n": "phase",
+            "d": "radians",
+        },
+        "column_names": {
+            "DIHEDRAL_FORCE_CONSTANT": "K",
+            "DIHEDRAL_PERIODICITY": "n",
+            "DIHEDRAL_PHASE": "d",
+        }
     }
-    # "dihedral": ["DIHEDRAL_FORCE_CONSTANT", "DIHEDRAL_PERIODICITY", "DIHEDRAL_PHASE"],
     # "non-bonded": ["LENNARD_JONES_ACOEFF", "LENNARD_JONES_BCOEFF"]
 }
 

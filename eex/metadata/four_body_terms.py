@@ -48,7 +48,7 @@ _four_body_functional_forms = {
     #     "description": "This is a fourier dihedral"
     # },
     "harmonic": {
-        "form": "K * (1 + d * cos( n * phi))",
+        "form": "K * (1 + d * cos(n * phi))",
         "parameters": ["K", "n", "d"],
         "units": {
             "K": "[energy]",
