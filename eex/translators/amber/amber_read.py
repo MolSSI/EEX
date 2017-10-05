@@ -350,6 +350,22 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         dl.add_parameters(bond_data["order"], bond_data["form"], params, uid=cnt, utype=bond_data["units"])
         cnt += 1
 
+    # Handle bond parameters
+    other_tables = dl.list_other_tables()
+    angle_data = amd.forcefield_parameters["angle"]
+    angle_col_names = list(angle_data["column_names"])
+    if not len(set(angle_col_names) - set(other_tables)):
+        # raise KeyError("AMBER Read: Did not find angle parameters in file.")
+
+        cnt = 1  # Start counting from one
+        for ind, row in dl.get_other(angle_col_names).iterrows():
+            params = {}
+            for k, v in angle_data["column_names"].items():
+                params[v] = row[k]
+            print(angle_data["units"])
+            dl.add_parameters(angle_data["order"], angle_data["form"], params, uid=cnt, utype=angle_data["units"])
+            cnt += 1
+
     ### Try to pull in an inpcrd file for XYZ coordinates
     inpcrd_file = filename.replace('.prmtop', '.inpcrd')
     try:
