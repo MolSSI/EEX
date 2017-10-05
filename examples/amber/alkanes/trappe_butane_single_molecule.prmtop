@@ -1,4 +1,4 @@
-%VERSION  VERSION_STAMP = V0001.000  DATE = 10/03/17  16:16:39                  
+%VERSION  VERSION_STAMP = V0001.000  DATE = 10/05/17  16:05:22                  
 %FLAG TITLE                                                                     
 %FORMAT(20a4)                                                                   
 Cpptraj                                                                         
@@ -55,7 +55,7 @@ BUT
   1.00000000E+00  2.00000000E+00  3.00000000E+00
 %FLAG DIHEDRAL_PHASE                                                            
 %FORMAT(5E16.8)                                                                 
-  0.00000000E+00  0.00000000E+00  0.00000000E+00
+  0.00000000E+00  1.57079700E+00  0.00000000E+00
 %FLAG SCEE_SCALE_FACTOR                                                         
 %FORMAT(5E16.8)                                                                 
   1.20000000E+00  1.20000000E+00  1.20000000E+00
