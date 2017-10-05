@@ -140,6 +140,12 @@ def read_lammps_file(dl, filename, blocksize=110):
                     data.columns = op["df_cols"]
                 dl.call_by_string(op["dl_func"], data, **op["kwargs"])
 
+            elif op["call_type"] == "add_atom_parameters":
+                atom_prop = op["atom_property"]
+                utype = op["kwargs"]["utype"][atom_prop]
+                for idx, row in data.iterrows():
+                    dl.add_atom_parameters(atom_prop, row.iloc[1], uid=row.iloc[0], utype=utype)
+
             # Adding parameters
             elif op["call_type"] == "parameter":
                 order = op["args"]["order"]
@@ -165,6 +171,9 @@ def read_lammps_file(dl, filename, blocksize=110):
             break
 
         current_data_category = " ".join(str(x) for x in list(tmp.iloc[0]))
+
+    # Mass is missing its index, we can copy the data over
+    dl.store.copy_table("atom_type", "mass", {"atom_type": "mass"})
 
     # raise Exception("")
     data = {}

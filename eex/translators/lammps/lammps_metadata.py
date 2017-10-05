@@ -159,6 +159,8 @@ _atom_style = {
 _atom_utypes = {"mass": "[mass]", "charge": "[charge]", "xyz": "[length]"}
 
 _operation_table = {
+
+    # Add atom data
     "Atoms": {
         "size": "atoms",
         "dl_func": "add_atoms",
@@ -169,6 +171,19 @@ _operation_table = {
         },
         "call_type": "single",
     },
+
+    # Add any other atom parameters
+    "Masses": {
+        "size": "atom types",
+        "dl_func": "add_atom_parameters",
+        "call_type": "add_atom_parameters",
+        "atom_property": "mass",
+        "kwargs": {
+            "utype": None
+        },
+    },
+
+    # Add term data by index
     "Bonds": {
         "size": "bonds",
         "dl_func": "add_bonds",
@@ -192,21 +207,16 @@ _operation_table = {
         "dl_func": "NYI",
         "call_type": "single",
     },
-    "Masses": {
-        "size": "atom types",
-        "dl_func": "NYI",
-        # "dl_func": "add_atom_parameters",
-        "kwargs": {
-            "utype": None
-        },
-        "call_type": "loop",
-    },
+
+    # Add long range pair data
     "Pair Coeffs": {
         "size": "atom types",
         "dl_func": "NYI",
         # "dl_func": "add_parameters",
         "call_type": "parameter",
     },
+
+    # Add term parameters
     "Bond Coeffs": {
         "size": "bond types",
         "dl_func": "add_parameters",
