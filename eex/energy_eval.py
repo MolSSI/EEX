@@ -181,4 +181,4 @@ def evaluate_energy_expression(dl):
 
         energy[2] += evaluate_form(form, parameters, two_body_dict)
 
-    print(energy)
+    return energy
