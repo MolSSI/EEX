@@ -56,18 +56,18 @@ _three_body_functional_forms = {
         "description": "This is a cosine/delta potential"
     },
     "charmm": {
-        "form": "k*(theta-theta0)**2 + k_ub*(r13-r_ub)**2",
-        "parameters": ["K", "theta0", "K_ub", "r_ub"],
+        "form": "K*(theta-theta0)**2 + K_ub*(r13-R_ub)**2",
+        "parameters": ["K", "theta0", "K_ub", "R_ub"],
         "units": {
             "K": "[energy] * [arcunit] ** 2",
             "theta0": "[arcunit]",
             "K_ub": "[energy] * [length] ** -2",
-            "r_ub": "[length]",
+            "R_ub": "[length]",
         },
         "description": "A CHARMM angle term?"
     },
     "cosine/periodic": {
-        "form": "C * (1-B*(-1)**n*cos(n*theta))",
+        "form": "C * (1-B*((-1)**n) * cos(n*theta))",
         "parameters": ["C", "B", "n"],
         "units": {
             "C": "[energy]",

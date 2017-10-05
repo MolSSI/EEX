@@ -6,6 +6,16 @@ import os
 import pandas as pd
 
 
+def build_store(store_type, name, store_location, save_data):
+
+    if store_type.upper() == "HDF5":
+        return HDFStore(name, store_location, save_data)
+    elif store_type.upper() == "MEMORY":
+        return MemoryStore(name, store_location, save_data)
+    else:
+        raise KeyError("build_store: store_type of type '%s' not recognized." % store_type)
+
+
 class BaseStore(object):
     def __init__(self, name, store_location, save_data):
 

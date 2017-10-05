@@ -26,31 +26,31 @@ _two_body_functional_forms = {
         },
         "description": "This is a class2 bond"
     },
-    "fene": {
-        "form": "-0.5*K*R0 ** 2*ln(1-(r/R0) ** 2) + 4*epsilon((sigma/r) ** 12 - (sigma/r) ** 6)) + epsilon",
-        "parameters": ["K", "R0", "epsilon", "sigma"],
-        "units": {
-            "K": "[energy] * [length] ** -2",
-            "R0": "[length]",
-            "epsilon": "[energy]",
-            "sigma": "[length]"
-        },
-        "description": "This is a fene bond!"
-    },
-    "fene/expand": {
-        "form":
-        "-0.5*K*R0 ** 2*ln(1-((r-delta)/R0) ** 2 + 4*epsilon((sigma/(r-delta)) ** 12 - (sigma/(r-delta)) ** 6)) + epsilon",
-        "parameters": ["K", "R0", "epsilon", "sigma", "delta"],
-        "units": {
-            "K": "[energy] * [length] ** -2",
-            "R0": "[length]",
-            "epsilon": "[energy]",
-            "sigma": "[length]",
-            "delta": "[length]"
-        },
-        "description":
-        "This is fene/expand bond"
-    },
+    # "fene": {
+    #     "form": "-0.5*K*R0 ** 2 * log(1-(r/R0) ** 2) + 4*epsilon*((sigma/r) ** 12 - (sigma/r) ** 6) + epsilon",
+    #     "parameters": ["K", "R0", "epsilon", "sigma"],
+    #     "units": {
+    #         "K": "[energy] * [length] ** -2",
+    #         "R0": "[length]",
+    #         "epsilon": "[energy]",
+    #         "sigma": "[length]"
+    #     },
+    #     "description": "This is a fene bond!"
+    # },
+    # "fene/expand": {
+    #     "form":
+    #     "-0.5*K*R0 ** 2*log(1-((r-delta)/R0) ** 2 + 4*epsilon*((sigma/(r-delta)) ** 12 - (sigma/(r-delta)) ** 6)) + epsilon",
+    #     "parameters": ["K", "R0", "epsilon", "sigma", "delta"],
+    #     "units": {
+    #         "K": "[energy] * [length] ** -2",
+    #         "R0": "[length]",
+    #         "epsilon": "[energy]",
+    #         "sigma": "[length]",
+    #         "delta": "[length]"
+    #     },
+    #     "description":
+    #     "This is fene/expand bond"
+    # },
     "harmonic": {
         "form": "K*(r-R0) ** 2",
         "parameters": ["K", "R0"],
@@ -61,7 +61,7 @@ _two_body_functional_forms = {
         "description": "This is a harmonic bond"
     },
     "morse": {
-        "form": "D * (1 - e ** (-alpha * (r-R0))) ** 2",
+        "form": "D * (1 - exp(-alpha * (r-R0))) ** 2",
         "parameters": ["D", "alpha", "R0"],
         "units": {
             "D": "[energy]",
@@ -71,29 +71,31 @@ _two_body_functional_forms = {
         "description": "This is a class2 bond"
     },
     "nonlinear": {
-        "form": "(epsilon*(r-R0) ** 2) / (lambda ** 2-(r-R0) ** 2)",
-        "parameters": ["epsilon", "R0", "lambda"],
+        "form": "(epsilon * (r - R0) ** 2) / ((lam ** 2) - ((r - R0) ** 2))",
+        "parameters": ["epsilon", "R0", "lam"],
         "units": {
             "epsilon": "[energy]",
             "R0": "[length]",
-            "lambda": "[length]"
+            "lam": "[length]"
         },
         "description": "This is a nonlinear bond"
     },
     "quartic": {
-        "form": "K(r-Rc) ** 2 * (r-Rc-B1)*(r-Rc-B2) + U0 + 4*epsilon*((sigma/r) ** 12 - (sigma/r) ** 6) + epsilon",
-        "parameters": ["K", "B1", "B2", "Rc", "U0"],
+        "form": "K*(r-Rc) ** 2 * (r-Rc-B1)*(r-Rc-B2) + U0 + 4*epsilon*((sigma/r) ** 12 - (sigma/r) ** 6) + epsilon",
+        "parameters": ["K", "B1", "B2", "Rc", "U0", "epsilon", "sigma"],
         "units": {
             "K": "[energy] * [length] ** -4",
             "B1": "[length]",
             "B2": "[length]",
             "Rc": "[length]",
-            "U0": "[energy]"
+            "U0": "[energy]",
+            "epsilon": "[energy]",
+            "sigma": "[energy]"
         },
         "description": "This is a quartic bond"
     },
     "harmonic/shift": {
-        "form": "U_min/(R0 - R_c)**2 * ((r - R0) ** 2 - (r_c - R0) ** 2)",
+        "form": "U_min/(R0 - R_c)**2 * ((r - R0) ** 2 - (R_c - R0) ** 2)",
         "parameters": ["U_min", "R0", "R_c"],
         "units": {
             "U_min": "[energy]",
@@ -103,12 +105,12 @@ _two_body_functional_forms = {
         "description": "This is a harmonic/shift bond"
     },
     "oxdna/fene": {
-        "form": "-epsilon / 2 * ln (1 - ( (r - r0) / delta)**2 ) ",
-        "parameters": ["epsilon", "delta", "r0"],
+        "form": "-epsilon / 2 * log(1 - ((r - R0) / delta)**2 ) ",
+        "parameters": ["epsilon", "delta", "R0"],
         "units": {
             "epsilon": "[energy]",
             "delta": "[length]",
-            "r0": "[length]"
+            "R0": "[length]"
         },
         "description": "This is a oxdna/fene bond"
     },
