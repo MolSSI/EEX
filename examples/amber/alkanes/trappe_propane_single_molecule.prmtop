@@ -46,7 +46,7 @@ NK0
   6.21001125E+01
 %FLAG ANGLE_EQUIL_VALUE                                                         
 %FORMAT(5E16.8)                                                                 
-  1.98967620E+00
+  1.98967534E+00
 %FLAG DIHEDRAL_FORCE_CONSTANT                                                   
 %FORMAT(5E16.8)                                                                 
 
