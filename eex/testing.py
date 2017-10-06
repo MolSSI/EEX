@@ -134,11 +134,11 @@ def dl_compare(left, right, atom_checks=["charge", "xyz"]):
         conversion_dict[k] = {}
         ruid_tmps = right_uids[k][:]
         for luid in left_uids[k]:
-            pl = left.get_parameters(k, luid)
+            pl = left.get_parameter(k, luid)
 
             # Loop over right uid's popping ones we used
             for ruid in ruid_tmps:
-                pr = left.get_parameters(k, ruid)
+                pr = left.get_parameter(k, ruid)
 
                 # Check match, pop right uid, and break this loop back to luid iterator
                 if (pr[0] == pl[0]) and dict_compare(pr[1], pl[1]):

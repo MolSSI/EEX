@@ -188,7 +188,7 @@ class DataLayer(object):
 
         return tmp
 
-    def add_atom_parameters(self, property_name, value, uid=None, utype=None):
+    def add_atom_parameter(self, property_name, value, uid=None, utype=None):
         """
         Adds atom paramters to the Datalayer object
 
@@ -206,11 +206,11 @@ class DataLayer(object):
         Examples
         --------
 
-        assert 0 == dl.add_atom_parameters("charge", -0.8)
-        assert 0 == dl.add_atom_parameters("charge", -0.8, uid=0)
+        assert 0 == dl.add_atom_parameter("charge", -0.8)
+        assert 0 == dl.add_atom_parameter("charge", -0.8, uid=0)
 
-        assert 5 == dl.add_atom_parameters("charge", -1.2, uid=5)
-        assert 6 == dl.add_atom_parameters("charge", -2.e-19, uid=6, utype="coulomb")
+        assert 5 == dl.add_atom_parameter("charge", -1.2, uid=5)
+        assert 6 == dl.add_atom_parameter("charge", -2.e-19, uid=6, utype="coulomb")
         """
 
         property_name = property_name.lower()
@@ -383,9 +383,9 @@ class DataLayer(object):
 
 ### Term functions
 
-    def add_parameters(self, order, term_name, term_parameters, uid=None, utype=None):
+    def add_parameter(self, order, term_name, term_parameters, uid=None, utype=None):
         """
-        Adds the parameters of a registered functional form to the Datalayer object
+        Adds parameters for a given fuctional form.
 
         Parameters
         ----------
@@ -398,15 +398,20 @@ class DataLayer(object):
             in the functional form. Otherwise the dictionary matches functional form parameter names.
         uid : int, optional
             The uid to assign to this parameterized term.
-        utype : list of Pint units, options
+        utype : list of Pint units, optional
             Custom units for this particular addition, otherwise uses the default units in the registered functional form.
+
+        Return
+        ------
+        uid : ind
+            The uid for the set functional form
 
         Examples
         --------
 
-        assert 0 == dl.add_parameters(2, "harmonic", [4.0, 5.0])
-        assert 0 == dl.add_parameters(2, "harmonic", [4.0, 5.0])
-        assert 1 == dl.add_parameters(2, "harmonic", [4.0, 6.0])
+        assert 0 == dl.add_parameter(2, "harmonic", [4.0, 5.0])
+        assert 0 == dl.add_parameter(2, "harmonic", [4.0, 5.0], uid=1)
+        assert 1 == dl.add_parameter(2, "harmonic", [4.0, 6.0])
 
         """
 
@@ -470,7 +475,7 @@ class DataLayer(object):
 
                 return uid
 
-    def get_parameters(self, order, uid, utype=None):
+    def get_parameter(self, order, uid, utype=None):
 
         order = metadata.sanitize_term_order_name(order)
 

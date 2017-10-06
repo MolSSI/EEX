@@ -349,7 +349,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
             params = {}
             for k, v in param_data["column_names"].items():
                 params[v] = row[k]
-            uid = dl.add_parameters(
+            uid = dl.add_parameter(
                 param_data["order"], param_data["form"], params, uid=cnt, utype=param_data["units"])
             cnt += 1
 

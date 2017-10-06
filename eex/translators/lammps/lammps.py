@@ -144,7 +144,7 @@ def read_lammps_file(dl, filename, blocksize=110):
                 atom_prop = op["atom_property"]
                 utype = op["kwargs"]["utype"][atom_prop]
                 for idx, row in data.iterrows():
-                    dl.add_atom_parameters(atom_prop, row.iloc[1], uid=row.iloc[0], utype=utype)
+                    dl.add_atom_parameter(atom_prop, row.iloc[1], uid=row.iloc[0], utype=utype)
 
             # Adding parameters
             elif op["call_type"] == "parameter":
@@ -156,7 +156,7 @@ def read_lammps_file(dl, filename, blocksize=110):
                 for idx, row in data.iterrows():
                     params = list(row[cols])
                     utype = term_table[order][fname]["utype"]
-                    dl.add_parameters(order, fname, params, uid=int(row["uid"]), utype=utype)
+                    dl.add_parameter(order, fname, params, uid=int(row["uid"]), utype=utype)
 
             else:
                 raise KeyError("Operation table call '%s' not understoop" % op["call_type"])
