@@ -162,7 +162,7 @@ class DataLayer(object):
 
         # Make sure our ints are ints and not accidentally floats
         if field_data["dtype"] == int:
-            df[field_data["required_columns"]] = df[field_data["required_columns"]].astype(int)
+            df = df[field_data["required_columns"]].astype(int, copy=True)
 
         # Handle the unique or filter data
         if by_value and not (metadata.atom_metadata[property_name]["unique"]):

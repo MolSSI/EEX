@@ -41,7 +41,7 @@ def validate_term_dict(name, functional_form, parameters, utype=None):
             form_units = list(utype)
         elif isinstance(utype, dict):
             form_units = []
-            for key in functional_form["utype"]:
+            for key in functional_form["parameters"]:
                 try:
                     form_units.append(utype[key])
                 except KeyError:

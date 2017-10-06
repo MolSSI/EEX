@@ -137,7 +137,6 @@ forcefield_parameters = {
             "DIHEDRAL_PHASE": "d",
         }
     }
-    # "non-bonded": ["LENNARD_JONES_ACOEFF", "LENNARD_JONES_BCOEFF"]
 }
 
 store_other = []

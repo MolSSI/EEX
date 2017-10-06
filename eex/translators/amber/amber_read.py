@@ -336,12 +336,12 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     dl.add_atoms(res_df, by_value=True)
 
     # Handle term parameters
-    other_tables = dl.list_other_tables()
+    other_tables = set(dl.list_other_tables())
     for key, param_data in amd.forcefield_parameters.items():
         param_col_names = list(param_data["column_names"])
 
         # No data to store
-        if len(set(param_col_names) - set(other_tables)):
+        if len(set(param_col_names) - other_tables):
             continue
 
         cnt = 1  # Start counting from one
