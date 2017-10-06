@@ -518,6 +518,22 @@ class DataLayer(object):
         return list(self._terms[order])
 
     def add_terms(self, order, df):
+        """
+        Adds terms using a index notation.
+
+        Parameters
+        ----------
+        order : {str, int}
+            The order (number of atoms) involved in the expression i.e. 2, "two"
+        df : pd.DataFrame
+            Adds a DataFrame containing the term information by index
+            Required columns: ["term_index", "atom1_index", ..., "atom(order)_index", "term_type"]
+
+        Returns
+        -------
+        return : bool
+            Returns a boolean value if the operations was successful or not
+        """
 
         order = metadata.sanitize_term_order_name(order)
         if order not in list(self._terms):
@@ -533,7 +549,7 @@ class DataLayer(object):
             df = df[req_cols + ["term_index"]]
         else:
             raise Exception("NYI: Add terms by *not* term_index")
-        self.store.add_table("term" + str(order), df)
+        return self.store.add_table("term" + str(order), df)
 
     def get_terms(self, order):
         order = metadata.sanitize_term_order_name(order)
@@ -554,7 +570,7 @@ class DataLayer(object):
         ----------
         bonds : pd.DataFrame
             Adds a DataFrame containing the bond information by index
-            Required columns: ["bond_index", "atom1_index", "atom2_index", "bond_type"]
+            Required columns: ["term_index", "atom1_index", "atom2_index", "term_type"]
 
         Returns
         -------
@@ -562,25 +578,51 @@ class DataLayer(object):
             Returns a boolean value if the operations was successful or not
         """
 
-        self.add_terms("bonds", bonds)
-
-        return True
+        return self.add_terms("bonds", bonds)
 
     def get_bonds(self):
 
         return self.get_terms("bonds")
 
     def add_angles(self, angles):
+        """
+        Adds angles using a index notation.
 
-        self.add_terms("angles", angles)
+        Parameters
+        ----------
+        angles : pd.DataFrame
+            Adds a DataFrame containing the angle information by index
+            Required columns: ["term_index", "atom1_index", "atom2_index", "atom3_index", "term_type"]
+
+        Returns
+        -------
+        return : bool
+            Returns a boolean value if the operations was successful or not
+        """
+
+        return self.add_terms("angles", angles)
 
     def get_angles(self):
 
         return self.get_terms("angles")
 
     def add_dihedrals(self, dihedrals):
+        """
+        Adds dihedrals using a index notation.
 
-        self.add_terms("dihedrals", dihedrals)
+        Parameters
+        ----------
+        dihedrals : pd.DataFrame
+            Adds a DataFrame containing the dihedral information by index
+            Required columns: ["term_index", "atom1_index", "atom2_index", "atom3_index", "atom4_index", "term_type"]
+
+        Returns
+        -------
+        return : bool
+            Returns a boolean value if the operations was successful or not
+        """
+
+        return self.add_terms("dihedrals", dihedrals)
 
     def get_dihedrals(self):
 
@@ -627,4 +669,7 @@ class DataLayer(object):
         return pd.concat(tmp_data, axis=1)
 
     def evaluate(self):
+        """
+        Evaluate the current state of the energy expression.
+        """
         return energy_eval.evaluate_energy_expression(self)
