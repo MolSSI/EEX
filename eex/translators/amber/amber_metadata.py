@@ -66,8 +66,8 @@ term_data_units = {
     # "BOND_EQUIL_VALUE": ["angstrom"],
     # "ANGLE_FORCE_CONSTANT": ["kcal * mol ** -2 radian ** 2"],
     # "ANGLE_EQUIL_VALUE": ["radian"],
-    "DIHEDRAL_FORCE_CONSTANT": ["kcal * mol ** -1"],
-    "DIHEDRAL_PHASE": ["radian"],
+    # "DIHEDRAL_FORCE_CONSTANT": ["kcal * mol ** -1"],
+    # "DIHEDRAL_PHASE": ["radian"],
     "LENNARD_JONES_ACOEFF": ["kcal * mol ** -12"],
     "LENNARD_JONES_BCOEFF": ["kcal * mol ** -6"],
 }
@@ -120,12 +120,24 @@ forcefield_parameters = {
             "theta0": "radian"
         },
         "column_names": {
-            "BOND_FORCE_CONSTANT": "K",
-            "BOND_EQUIL_VALUE": "theta0"
+            "ANGLE_FORCE_CONSTANT": "K",
+            "ANGLE_EQUIL_VALUE": "theta0"
+        }
+    },
+    "dihedral": {
+        "order": 4,
+        "form": "charmmfsw",
+        "units": {
+            "K": "kcal * mol ** -1",
+            "n": "phase",
+            "d": "radians",
+        },
+        "column_names": {
+            "DIHEDRAL_FORCE_CONSTANT": "K",
+            "DIHEDRAL_PERIODICITY": "n",
+            "DIHEDRAL_PHASE": "d",
         }
     }
-    # "dihedral": ["DIHEDRAL_FORCE_CONSTANT", "DIHEDRAL_PERIODICITY", "DIHEDRAL_PHASE"],
-    # "non-bonded": ["LENNARD_JONES_ACOEFF", "LENNARD_JONES_BCOEFF"]
 }
 
 store_other = []

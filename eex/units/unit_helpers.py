@@ -86,11 +86,11 @@ def convert_contexts(context, converter=default_contexts):
         # Add brackets back after re stripped them
         uc = "[" + uc + "]"
 
-        if uc not in list(default_contexts):
+        if uc not in list(converter):
             raise KeyError("Input context '%s' not understood." % uc)
 
         # Adds parenthesis just in case
-        tmp_conv = "(" + default_contexts[uc] + ")"
+        tmp_conv = "(" + converter[uc] + ")"
         context = context.replace(uc, tmp_conv)
 
     return ureg.Quantity(context)

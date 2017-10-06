@@ -74,6 +74,7 @@ def _data_flatten(data, column_name, category_index, df_index_name):
     # Build and curate the data
     df = pd.DataFrame({df_index_name: index, dl_col_name: flat_data})
     df.dropna(axis=0, how="any", inplace=True)
+    df.set_index(df_index_name, inplace=True)
     return df
 
 
@@ -189,7 +190,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         # Read in the data, in chunks
         remaining_read = nrows
         num_blocks = int(math.ceil(nrows / float(blocksize)))
-        category_index = 0
+        category_index = 1
         for block in range(num_blocks):
 
             # Figure out the size of the read
@@ -326,29 +327,33 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     last_size = sizes_dict["NATOM"] - res_df["RESIDUE_POINTER"].iloc[-1] + 1
     sizes = np.concatenate((sizes, [last_size])).astype(np.int)
 
-    res_df["residue_index"] = np.arange(0, res_df.shape[0])
+    res_df["residue_index"] = np.arange(res_df.shape[0])
     res_df = pd.DataFrame({
         "residue_index": np.repeat(res_df["residue_index"].values, sizes, axis=0),
         "residue_name": np.repeat(res_df["RESIDUE_LABEL"].values.astype('str'), sizes, axis=0)
     })
 
+    res_df.index = np.arange(1, res_df.shape[0] + 1)
     res_df.index.name = "atom_index"
     dl.add_atoms(res_df, by_value=True)
 
-    # Handle bond parameters
-    other_tables = dl.list_other_tables()
-    bond_data = amd.forcefield_parameters["bond"]
-    bond_col_names = list(bond_data["column_names"])
-    if len(set(bond_col_names) - set(other_tables)):
-        raise KeyError("AMBER Read: Did not find bond parameters in file.")
+    # Handle term parameters
+    other_tables = set(dl.list_other_tables())
+    for key, param_data in amd.forcefield_parameters.items():
+        param_col_names = list(param_data["column_names"])
 
-    cnt = 1  # Start counting from one
-    for ind, row in dl.get_other(bond_col_names).iterrows():
-        params = {}
-        for k, v in bond_data["column_names"].items():
-            params[v] = row[k]
-        dl.add_parameters(bond_data["order"], bond_data["form"], params, uid=cnt, utype=bond_data["units"])
-        cnt += 1
+        # No data to store
+        if len(set(param_col_names) - other_tables):
+            continue
+
+        cnt = 1  # Start counting from one
+        for ind, row in dl.get_other(param_col_names).iterrows():
+            params = {}
+            for k, v in param_data["column_names"].items():
+                params[v] = row[k]
+            uid = dl.add_parameter(
+                param_data["order"], param_data["form"], params, uid=cnt, utype=param_data["units"])
+            cnt += 1
 
     ### Try to pull in an inpcrd file for XYZ coordinates
     inpcrd_file = filename.replace('.prmtop', '.inpcrd')
@@ -365,11 +370,14 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         read_size = math.ceil(float(inpcrd_size[0]) / 2)
 
         file_handle = open(inpcrd_file, "r")
-        data = pd.read_fwf(file_handle, nrows=read_size, widths=([12] * 6), dtypes=([float] * 6), header=None, skiprows=2)
+        data = pd.read_fwf(
+            file_handle, nrows=read_size, widths=([12] * 6), dtypes=([float] * 6), header=None, skiprows=2)
         file_handle.close()
 
         df = pd.DataFrame(data.values.reshape(-1, 3), columns=["X", "Y", "Z"])
         df.dropna(axis=0, how="any", inplace=True)
+        df.index = np.arange(1, df.shape[0] + 1)
+
         df.index.name = "atom_index"
         dl.add_atoms(df, utype={"XYZ": "angstrom"})
 

@@ -6,17 +6,20 @@ import os
 import pandas as pd
 import numpy as np
 import collections
+import copy
 
 import eex
 from . import filelayer
 from . import metadata
 from . import units
+from . import utility
+from . import energy_eval
 
 APC_DICT = metadata.atom_property_to_column
 
 
 class DataLayer(object):
-    def __init__(self, name, store_location=None, save_data=False, backend="HDF5"):
+    def __init__(self, name, store_location=None, save_data=False, backend="Memory"):
         """
         Initializes the DataLayer class
 
@@ -40,17 +43,12 @@ class DataLayer(object):
         if self.store_location is None:
             self.store_location = os.getcwd()
 
-        if backend.upper() == "HDF5":
-            self.store = filelayer.HDFStore(self.name, self.store_location, save_data)
-        elif backend.upper() == "MEMORY":
-            self.store = filelayer.MemoryStore(self.name, self.store_location, save_data)
-        else:
-            raise KeyError("DataLayer: Backend of type '%s' not recognized." % backend)
+        self.store = filelayer.build_store(backend, self.name, self.store_location, save_data)
 
-        # Setup empty parameters dictionary
-        self._functional_forms = {2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}}
-        self._terms = {2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}}
+        # Setup empty data holders
+        self._terms = {2: {}, 3: {}, 4: {}}
         self._atom_metadata = {}
+        self._atom_sets = set()
 
 ### Generic helper close/save/list/etc functions
 
@@ -64,8 +62,8 @@ class DataLayer(object):
 
         try:
             function = getattr(self, args[0])
-        except:
-            raise KeyError("DataLayer:call_by_string: does not have method %s." % args[0])
+        except AttributeError:
+            raise AttributeError("DataLayer:call_by_string: does not have method %s." % args[0])
 
         return function(*args[1:], **kwargs)
 
@@ -79,23 +77,24 @@ class DataLayer(object):
         """
         Lists tables loaded into the store.
         """
-        return [x for x in self.store.list_tables() if "other" not in x]
+        return [x for x in self.store.list_tables() if not x.startswith("other_")]
 
     def list_other_tables(self):
         """
         Lists "other" tables loaded into the store.
         """
-        return [x.replace("other_", "") for x in self.store.list_tables() if "other" in x]
+        return [x.replace("other_", "") for x in self.store.list_tables() if x.startswith("other_")]
 
 ### Atom functions
 
     def _check_atoms_dict(self, property_name):
+        """
+        Builds the correct data struct in the atom metadata
+        """
         if property_name in list(self._atom_metadata):
             return False
 
-        field_data = metadata.atom_metadata[property_name]
-        self._atom_metadata[property_name] = {"counter": -1, "uvals": {}, "inv_uvals": {}}
-
+        self._atom_metadata[property_name] = {"uvals": {}, "inv_uvals": {}}
         return True
 
     def _find_unqiue_atom_values(self, df, property_name):
@@ -119,11 +118,11 @@ class DataLayer(object):
 
             # Update dictionary if necessary
             if gb_idx not in list(param_dict["uvals"]):
-                param_dict["counter"] += 1
 
                 # Bidirectional dictionary
-                param_dict["uvals"][gb_idx] = param_dict["counter"]
-                param_dict["inv_uvals"][param_dict["counter"]] = gb_idx
+                new_key = utility.find_lowest_hole(list(param_dict["inv_uvals"]))
+                param_dict["uvals"][gb_idx] = new_key
+                param_dict["inv_uvals"][new_key] = gb_idx
 
             # Grab the unique and set
             uidx = param_dict["uvals"][gb_idx]
@@ -161,6 +160,11 @@ class DataLayer(object):
             scale_factor = units.conversion_factor(utype, field_data["utype"])
             df = df[field_data["required_columns"]] * scale_factor
 
+        # Make sure our ints are ints and not accidentally floats
+        if field_data["dtype"] == int:
+            df = df[field_data["required_columns"]].astype(int, copy=True)
+
+        # Handle the unique or filter data
         if by_value and not (metadata.atom_metadata[property_name]["unique"]):
             tmp_df = self._find_unqiue_atom_values(df, property_name)
         else:
@@ -171,6 +175,8 @@ class DataLayer(object):
     def _get_atom_table(self, table_name, property_name, by_value, utype):
 
         tmp = self.store.read_table(table_name)
+
+        # Expand the data from unique
         if by_value and not (metadata.atom_metadata[property_name]["unique"]):
             tmp = self._build_atom_values(tmp, property_name)
 
@@ -181,6 +187,79 @@ class DataLayer(object):
             tmp[field_data["required_columns"]] *= scale_factor
 
         return tmp
+
+    def add_atom_parameter(self, property_name, value, uid=None, utype=None):
+        """
+        Adds atom paramters to the Datalayer object
+
+        Parameters
+        ----------
+        property_name : str
+            The name of the atom property to be added
+        value : float
+            The value of the property to be added
+        uid : int, optional
+            The uid to assign to this parameterized term.
+        utype : list of Pint units, options
+            Custom units for this particular addition, otherwise uses the default units in the registered functional form.
+
+        Examples
+        --------
+
+        assert 0 == dl.add_atom_parameter("charge", -0.8)
+        assert 0 == dl.add_atom_parameter("charge", -0.8, uid=0)
+
+        assert 5 == dl.add_atom_parameter("charge", -1.2, uid=5)
+        assert 6 == dl.add_atom_parameter("charge", -2.e-19, uid=6, utype="coulomb")
+        """
+
+        property_name = property_name.lower()
+        self._check_atoms_dict(property_name)
+        param_dict = self._atom_metadata[property_name]
+        field_data = metadata.atom_metadata[property_name]
+
+        if (utype is not None) and (field_data["units"] is not None):
+            value = value * units.conversion_factor(field_data["utype"], utype)
+
+        if field_data["dtype"] == float:
+            value = round(value, field_data["tol"])
+
+        # Check if we have this key
+        found_key = None
+        for k, v in param_dict["inv_uvals"].items():
+            if v == value:
+                found_key = k
+
+        # Brand new uid, return next in sequence
+        if uid is None:
+            if found_key is not None:
+                return found_key
+
+            new_key = utility.find_lowest_hole(list(param_dict["inv_uvals"]))
+            param_dict["uvals"][value] = new_key
+            param_dict["inv_uvals"][new_key] = value
+            return new_key
+
+        # We have a uid
+        else:
+            # Fine if it matches internally, otherwise throw
+            if (found_key is not None):
+                if (found_key == uid):
+                    return found_key
+                else:
+                    raise KeyError(
+                        "DataLayer:add_atom_parameters: Tried to add value %s, but found in uid (%d) and current keys (%d)"
+                        % (value, uid, found_key))
+
+            param_dict["inv_uvals"][uid] = value
+            param_dict["uvals"][value] = uid
+            return uid
+
+    def list_atom_properties(self):
+        """
+        Lists all atom properties contained in the DataLayer.
+        """
+        return list(self._atom_sets)
 
     def add_atoms(self, atom_df, property_name=None, by_value=False, utype=None):
         """
@@ -243,6 +322,8 @@ class DataLayer(object):
                     uval = utype[k]
                 self._store_atom_table(k, atom_df, k, by_value, uval)
                 found_one = True
+                # Update what we have
+                self._atom_sets |= set([k])
         if not found_one:
             raise Exception("DataLayer:add_atom: No data was added as no key was matched from input columns:\n%s" %
                             (" " * 11 + str(atom_df.columns)))
@@ -270,10 +351,13 @@ class DataLayer(object):
 
         valid_properties = list(metadata.atom_property_to_column)
 
-        # Our index name
+        if properties is None:
+            properties = self.list_atom_properties()
+
         if not isinstance(properties, (tuple, list)):
             properties = [properties]
 
+        # Make sure they are lower case
         properties = [x.lower() for x in properties]
 
         if not set(properties) <= set(list(valid_properties)):
@@ -299,9 +383,9 @@ class DataLayer(object):
 
 ### Term functions
 
-    def add_parameters(self, order, term_name, term_parameters, uid=None, utype=None):
+    def add_parameter(self, order, term_name, term_parameters, uid=None, utype=None):
         """
-        Adds the parameters of a registered functional form to the Datalayer object
+        Adds parameters for a given fuctional form.
 
         Parameters
         ----------
@@ -314,15 +398,20 @@ class DataLayer(object):
             in the functional form. Otherwise the dictionary matches functional form parameter names.
         uid : int, optional
             The uid to assign to this parameterized term.
-        utype : list of Pint units, options
+        utype : list of Pint units, optional
             Custom units for this particular addition, otherwise uses the default units in the registered functional form.
+
+        Return
+        ------
+        uid : ind
+            The uid for the set functional form
 
         Examples
         --------
 
-        assert 0 == dl.add_parameters(2, "harmonic", [4.0, 5.0])
-        assert 0 == dl.add_parameters(2, "harmonic", [4.0, 5.0])
-        assert 1 == dl.add_parameters(2, "harmonic", [4.0, 6.0])
+        assert 0 == dl.add_parameter(2, "harmonic", [4.0, 5.0])
+        assert 0 == dl.add_parameter(2, "harmonic", [4.0, 5.0], uid=1)
+        assert 1 == dl.add_parameter(2, "harmonic", [4.0, 6.0])
 
         """
 
@@ -355,8 +444,7 @@ class DataLayer(object):
             if not len(self._terms[order]):
                 new_key = 0
             else:
-                possible_values = set(range(len(self._terms[order]) + 1))
-                new_key = min(possible_values - set(self._terms[order]))
+                new_key = utility.find_lowest_hole(self._terms[order])
 
             params.insert(0, term_name)
             self._terms[order][new_key] = params
@@ -387,10 +475,73 @@ class DataLayer(object):
 
                 return uid
 
-    def add_terms(self, order, df):
+    def get_parameter(self, order, uid, utype=None):
 
         order = metadata.sanitize_term_order_name(order)
-        if order not in list(self._functional_forms):
+
+        if (uid not in self._terms[order]):
+            raise KeyError("DataLayer:get_parameters: Did not find term '%d %d" % (order, uid))
+
+        # Stored as [term_name, parameters...]
+        data = self._terms[order][uid]
+
+        term_md = metadata.get_term_metadata(order, "forms", data[0])
+
+        # Zip up the parameters
+        parameters = {k: v for k, v in zip(term_md["parameters"], data[1:])}
+
+        # Were done
+        if utype is None:
+            return (data[0], parameters)
+
+        # Need to convert
+        if isinstance(utype, (list, tuple)):
+            if len(utype) != len(term_md["parameters"]):
+                raise KeyError("DataLayer:get_parameters: length of utype should match the length of parameters.")
+            utype = {k: v for k, v in zip(term_md["parameters"], utype)}
+
+        if not isinstance(utype, dict):
+            raise TypeError("DataLayer:get_parameters: Input utype '%s' is not understood." % str(type(utype)))
+
+        for key in term_md["parameters"]:
+            parameters[key] *= units.conversion_factor(term_md["utype"][key], utype[key])
+
+        return (data[0], parameters)
+
+    def list_parameter_uids(self, order=None):
+
+        # Return everything
+        if order is None:
+            ret = {}
+            for k, v in self._terms.items():
+                ret[k] = list(v)
+            return ret
+
+        # Just return a specific order
+        order = metadata.sanitize_term_order_name(order)
+
+        return list(self._terms[order])
+
+    def add_terms(self, order, df):
+        """
+        Adds terms using a index notation.
+
+        Parameters
+        ----------
+        order : {str, int}
+            The order (number of atoms) involved in the expression i.e. 2, "two"
+        df : pd.DataFrame
+            Adds a DataFrame containing the term information by index
+            Required columns: ["term_index", "atom1_index", ..., "atom(order)_index", "term_type"]
+
+        Returns
+        -------
+        return : bool
+            Returns a boolean value if the operations was successful or not
+        """
+
+        order = metadata.sanitize_term_order_name(order)
+        if order not in list(self._terms):
             raise KeyError("DataLayer:add_terms: Did not understand order key '%s'." % str(order))
 
         req_cols = metadata.get_term_metadata(order, "index_columns")
@@ -403,14 +554,18 @@ class DataLayer(object):
             df = df[req_cols + ["term_index"]]
         else:
             raise Exception("NYI: Add terms by *not* term_index")
-        self.store.add_table("term" + str(order), df)
+        return self.store.add_table("term" + str(order), df)
 
-    def read_terms(self, order):
+    def get_terms(self, order):
         order = metadata.sanitize_term_order_name(order)
-        if order not in list(self._functional_forms):
+        if order not in list(self._terms):
             raise KeyError("DataLayer:add_terms: Did not understand order key '%s'." % str(order))
 
-        return self.store.read_table("term" + str(order))
+        try:
+            return self.store.read_table("term" + str(order))
+        except KeyError:
+            cols = metadata.get_term_metadata(order, "index_columns") + ["term_index"]
+            return pd.DataFrame(columns=cols)
 
     def add_bonds(self, bonds):
         """
@@ -420,7 +575,7 @@ class DataLayer(object):
         ----------
         bonds : pd.DataFrame
             Adds a DataFrame containing the bond information by index
-            Required columns: ["bond_index", "atom1_index", "atom2_index", "bond_type"]
+            Required columns: ["term_index", "atom1_index", "atom2_index", "term_type"]
 
         Returns
         -------
@@ -428,29 +583,55 @@ class DataLayer(object):
             Returns a boolean value if the operations was successful or not
         """
 
-        self.add_terms("bonds", bonds)
-
-        return True
+        return self.add_terms("bonds", bonds)
 
     def get_bonds(self):
 
-        return self.read_terms("bonds")
+        return self.get_terms("bonds")
 
     def add_angles(self, angles):
+        """
+        Adds angles using a index notation.
 
-        self.add_terms("angles", angles)
+        Parameters
+        ----------
+        angles : pd.DataFrame
+            Adds a DataFrame containing the angle information by index
+            Required columns: ["term_index", "atom1_index", "atom2_index", "atom3_index", "term_type"]
+
+        Returns
+        -------
+        return : bool
+            Returns a boolean value if the operations was successful or not
+        """
+
+        return self.add_terms("angles", angles)
 
     def get_angles(self):
 
-        return self.read_terms("angles")
+        return self.get_terms("angles")
 
     def add_dihedrals(self, dihedrals):
+        """
+        Adds dihedrals using a index notation.
 
-        self.add_terms("dihedrals", dihedrals)
+        Parameters
+        ----------
+        dihedrals : pd.DataFrame
+            Adds a DataFrame containing the dihedral information by index
+            Required columns: ["term_index", "atom1_index", "atom2_index", "atom3_index", "atom4_index", "term_type"]
+
+        Returns
+        -------
+        return : bool
+            Returns a boolean value if the operations was successful or not
+        """
+
+        return self.add_terms("dihedrals", dihedrals)
 
     def get_dihedrals(self):
 
-        return self.read_terms("dihedrals")
+        return self.get_terms("dihedrals")
 
 ### Other quantities
 
@@ -491,3 +672,9 @@ class DataLayer(object):
             tmp_data.append(self.store.read_table(k))
 
         return pd.concat(tmp_data, axis=1)
+
+    def evaluate(self):
+        """
+        Evaluate the current state of the energy expression.
+        """
+        return energy_eval.evaluate_energy_expression(self)

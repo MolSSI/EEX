@@ -1,0 +1,28 @@
+Single point energy calculations
+ethane
+   NSTEP       ENERGY          RMS            GMAX         NAME    NUMBER
+      1       1.0000E+00     2.0030E+01     3.4693E+01     C3          1
+
+ BOND    =        1.0000  ANGLE   =        0.0000  DIHED      =        0.0000
+ VDWAALS =        0.0000  EEL     =        0.0000  HBOND      =        0.0000
+ 1-4 VDW =        0.0000  1-4 EEL =        0.0000  RESTRAINT  =        0.0000
+minimization completed, ENE= 0.10000125E+01 RMS= 0.200301E+02
+
+propane
+   NSTEP       ENERGY          RMS            GMAX         NAME    NUMBER
+      1       2.9997E+00     2.5555E+01     4.5928E+01     C3          2
+
+ BOND    =        2.0001  ANGLE   =        0.9996  DIHED      =        0.0000
+ VDWAALS =        0.0000  EEL     =        0.0000  HBOND      =        0.0000
+ 1-4 VDW =        0.0000  1-4 EEL =        0.0000  RESTRAINT  =        0.0000
+minimization completed, ENE= 0.29997268E+01 RMS= 0.255551E+02
+
+butane
+   NSTEP       ENERGY          RMS            GMAX         NAME    NUMBER
+      1       9.3023E+04     1.7070E+05     3.1814E+05     C4          4
+
+ BOND    =        3.0285  ANGLE   =       12.7275  DIHED      =        0.8592
+ VDWAALS =        0.0000  EEL     =        0.0000  HBOND      =        0.0000
+ 1-4 VDW =    93005.9233  1-4 EEL =        0.0000  RESTRAINT  =        0.0000
+minimization completed, ENE= 0.93022538E+05 RMS= 0.170703E+06
+

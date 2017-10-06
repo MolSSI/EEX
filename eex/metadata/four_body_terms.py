@@ -29,26 +29,26 @@ _four_body_functional_forms = {
         },
         "description": "This is a charmm dihedral"
     },
-    "multi/harmonic": {
-        "form": "Sum(A_n * (cos(phi))**(n-1))",  #n goes from 1 to 5
-        "parameters": ["A_n"],
-        "units": {
-            "A_n": "[energy]",
-        },
-        "description": "This is a multi/harmonic dihedral"
-    },
-    "fourier": {
-        "form": "Sum(k_i * (1.0 + cos(n_i * phi - d_i)))",
-        "parameters": ["k_i", "n_i", "d_i"],
-        "units": {
-            "k_i": "[energy]",
-            "n_i": "phase",
-            "d_i": "[arcunit]"
-        },
-        "description": "This is a fourier dihedral"
-    },
+    # "multi/harmonic": {
+    #     "form": "Sum(A_n * (cos(phi))**(n-1))",  #n goes from 1 to 5
+    #     "parameters": ["A_n"],
+    #     "units": {
+    #         "A_n": "[energy]",
+    #     },
+    #     "description": "This is a multi/harmonic dihedral"
+    # },
+    # "fourier": {
+    #     "form": "Sum(k_i * (1.0 + cos(n_i * phi - d_i)))",
+    #     "parameters": ["k_i", "n_i", "d_i"],
+    #     "units": {
+    #         "k_i": "[energy]",
+    #         "n_i": "phase",
+    #         "d_i": "[arcunit]"
+    #     },
+    #     "description": "This is a fourier dihedral"
+    # },
     "harmonic": {
-        "form": "K * (1 + d * cos( n * phi))",
+        "form": "K * (1 + d * cos(n * phi))",
         "parameters": ["K", "n", "d"],
         "units": {
             "K": "[energy]",
@@ -58,7 +58,7 @@ _four_body_functional_forms = {
         "description": "A harmonic dihedral"
     },
     "helix": {
-        "form": "A*(1-cos(phi)) + B*(1+cos(3*phi)) + C*(1+cos(phi+pi/4))",
+        "form": "A*(1-cos(phi)) + B*(1+cos(3*phi)) + C*(1+cos(phi+PI/4))",
         "parameters": ["A", "B", "C"],
         "units": {
             "A": "[energy]",
@@ -67,15 +67,15 @@ _four_body_functional_forms = {
         },
         "description": "This is a helix dihedral"
     },
-    "nharmonic": {
-        "form": "Sum( A_n*(cos(phi))**(n-1))",
-        "parameters": ["A_n", "n"],
-        "units": {
-            "A_n": "[energy]",
-            "n": "count"
-        },
-        "description": "This is a nharmonic dihedral"
-    },
+    # "nharmonic": {
+    #     "form": "Sum( A_n*(cos(phi))**(n-1))",
+    #     "parameters": ["A_n", "n"],
+    #     "units": {
+    #         "A_n": "[energy]",
+    #         "n": "count"
+    #     },
+    #     "description": "This is a nharmonic dihedral"
+    # },
     "opls": {
         "form": "0.5*K_1*(1+cos(phi))+0.5*K_2*(1-cos(2*phi))+0.5*K_3+(1+cos(3*phi))+0.5*K_4*(1-cos(4*phi))",
         "parameters": ["K_1", "K_2", "K_3", "K_4"],

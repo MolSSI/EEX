@@ -7,7 +7,7 @@ atom_metadata = {
     "molecule_index": {
         "required_columns": ["molecule_index"],
         "description": "The associated molecular index for a given atom.",
-        "unique": False,
+        "unique": True,
         "dtype": int,
         "units": None,
     },
@@ -21,7 +21,7 @@ atom_metadata = {
     "atom_type": {
         "required_columns": ["atom_type"],
         "description": "The integer index of the atom type.",
-        "unique": False,
+        "unique": True,
         "dtype": int,
         "units": None,
     },
@@ -36,7 +36,7 @@ atom_metadata = {
         "required_columns": ["charge"],
         "description": "The charge of a given atom.",
         "unique": False,
-        "dtype": int,
+        "dtype": float,
         "units": "[charge]",
         "tol": 8,
     },
@@ -67,7 +67,7 @@ atom_metadata = {
         "required_columns": ["residue_name"],
         "description": "The name of the associated residue of a given atom.",
         "unique": False,
-        "dtype": int,
+        "dtype": str,
         "units": None,
     },
 

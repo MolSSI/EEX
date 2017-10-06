@@ -20,10 +20,11 @@ build_script:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
-  - conda create -q -n eex_env numpy pandas pymongo pytest pytables matplotlib pint -c conda-forge
+  - conda create -q -n eex_env numpy pandas pytest pytables numexpr
   - activate eex_env
 
     # Install anything not in conda
+  - pip install pint
   - pip install codecov
   - pip install pytest-cov
   - conda list

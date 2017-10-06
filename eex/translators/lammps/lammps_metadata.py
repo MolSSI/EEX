@@ -159,15 +159,31 @@ _atom_style = {
 _atom_utypes = {"mass": "[mass]", "charge": "[charge]", "xyz": "[length]"}
 
 _operation_table = {
+
+    # Add atom data
     "Atoms": {
         "size": "atoms",
         "dl_func": "add_atoms",
         "df_cols": ["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"],
         "kwargs": {
-            "utype": None
+            "utype": None,
+            "by_value": True,
         },
         "call_type": "single",
     },
+
+    # Add any other atom parameters
+    "Masses": {
+        "size": "atom types",
+        "dl_func": "add_atom_parameters",
+        "call_type": "add_atom_parameters",
+        "atom_property": "mass",
+        "kwargs": {
+            "utype": None
+        },
+    },
+
+    # Add term data by index
     "Bonds": {
         "size": "bonds",
         "dl_func": "add_bonds",
@@ -191,40 +207,33 @@ _operation_table = {
         "dl_func": "NYI",
         "call_type": "single",
     },
-    # "Masses": {
-    #     "size": "atom types",
-    #     "dl_func": "add_atoms",
-    #     "df_cols": ["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"],
-    #     "kwargs": {
-    #         "utypes": None
-    #     }
-    # }
-    "Masses": {
-        "size": "atom types",
-        "dl_func": "NYI",
-        # "dl_func": "add_atom_parameters",
-        "kwargs": {
-            "utype": None
-        },
-        "call_type": "loop",
-    },
+
+    # Add long range pair data
     "Pair Coeffs": {
         "size": "atom types",
         "dl_func": "NYI",
         # "dl_func": "add_parameters",
         "call_type": "parameter",
     },
+
+    # Add term parameters
     "Bond Coeffs": {
         "size": "bond types",
         "dl_func": "add_parameters",
         "call_type": "parameter",
-        "args": {"order": 2, "form_name": "harmonic"},
+        "args": {
+            "order": 2,
+            "form_name": "harmonic"
+        },
     },
     "Angle Coeffs": {
         "size": "angle types",
         "dl_func": "add_parameters",
         "call_type": "parameter",
-        "args": {"order": 3, "form_name": "harmonic"},
+        "args": {
+            "order": 3,
+            "form_name": "harmonic"
+        },
     },
     "Dihedral Coeffs": {
         "size": "dihedral types",
@@ -280,6 +289,7 @@ def build_operation_table(unit_type, size_dict):
 
     return ret
 
+
 def build_term_table(utype):
 
     ustyle = units_style[utype]
@@ -295,6 +305,7 @@ def build_term_table(utype):
                 utype[pk] = eex.units.convert_contexts(pv, ustyle)
             v["utype"] = utype
     return ret
+
 
 if __name__ == "__main__":
     from eex.units import ureg
