@@ -336,12 +336,12 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     dl.add_atoms(res_df, by_value=True)
 
     # Handle term parameters
-    other_tables = dl.list_other_tables()
+    other_tables = set(dl.list_other_tables())
     for key, param_data in amd.forcefield_parameters.items():
         param_col_names = list(param_data["column_names"])
 
         # No data to store
-        if len(set(param_col_names) - set(other_tables)):
+        if len(set(param_col_names) - other_tables):
             continue
 
         cnt = 1  # Start counting from one
@@ -349,7 +349,8 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
             params = {}
             for k, v in param_data["column_names"].items():
                 params[v] = row[k]
-            uid = dl.add_parameters(param_data["order"], param_data["form"], params, uid=cnt, utype=param_data["units"])
+            uid = dl.add_parameter(
+                param_data["order"], param_data["form"], params, uid=cnt, utype=param_data["units"])
             cnt += 1
 
     ### Try to pull in an inpcrd file for XYZ coordinates
@@ -374,7 +375,6 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         df = pd.DataFrame(data.values.reshape(-1, 3), columns=["X", "Y", "Z"])
         df.dropna(axis=0, how="any", inplace=True)
         df.index = np.arange(1, df.shape[0] + 1)
-        # df = df.round(3)
 
         df.index.name = "atom_index"
         dl.add_atoms(df, utype={"XYZ": "angstrom"})

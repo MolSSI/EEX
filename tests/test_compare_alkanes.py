@@ -26,7 +26,7 @@ def build_dl(program, molecule):
         raise KeyError("Program %s not understood" % program)
 
 # Loop over alkane molecules
-@pytest.fixture(scope="module", params=_alkane_molecules[:2])
+@pytest.fixture(scope="module", params=_alkane_molecules)
 def lammps_bench(request):
     molecule = request.param
     data, dl = build_dl("lammps", molecule)

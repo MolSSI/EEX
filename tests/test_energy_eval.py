@@ -84,8 +84,10 @@ def test_dihedral():
 
     # Linear checks
     _test_dihedral(p1, p2, p3, [3, 2, 0], 0)
-    _test_dihedral(p1, p2, p3, [3, 2 + 1.e14, 0], 180)
-    _test_dihedral(p1, p2, p3, [3, 2 - 1.e14, 0], 0)
+    _test_dihedral(p1, p2, p3, [3, 2 + 1.e-14, 0], 180)
+    _test_dihedral(p1, p2, p3, [3, 2 - 1.e-14, 0], 0)
+    _test_dihedral(p1, p2, p3, [3, 2, 0 + 1.e-14], 90)
+    _test_dihedral(p1, p2, p3, [3, 2, 0 - 1.e-14], -90)
 
 
 def test_evaluate():
