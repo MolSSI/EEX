@@ -349,7 +349,8 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
             params = {}
             for k, v in param_data["column_names"].items():
                 params[v] = row[k]
-            uid = dl.add_parameters(param_data["order"], param_data["form"], params, uid=cnt, utype=param_data["units"])
+            uid = dl.add_parameters(
+                param_data["order"], param_data["form"], params, uid=cnt, utype=param_data["units"])
             cnt += 1
 
     ### Try to pull in an inpcrd file for XYZ coordinates
@@ -374,7 +375,6 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         df = pd.DataFrame(data.values.reshape(-1, 3), columns=["X", "Y", "Z"])
         df.dropna(axis=0, how="any", inplace=True)
         df.index = np.arange(1, df.shape[0] + 1)
-        # df = df.round(3)
 
         df.index.name = "atom_index"
         dl.add_atoms(df, utype={"XYZ": "angstrom"})

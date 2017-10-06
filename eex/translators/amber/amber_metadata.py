@@ -65,8 +65,8 @@ term_data_units = {
     # "BOND_EQUIL_VALUE": ["angstrom"],
     # "ANGLE_FORCE_CONSTANT": ["kcal * mol ** -2 radian ** 2"],
     # "ANGLE_EQUIL_VALUE": ["radian"],
-    "DIHEDRAL_FORCE_CONSTANT": ["kcal * mol ** -1"],
-    "DIHEDRAL_PHASE": ["radian"],
+    # "DIHEDRAL_FORCE_CONSTANT": ["kcal * mol ** -1"],
+    # "DIHEDRAL_PHASE": ["radian"],
     "LENNARD_JONES_ACOEFF": ["kcal * mol ** -12"],
     "LENNARD_JONES_BCOEFF": ["kcal * mol ** -6"],
 }
