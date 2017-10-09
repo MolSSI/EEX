@@ -254,6 +254,9 @@ _operation_table = {
 
 # Define a few temporaries
 
+def get_context(utype, context):
+    return units_style[utype][context]
+
 
 def build_atom_units(utype):
     ret = {}
