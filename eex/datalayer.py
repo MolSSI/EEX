@@ -49,6 +49,7 @@ class DataLayer(object):
         self._terms = {2: {}, 3: {}, 4: {}}
         self._atom_metadata = {}
         self._atom_sets = set()
+        self._box_size = {}
 
 ### Generic helper close/save/list/etc functions
 
@@ -84,6 +85,46 @@ class DataLayer(object):
         Lists "other" tables loaded into the store.
         """
         return [x.replace("other_", "") for x in self.store.list_tables() if x.startswith("other_")]
+
+    def set_box_size(self, bsize, utype=None):
+        """
+        Sets the overall size of the box for the datalayer
+        """
+
+        cf = 1.0
+        if utype is not None:
+            internal_length = metadata.default_contexts["[length]"]
+            cf = units.conversion_factor(utype, internal_length)
+
+        for key in ["x", "y", "z"]:
+            if key.lower() in bsize:
+                tmp = bsize[key]
+            elif key.upper() in bsize:
+                tmp = bsize[key].lower()
+            else:
+                raise KeyError("Could not find key '%s'." % key)
+
+            if len(tmp) != 2:
+                raise IndexError("bsize['%s'] length does not equal 2" % key)
+
+            self._box_size[key] = (bsize[key][0] * cf, bsize[key][1] * cf)
+
+    def get_box_size(self, utype=None):
+        """
+        Gets the overall size of the box for the datalayer
+        """
+        ret = copy.deepcopy(self._box_size)
+
+        if utype is not None:
+            internal_length = metadata.default_contexts["[length]"]
+            cf = units.conversion_factor(internal_length, utype)
+            for k, v in ret.items():
+                ret[k] = (v[0] * cf, v[1] * cf)
+
+            return ret
+
+        else:
+            return ret
 
 ### Atom functions
 
