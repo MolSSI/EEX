@@ -19,15 +19,7 @@ def read_lammps_file(dl, filename, blocksize=110):
     max_rows = 100  # How many lines do we attempt to search?
     header_data = eex.utility.read_lines(filename, max_rows)
 
-    dim_dict = {
-        "xlo": None,
-        "xhi": None,
-        "ylo": None,
-        "yhi": None,
-        "zlo": None,
-        "zhi": None,
-    }
-
+    box_size = {}
     sizes_dict = {}
 
     startline = None
@@ -55,15 +47,12 @@ def read_lammps_file(dl, filename, blocksize=110):
         elif ("lo" in line) and ("hi" in line):
             dline = line.split()
             if dline[-1] == "xhi":
-                dim_dict["xlo"] = float(dline[0])
-                dim_dict["xhi"] = float(dline[1])
+                box_size["x"] = (float(dline[0]), float(dline[1]))
 
             elif dline[-1] == "yhi":
-                dim_dict["ylo"] = float(dline[0])
-                dim_dict["yhi"] = float(dline[1])
+                box_size["y"] = (float(dline[0]), float(dline[1]))
             elif dline[-1] == "zhi":
-                dim_dict["zlo"] = float(dline[0])
-                dim_dict["zhi"] = float(dline[1])
+                box_size["z"] = (float(dline[0]), float(dline[1]))
             else:
                 raise KeyError(
                     "LAMMPS Read: The following line looks like a dimension line, but does not match:\n%s" % line)
@@ -84,12 +73,12 @@ def read_lammps_file(dl, filename, blocksize=110):
         else:
             raise IOError("LAMMPS Read: Line not understood!\n%s" % line)
 
+    # Set the box size
+    dl.set_box_size(box_size, utype=lmd.get_context("real", "[length]"))
+
     # Make sure we have what we need
     if startline is None:
         raise IOError("LAMMPS Read: Did not find data start in %d header lines." % max_rows)
-
-    if sum((v is not None) for k, v in dim_dict.items()) != 6:
-        raise IOError("LAMMPS Read: Did not find dimension data in %d header lines." % max_rows)
 
     if ("atoms" not in list(sizes_dict)) or ("atom types" not in list(sizes_dict)):
         raise IOError("LAMMPS Read: Did not find size data on 'atoms' or 'atom types' in %d header lines." % max_rows)
@@ -178,7 +167,6 @@ def read_lammps_file(dl, filename, blocksize=110):
     # raise Exception("")
     data = {}
     data["sizes"] = sizes_dict
-    data["dimensions"] = dim_dict
     data["header"] = header
 
     return data

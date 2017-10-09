@@ -58,6 +58,7 @@ def test_df_atoms(backend):
     dl_rand_df = dl.get_other("atoms")
     assert eex.testing.df_compare(rand_df, dl_rand_df)
 
+
 def test_add_atom_parameter():
     dl = eex.datalayer.DataLayer("test_add_atom_parameters")
 
@@ -283,3 +284,24 @@ def test_atom_units():
 
     assert eex.testing.df_compare(xyz_ang1, xyz_ang2)
     assert eex.testing.df_compare(xyz_ang1, xyz_pm * 0.01)
+
+
+def test_box_size():
+    dl = eex.datalayer.DataLayer("test_box_size", backend="memory")
+
+    tmp = {"x": [-5, 5], "y": [-6, 6], "z": [-7, 7]}
+
+    # Normal set/get
+    dl.set_box_size(tmp)
+    comp = dl.get_box_size()
+    eex.testing.dict_compare(tmp, comp)
+
+    # Set/get with units
+    dl.set_box_size(tmp, utype="miles")
+    comp = dl.get_box_size(utype="miles")
+    eex.testing.dict_compare(tmp, comp)
+
+    with pytest.raises(AssertionError):
+        dl.set_box_size(tmp, utype="miles")
+        comp = dl.get_box_size()
+        eex.testing.dict_compare(tmp, comp)

@@ -169,6 +169,11 @@ def _compute_temporaries(order, xyz, indices):
         three_body_dict["theta"] = compute_angle(xyz.loc[indices["atom1"]].values, xyz.loc[indices["atom2"]].values,
                                                  xyz.loc[indices["atom3"]].values)
         return three_body_dict
+    elif order == 4:
+        four_body_dict = {}
+        four_body_dict["phi"] = compute_dihedral(xyz.loc[indices["atom1"]].values, xyz.loc[indices["atom2"]].values,
+                                                  xyz.loc[indices["atom3"]].values, xyz.loc[indices["atom4"]].values)
+        return four_body_dict
     else:
         raise KeyError("_compute_temporaries: order %d not understood" % order)
 
@@ -184,7 +189,11 @@ def evaluate_energy_expression(dl):
         "three-body": {
             "order": 3,
             "get_data": "get_angles"
-        }
+        },
+        # "four-body": {
+        #     "order": 4,
+        #     "get_data": "get_dihedrals"
+        # }
     }
 
     # Two-body
