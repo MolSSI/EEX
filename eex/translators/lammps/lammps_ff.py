@@ -269,18 +269,18 @@ angle_styles = {
 }
 
 dihedral_styles = {
-    "none": {
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
+    # "none": {
+    #     "form": "NYI",
+    #     "parameters": "NYI",
+    #     "units": "NYI",
+    #     "description": "NYI"
+    # },
     "charmmfsw": {
         "form": "K*(1 + cos(n*phi-d))",
         "parameters": ["K","n","d"],
         "units": {
             "K": "[energy]",
-            "n": "[]",  # must be type int, no units
+            "n": "count",  # must be type int, no units
             "d": "degree",  # must be type int. Differs because units must be degree regardless of units command ?
         },
         "description": "This is a charmm dihedral"
@@ -294,31 +294,31 @@ dihedral_styles = {
          },
          "description": "This is a multi/harmonic dihedral"
     },
-    "zero": {
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
-    # Class2 is complicated special case - see http://lammps.sandia.gov/doc/dihedral_class2.html
-    "class2": {
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
-    "cosine/shift/exp": {
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
+    # "zero": {
+    #     "form": "NYI",
+    #     "parameters": "NYI",
+    #     "units": "NYI",
+    #     "description": "NYI"
+    # },
+    # # Class2 is complicated special case - see http://lammps.sandia.gov/doc/dihedral_class2.html
+    # "class2": {
+    #     "form": "NYI",
+    #     "parameters": "NYI",
+    #     "units": "NYI",
+    #     "description": "NYI"
+    # },
+    # "cosine/shift/exp": {
+    #     "form": "NYI",
+    #     "parameters": "NYI",
+    #     "units": "NYI",
+    #     "description": "NYI"
+    # },
     "fourier": {
         "form": "Sum(k_i * (1.0 + cos(n_i * phi - d_i)))",
         "parameters": ["k_i","n_i","d_i"],
         "units": {
             "k_i": "[energy]",
-            "n_i": "[]",
+            "n_i": "count",
             "d_i": "degree"
         },
         "description": "This is a fourier dihedral"
@@ -328,8 +328,8 @@ dihedral_styles = {
         "parameters": ["K","n","d"],
         "units": {
             "K": "[energy]",
-            "n": "[]",
-            "d": "[]"
+            "n": "count",
+            "d": "phase"
         },
         "description": "This is a harmonic dihedral"
     },
@@ -343,18 +343,18 @@ dihedral_styles = {
         },
         "description": "This is a helix dihedral"
     },
-    "hybrid": {
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
+    # "hybrid": {
+    #     "form": "NYI",
+    #     "parameters": "NYI",
+    #     "units": "NYI",
+    #     "description": "NYI"
+    # },
     "nharmonic": {
         "form": "Sum( A_n*(cos(phi))**(n-1))",
         "parameters": ["A_n","n"],
         "units": {
             "A_n": "[energy]",
-            "n": "[]"
+            "n": "count"
         },
         "description": "This is a nharmonic dihedral"
     },
@@ -378,28 +378,28 @@ dihedral_styles = {
         },
         "description": "This is a quadratic dihedral"
     },
-    "spherical":
-    {  #This type includes dihedrals phi and angles theta
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
-    "table": {
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
+    # "spherical":
+    # {  #This type includes dihedrals phi and angles theta
+    #     "form": "NYI",
+    #     "parameters": "NYI",
+    #     "units": "NYI",
+    #     "description": "NYI"
+    # },
+    # "table": {
+    #     "form": "NYI",
+    #     "parameters": "NYI",
+    #     "units": "NYI",
+    #     "description": "NYI"
+    # },
 }
 
 improper_styles = {
-    "class2": {
-        "form": "NYI",
-        "parameters": ["", "", ""],
-        "units": "NYI",
-        "description": "NYI"
-    },
+    # "class2": {
+    #     "form": "NYI",
+    #     "parameters": ["", "", ""],
+    #     "units": "NYI",
+    #     "description": "NYI"
+    # },
     "cossq": {
         "form": "0.5*K*(cos(chi-chi0))**2",
         "parameters": ["K", "chi0"],
@@ -448,40 +448,40 @@ improper_styles = {
         },
         "description": "This is a harmonic improper"
     },
-    "hybrid": {
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
-    "none": {
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
-    "ring": {
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
-    "umbrella":
-    {  #Used in the dreiding force field
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
-    "zero": {
-        "form": "NYI",
-        "parameters": "NYI",
-        "units": "NYI",
-        "description": "NYI"
-    },
+#     "hybrid": {
+#         "form": "NYI",
+#         "parameters": "NYI",
+#         "units": "NYI",
+#         "description": "NYI"
+#     },
+#     "none": {
+#         "form": "NYI",
+#         "parameters": "NYI",
+#         "units": "NYI",
+#         "description": "NYI"
+#     },
+#     "ring": {
+#         "form": "NYI",
+#         "parameters": "NYI",
+#         "units": "NYI",
+#         "description": "NYI"
+#     },
+#     "umbrella":
+#     {  #Used in the dreiding force field
+#         "form": "NYI",
+#         "parameters": "NYI",
+#         "units": "NYI",
+#         "description": "NYI"
+#     },
+#     "zero": {
+#         "form": "NYI",
+#         "parameters": "NYI",
+#         "units": "NYI",
+#         "description": "NYI"
+#     },
 }
 
 term_data = {}
 term_data[2] = bond_styles
 term_data[3] = angle_styles
-# term_data[4] = dihedral_styles
+term_data[4] = dihedral_styles
