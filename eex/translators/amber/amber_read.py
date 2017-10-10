@@ -383,6 +383,9 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
     return ret_data
 
+def format_int(val):
+    return "% 7d" % val
+
 def write_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     """
     Parameters
@@ -403,7 +406,7 @@ def write_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     sizes["NBONH"] = 0                                              # TODO Number of bonds containing hydrogen NYI
     sizes["MBONA"] = dl.get_bonds().shape[0]                        # TODO Number of bonds not containing hydrogen
     sizes["NTHETH"] = 0                                             # TODO Number of angles containing hydrogen
-    sizes["MTHETA"] = 0 # dl.get_angles().shape[0] when implemented # TODO Number of angles not containing hydrogen
+    sizes["MTHETA"] = dl.get_angles().shape[0]                      # TODO Number of angles not containing hydrogen
     sizes["NPHIH"]= 0                                               # TODO Number of torsions containing hydrogen
     sizes["MPHIA"] = 0                                              # TODO Number of torsions not containing hydrogen
     sizes["NHPARM"] =  0                                            # Not used
@@ -422,13 +425,14 @@ def write_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     sizes["NBPER"] = 0                                              # Number of perturbed bonds (no longer supported)
     sizes["NGPER"] = 0                                              # Number of perturbed angles (no longer supported)
     sizes["NDPER"] = 0                                              # Number of perturbed torsions (no longer supported)
-    sizes["MGPER"] = 0
-    sizes["MDPER"] = 0
+    sizes["MBPER"] = 0                                              # No longer supported
+    sizes["MGPER"] = 0                                              # No longer upported
+    sizes["MDPER"] = 0                                              # No longer supported
     sizes["IFBOX"] = 0                                              # TODO Flag indicating whether a periodic box is present
                                                                     # 0 - no box, 1 - orthorhombic box, 2 - truncated octahedron
     sizes["NMXRS"] = 0                                              # TODO Number of atoms in the largest residue
     sizes["IFCAP"] = 0                                              # Set to 1 if a solvent CAP is being used
-    sizes["NUMEXTRA"] = 0                                           # Number of extra points in the topology file
+    sizes["NUMEXTRA"] = 0                                           # Number of extra points in the topology filgit discard changes
 
     ### Write title and version information
     f = open(filename, "w")
@@ -440,7 +444,11 @@ def write_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     f.write("%%FLAG POINTERS\n%s\n" %(amd.data_labels["POINTERS"][1]))
     ncols, dtype, width = _parse_format(amd.data_labels["POINTERS"][1])
     pointer_list = list(sizes.values())
-    print(pointer_list)
+    pointer_list = np.reshape(pointer_list, (3,10))
+    pointer_df = pd.DataFrame.from_records(pointer_list)
+    pointer_df.index = ["" for x in range(pointer_df.shape[0])]
+
+    print(pointer_df.to_string(buf=f,header=False, formatters=([format_int] * 10)))
 
 
     ### First fill in amber metadata which gives section for each size.
