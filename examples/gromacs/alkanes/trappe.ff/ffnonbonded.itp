@@ -1,0 +1,4 @@
+[ atomtypes ]
+; name  at.num    mass    charge   ptype          sigma      epsilon
+  C3   6     15.03452   0.000    A       3.75000e-01  0.814772;
+  C2   6     14.02658   0.000    A       3.95000e-01  0.814772;
