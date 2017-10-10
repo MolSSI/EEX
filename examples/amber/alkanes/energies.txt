@@ -15,14 +15,14 @@ propane
  BOND    =        2.0001  ANGLE   =        0.9996  DIHED      =        0.0000
  VDWAALS =        0.0000  EEL     =        0.0000  HBOND      =        0.0000
  1-4 VDW =        0.0000  1-4 EEL =        0.0000  RESTRAINT  =        0.0000
-minimization completed, ENE= 0.29997268E+01 RMS= 0.255551E+02
+minimization completed, ENE= 0.29997132E+01 RMS= 0.255551E+02
 
 butane
    NSTEP       ENERGY          RMS            GMAX         NAME    NUMBER
-      1       9.3023E+04     1.7070E+05     3.1814E+05     C4          4
+      1       1.6615E+01     3.6552E+01     6.9219E+01     C3          3
 
  BOND    =        3.0285  ANGLE   =       12.7275  DIHED      =        0.8592
  VDWAALS =        0.0000  EEL     =        0.0000  HBOND      =        0.0000
- 1-4 VDW =    93005.9233  1-4 EEL =        0.0000  RESTRAINT  =        0.0000
-minimization completed, ENE= 0.93022538E+05 RMS= 0.170703E+06
+ 1-4 VDW =        0.0000  1-4 EEL =        0.0000  RESTRAINT  =        0.0000
+minimization completed, ENE= 0.16615154E+02 RMS= 0.365516E+02
 
