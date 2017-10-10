@@ -93,7 +93,7 @@ class DataLayer(object):
 
         cf = 1.0
         if utype is not None:
-            internal_length = metadata.default_contexts["[length]"]
+            internal_length = units.convert_contexts("[length]")
             cf = units.conversion_factor(utype, internal_length)
 
         for key in ["x", "y", "z"]:
@@ -116,7 +116,7 @@ class DataLayer(object):
         ret = copy.deepcopy(self._box_size)
 
         if utype is not None:
-            internal_length = metadata.default_contexts["[length]"]
+            internal_length = units.convert_contexts("[length]")
             cf = units.conversion_factor(internal_length, utype)
             for k, v in ret.items():
                 ret[k] = (v[0] * cf, v[1] * cf)
@@ -125,6 +125,12 @@ class DataLayer(object):
 
         else:
             return ret
+
+    def evaluate(self):
+        """
+        Evaluate the current state of the energy expression.
+        """
+        return energy_eval.evaluate_energy_expression(self)
 
 ### Atom functions
 
@@ -714,8 +720,3 @@ class DataLayer(object):
 
         return pd.concat(tmp_data, axis=1)
 
-    def evaluate(self):
-        """
-        Evaluate the current state of the energy expression.
-        """
-        return energy_eval.evaluate_energy_expression(self)
