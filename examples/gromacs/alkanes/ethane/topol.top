@@ -2,7 +2,7 @@
 ;	File 'topol.top' was generated
 ;	By user: meliseo (1003)
 ;	On host: molssi10
-;	At date: Mon Oct  9 20:14:55 2017
+;	At date: Mon Oct  9 22:18:50 2017
 
 ;
 ;	This is a standalone topology file
@@ -28,9 +28,9 @@ Protein             3
 [ atoms ]
 ;   nr       type  resnr residue  atom   cgnr     charge       mass  typeB    chargeB      massB
 ; residue   1 C3B rtp C3B  q  0.0
-     1     CH3_UA      1    C3B      C      1          0    15.0345   ; qtot 0
+     1         C3      1    C3B      C      1          0    15.0345   ; qtot 0
 ; residue   1 C3E rtp C3E  q  0.0
-     2     CH3_UA      1    C3E      C      2          0    15.0345   ; qtot 0
+     2         C3      1    C3E      C      2          0    15.0345   ; qtot 0
 
 [ bonds ]
 ;  ai    aj funct            c0            c1            c2            c3
