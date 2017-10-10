@@ -250,6 +250,15 @@ class DataLayer(object):
         utype : list of Pint units, options
             Custom units for this particular addition, otherwise uses the default units in the registered functional form.
 
+        Results
+        -------
+        uid : int
+            The set uid of the new atom parameter.
+
+        Notes
+        -----
+        If a uid is not set and the parameter is already known, the function will return the current internal paramter.
+
         Examples
         --------
 
@@ -469,7 +478,8 @@ class DataLayer(object):
         try:
             term_md = metadata.get_term_metadata(order, "forms", term_name)
         except KeyError:
-            raise KeyError("DataLayer:add_parameters: Did not understand term '%d, %s'." % (order, term_name))
+            raise KeyError("DataLayer:add_parameters: Did not understand term order: %d, name: %s'." % (order,
+                                                                                                        term_name))
 
         # Validate and converate data as needed
         params = metadata.validate_term_dict(term_name, term_md, term_parameters, utype=utype)
@@ -719,4 +729,3 @@ class DataLayer(object):
             tmp_data.append(self.store.read_table(k))
 
         return pd.concat(tmp_data, axis=1)
-
