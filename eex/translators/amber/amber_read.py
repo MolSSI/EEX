@@ -384,7 +384,9 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     return ret_data
 
 def format_int(val):
-    return "% 7d" % val
+    #width = width-1
+    #format_string = "%sd" % width
+    return "%7d" % val
 
 def write_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     """
@@ -398,41 +400,30 @@ def write_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         If None, attempts to read the file filename.replace("prmtop", "inpcrd") otherwise passes. #NYI
     """
 
-    ### First get information into Amber pointers. I hope there is a better way to do this, but I can't think of one since
-    ### each key is specific. Some keys are filled with 0 below. Ones that should be implemented eventually are marked with TODO
-    sizes = OrderedDict()
-    sizes['NATOM'] = dl.get_atoms("atom_type").shape[0]             # Number of atoms
-    sizes["NTYPES"] = len((np.unique(dl.get_atoms("atom_type"))))   # Number of distinct LJ atom types
-    sizes["NBONH"] = 0                                              # TODO Number of bonds containing hydrogen NYI
-    sizes["MBONA"] = dl.get_bonds().shape[0]                        # TODO Number of bonds not containing hydrogen
-    sizes["NTHETH"] = 0                                             # TODO Number of angles containing hydrogen
-    sizes["MTHETA"] = dl.get_angles().shape[0]                      # TODO Number of angles not containing hydrogen
-    sizes["NPHIH"]= 0                                               # TODO Number of torsions containing hydrogen
-    sizes["MPHIA"] = 0                                              # TODO Number of torsions not containing hydrogen
-    sizes["NHPARM"] =  0                                            # Not used
-    sizes["NPARM"] = 0                                              # Used to determine if this is a LES-compatible prmtop
-    sizes["NNB"] = 0                                                # TODO Number of excluded atoms
-    sizes["NRES"] = len(np.unique(dl.get_atoms("residue_index")))   # Number of residues
-    sizes["NBONA"] = sizes["MBONA"]                                 # MBONA + number of constraint bonds (no longer supported)
-    sizes["NTHETA"] = sizes["MTHETA"]                               # MTHETA  + number of constraint angles (no longer supported)
-    sizes["NPHIA"] = sizes["MPHIA"]                                 # MPHIA + number of constraint torsions (no longer supported)
-    sizes["NUMBND"] = len(np.unique(dl.get_bonds()["term_index"]))  # Number of unique bond types
-    sizes["NUMANG"] = 0                                             # TODO Number of unique angle types
-    sizes["NPTRA"] = 0                                              # TODO Number of unique torsion types
-    sizes["NATYP"] = 0                                              # Number of SOLTY terms - unused
-    sizes["NPHB"] = 0                                               # Number of distinct 10-12 hbond pair types (no longer supported)
-    sizes["IFPERT"] = 0                                             # Set to 1 if top contains res perturbation info (no longer supported)
-    sizes["NBPER"] = 0                                              # Number of perturbed bonds (no longer supported)
-    sizes["NGPER"] = 0                                              # Number of perturbed angles (no longer supported)
-    sizes["NDPER"] = 0                                              # Number of perturbed torsions (no longer supported)
-    sizes["MBPER"] = 0                                              # No longer supported
-    sizes["MGPER"] = 0                                              # No longer upported
-    sizes["MDPER"] = 0                                              # No longer supported
-    sizes["IFBOX"] = 0                                              # TODO Flag indicating whether a periodic box is present
-                                                                    # 0 - no box, 1 - orthorhombic box, 2 - truncated octahedron
-    sizes["NMXRS"] = 0                                              # TODO Number of atoms in the largest residue
-    sizes["IFCAP"] = 0                                              # Set to 1 if a solvent CAP is being used
-    sizes["NUMEXTRA"] = 0                                           # Number of extra points in the topology filgit discard changes
+    ### First get information into Amber pointers. All keys are initially filled with zero.
+    # Ones that are currently 0, but should be implemented eventually are marked with TODO
+
+    output_sizes = {k: 0 for k in amd.size_keys}
+
+    output_sizes['NATOM'] = dl.get_atoms("atom_type").shape[0]             # Number of atoms
+    output_sizes["NTYPES"] = len((np.unique(dl.get_atoms("atom_type"))))   # Number of distinct LJ atom types
+    output_sizes["NBONH"] = 0                                              # TODO Number of bonds containing hydrogen NYI
+    output_sizes["MBONA"] = dl.get_bonds().shape[0]                        # TODO Number of bonds not containing hydrogen
+    output_sizes["NTHETH"] = 0                                             # TODO Number of angles containing hydrogen
+    output_sizes["MTHETA"] = dl.get_angles().shape[0]                      # TODO Number of angles not containing hydrogen
+    output_sizes["NPHIH"]= 0                                               # TODO Number of torsions containing hydrogen
+    output_sizes["MPHIA"] = 0                                              # TODO Number of torsions not containing hydrogen
+    output_sizes["NPARM"] = 0                                              # TODO Used to determine if this is a LES-compatible prmtop (??)
+    output_sizes["NNB"] = 0                                                # TODO Number of excluded atoms
+    output_sizes["NRES"] = len(np.unique(dl.get_atoms("residue_index")))   # Number of residues
+    output_sizes["NUMBND"] = len(np.unique(dl.get_bonds()["term_index"]))  # Number of unique bond types
+    output_sizes["NUMANG"] = 0                                             # TODO Number of unique angle types
+    output_sizes["NPTRA"] = 0                                              # TODO Number of unique torsion types
+    output_sizes["IFBOX"] = 0                                              # TODO Flag indicating whether a periodic box is present
+                                                                           # 0 - no box, 1 - orthorhombic box, 2 - truncated octahedron
+    output_sizes["NMXRS"] = 0                                              # TODO Number of atoms in the largest residue
+    output_sizes["IFCAP"] = 0                                              # Set to 1 if a solvent CAP is being used
+    output_sizes["NUMEXTRA"] = 0                                           # Number of extra points in the topology filgit discard changes
 
     ### Write title and version information
     f = open(filename, "w")
@@ -443,15 +434,15 @@ def write_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     # Write pointers section
     f.write("%%FLAG POINTERS\n%s\n" %(amd.data_labels["POINTERS"][1]))
     ncols, dtype, width = _parse_format(amd.data_labels["POINTERS"][1])
-    pointer_list = list(sizes.values())
-    pointer_list = np.reshape(pointer_list, (3,10))
-    pointer_df = pd.DataFrame.from_records(pointer_list)
-    pointer_df.index = ["" for x in range(pointer_df.shape[0])]
+    format_string = "%%%sd" % (width)
 
-    print(pointer_df.to_string(buf=f,header=False, formatters=([format_int] * 10)))
+    count = 0
+    for k in amd.size_keys:
+        f.write(format_string %output_sizes[k])
+        count += 1
+        if count % ncols == 0:
+            f.write("\n")
 
-
-    ### First fill in amber metadata which gives section for each size.
 
     f.close()
 
