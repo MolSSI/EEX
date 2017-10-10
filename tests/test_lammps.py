@@ -27,8 +27,9 @@ def test_lammps_read_data(spce_dl):
     assert data["sizes"]["angles"] == 200
     assert data["sizes"]["angle types"] == 1
 
-    assert data["dimensions"]["xlo"] == pytest.approx(-12.362, 1.e-6)
-    assert data["dimensions"]["xhi"] == pytest.approx(12.362, 1.e-6)
+    box_size = dl.get_box_size()
+    assert box_size["x"][0] == pytest.approx(-12.362, 1.e-6)
+    assert box_size["x"][1] == pytest.approx(12.362, 1.e-6)
 
 
 def test_lammps_read_atoms(spce_dl):

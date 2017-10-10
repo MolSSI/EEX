@@ -1,4 +1,4 @@
-%VERSION  VERSION_STAMP = V0001.000  DATE = 10/05/17  16:05:22                  
+%VERSION  VERSION_STAMP = V0001.000  DATE = 10/10/17  10:55:29                  
 %FLAG TITLE                                                                     
 %FORMAT(20a4)                                                                   
 Cpptraj                                                                         
@@ -58,10 +58,10 @@ BUT
   0.00000000E+00  1.57079700E+00  0.00000000E+00
 %FLAG SCEE_SCALE_FACTOR                                                         
 %FORMAT(5E16.8)                                                                 
-  1.20000000E+00  1.20000000E+00  1.20000000E+00
+  0.00000000E+00  0.00000000E+00  0.00000000E+00
 %FLAG SCNB_SCALE_FACTOR                                                         
 %FORMAT(5E16.8)                                                                 
-  2.00000000E+00  2.00000000E+00  2.00000000E+00
+  0.00000000E+00  0.00000000E+00  0.00000000E+00
 %FLAG SOLTY                                                                     
 %FORMAT(5E16.8)                                                                 
   0.00000000E+00  0.00000000E+00

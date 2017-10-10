@@ -1,0 +1,37 @@
+; TraPPE Alkanes 
+
+[ bondedtypes ]
+; bonds  angles  dihedrals  impropers all_dihedrals nrexcl HH14 RemoveDih
+  1      1       3          1         1             3      1    0
+
+[ C2A ]
+ [ atoms ]
+; name    type     charge   chargegroup
+   C      C2    0.000     1
+ [ bonds ]
+   C     +C
+   C     -C
+
+
+[ C2B ]
+ [ atoms ]
+; name    type     charge   chargegroup
+   C      C2    0.000     1
+ [ bonds ]
+   C     +C
+   C     -C
+
+
+[ C3B ]
+ [ atoms ]
+; name    type     charge   chargegroup
+  C      C3    0.000     1
+ [ bonds ]
+  C     +C
+
+[ C3E ]
+ [ atoms ]
+; name    type     charge   chargegroup
+  C      C3    0.000     1
+ [ bonds ]
+  C     -C

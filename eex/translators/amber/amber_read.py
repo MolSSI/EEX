@@ -253,6 +253,9 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
                 data = data.reshape(-1, mod_size).astype(int)
 
+                # Any negative indexed values are not true dihedrals
+                data = data[np.all(data >= 0, axis=1)]
+
                 # Weird AMBER indexing, we have: atom1, atom2, ..., term_index
                 # Atom indices are (index / 3 + 1)
                 data[:, :-1] = data[:, :-1] / 3 + 1

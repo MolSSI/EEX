@@ -1,0 +1,14 @@
+[ bondtypes ]
+; i    j     func    b0          kb
+C3  C3   1  0.154  251793.12 
+C3  C2   1  0.154  251793.12 
+C2  C2   1  0.154  251793.12 
+
+[ angletypes ]
+; i    j    k     func    th0       cth
+C3  C2  C3   1   114.0     519.625
+C3  C2  C2   1   114.0     519.625
+
+[ dihedraltypes ]
+;  i    j    k    l   func     coefficients
+C3  C2  C2  C3  3  0.0 8.397357 16.78631664 53.76912646 -26.31760008 0.0 

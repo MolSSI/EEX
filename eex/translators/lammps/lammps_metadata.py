@@ -237,9 +237,12 @@ _operation_table = {
     },
     "Dihedral Coeffs": {
         "size": "dihedral types",
-        "dl_func": "NYI",
+        "dl_func": "add_parameters",
         "call_type": "parameter",
-        # "dl_func": "add_parameters"
+        "args": {
+            "order": 4,
+            "form_name": "opls"
+        },
     },
     "Improper Coeffs": {
         "size": "improper types",
@@ -250,6 +253,9 @@ _operation_table = {
 }
 
 # Define a few temporaries
+
+def get_context(utype, context):
+    return units_style[utype][context]
 
 
 def build_atom_units(utype):
@@ -302,6 +308,7 @@ def build_term_table(utype):
             # Loop over parameters
             utype = {}
             for pk, pv in v["units"].items():
+                # print(ok, k, pk)
                 utype[pk] = eex.units.convert_contexts(pv, ustyle)
             v["utype"] = utype
     return ret
