@@ -68,10 +68,10 @@ def test_amber_spce_read_bonds(spce_dl):
     # Test bond df
     bonds = dl.get_bonds()
     assert bonds.shape[0] == 648
-    assert dl.get_term_counts(2, "total") == 648
+    assert dl.get_term_count(2, "total") == 648
 
     assert set(np.unique(bonds["term_index"])) == set([1, 2])
-    assert set(dl.get_term_counts(2)) == set([1, 2, "total"])
+    assert set(dl.get_term_count(2)) == set([1, 2, "total"])
 
 # def test_amber_spce_parameters(spce_dl):
 #     data, dl = spce_dl

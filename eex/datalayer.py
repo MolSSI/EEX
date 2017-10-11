@@ -47,7 +47,7 @@ class DataLayer(object):
 
         # Setup empty data holders
         self._terms = {2: {}, 3: {}, 4: {}}
-        self._term_counts = {2: {"total": 0}, 3: {"total": 0}, 4: {"total": 0}}
+        self._term_count = {2: {"total": 0}, 3: {"total": 0}, 4: {"total": 0}}
         self._atom_metadata = {}
         self._atom_counts = {k:0 for k in list(APC_DICT)}
         self._atom_sets = set()
@@ -330,11 +330,20 @@ class DataLayer(object):
         if property_name is None:
             return max(v for k, v in self._atom_counts.items())
 
+        property_name = property_name.lower()
         if property_name in self._atom_counts:
             return self._atom_counts[property_name]
         else:
             raise KeyError("DataLayer:get_atom_count: property_name `%s` not understood" % property_name)
 
+    def get_atom_uids(self, property_name):
+
+        property_name = property_name.lower()
+        self._check_atoms_dict(property_name)
+        if metadata.atom_metadata[property_name]["unique"]
+            return list(self._atom_metadata[property_name]["inv_uvals"][uid])
+        else:
+            raise KeyError("DataLayere:get_atom_uids: '%s' is not stored as unique values." % property_name)
 
     def add_atoms(self, atom_df, property_name=None, by_value=False, utype=None):
         """
@@ -598,25 +607,25 @@ class DataLayer(object):
 
         return list(self._terms[order])
 
-    def get_term_counts(self, order=None, uid=None):
+    def get_term_count(self, order=None, uid=None):
         """
         Gives the number of term counts and uids
 
         Note
         ----
         The number of unique UID's may differ from list_parameter_uid's for incomplete DL's as
-        `get_term_counts` measures the number of terms add by `add_terms` while `list_parameter_uids` list
+        `get_term_count` measures the number of terms add by `add_terms` while `list_parameter_uids` list
         the number of UID's added by `add_parameter`.
         """
         if (order is None) and (uid is None):
-            return copy.deepcopy(self._term_counts)
+            return copy.deepcopy(self._term_count)
 
         if uid is None:
             if order is None:
-                raise KeyError("DataLayer:get_term_counts: Cannot use 'uid' if 'order' is None.")
-            return self._term_counts[order]
+                raise KeyError("DataLayer:get_term_count: Cannot use 'uid' if 'order' is None.")
+            return self._term_count[order]
 
-        return self._term_counts[order][uid]
+        return self._term_count[order][uid]
 
 
     def add_terms(self, order, df):
@@ -657,12 +666,12 @@ class DataLayer(object):
         uvals, ucnts = np.unique(df["term_index"], return_counts=True)
         for uval, cnt in zip(uvals, ucnts):
             print(order, uval, cnt)
-            if uval not in self._term_counts[order]:
-                self._term_counts[order][uval] = cnt
+            if uval not in self._term_count[order]:
+                self._term_count[order][uval] = cnt
             else:
-                self._term_counts[order][uval] += cnt
+                self._term_count[order][uval] += cnt
 
-            self._term_counts[order]["total"] += cnt
+            self._term_count[order]["total"] += cnt
 
         # Finally store the dataframe
         return self.store.add_table("term" + str(order), df)
