@@ -23,9 +23,8 @@ _four_body_functional_forms = {
         "parameters": ["K", "n", "d"],
         "units": {
             "K": "[energy]",
-            "n": "phase",  # must be type int, no units
-            "d":
-            "[arcunit]",  # must be type int. Differs because units must be [degrees] regardless of units command ?
+            "n": "phase",
+            "d": "[arcunit]",
         },
         "description": "This is a charmm dihedral"
     },

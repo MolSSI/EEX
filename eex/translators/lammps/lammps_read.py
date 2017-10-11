@@ -125,6 +125,7 @@ def read_lammps_file(dl, filename, blocksize=110):
 
             # Single call
             elif op["call_type"] == "single":
+                # print(op["dl_func"], op["df_cols"])
                 if "df_cols" in op:
                     data.columns = op["df_cols"]
                 dl.call_by_string(op["dl_func"], data, **op["kwargs"])

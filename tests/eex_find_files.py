@@ -21,3 +21,12 @@ def get_example_filename(*filename):
         raise OSError("File %s not found!" % fname)
 
     return fname
+
+
+def get_scratch_directory(filename):
+
+    scr_dir = os.path.join(test_dir, "scratch")
+    if not os.path.exists(scr_dir):
+        os.mkdir(scr_dir)
+
+    return os.path.join(scr_dir, filename)

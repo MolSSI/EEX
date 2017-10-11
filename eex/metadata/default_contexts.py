@@ -9,7 +9,6 @@ default_contexts = {
     "[arcunit]": "radian",
     "[substance]": "mol",
     "[mass]": "g",
-    "[substance]": "mol",
     "[temperature]": "kelvin",
     "[time]": "picosecond",
 }

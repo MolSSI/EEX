@@ -109,3 +109,6 @@ ENV/
 # Files to generate LAMMPS data
 *.tcl
 *.xyz
+
+# Scratch tmps
+tests/scratch/*

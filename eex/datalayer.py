@@ -47,7 +47,9 @@ class DataLayer(object):
 
         # Setup empty data holders
         self._terms = {2: {}, 3: {}, 4: {}}
+        self._term_count = {2: {"total": 0}, 3: {"total": 0}, 4: {"total": 0}}
         self._atom_metadata = {}
+        self._atom_counts = {k:0 for k in list(APC_DICT)}
         self._atom_sets = set()
         self._box_size = {}
 
@@ -93,7 +95,7 @@ class DataLayer(object):
 
         cf = 1.0
         if utype is not None:
-            internal_length = metadata.default_contexts["[length]"]
+            internal_length = units.convert_contexts("[length]")
             cf = units.conversion_factor(utype, internal_length)
 
         for key in ["x", "y", "z"]:
@@ -116,7 +118,7 @@ class DataLayer(object):
         ret = copy.deepcopy(self._box_size)
 
         if utype is not None:
-            internal_length = metadata.default_contexts["[length]"]
+            internal_length = units.convert_contexts("[length]")
             cf = units.conversion_factor(internal_length, utype)
             for k, v in ret.items():
                 ret[k] = (v[0] * cf, v[1] * cf)
@@ -125,6 +127,12 @@ class DataLayer(object):
 
         else:
             return ret
+
+    def evaluate(self):
+        """
+        Evaluate the current state of the energy expression.
+        """
+        return energy_eval.evaluate_energy_expression(self)
 
 ### Atom functions
 
@@ -211,6 +219,8 @@ class DataLayer(object):
         else:
             tmp_df = df[APC_DICT[property_name]]
 
+        self._atom_counts[property_name] += tmp_df.shape[0]
+
         return self.store.add_table(table_name, tmp_df)
 
     def _get_atom_table(self, table_name, property_name, by_value, utype):
@@ -243,6 +253,15 @@ class DataLayer(object):
             The uid to assign to this parameterized term.
         utype : list of Pint units, options
             Custom units for this particular addition, otherwise uses the default units in the registered functional form.
+
+        Results
+        -------
+        uid : int
+            The set uid of the new atom parameter.
+
+        Notes
+        -----
+        If a uid is not set and the parameter is already known, the function will return the current internal paramter.
 
         Examples
         --------
@@ -301,6 +320,33 @@ class DataLayer(object):
         Lists all atom properties contained in the DataLayer.
         """
         return list(self._atom_sets)
+
+    def get_atom_count(self, property_name=None):
+        """
+        Get the number of atom properties added, or the maximum number of properties given.
+        """
+
+        # Get the current maximum
+        if property_name is None:
+            return max(v for k, v in self._atom_counts.items())
+
+        property_name = property_name.lower()
+        if property_name in self._atom_counts:
+            return self._atom_counts[property_name]
+        else:
+            raise KeyError("DataLayer:get_atom_count: property_name `%s` not understood" % property_name)
+
+    def get_atom_uids(self, property_name, properties=False):
+
+        property_name = property_name.lower()
+        self._check_atoms_dict(property_name)
+        if not metadata.atom_metadata[property_name]["unique"]:
+            if properties:
+                return copy.deepcopy(self._atom_metadata[property_name]["inv_uvals"])
+            else:
+                return list(self._atom_metadata[property_name]["inv_uvals"])
+        else:
+            raise KeyError("DataLayere:get_atom_uids: '%s' is not stored as unique values." % property_name)
 
     def add_atoms(self, atom_df, property_name=None, by_value=False, utype=None):
         """
@@ -463,7 +509,8 @@ class DataLayer(object):
         try:
             term_md = metadata.get_term_metadata(order, "forms", term_name)
         except KeyError:
-            raise KeyError("DataLayer:add_parameters: Did not understand term '%d, %s'." % (order, term_name))
+            raise KeyError("DataLayer:add_parameters: Did not understand term order: %d, name: %s'." % (order,
+                                                                                                        term_name))
 
         # Validate and converate data as needed
         params = metadata.validate_term_dict(term_name, term_md, term_parameters, utype=utype)
@@ -563,6 +610,27 @@ class DataLayer(object):
 
         return list(self._terms[order])
 
+    def get_term_count(self, order=None, uid=None):
+        """
+        Gives the number of term counts and uids
+
+        Note
+        ----
+        The number of unique UID's may differ from list_parameter_uid's for incomplete DL's as
+        `get_term_count` measures the number of terms add by `add_terms` while `list_parameter_uids` list
+        the number of UID's added by `add_parameter`.
+        """
+        if (order is None) and (uid is None):
+            return copy.deepcopy(self._term_count)
+
+        if uid is None:
+            if order is None:
+                raise KeyError("DataLayer:get_term_count: Cannot use 'uid' if 'order' is None.")
+            return self._term_count[order]
+
+        return self._term_count[order][uid]
+
+
     def add_terms(self, order, df):
         """
         Adds terms using a index notation.
@@ -573,7 +641,7 @@ class DataLayer(object):
             The order (number of atoms) involved in the expression i.e. 2, "two"
         df : pd.DataFrame
             Adds a DataFrame containing the term information by index
-            Required columns: ["term_index", "atom1_index", ..., "atom(order)_index", "term_type"]
+            Required columns: ["term_index", "atom1_index", ..., "atom(order)_index", "term_index"]
 
         Returns
         -------
@@ -591,10 +659,23 @@ class DataLayer(object):
         if not_found:
             raise KeyError("DataLayer:add_terms: Missing required columns '%s' for order %d" % (str(not_found), order))
 
+        # Add the data in the index
         if "term_index" in df.columns:
             df = df[req_cols + ["term_index"]]
         else:
             raise Exception("NYI: Add terms by *not* term_index")
+
+        # Get count information for later
+        uvals, ucnts = np.unique(df["term_index"], return_counts=True)
+        for uval, cnt in zip(uvals, ucnts):
+            if uval not in self._term_count[order]:
+                self._term_count[order][uval] = cnt
+            else:
+                self._term_count[order][uval] += cnt
+
+            self._term_count[order]["total"] += cnt
+
+        # Finally store the dataframe
         return self.store.add_table("term" + str(order), df)
 
     def get_terms(self, order):
@@ -713,9 +794,3 @@ class DataLayer(object):
             tmp_data.append(self.store.read_table(k))
 
         return pd.concat(tmp_data, axis=1)
-
-    def evaluate(self):
-        """
-        Evaluate the current state of the energy expression.
-        """
-        return energy_eval.evaluate_energy_expression(self)

@@ -314,18 +314,18 @@ def build_term_table(utype):
     return ret
 
 
-if __name__ == "__main__":
-    from eex.units import ureg
+# if __name__ == "__main__":
+#     from eex.units import ureg
 
-    # Test unit md
-    for k, v in units_style.items():
-        for k, v in units_style[k].items():
-            try:
-                u = ureg.parse_expression(v)
-                # print(u)
-            except:
-                print("Pint could not parse %s" % v)
+#     # Test unit md
+#     for k, v in units_style.items():
+#         for k, v in units_style[k].items():
+#             try:
+#                 u = ureg.parse_expression(v)
+#                 # print(u)
+#             except:
+#                 print("Pint could not parse %s" % v)
 
-    build_atom_units("real")
-    build_operation_table("real")
-    build_term_table("real")
+#     build_atom_units("real")
+#     build_operation_table("real")
+#     build_term_table("real")
