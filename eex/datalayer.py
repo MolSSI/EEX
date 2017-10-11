@@ -336,12 +336,15 @@ class DataLayer(object):
         else:
             raise KeyError("DataLayer:get_atom_count: property_name `%s` not understood" % property_name)
 
-    def get_atom_uids(self, property_name):
+    def get_atom_uids(self, property_name, properties=False):
 
         property_name = property_name.lower()
         self._check_atoms_dict(property_name)
-        if metadata.atom_metadata[property_name]["unique"]
-            return list(self._atom_metadata[property_name]["inv_uvals"][uid])
+        if not metadata.atom_metadata[property_name]["unique"]:
+            if properties:
+                return copy.deepcopy(self._atom_metadata[property_name]["inv_uvals"])
+            else:
+                return list(self._atom_metadata[property_name]["inv_uvals"])
         else:
             raise KeyError("DataLayere:get_atom_uids: '%s' is not stored as unique values." % property_name)
 
@@ -665,7 +668,6 @@ class DataLayer(object):
         # Get count information for later
         uvals, ucnts = np.unique(df["term_index"], return_counts=True)
         for uval, cnt in zip(uvals, ucnts):
-            print(order, uval, cnt)
             if uval not in self._term_count[order]:
                 self._term_count[order][uval] = cnt
             else:
