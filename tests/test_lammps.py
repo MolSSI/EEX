@@ -8,6 +8,7 @@ import pytest
 import pandas as pd
 import eex_find_files
 
+
 @pytest.fixture(scope="module", params=["HDF5", "Memory"])
 def spce_dl(request):
     fname = eex_find_files.get_example_filename("lammps", "SPCE", "data.spce")
@@ -71,11 +72,11 @@ def test_lammps_read_angles(spce_dl):
     assert angles.shape[0] == 200
     assert np.allclose(np.unique(angles["term_index"]), [1])
 
-# @pytest.mark.xfail(reason="Nonbonded parameters not yet implemented in dl")
+
 @pytest.mark.parametrize("molecule", [
     "data.trappe_butane_single_molecule",
-    # "data.trappe_propane_single_molecule",
-    # "data.trappe_ethane_single_molecule",
+    "data.trappe_propane_single_molecule",
+    "data.trappe_ethane_single_molecule",
 ])
 def test_lammps_writer(molecule):
     fname = eex_find_files.get_example_filename("lammps", "alkanes", molecule)
@@ -91,4 +92,4 @@ def test_lammps_writer(molecule):
     # Read in output data
     dl_new = eex.datalayer.DataLayer(molecule)
     eex.translators.lammps.read_lammps_file(dl_new, oname)
-    #assert eex.testing.dl_compare(dl, dl_new)
+    assert eex.testing.dl_compare(dl, dl_new)
