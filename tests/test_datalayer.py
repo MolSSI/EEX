@@ -42,12 +42,19 @@ def test_df_atoms(backend):
 
     tmp_df = _build_atom_df(10)
 
+
     # Add a random DataFrame with name "atoms" to check interference with "add_atoms"
     rand_df = pd.DataFrame(np.random.rand(4, 4))
     dl.add_other("atoms", rand_df)
 
+
     dl.add_atoms(tmp_df.iloc[:5], by_value=True)
     dl.add_atoms(tmp_df.iloc[5:], by_value=True)
+
+    # Test count functionality works
+    assert dl.get_atom_count() == 30
+    assert dl.get_atom_count("charge") == 30
+    assert dl.get_atom_count("xyz") == 30
 
     dl_df = dl.get_atoms(None, by_value=True)
 

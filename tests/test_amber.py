@@ -30,6 +30,9 @@ def test_amber_spce_read_atoms_value(spce_dl):
     atoms = dl.get_atoms(
         ["atom_name", "charge", "atomic_number", "mass", "residue_name", "residue_index", "xyz"], by_value=True)
     assert atoms.shape[0] == 648
+    assert dl.get_atom_count() == 648
+    assert dl.get_atom_count("charge") == 648
+    assert dl.get_atom_count("mass") == 648
     assert set(np.unique(atoms["atom_name"])) == set(["H1", "H2", "O"])
     assert np.allclose(np.unique(atoms["charge"]), [-0.8476, 0.4238])
     assert np.allclose(np.unique(atoms["atomic_number"]), [1.0, 8.0])

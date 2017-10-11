@@ -49,6 +49,7 @@ class DataLayer(object):
         self._terms = {2: {}, 3: {}, 4: {}}
         self._term_counts = {2: {"total": 0}, 3: {"total": 0}, 4: {"total": 0}}
         self._atom_metadata = {}
+        self._atom_counts = {k:0 for k in list(APC_DICT)}
         self._atom_sets = set()
         self._box_size = {}
 
@@ -218,6 +219,8 @@ class DataLayer(object):
         else:
             tmp_df = df[APC_DICT[property_name]]
 
+        self._atom_counts[property_name] += tmp_df.shape[0]
+
         return self.store.add_table(table_name, tmp_df)
 
     def _get_atom_table(self, table_name, property_name, by_value, utype):
@@ -317,6 +320,21 @@ class DataLayer(object):
         Lists all atom properties contained in the DataLayer.
         """
         return list(self._atom_sets)
+
+    def get_atom_count(self, property_name=None):
+        """
+        Get the number of atom properties added, or the maximum number of properties given.
+        """
+
+        # Get the current maximum
+        if property_name is None:
+            return max(v for k, v in self._atom_counts.items())
+
+        if property_name in self._atom_counts:
+            return self._atom_counts[property_name]
+        else:
+            raise KeyError("DataLayer:get_atom_count: property_name `%s` not understood" % property_name)
+
 
     def add_atoms(self, atom_df, property_name=None, by_value=False, utype=None):
         """
