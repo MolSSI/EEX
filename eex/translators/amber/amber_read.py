@@ -7,7 +7,6 @@ import pandas as pd
 import math
 import re
 import numpy as np
-from collections import OrderedDict
 
 # Python 2/3 compat
 try:
@@ -22,48 +21,6 @@ import logging
 from . import amber_metadata as amd
 
 logger = logging.getLogger(__name__)
-
-
-def _parse_format(string):
-    """
-    Parses an AMBER style format string.
-
-    Example:
-
-    >>> string = "%FORMAT(10I8)"
-    >>> _parse_format(string)
-    [10, int, 8]
-    """
-    if "FORMAT" not in string:
-        raise ValueError("AMBER: Did not understand format line '%s'." % string)
-
-    pstring = string.replace("%FORMAT(", "").replace(")", "").strip()
-    ret = [x for x in re.split('(\d+)', pstring) if x]
-
-    if ret[1] == "I":
-        if len(ret) != 3:
-            raise ValueError("AMBER: Did not understand format line '%s'." % string)
-        ret[1] = int
-        ret[0] = int(ret[0])
-        ret[2] = int(ret[2])
-    elif ret[1] == "E":
-        if len(ret) != 5:
-            raise ValueError("AMBER: Did not understand format line '%s'." % string)
-        ret[1] = float
-        ret[0] = int(ret[0])
-        ret[2] = int(ret[2])
-        # The .8 is not interesting to us
-    elif ret[1] == "a":
-        if len(ret) != 3:
-            raise ValueError("AMBER: Did not understand format line '%s'." % string)
-        ret[1] = str
-        ret[0] = int(ret[0])
-        ret[2] = int(ret[2])
-    else:
-        raise ValueError("AMBER: Type symbol '%s' not understood from line '%s'." % (ret[1], string))
-
-    return ret
-
 
 def _data_flatten(data, column_name, category_index, df_index_name):
     # Reorganize the data 2D -> 1D packing
@@ -116,7 +73,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
         # Get size_information
         elif "FLAG POINTERS" in line:
-            ncols, dtype, width = _parse_format(header_data[num + 1])
+            ncols, dtype, width = amd.parse_format(header_data[num + 1])
 
             parsed_sizes = []
             for shift in range(4):
@@ -166,7 +123,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         matched, name = eex.utility.line_fuzzy_list(line, list(amd.data_labels))
         if matched:
             current_data_category = name
-            current_data_type = _parse_format(next(file_handle))
+            current_data_type = amd.parse_format(next(file_handle))
 
             break
         counter += 1
@@ -316,7 +273,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         if not matched:
             raise KeyError("AMBER Read: Data category '%s' not understood" % category_line)
 
-        current_data_type = _parse_format(format_line)
+        current_data_type = amd.parse_format(format_line)
 
     # Close out the file handle
     file_handle.close()
@@ -385,125 +342,3 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         dl.add_atoms(df, utype={"XYZ": "angstrom"})
 
     return ret_data
-
-def format_int(val):
-    #width = width-1
-    #format_string = "%sd" % width
-    return "%7d" % val
-
-def write_amber_file(dl, filename, inpcrd=None, blocksize=5000):
-    """
-    Parameters
-    ------------
-    dl : eex.DataLayer
-        The datalayer containing information about the system to write
-    filename : str
-        The name of the file to write
-    inpcrd : str, optional
-        If None, attempts to read the file filename.replace("prmtop", "inpcrd") otherwise passes. #NYI
-    """
-
-    ### First get information into Amber pointers. All keys are initially filled with zero.
-    # Ones that are currently 0, but should be implemented eventually are marked with TODO
-
-    output_sizes = {k: 0 for k in amd.size_keys}
-
-    output_sizes['NATOM'] = dl.get_atoms("atom_type").shape[0]             # Number of atoms
-    output_sizes["NTYPES"] = len((np.unique(dl.get_atoms("atom_type"))))   # Number of distinct LJ atom types
-    output_sizes["NBONH"] = 0                                              # TODO Number of bonds containing hydrogen NYI
-    output_sizes["MBONA"] = dl.get_bonds().shape[0]                        # TODO Number of bonds not containing hydrogen
-    output_sizes["NTHETH"] = 0                                             # TODO Number of angles containing hydrogen
-    output_sizes["MTHETA"] = dl.get_angles().shape[0]                      # TODO Number of angles not containing hydrogen
-    output_sizes["NPHIH"]= 0                                               # TODO Number of torsions containing hydrogen
-    output_sizes["MPHIA"] = 0                                              # TODO Number of torsions not containing hydrogen
-    output_sizes["NPARM"] = 0                                              # TODO Used to determine if this is a LES-compatible prmtop (??)
-    output_sizes["NNB"] = 0                                                # TODO Number of excluded atoms
-    output_sizes["NRES"] = len(np.unique(dl.get_atoms("residue_index")))   # Number of residues
-    output_sizes["NUMBND"] = len(np.unique(dl.get_bonds()["term_index"]))  # Number of unique bond types
-    output_sizes["NUMANG"] = 0                                             # TODO Number of unique angle types
-    output_sizes["NPTRA"] = 0                                              # TODO Number of unique torsion types
-    output_sizes["IFBOX"] = 0                                              # TODO Flag indicating whether a periodic box is present
-                                                                           # 0 - no box, 1 - orthorhombic box, 2 - truncated octahedron
-    output_sizes["NMXRS"] = 0                                              # TODO Number of atoms in the largest residue
-    output_sizes["IFCAP"] = 0                                              # Set to 1 if a solvent CAP is being used
-    output_sizes["NUMEXTRA"] = 0                                           # Number of extra points in the topology filgit discard changes
-
-    ### Write title and version information
-    f = open(filename, "w")
-    f.write('%%VERSION  VERSION_STAMP = V0001.000  DATE = %s  %s\n' %(time.strftime("%x"), time.strftime("%H:%M:%S")))
-    f.write("%FLAG TITLE\n%FORMAT(20a4)\n")
-    f.write("prmtop generated by EEX\n")
-
-    ## Write pointers section
-    f.write("%%FLAG POINTERS\n%s\n" %(amd.data_labels["POINTERS"][1]))
-    ncols, dtype, width = _parse_format(amd.data_labels["POINTERS"][1])
-    format_string = "%%%sd" % (width)
-
-    count = 0
-    for k in amd.size_keys:
-        f.write(format_string %output_sizes[k])
-        count += 1
-        if count % ncols == 0:
-            f.write("\n")
-
-    f.write("\n")
-    f.close()
-
-    f = open(filename, "ab")
-    ## Write atom properties sections
-    for k in amd.atom_property_names:
-
-        # Get data format
-        format = _parse_format(amd.data_labels[k][1])
-        #print(format)
-        ncols = format[0]
-
-        # Get unit type
-        utype = None
-        if k in amd.atom_data_units:
-            utype = amd.atom_data_units[k]
-
-        if format[1] == str:
-            fmt = "%-" + str(format[2]) + "s"
-        elif format[1] == float:
-            fmt = " % " + str(format[2] - 1) + "." + str(format[4]) + "E"
-        elif format[1] == int:
-            fmt = " % " + str(format[2] - 1) + "d"
-        else:
-            raise TypeError("Type (%s) not recognized" % type(format[1]))
-
-        f.write(("%%FLAG %s\n" % k).encode())
-        f.write(("%s\n" %amd.data_labels[k][1]).encode())
-
-        # Get data
-        data = dl.get_atoms(amd.atom_property_names[k], by_value=True, utype=utype).values.ravel()
-        remainder_size = data.size % ncols
-        rem_data = data[-remainder_size:].reshape(1, -1)
-        data = data[:-remainder_size].reshape(-1, ncols)
-
-        # Write data to file
-        print(data.shape, rem_data.shape, rem_data, fmt)
-        np.savetxt(f, data, fmt=fmt, delimiter="")
-        np.savetxt(f, rem_data, fmt=fmt, delimiter="")
-        f.flush()
-
-        """
-        # Reshape data. If larger than ncols, reshapes. Otherwise, transpose (column -> row)
-        try:
-            data = data.reshape(-1,ncols)
-        except ValueError:
-            data = data.transpose()
-
-        data_df = pd.DataFrame(data)
-        print(data_df.head())
-        data_df.to_string(buf=f, header=False, index=False)
-        """
-
-
-        #print(data.head())
-        #
-
-
-    f.close()
-
-    return 0

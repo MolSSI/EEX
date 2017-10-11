@@ -1,3 +1,5 @@
+import re
+
 # Possible size keys to look for in the header
 size_keys = [
     "NATOM", "NTYPES", "NBONH", "MBONA", "NTHETH", "MTHETA", "NPHIH", "MPHIA", "NHPARM", "NPARM", "NNB", "NRES",
@@ -144,3 +146,44 @@ store_other = []
 for k, v in forcefield_parameters.items():
     store_other.extend(list(v["column_names"]))
 store_other.extend(residue_store_names)
+
+
+def parse_format(string):
+    """
+    Parses an AMBER style format string.
+
+    Example:
+
+    >>> string = "%FORMAT(10I8)"
+    >>> _parse_format(string)
+    [10, int, 8]
+    """
+    if "FORMAT" not in string:
+        raise ValueError("AMBER: Did not understand format line '%s'." % string)
+
+    pstring = string.replace("%FORMAT(", "").replace(")", "").strip()
+    ret = [x for x in re.split('(\d+)', pstring) if x]
+
+    if ret[1] == "I":
+        if len(ret) != 3:
+            raise ValueError("AMBER: Did not understand format line '%s'." % string)
+        ret[1] = int
+        ret[0] = int(ret[0])
+        ret[2] = int(ret[2])
+    elif ret[1] == "E":
+        if len(ret) != 5:
+            raise ValueError("AMBER: Did not understand format line '%s'." % string)
+        ret[1] = float
+        ret[0] = int(ret[0])
+        ret[2] = int(ret[2])
+        # The .8 is not interesting to us
+    elif ret[1] == "a":
+        if len(ret) != 3:
+            raise ValueError("AMBER: Did not understand format line '%s'." % string)
+        ret[1] = str
+        ret[0] = int(ret[0])
+        ret[2] = int(ret[2])
+    else:
+        raise ValueError("AMBER: Type symbol '%s' not understood from line '%s'." % (ret[1], string))
+
+    return ret
