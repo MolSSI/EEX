@@ -59,7 +59,7 @@ def write_amber_file(dl, filename, inpcrd=None):
     # 0 - no box, 1 - orthorhombic box, 2 - truncated octahedron
     output_sizes["NMXRS"] = 0  # TODO Number of atoms in the largest residue
     output_sizes["IFCAP"] = 0  # Set to 1 if a solvent CAP is being used
-    output_sizes["NUMEXTRA"] = 0  # Number of extra points in the topology filgit discard changes
+    output_sizes["NUMEXTRA"] = 0  # Number of extra points in the topology file
 
     ### Write title and version information
     f = open(filename, "w")
@@ -82,13 +82,13 @@ def write_amber_file(dl, filename, inpcrd=None):
     f.write("\n")
     f.close()
 
-    f = open(filename, "ab")
     ## Write atom properties sections
+    f = open(filename, "ab")
+
     for k in amd.atom_property_names:
 
         # Get data format
         format = amd.parse_format(amd.data_labels[k][1])
-        # print(format)
         ncols = format[0]
 
         # Get unit type
@@ -115,7 +115,7 @@ def write_amber_file(dl, filename, inpcrd=None):
         data = data[:-remainder_size].reshape(-1, ncols)
 
         # Write data to file
-        print(data.shape, rem_data.shape, rem_data, fmt)
+        # print(data.shape, rem_data.shape, rem_data, fmt)
         np.savetxt(f, data, fmt=fmt, delimiter="")
         np.savetxt(f, rem_data, fmt=fmt, delimiter="")
         f.flush()
