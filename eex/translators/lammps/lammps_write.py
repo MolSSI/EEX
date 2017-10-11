@@ -4,7 +4,7 @@ LAMMPS EEX I/O
 
 import pandas as pd
 import math
-
+import numpy as np
 import eex
 
 from . import lammps_metadata as lmd
@@ -28,7 +28,7 @@ def write_lammps_file(dl, data, filename, blocksize=110):
         # Write box information
         box_size = dl.get_box_size()
         for coord in box_size:
-            data_file.write(' '.join([str(box_size[coord][0]), str(box_size[coord][1]), "xlo", "xhi", "\n"]))
+            data_file.write(' '.join([str(box_size[coord][0]), str(box_size[coord][1]), ''.join([coord,"lo"]), ''.join([coord,"hi"]), "\n"]))
 
     
         data_file.write('\n')
@@ -75,12 +75,13 @@ def write_lammps_file(dl, data, filename, blocksize=110):
         if atoms.shape[0] > 0:
             data_file.write('\n')
             data_file.write("Masses\n\n")
-            atoms["mass"].to_string(data_file, header=None)
-            data_file.write('\n')
+            #atoms["mass"].to_string(data_file, header=None)
+            for idx, mass in enumerate(np.unique(atoms["mass"])):
+                data_file.write(' '.join([str(idx + 1), str(mass),'\n']))
 
             data_file.write('\n')
             data_file.write("Atoms\n\n")
-            atoms[["charge", "X", "Y", "Z"]].to_string(data_file, header=None, index_names=False)
+            atoms[["charge", "X", "Y", "Z"]].to_string(data_file, header=None, index_names=False, index=True)
             data_file.write('\n')
 
         if len(bond_uids) > 0:
