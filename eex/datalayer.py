@@ -47,6 +47,7 @@ class DataLayer(object):
 
         # Setup empty data holders
         self._terms = {2: {}, 3: {}, 4: {}}
+        self._term_counts = {2: {"total": 0}, 3: {"total": 0}, 4: {"total": 0}}
         self._atom_metadata = {}
         self._atom_sets = set()
         self._box_size = {}
@@ -579,6 +580,27 @@ class DataLayer(object):
 
         return list(self._terms[order])
 
+    def get_term_counts(self, order=None, uid=None):
+        """
+        Gives the number of term counts and uids
+
+        Note
+        ----
+        The number of unique UID's may differ from list_parameter_uid's for incomplete DL's as
+        `get_term_counts` measures the number of terms add by `add_terms` while `list_parameter_uids` list
+        the number of UID's added by `add_parameter`.
+        """
+        if (order is None) and (uid is None):
+            return copy.deepcopy(self._term_counts)
+
+        if uid is None:
+            if order is None:
+                raise KeyError("DataLayer:get_term_counts: Cannot use 'uid' if 'order' is None.")
+            return self._term_counts[order]
+
+        return self._term_counts[order][uid]
+
+
     def add_terms(self, order, df):
         """
         Adds terms using a index notation.
@@ -589,7 +611,7 @@ class DataLayer(object):
             The order (number of atoms) involved in the expression i.e. 2, "two"
         df : pd.DataFrame
             Adds a DataFrame containing the term information by index
-            Required columns: ["term_index", "atom1_index", ..., "atom(order)_index", "term_type"]
+            Required columns: ["term_index", "atom1_index", ..., "atom(order)_index", "term_index"]
 
         Returns
         -------
@@ -607,10 +629,24 @@ class DataLayer(object):
         if not_found:
             raise KeyError("DataLayer:add_terms: Missing required columns '%s' for order %d" % (str(not_found), order))
 
+        # Add the data in the index
         if "term_index" in df.columns:
             df = df[req_cols + ["term_index"]]
         else:
             raise Exception("NYI: Add terms by *not* term_index")
+
+        # Get count information for later
+        uvals, ucnts = np.unique(df["term_index"], return_counts=True)
+        for uval, cnt in zip(uvals, ucnts):
+            print(order, uval, cnt)
+            if uval not in self._term_counts[order]:
+                self._term_counts[order][uval] = cnt
+            else:
+                self._term_counts[order][uval] += cnt
+
+            self._term_counts[order]["total"] += cnt
+
+        # Finally store the dataframe
         return self.store.add_table("term" + str(order), df)
 
     def get_terms(self, order):
