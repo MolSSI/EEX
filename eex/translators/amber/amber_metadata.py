@@ -187,3 +187,14 @@ def parse_format(string):
         raise ValueError("AMBER: Type symbol '%s' not understood from line '%s'." % (ret[1], string))
 
     return ret
+
+def build_format(fmt):
+    if fmt[1] == str:
+        fmt = "%-" + str(fmt[2]) + "s"
+    elif fmt[1] == float:
+        fmt = " % " + str(fmt[2] - 1) + "." + str(fmt[4]) + "E"
+    elif fmt[1] == int:
+        fmt = " % " + str(fmt[2] - 1) + "d"
+    else:
+        raise TypeError("Type (%s) not recognized" % type(fmt[1]))
+    return fmt
