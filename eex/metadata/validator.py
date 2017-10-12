@@ -15,7 +15,7 @@ def validate_term_dict(name, functional_form, parameters, utype=None):
 
     if isinstance(parameters, (list, tuple)):
         if len(parameters) != len(functional_form["parameters"]):
-            raise ValueError("Validate term dict: Nuber of parameters passed is %d, expected %d for terms %s" %
+            raise ValueError("Validate term dict: Number of parameters passed is %d, expected %d for terms %s" %
                              (len(parameters), len(functional_form["parameters"]), name))
         params = list(parameters)
     elif isinstance(parameters, dict):
