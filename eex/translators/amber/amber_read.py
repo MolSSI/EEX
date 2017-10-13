@@ -287,7 +287,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     last_size = sizes_dict["NATOM"] - res_df["RESIDUE_POINTER"].iloc[-1] + 1
     sizes = np.concatenate((sizes, [last_size])).astype(np.int)
 
-    res_df["residue_index"] = np.arange(res_df.shape[0])
+    res_df["residue_index"] = np.arange(1, res_df.shape[0] + 1)
     res_df = pd.DataFrame({
         "residue_index": np.repeat(res_df["residue_index"].values, sizes, axis=0),
         "residue_name": np.repeat(res_df["RESIDUE_LABEL"].values.astype('str'), sizes, axis=0)

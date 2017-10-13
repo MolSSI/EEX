@@ -28,7 +28,7 @@ atom_metadata = {
     "atomic_number": {
         "required_columns": ["atomic_number"],
         "description": "The atomic number of a given atom.",
-        "unique": False,
+        "unique": True,
         "dtype": int,
         "units": None,
     },
@@ -59,7 +59,7 @@ atom_metadata = {
     "residue_index": {
         "required_columns": ["residue_index"],
         "description": "The associated residue of a given atom.",
-        "unique": False,
+        "unique": True,
         "dtype": int,
         "units": None,
     },
