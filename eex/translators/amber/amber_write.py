@@ -23,6 +23,18 @@ from . import amber_metadata as amd
 
 logger = logging.getLogger(__name__)
 
+def _write_1d(file_handle, data, fmt_data):
+    ncols = fmt_data[0]
+    fmt = amd.build_format(fmt_data)
+
+    remainder_size = data.size % ncols
+    rem_data = data[-remainder_size:].reshape(1, -1)
+    data = data[:-remainder_size].reshape(-1, ncols)
+
+    # Write data to file
+    np.savetxt(file_handle, data, fmt=fmt, delimiter="")
+    np.savetxt(file_handle, rem_data, fmt=fmt, delimiter="")
+    file_handle.flush()
 
 def write_amber_file(dl, filename, inpcrd=None):
     """
@@ -82,36 +94,77 @@ def write_amber_file(dl, filename, inpcrd=None):
     f.write("\n")
     f.close()
 
-    ## Write atom properties sections
-    f = open(filename, "ab")
+    ### Write atom properties sections
+    file_handle = open(filename, "ab")
 
     for k in amd.atom_property_names:
-
-        # Get data format
-        fmt_data = amd.parse_format(amd.data_labels[k][1])
-        ncols = fmt_data[0]
-        fmt = amd.build_format(fmt_data)
 
         # Get unit type
         utype = None
         if k in amd.atom_data_units:
             utype = amd.atom_data_units[k]
 
-        f.write(("%%FLAG %s\n" % k).encode())
-        f.write(("%s\n" % amd.data_labels[k][1]).encode())
+        file_handle.write(("%%FLAG %s\n" % k).encode())
+        file_handle.write(("%s\n" % amd.data_labels[k][1]).encode())
 
         # Get data
         data = dl.get_atoms(amd.atom_property_names[k], by_value=True, utype=utype).values.ravel()
-        remainder_size = data.size % ncols
-        rem_data = data[-remainder_size:].reshape(1, -1)
-        data = data[:-remainder_size].reshape(-1, ncols)
 
-        # Write data to file
-        # print(data.shape, rem_data.shape, rem_data, fmt)
-        np.savetxt(f, data, fmt=fmt, delimiter="")
-        np.savetxt(f, rem_data, fmt=fmt, delimiter="")
-        f.flush()
+        # Write data in correct format
+        fmt_data = amd.parse_format(amd.data_labels[k][1])
+        _write_1d(file_handle, data, fmt_data)
 
-    f.close()
+    ### Handle residues
+
+    # We assume these are sorted WRT to atom and itself at the moment... not great
+    res_data = dl.get_atoms(["residue_index", "residue_name"], by_value=True)
+    uvals, uidx, ucnts = np.unique(res_data["residue_index"], return_index=True, return_counts=True)
+
+    labels = res_data["residue_name"].iloc[uidx]
+    starts = np.concatenate(([1], np.cumsum(ucnts) + 1))[:-1]
+
+
+    file_handle.write(("%FLAG RESIDUE_LABEL\n%FORMAT(20a4)\n").encode())
+    fmt_data = amd.parse_format("%FORMAT(20a4)")
+    _write_1d(file_handle, labels, fmt_data)
+
+    file_handle.write(("%FLAG RESIDUE_POINTER\n%FORMAT(10I8)\n").encode())
+    fmt_data = amd.parse_format("%FORMAT(10I8)")
+    _write_1d(file_handle, starts, fmt_data)
+
+
+    ### Write out term parameters
+    for term_type in ["bond", "angle", "dihedral"]:
+        uids = sorted(dl.list_parameter_uids(term_type))
+
+        if len(uids) == 0: continue
+        term_md = amd.forcefield_parameters[term_type]
+
+        tmps = {k: [] for k in term_md["column_names"].keys()}
+        utype = term_md["units"]
+        order = term_md["order"]
+        inv_lookup = {v: k for k, v in term_md["column_names"].items()}
+
+        # Build lists of data since AMBER holds this as 1D
+        for uid in uids:
+            params = dl.get_parameter(order, uid, utype=utype)
+            for k, v in params[1].items():
+                tmps[inv_lookup[k]].append(v)
+
+        # Write out FLAGS
+        for k, v in tmps.items():
+
+            fmt_string = amd.data_labels[k][1]
+            fmt_data = amd.parse_format(fmt_string)
+
+            file_handle.write(("%%FLAG %s\n" % k).encode())
+            file_handle.write((fmt_string + "\n").encode())
+
+            _write_1d(file_handle, np.array(v), fmt_data)
+
+
+
+
+    file_handle.close()
 
     return 0
