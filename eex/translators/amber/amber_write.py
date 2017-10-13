@@ -23,6 +23,7 @@ from . import amber_metadata as amd
 
 logger = logging.getLogger(__name__)
 
+
 def _write_1d(file_handle, data, fmt_data):
     ncols = fmt_data[0]
     fmt = amd.build_format(fmt_data)
@@ -35,6 +36,17 @@ def _write_1d(file_handle, data, fmt_data):
     np.savetxt(file_handle, data, fmt=fmt, delimiter="")
     np.savetxt(file_handle, rem_data, fmt=fmt, delimiter="")
     file_handle.flush()
+
+
+def _write_amber_data(file_handle, data, category):
+    fmt_string = amd.data_labels[category][1]
+    fmt_data = amd.parse_format(fmt_string)
+
+    file_handle.write(("%%FLAG %s\n" % category).encode())
+    file_handle.write((fmt_string + "\n").encode())
+
+    _write_1d(file_handle, np.array(data), fmt_data)
+
 
 def write_amber_file(dl, filename, inpcrd=None):
     """
@@ -104,15 +116,9 @@ def write_amber_file(dl, filename, inpcrd=None):
         if k in amd.atom_data_units:
             utype = amd.atom_data_units[k]
 
-        file_handle.write(("%%FLAG %s\n" % k).encode())
-        file_handle.write(("%s\n" % amd.data_labels[k][1]).encode())
-
         # Get data
         data = dl.get_atoms(amd.atom_property_names[k], by_value=True, utype=utype).values.ravel()
-
-        # Write data in correct format
-        fmt_data = amd.parse_format(amd.data_labels[k][1])
-        _write_1d(file_handle, data, fmt_data)
+        _write_amber_data(file_handle, data, k)
 
     ### Handle residues
 
@@ -120,9 +126,8 @@ def write_amber_file(dl, filename, inpcrd=None):
     res_data = dl.get_atoms(["residue_index", "residue_name"], by_value=True)
     uvals, uidx, ucnts = np.unique(res_data["residue_index"], return_index=True, return_counts=True)
 
-    labels = res_data["residue_name"].iloc[uidx]
+    labels = res_data["residue_name"].iloc[uidx].values
     starts = np.concatenate(([1], np.cumsum(ucnts) + 1))[:-1]
-
 
     file_handle.write(("%FLAG RESIDUE_LABEL\n%FORMAT(20a4)\n").encode())
     fmt_data = amd.parse_format("%FORMAT(20a4)")
@@ -131,7 +136,6 @@ def write_amber_file(dl, filename, inpcrd=None):
     file_handle.write(("%FLAG RESIDUE_POINTER\n%FORMAT(10I8)\n").encode())
     fmt_data = amd.parse_format("%FORMAT(10I8)")
     _write_1d(file_handle, starts, fmt_data)
-
 
     ### Write out term parameters
     for term_type in ["bond", "angle", "dihedral"]:
@@ -154,16 +158,32 @@ def write_amber_file(dl, filename, inpcrd=None):
         # Write out FLAGS
         for k, v in tmps.items():
 
-            fmt_string = amd.data_labels[k][1]
-            fmt_data = amd.parse_format(fmt_string)
+            _write_amber_data(file_handle, v, k)
 
-            file_handle.write(("%%FLAG %s\n" % k).encode())
-            file_handle.write((fmt_string + "\n").encode())
+    ### Handle term data
+    hidx = (dl.get_atoms("atomic_number") == 1).values.ravel()
 
-            _write_1d(file_handle, np.array(v), fmt_data)
+    for term_type, term_name in zip([2, 3, 4], ["bonds", "angles", "dihedrals"]):
+        term = dl.get_terms(term_type)
 
+        # Build up an index of what is in hydrogen or not
+        inc_hydrogen_mask = term["atom1"].isin(hidx)
+        for n in range(term_type - 1):
+            name = "atom" + str(n + 2)
+            inc_hydrogen_mask |= term[name].isin(hidx)
 
+        inc_hydrogen = term.loc[inc_hydrogen_mask].values
+        without_hydrogen = term.loc[~inc_hydrogen_mask].values
 
+        # Scale by weird AMBER factors
+        inc_hydrogen[:, :-1] = (inc_hydrogen[:, :-1] - 1) * 3
+        without_hydrogen[:, :-1] = (without_hydrogen[:, :-1] - 1) * 3
+
+        inc_h_name = term_name.upper() + "_INC_HYDROGEN"
+        without_h_name = term_name.upper() + "_WITHOUT_HYDROGEN"
+
+        _write_amber_data(file_handle, inc_hydrogen, inc_h_name)
+        _write_amber_data(file_handle, without_hydrogen, without_h_name)
 
     file_handle.close()
 

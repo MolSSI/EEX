@@ -49,7 +49,7 @@ class DataLayer(object):
         self._terms = {2: {}, 3: {}, 4: {}}
         self._term_count = {2: {"total": 0}, 3: {"total": 0}, 4: {"total": 0}}
         self._atom_metadata = {}
-        self._atom_counts = {k:0 for k in list(APC_DICT)}
+        self._atom_counts = {k: 0 for k in list(APC_DICT)}
         self._atom_sets = set()
         self._box_size = {}
 
@@ -629,7 +629,6 @@ class DataLayer(object):
             return self._term_count[order]
 
         return self._term_count[order][uid]
-
 
     def add_terms(self, order, df):
         """
