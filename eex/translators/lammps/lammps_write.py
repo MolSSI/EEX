@@ -68,9 +68,6 @@ def write_lammps_file(dl, data, filename, blocksize=110):
             data_file.write("%2d " % uid)
             data_file.write(" ".join(param_fmt % f for f in parameters))
             data_file.write("\n")
-            # value_list = list(bond_coeffs[1].values())
-            # value_string = ' '.join(str(x) for x in value_list)
-            # data_file.write(' '.join([str(uid), value_string, '\n']))
         data_file.write("\n")
 
     # Write out mass data
@@ -90,9 +87,6 @@ def write_lammps_file(dl, data, filename, blocksize=110):
         return "%10.8f" % n
     atoms.to_string(data_file, header=None, float_format=float_fmt)
     data_file.write('\n\n')
-
-    # # Switching over to a NumPy based approach for speed
-    # data_file.close()
 
     # Write out all of the term data
     for param_order, param_type in zip([2, 3, 4], ["bonds", "angles", "dihedrals"]):

@@ -33,31 +33,31 @@ def write_amber_file(dl, filename, inpcrd=None):
     filename : str
         The name of the file to write
     inpcrd : str, optional
-        If None, attempts to read the file filename.replace("prmtop", "inpcrd") otherwise passes. #NYI
+        If None, attempts to read the file filename.replace("prmtop", "inpcrd") otherwise passes. #
     """
 
     ### First get information into Amber pointers. All keys are initially filled with zero.
-    # Ones that are currently 0, but should be implemented eventually are marked with TODO
+    # Ones that are currently 0, but should be implemented eventually are marked with
 
     output_sizes = {k: 0 for k in amd.size_keys}
 
-    output_sizes['NATOM'] = dl.get_atoms("atom_type").shape[0]  # Number of atoms
-    output_sizes["NTYPES"] = len((np.unique(dl.get_atoms("atom_type"))))  # Number of distinct LJ atom types
-    output_sizes["NBONH"] = 0  # TODO Number of bonds containing hydrogen NYI
-    output_sizes["MBONA"] = dl.get_bonds().shape[0]  # TODO Number of bonds not containing hydrogen
-    output_sizes["NTHETH"] = 0  # TODO Number of angles containing hydrogen
-    output_sizes["MTHETA"] = dl.get_angles().shape[0]  # TODO Number of angles not containing hydrogen
-    output_sizes["NPHIH"] = 0  # TODO Number of torsions containing hydrogen
-    output_sizes["MPHIA"] = 0  # TODO Number of torsions not containing hydrogen
-    output_sizes["NPARM"] = 0  # TODO Used to determine if this is a LES-compatible prmtop (??)
-    output_sizes["NNB"] = 0  # TODO Number of excluded atoms
-    output_sizes["NRES"] = len(np.unique(dl.get_atoms("residue_index")))  # Number of residues
-    output_sizes["NUMBND"] = len(np.unique(dl.get_bonds()["term_index"]))  # Number of unique bond types
-    output_sizes["NUMANG"] = len(np.unique(dl.get_angles()["term_index"]))  # Number of unique angle types
-    output_sizes["NPTRA"] = 0  # TODO Number of unique torsion types
-    output_sizes["IFBOX"] = 0  # TODO Flag indicating whether a periodic box is present
+    output_sizes['NATOM'] = dl.get_atom_count()  # Number of atoms
+    output_sizes["MBONA"] = dl.get_term_count(2, "total")  #  Number of bonds not containing hydrogen
+    output_sizes["MTHETA"] = dl.get_term_count(3, "total")  #  Number of angles not containing hydrogen
+    # output_sizes["MPHIA"] = dl.get_term_count(4, "total")  #  Number of torsions not containing hydrogen
+    output_sizes["NUMBND"] = len(dl.list_parameter_uids(2))  # Number of unique bond types
+    output_sizes["NUMANG"] = len(dl.list_parameter_uids(3))  # Number of unique angle types
+    output_sizes["NPTRA"] = len(dl.list_parameter_uids(4))  # Number of unique torsion types
+    output_sizes["NTYPES"] = 0  # Number of distinct LJ atom types
+    output_sizes["NBONH"] = 0  #  Number of bonds containing hydrogen
+    output_sizes["NTHETH"] = 0  #  Number of angles containing hydrogen
+    output_sizes["NPHIH"] = 0  #  Number of torsions containing hydrogen
+    output_sizes["NPARM"] = 0  #  Used to determine if this is a LES-compatible prmtop (??)
+    output_sizes["NNB"] = 0  #  Number of excluded atoms
+    output_sizes["NRES"] = 0
+    output_sizes["IFBOX"] = 0  #  Flag indicating whether a periodic box is present
     # 0 - no box, 1 - orthorhombic box, 2 - truncated octahedron
-    output_sizes["NMXRS"] = 0  # TODO Number of atoms in the largest residue
+    output_sizes["NMXRS"] = 0  #  Number of atoms in the largest residue
     output_sizes["IFCAP"] = 0  # Set to 1 if a solvent CAP is being used
     output_sizes["NUMEXTRA"] = 0  # Number of extra points in the topology file
 
@@ -88,22 +88,14 @@ def write_amber_file(dl, filename, inpcrd=None):
     for k in amd.atom_property_names:
 
         # Get data format
-        format = amd.parse_format(amd.data_labels[k][1])
-        ncols = format[0]
+        fmt_data = amd.parse_format(amd.data_labels[k][1])
+        ncols = fmt_data[0]
+        fmt = amd.build_format(fmt_data)
 
         # Get unit type
         utype = None
         if k in amd.atom_data_units:
             utype = amd.atom_data_units[k]
-
-        if format[1] == str:
-            fmt = "%-" + str(format[2]) + "s"
-        elif format[1] == float:
-            fmt = " % " + str(format[2] - 1) + "." + str(format[4]) + "E"
-        elif format[1] == int:
-            fmt = " % " + str(format[2] - 1) + "d"
-        else:
-            raise TypeError("Type (%s) not recognized" % type(format[1]))
 
         f.write(("%%FLAG %s\n" % k).encode())
         f.write(("%s\n" % amd.data_labels[k][1]).encode())
