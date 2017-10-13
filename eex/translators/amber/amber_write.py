@@ -161,6 +161,8 @@ def write_amber_file(dl, filename, inpcrd=None):
     for term_type, term_name in zip([2, 3, 4], ["bonds", "angles", "dihedrals"]):
         term = dl.get_terms(term_type)
 
+        if term.shape[0] == 0: continue
+
         # Build up an index of what is in hydrogen or not
         inc_hydrogen_mask = term["atom1"].isin(hidx)
         for n in range(term_type - 1):

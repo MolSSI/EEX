@@ -38,8 +38,8 @@ def test_amber_spce_read_atoms_value(spce_dl):
     assert np.allclose(np.unique(atoms["atomic_number"]), [1.0, 8.0])
     assert np.allclose(np.unique(atoms["mass"]), [1.008, 16.0])
     assert set(np.unique(atoms["residue_name"])) == set(["WAT"])
-    assert np.allclose(np.min(atoms["residue_index"]), 0)
-    assert np.allclose(np.max(atoms["residue_index"]), 215)
+    assert np.allclose(np.min(atoms["residue_index"]), 1)
+    assert np.allclose(np.max(atoms["residue_index"]), 216)
 
     assert np.allclose(atoms[["X", "Y", "Z"]].min(), [-0.757235, -0.519927, -0.872856])
     assert np.allclose(atoms[["X", "Y", "Z"]].max(), [19.388333, 19.213448, 19.423807])
@@ -54,11 +54,11 @@ def test_amber_spce_read_atoms_index(spce_dl):
     assert atoms.shape[0] == 648
     assert set(np.unique(atoms["atom_name"])) == set(["H1", "H2", "O"])
     assert np.allclose(np.unique(atoms["charge"]), [0, 1])
-    assert np.allclose(np.unique(atoms["atomic_number"]), [0, 1])
+    assert np.allclose(np.unique(atoms["atomic_number"]), [1.0, 8.0])
     assert np.allclose(np.unique(atoms["mass"]), [0, 1])
     assert set(np.unique(atoms["residue_name"])) == set([0])
-    assert np.allclose(np.min(atoms["residue_index"]), 0)
-    assert np.allclose(np.max(atoms["residue_index"]), 215)
+    assert np.allclose(np.min(atoms["residue_index"]), 1)
+    assert np.allclose(np.max(atoms["residue_index"]), 216)
     assert np.allclose(atoms[["X", "Y", "Z"]].min(), [-0.757235, -0.519927, -0.872856])
     assert np.allclose(atoms[["X", "Y", "Z"]].max(), [19.388333, 19.213448, 19.423807])
 
@@ -85,8 +85,8 @@ def test_amber_spce_read_bonds(spce_dl):
 
 @pytest.mark.parametrize("molecule", [
     "trappe_butane_single_molecule.prmtop",
-    # "trappe_propane_single_molecule.prmtop",
-    # "trappe_ethane_single_molecule.prmtop",
+    "trappe_propane_single_molecule.prmtop",
+    "trappe_ethane_single_molecule.prmtop",
 ])
 def test_amber_writer(molecule):
     fname = eex_find_files.get_example_filename("amber", "alkanes", molecule)
