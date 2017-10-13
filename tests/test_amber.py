@@ -94,12 +94,14 @@ def test_amber_writer(molecule):
     # Read in the data
     dl = eex.datalayer.DataLayer(molecule)
     data = eex.translators.amber.read_amber_file(dl, fname)
+    # print(dl.list_atom_properties())
+    # print(dl.get_atoms(["residue_index", "residue_name"], by_value=True))
 
     # Write out the data
     oname = eex_find_files.get_scratch_directory(molecule)
     eex.translators.amber.write_amber_file(dl, oname)
 
     # Read in output data
-    # dl_new = eex.datalayer.DataLayer(molecule)
-    # eex.translators.amber.read_amber_file(dl_new, oname)
+    dl_new = eex.datalayer.DataLayer(molecule)
+    eex.translators.amber.read_amber_file(dl_new, oname)
     # assert eex.testing.dl_compare(dl, dl_new)

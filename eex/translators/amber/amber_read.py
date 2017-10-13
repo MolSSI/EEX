@@ -143,6 +143,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         nrows = int(math.ceil(nsize / float(current_data_type[0])))
         dtypes = [current_data_type[1]] * current_data_type[0]
         widths = [current_data_type[2]] * current_data_type[0]
+        # print(current_data_category)
 
         # Read in the data, in chunks
         remaining_read = nrows

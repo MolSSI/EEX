@@ -72,13 +72,13 @@ def write_amber_file(dl, filename, inpcrd=None):
     output_sizes["NUMBND"] = len(dl.list_parameter_uids(2))  # Number of unique bond types
     output_sizes["NUMANG"] = len(dl.list_parameter_uids(3))  # Number of unique angle types
     output_sizes["NPTRA"] = len(dl.list_parameter_uids(4))  # Number of unique torsion types
+    output_sizes["NRES"] = len(dl.get_atom_uids("residue_name")) # Number of residues (not stable)
     output_sizes["NTYPES"] = 0  # Number of distinct LJ atom types
     output_sizes["NBONH"] = 0  #  Number of bonds containing hydrogen
     output_sizes["NTHETH"] = 0  #  Number of angles containing hydrogen
     output_sizes["NPHIH"] = 0  #  Number of torsions containing hydrogen
     output_sizes["NPARM"] = 0  #  Used to determine if this is a LES-compatible prmtop (??)
     output_sizes["NNB"] = 0  #  Number of excluded atoms
-    output_sizes["NRES"] = 0
     output_sizes["IFBOX"] = 0  #  Flag indicating whether a periodic box is present
     # 0 - no box, 1 - orthorhombic box, 2 - truncated octahedron
     output_sizes["NMXRS"] = 0  #  Number of atoms in the largest residue
@@ -127,15 +127,10 @@ def write_amber_file(dl, filename, inpcrd=None):
     uvals, uidx, ucnts = np.unique(res_data["residue_index"], return_index=True, return_counts=True)
 
     labels = res_data["residue_name"].iloc[uidx].values
+    _write_amber_data(file_handle, labels, "RESIDUE_LABEL")
+
     starts = np.concatenate(([1], np.cumsum(ucnts) + 1))[:-1]
-
-    file_handle.write(("%FLAG RESIDUE_LABEL\n%FORMAT(20a4)\n").encode())
-    fmt_data = amd.parse_format("%FORMAT(20a4)")
-    _write_1d(file_handle, labels, fmt_data)
-
-    file_handle.write(("%FLAG RESIDUE_POINTER\n%FORMAT(10I8)\n").encode())
-    fmt_data = amd.parse_format("%FORMAT(10I8)")
-    _write_1d(file_handle, starts, fmt_data)
+    _write_amber_data(file_handle, starts, "RESIDUE_POINTER")
 
     ### Write out term parameters
     for term_type in ["bond", "angle", "dihedral"]:
