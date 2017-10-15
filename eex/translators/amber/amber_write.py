@@ -24,17 +24,21 @@ from . import amber_metadata as amd
 logger = logging.getLogger(__name__)
 
 
-def _write_1d(file_handle, data, fmt_data):
-    ncols = fmt_data[0]
-    fmt = amd.build_format(fmt_data)
+def _write_1d(file_handle, data, ncols, fmt):
 
     remainder_size = data.size % ncols
-    rem_data = data[-remainder_size:].reshape(1, -1)
-    data = data[:-remainder_size].reshape(-1, ncols)
+    if data.size == 0:
+        file_handle.write("\n".encode())
+    elif remainder_size == 0:
+        np.savetxt(file_handle, data.reshape(-1, ncols), fmt=fmt, delimiter="")
+    else:
+        rem_data = data[-remainder_size:].reshape(1, -1)
+        data = data[:-remainder_size].reshape(-1, ncols)
+        np.savetxt(file_handle, data, fmt=fmt, delimiter="")
+        np.savetxt(file_handle, rem_data, fmt=fmt, delimiter="")
+    # print(data.shape, rem_data.shape)
 
     # Write data to file
-    np.savetxt(file_handle, data, fmt=fmt, delimiter="")
-    np.savetxt(file_handle, rem_data, fmt=fmt, delimiter="")
     file_handle.flush()
 
 
@@ -45,7 +49,10 @@ def _write_amber_data(file_handle, data, category):
     file_handle.write(("%%FLAG %s\n" % category).encode())
     file_handle.write((fmt_string + "\n").encode())
 
-    _write_1d(file_handle, np.array(data), fmt_data)
+    ncols = fmt_data[0]
+    fmt = amd.build_format(fmt_data)
+
+    _write_1d(file_handle, np.array(data), ncols, fmt)
 
 
 def write_amber_file(dl, filename, inpcrd=None):
@@ -72,7 +79,7 @@ def write_amber_file(dl, filename, inpcrd=None):
     output_sizes["NUMBND"] = len(dl.list_parameter_uids(2))  # Number of unique bond types
     output_sizes["NUMANG"] = len(dl.list_parameter_uids(3))  # Number of unique angle types
     output_sizes["NPTRA"] = len(dl.list_parameter_uids(4))  # Number of unique torsion types
-    output_sizes["NRES"] = len(dl.get_atom_uids("residue_name")) # Number of residues (not stable)
+    output_sizes["NRES"] = len(dl.get_atom_uids("residue_name"))  # Number of residues (not stable)
     output_sizes["NTYPES"] = 0  # Number of distinct LJ atom types
     output_sizes["NBONH"] = 0  #  Number of bonds containing hydrogen
     output_sizes["NTHETH"] = 0  #  Number of angles containing hydrogen
@@ -182,6 +189,18 @@ def write_amber_file(dl, filename, inpcrd=None):
         _write_amber_data(file_handle, inc_hydrogen, inc_h_name)
         _write_amber_data(file_handle, without_hydrogen, without_h_name)
 
+    file_handle.close()
+
+    # Now we need to write out the INPCRD
+    inpcrd_file = filename.replace('.prmtop', '.inpcrd')
+    file_handle = open(inpcrd_file, "wb")
+
+    xyz = dl.get_atoms("XYZ", utype={"XYZ": "angstrom"})
+
+    file_handle.write("default_name\n".encode())
+    file_handle.write(("%6d\n" % xyz.shape[0]).encode())
+
+    _write_1d(file_handle, xyz.values.ravel(), 6, "%12.6f")
     file_handle.close()
 
     return 0
