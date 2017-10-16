@@ -87,7 +87,7 @@ def write_amber_file(dl, filename, inpcrd=None):
     output_sizes["NTHETH"] = 0  #  Number of angles containing hydrogen
     output_sizes["NPHIH"] = 0  #  Number of torsions containing hydrogen
     output_sizes["NPARM"] = 0  #  Used to determine if this is a LES-compatible prmtop (??)
-    output_sizes["NNB"] = 0  #  Number of excluded atoms
+    output_sizes["NNB"] = dl.get_atom_count()  #  Number of excluded atoms - Set to num atoms for our test cases. Amber will not run with 0
     output_sizes["IFBOX"] = 0  #  Flag indicating whether a periodic box is present
     # 0 - no box, 1 - orthorhombic box, 2 - truncated octahedron
     output_sizes["NMXRS"] = 0  #  Number of atoms in the largest residue
