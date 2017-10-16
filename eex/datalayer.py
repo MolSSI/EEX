@@ -72,11 +72,11 @@ class DataLayer(object):
             return False
 
         try:
-            fnc = getattr(self, args[0])
+            func = getattr(self, args[0])
         except AttributeError:
             raise AttributeError("DataLayer:call_by_string: does not have method %s." % args[0])
 
-        return fnc(*args[1:], **kwargs)
+        return func(*args[1:], **kwargs)
 
     def close(self):
         """
@@ -210,7 +210,6 @@ class DataLayer(object):
         Internal way to store atom tables
         """
 
-        property_name = self._check_atoms_dict(property_name)
         field_data = metadata.atom_metadata[property_name]
 
         # Figure out unit scaling factors
@@ -350,7 +349,7 @@ class DataLayer(object):
         if not metadata.atom_metadata[property_name]["unique"]:
             return list(self._atom_metadata[property_name]["inv_uvals"])
         else:
-            raise KeyError("DataLayere:get_atom_uids: '%s' is not stored as unique values." % property_name)
+            raise KeyError("DataLayere:list_atom_uids: '%s' is not stored as unique values." % property_name)
 
     def get_atom_parameter(self, property_name, uid, utype=None):
         """
