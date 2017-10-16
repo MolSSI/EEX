@@ -3,6 +3,7 @@ Contains the DataLayer class (name in progress) which takes and reads various pi
 """
 
 import copy
+import json
 import os
 
 import numpy as np
@@ -44,12 +45,20 @@ class DataLayer(object):
 
         self.store = filelayer.build_store(backend, self.name, self.store_location, save_data)
 
-        # Setup empty data holders
-        self._terms = {2: {}, 3: {}, 4: {}}
-        self._term_count = {2: {"total": 0}, 3: {"total": 0}, 4: {"total": 0}}
+        # Setup empty term holder
+        self._terms = {order: {} for order in [2, 3, 4]}
+        self._term_count = {order: {"total": 0} for order in [2, 3, 4]}
+
+        # Setup atom holders
         self._atom_metadata = {}
-        self._atom_counts = {k: 0 for k in list(APC_DICT)}
-        self._atom_sets = set()
+        self._atom_counts = {}
+
+        for k, v in metadata.atom_metadata.items():
+            if not v["unique"]:
+                self._atom_metadata[k] = {"uvals": {}, "inv_uvals": {}}
+        self._atom_counts = {k: 0 for k in list(metadata.atom_metadata)}
+
+        # Any remaining metadata
         self._box_size = {}
 
 ### Generic helper close/save/list/etc functions
@@ -73,6 +82,7 @@ class DataLayer(object):
         """
         Closes the DL object
         """
+
         self.store.close()
 
     def list_tables(self):
@@ -139,11 +149,11 @@ class DataLayer(object):
         """
         Builds the correct data struct in the atom metadata
         """
-        if property_name in list(self._atom_metadata):
-            return False
+        property_name = property_name.lower()
+        if property_name not in metadata.atom_metadata:
+            raise Exception("DataLayer: Atom property %s is not valid." % property_name)
 
-        self._atom_metadata[property_name] = {"uvals": {}, "inv_uvals": {}}
-        return True
+        return property_name
 
     def _find_unqiue_atom_values(self, df, property_name):
         """
@@ -200,7 +210,7 @@ class DataLayer(object):
         Internal way to store atom tables
         """
 
-        self._check_atoms_dict(property_name)
+        property_name = self._check_atoms_dict(property_name)
         field_data = metadata.atom_metadata[property_name]
 
         # Figure out unit scaling factors
@@ -272,8 +282,7 @@ class DataLayer(object):
         assert 6 == dl.add_atom_parameter("charge", -2.e-19, uid=6, utype="coulomb")
         """
 
-        property_name = property_name.lower()
-        self._check_atoms_dict(property_name)
+        property_name = self._check_atoms_dict(property_name)
         param_dict = self._atom_metadata[property_name]
         field_data = metadata.atom_metadata[property_name]
 
@@ -318,7 +327,7 @@ class DataLayer(object):
         """
         Lists all atom properties contained in the DataLayer.
         """
-        return list(self._atom_sets)
+        return [k for k, v in self._atom_counts.items() if v > 0]
 
     def get_atom_count(self, property_name=None):
         """
@@ -329,7 +338,7 @@ class DataLayer(object):
         if property_name is None:
             return max(v for k, v in self._atom_counts.items())
 
-        property_name = property_name.lower()
+        property_name = self._check_atoms_dict(property_name)
         if property_name in self._atom_counts:
             return self._atom_counts[property_name]
         else:
@@ -337,17 +346,18 @@ class DataLayer(object):
 
     def list_atom_uids(self, property_name):
 
-        property_name = property_name.lower()
-        self._check_atoms_dict(property_name)
+        property_name = self._check_atoms_dict(property_name)
         if not metadata.atom_metadata[property_name]["unique"]:
             return list(self._atom_metadata[property_name]["inv_uvals"])
         else:
             raise KeyError("DataLayere:get_atom_uids: '%s' is not stored as unique values." % property_name)
 
     def get_atom_parameter(self, property_name, uid, utype=None):
+        """
+        Obtains a atom parameter from the unique cache.
+        """
 
-        property_name = property_name.lower()
-        self._check_atoms_dict(property_name)
+        property_name = self._check_atoms_dict(property_name)
         if not metadata.atom_metadata[property_name]["unique"]:
             if not uid in self._atom_metadata[property_name]["inv_uvals"]:
                 raise Exception("DataLayer:get_atom_parameter: property '%s' key '%d' not found." % (property_name,
@@ -359,7 +369,7 @@ class DataLayer(object):
         else:
             raise KeyError("DataLayere:get_atom_parameter: '%s' is not stored as unique values." % property_name)
 
-    def add_atoms(self, atom_df, property_name=None, by_value=False, utype=None):
+    def add_atoms(self, atom_df, by_value=False, utype=None):
         """
         Adds atom information to the DataLayer object.
 
@@ -367,8 +377,6 @@ class DataLayer(object):
         ----------
         atom_df : {DataFrame, list, tuple}
             The atom data to add to the object.
-        property_name : {list, str}, optional
-            The atom property that is added, only necessary if a list is passed in.
         by_value : bool
             If data is passed by_value the DL automatically hashes the parameters to unique components.
         utype : {dict, pint.Unit}
@@ -420,8 +428,6 @@ class DataLayer(object):
                     uval = utype[k]
                 self._store_atom_table(k, atom_df, k, by_value, uval)
                 found_one = True
-                # Update what we have
-                self._atom_sets |= {k}
         if not found_one:
             raise Exception("DataLayer:add_atom: No data was added as no key was matched from input columns:\n%s" %
                             (" " * 11 + str(atom_df.columns)))
