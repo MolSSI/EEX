@@ -94,6 +94,8 @@ def write_amber_file(dl, filename, inpcrd=None):
     output_sizes["IFCAP"] = 0  # Set to 1 if a solvent CAP is being used
     output_sizes["NUMEXTRA"] = 0  # Number of extra points in the topology file
 
+    written_categories = []
+
     ### Write title and version information
     f = open(filename, "w")
     f.write('%%VERSION  VERSION_STAMP = V0001.000  DATE = %s  %s\n' % (time.strftime("%x"), time.strftime("%H:%M:%S")))
@@ -115,6 +117,7 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     f.write("\n")
     f.close()
+    written_categories.append("POINTERS")
 
     ### Write atom properties sections
     file_handle = open(filename, "ab")
@@ -130,6 +133,8 @@ def write_amber_file(dl, filename, inpcrd=None):
         data = dl.get_atoms(amd.atom_property_names[k], by_value=True, utype=utype).values.ravel()
         _write_amber_data(file_handle, data, k)
 
+        written_categories.append(k)
+
     ### Handle residues
 
     # We assume these are sorted WRT to atom and itself at the moment... not great
@@ -138,9 +143,11 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     labels = res_data["residue_name"].iloc[uidx].values
     _write_amber_data(file_handle, labels, "RESIDUE_LABEL")
+    written_categories.append("RESIDUE_LABEL")
 
     starts = np.concatenate(([1], np.cumsum(ucnts) + 1))[:-1]
     _write_amber_data(file_handle, starts, "RESIDUE_POINTER")
+    written_categories.append("RESIDUE_POINTER")
 
     ### Write out term parameters
     for term_type in ["bond", "angle", "dihedral"]:
@@ -164,6 +171,7 @@ def write_amber_file(dl, filename, inpcrd=None):
         for k, v in tmps.items():
 
             _write_amber_data(file_handle, v, k)
+            written_categories.append(k)
 
     ### Handle term data
     hidx = (dl.get_atoms("atomic_number") == 1).values.ravel()
@@ -190,7 +198,17 @@ def write_amber_file(dl, filename, inpcrd=None):
         without_h_name = term_name.upper() + "_WITHOUT_HYDROGEN"
 
         _write_amber_data(file_handle, inc_hydrogen, inc_h_name)
+        written_categories.append(inc_h_name)
+
         _write_amber_data(file_handle, without_hydrogen, without_h_name)
+        written_categories.append(without_h_name)
+
+    ### Write headers for other sections (file will not work without these)
+    for k in amd.data_labels:
+        if k not in written_categories:
+            file_handle.write(("%%FLAG %s\n%s\n\n" % (k, amd.data_labels[k][1])).encode())
+
+
 
     file_handle.close()
 
