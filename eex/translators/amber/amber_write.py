@@ -96,6 +96,17 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     written_categories = []
 
+    # Figure out size each section should be based on metadata
+    label_sizes = {}
+    for k, v in amd.data_labels.items():
+        if isinstance(v[0], int):
+            label_sizes[k] = v[0]
+        elif v[0] in list(output_sizes):
+            label_sizes[k] = output_sizes[v[0]]
+        else:
+            # print("%30s %40s %d" % (k, v[0], int(eval(v[0], sizes_dict))))
+            label_sizes[k] = int(eval(v[0], output_sizes))
+
     ### Write title and version information
     f = open(filename, "w")
     f.write('%%VERSION  VERSION_STAMP = V0001.000  DATE = %s  %s\n' % (time.strftime("%x"), time.strftime("%H:%M:%S")))
@@ -109,7 +120,6 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     count = 0
     for k in amd.size_keys:
-        print(k, output_sizes[k])
         f.write(format_string % output_sizes[k])
         count += 1
         if count % ncols == 0:
@@ -203,12 +213,25 @@ def write_amber_file(dl, filename, inpcrd=None):
         _write_amber_data(file_handle, without_hydrogen, without_h_name)
         written_categories.append(without_h_name)
 
-    ### Write headers for other sections (file will not work without these)
+    # Append & forget about SOLVENT_POINTERS section for now
+    written_categories.append("SOLVENT_POINTERS")
+
+    # Forget about box dimensions for now too
+    written_categories.append("BOX_DIMENSIONS")
+
+    # Quick fix for radius set  will be one line string description in files prepared by xleap
+    _write_amber_data(file_handle, ["Place holder - EEX"], "RADIUS_SET")
+    written_categories.append("RADIUS_SET")
+
+    ### Write headers for other sections (file will not work in AMBER without these)
     for k in amd.data_labels:
         if k not in written_categories:
-            file_handle.write(("%%FLAG %s\n%s\n\n" % (k, amd.data_labels[k][1])).encode())
-
-
+            if label_sizes[k] > 0:
+                data = np.zeros(label_sizes[k])
+                _write_amber_data(file_handle, data, k)
+            else:
+                file_handle.write(("%%FLAG %s\n%s\n\n" % (k, amd.data_labels[k][1])).encode())
+            written_categories.append(k)
 
     file_handle.close()
 

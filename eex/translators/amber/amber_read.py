@@ -137,7 +137,6 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
     # Iterate over the file
     while True:
-
         # Type out the sizes and types
         nsize = label_sizes[current_data_category]
         nrows = int(math.ceil(nsize / float(current_data_type[0])))
