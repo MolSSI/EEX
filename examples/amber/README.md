@@ -67,6 +67,15 @@ More information can be found at the resources below:
 * Information on prmtop format from ambermd.org - http://ambermd.org/prmtop.pdf
 
 
+A note on term indices: The true atom number equals the absolute value of the
+number divided by three, plus one. In the case of the dihedrals, if the fourth
+atom is negative, this implies that the dihedral is an improper. If the third
+atom is negative, this implies that the end group interations are to be
+ignored. End group interactions are ignored, for example, in dihedrals of
+various ring systems (to prevent double counting of 1-4 interactions) and in
+multiterm dihedrals.
+
+
 ## FF Parameter Units
 
 This section lists the type of unit associated with flags which specify the force
