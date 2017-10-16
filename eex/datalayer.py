@@ -2,18 +2,17 @@
 Contains the DataLayer class (name in progress) which takes and reads various peices of data
 """
 
-import os
-import pandas as pd
-import numpy as np
-import collections
 import copy
+import os
 
-import eex
+import numpy as np
+import pandas as pd
+
+from . import energy_eval
 from . import filelayer
 from . import metadata
 from . import units
 from . import utility
-from . import energy_eval
 
 APC_DICT = metadata.atom_property_to_column
 
@@ -412,7 +411,7 @@ class DataLayer(object):
                 self._store_atom_table(k, atom_df, k, by_value, uval)
                 found_one = True
                 # Update what we have
-                self._atom_sets |= set([k])
+                self._atom_sets |= {k}
         if not found_one:
             raise Exception("DataLayer:add_atom: No data was added as no key was matched from input columns:\n%s" %
                             (" " * 11 + str(atom_df.columns)))

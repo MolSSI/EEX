@@ -16,7 +16,7 @@ def line_fuzzy_list(line, ldata):
     >>> print(tmp)
     (True, "something words")
 
-    >>> tmp = line_fuzzy_list("thing", ["other", else"])
+    >>> tmp = line_fuzzy_list("thing", ["other", "else"])
     >>> print(tmp)
     (False None)
 

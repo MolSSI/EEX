@@ -2,9 +2,8 @@
 A utility file for testing helpers
 """
 
-import pandas as pd
 import numpy as np
-import copy
+import pandas as pd
 
 
 def df_compare(left, right, columns=None, atol=1.e-8, rtol=1.e-5, equal_nan=True):
@@ -100,7 +99,7 @@ def dict_compare(left, right, atol=1.e-9, rtol=1.e-5):
     return True
 
 
-def dl_compare(left, right, atom_checks=["charge", "xyz"]):
+def dl_compare(left, right, atom_checks=None):
     """
     Attempts to compare two dataframes
 
@@ -115,6 +114,8 @@ def dl_compare(left, right, atom_checks=["charge", "xyz"]):
 
     ### Compare all terms within the DL
 
+    if atom_checks is None:
+        atom_checks = ["charge", "xyz"]
     left_uids = left.list_term_uids()
     right_uids = left.list_term_uids()
 

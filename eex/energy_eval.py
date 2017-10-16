@@ -2,8 +2,9 @@
 Evaluates the EEX energy expresions.
 """
 
-import numpy as np
 import numexpr as ne
+import numpy as np
+
 from . import metadata
 
 

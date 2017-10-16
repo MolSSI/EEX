@@ -233,7 +233,7 @@ def test_get_parameters_units():
     assert eex.testing.dict_compare(parm2[1], {"K": 2.0, "R0": 2.5})
 
     with pytest.raises(TypeError):
-        dl.get_term_parameter(2, 0, utype=set([5, 6]))
+        dl.get_term_parameter(2, 0, utype={5, 6})
 
 
 def test_list_parameters():
@@ -254,13 +254,13 @@ def test_list_parameters():
     assert 9 == dl.add_term_parameter(3, "harmonic", [6.0, 7.0], uid=9)
 
     full_list = dl.list_term_uids()
-    assert set([2, 3, 4]) == set(full_list)
-    assert set([0, 1, 9]) == set(full_list[2])
-    assert set([0, 1, 9]) == set(full_list[3])
+    assert {2, 3, 4} == set(full_list)
+    assert {0, 1, 9} == set(full_list[2])
+    assert {0, 1, 9} == set(full_list[3])
     assert set([]) == set(full_list[4])
 
     bond_list = dl.list_term_uids(2)
-    assert set([0, 1, 9]) == set(bond_list)
+    assert {0, 1, 9} == set(bond_list)
 
 
 def test_atom_units():
