@@ -74,13 +74,15 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     output_sizes['NATOM'] = dl.get_atom_count()  # Number of atoms
     output_sizes["MBONA"] = dl.get_term_count(2, "total")  #  Number of bonds not containing hydrogen
+    output_sizes['NBONA'] = output_sizes["MBONA"] # MBONA + number of constraint bonds (MBONA = NBONA always)
     output_sizes["MTHETA"] = dl.get_term_count(3, "total")  #  Number of angles not containing hydrogen
+    output_sizes['NTHETA'] = output_sizes["MTHETA"] # MTHETA + number of constraint angles (NTHETA = MTHETA always)
     # output_sizes["MPHIA"] = dl.get_term_count(4, "total")  #  Number of torsions not containing hydrogen
     output_sizes["NUMBND"] = len(dl.list_parameter_uids(2))  # Number of unique bond types
     output_sizes["NUMANG"] = len(dl.list_parameter_uids(3))  # Number of unique angle types
     output_sizes["NPTRA"] = len(dl.list_parameter_uids(4))  # Number of unique torsion types
     output_sizes["NRES"] = len(dl.get_atom_uids("residue_name"))  # Number of residues (not stable)
-    output_sizes["NTYPES"] = 0  # Number of distinct LJ atom types
+    output_sizes["NTYPES"] = len(np.unique(dl.get_atoms("atom_type"))) # Number of distinct LJ atom types
     output_sizes["NBONH"] = 0  #  Number of bonds containing hydrogen
     output_sizes["NTHETH"] = 0  #  Number of angles containing hydrogen
     output_sizes["NPHIH"] = 0  #  Number of torsions containing hydrogen
@@ -105,6 +107,7 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     count = 0
     for k in amd.size_keys:
+        print(k, output_sizes[k])
         f.write(format_string % output_sizes[k])
         count += 1
         if count % ncols == 0:
