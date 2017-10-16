@@ -74,23 +74,38 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     output_sizes['NATOM'] = dl.get_atom_count()  # Number of atoms
     output_sizes["MBONA"] = dl.get_term_count(2, "total")  #  Number of bonds not containing hydrogen
+    output_sizes['NBONA'] = output_sizes["MBONA"] # MBONA + number of constraint bonds (MBONA = NBONA always)
     output_sizes["MTHETA"] = dl.get_term_count(3, "total")  #  Number of angles not containing hydrogen
+    output_sizes['NTHETA'] = output_sizes["MTHETA"] # MTHETA + number of constraint angles (NTHETA = MTHETA always)
     # output_sizes["MPHIA"] = dl.get_term_count(4, "total")  #  Number of torsions not containing hydrogen
     output_sizes["NUMBND"] = len(dl.list_term_uids(2))  # Number of unique bond types
     output_sizes["NUMANG"] = len(dl.list_term_uids(3))  # Number of unique angle types
     output_sizes["NPTRA"] = len(dl.list_term_uids(4))  # Number of unique torsion types
     output_sizes["NRES"] = len(dl.list_atom_uids("residue_name"))  # Number of residues (not stable)
-    output_sizes["NTYPES"] = 0  # Number of distinct LJ atom types
+    output_sizes["NTYPES"] = len(np.unique(dl.get_atoms("atom_type"))) # Number of distinct LJ atom types
     output_sizes["NBONH"] = 0  #  Number of bonds containing hydrogen
     output_sizes["NTHETH"] = 0  #  Number of angles containing hydrogen
     output_sizes["NPHIH"] = 0  #  Number of torsions containing hydrogen
     output_sizes["NPARM"] = 0  #  Used to determine if this is a LES-compatible prmtop (??)
-    output_sizes["NNB"] = 0  #  Number of excluded atoms
+    output_sizes["NNB"] = dl.get_atom_count()  #  Number of excluded atoms - Set to num atoms for our test cases. Amber will not run with 0
     output_sizes["IFBOX"] = 0  #  Flag indicating whether a periodic box is present
     # 0 - no box, 1 - orthorhombic box, 2 - truncated octahedron
     output_sizes["NMXRS"] = 0  #  Number of atoms in the largest residue
     output_sizes["IFCAP"] = 0  # Set to 1 if a solvent CAP is being used
     output_sizes["NUMEXTRA"] = 0  # Number of extra points in the topology file
+
+    written_categories = []
+
+    # Figure out size each section should be based on metadata
+    label_sizes = {}
+    for k, v in amd.data_labels.items():
+        if isinstance(v[0], int):
+            label_sizes[k] = v[0]
+        elif v[0] in list(output_sizes):
+            label_sizes[k] = output_sizes[v[0]]
+        else:
+            # print("%30s %40s %d" % (k, v[0], int(eval(v[0], sizes_dict))))
+            label_sizes[k] = int(eval(v[0], output_sizes))
 
     ### Write title and version information
     f = open(filename, "w")
@@ -112,6 +127,7 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     f.write("\n")
     f.close()
+    written_categories.append("POINTERS")
 
     ### Write atom properties sections
     file_handle = open(filename, "ab")
@@ -127,6 +143,8 @@ def write_amber_file(dl, filename, inpcrd=None):
         data = dl.get_atoms(amd.atom_property_names[k], by_value=True, utype=utype).values.ravel()
         _write_amber_data(file_handle, data, k)
 
+        written_categories.append(k)
+
     ### Handle residues
 
     # We assume these are sorted WRT to atom and itself at the moment... not great
@@ -135,9 +153,11 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     labels = res_data["residue_name"].iloc[uidx].values
     _write_amber_data(file_handle, labels, "RESIDUE_LABEL")
+    written_categories.append("RESIDUE_LABEL")
 
     starts = np.concatenate(([1], np.cumsum(ucnts) + 1))[:-1]
     _write_amber_data(file_handle, starts, "RESIDUE_POINTER")
+    written_categories.append("RESIDUE_POINTER")
 
     ### Write out term parameters
     for term_type in ["bond", "angle", "dihedral"]:
@@ -161,6 +181,7 @@ def write_amber_file(dl, filename, inpcrd=None):
         for k, v in tmps.items():
 
             _write_amber_data(file_handle, v, k)
+            written_categories.append(k)
 
     ### Handle term data
     hidx = (dl.get_atoms("atomic_number") == 1).values.ravel()
@@ -187,7 +208,30 @@ def write_amber_file(dl, filename, inpcrd=None):
         without_h_name = term_name.upper() + "_WITHOUT_HYDROGEN"
 
         _write_amber_data(file_handle, inc_hydrogen, inc_h_name)
+        written_categories.append(inc_h_name)
+
         _write_amber_data(file_handle, without_hydrogen, without_h_name)
+        written_categories.append(without_h_name)
+
+    # Append & forget about SOLVENT_POINTERS section for now
+    written_categories.append("SOLVENT_POINTERS")
+
+    # Forget about box dimensions for now too
+    written_categories.append("BOX_DIMENSIONS")
+
+    # Quick fix for radius set  will be one line string description in files prepared by xleap
+    _write_amber_data(file_handle, ["Place holder - EEX"], "RADIUS_SET")
+    written_categories.append("RADIUS_SET")
+
+    ### Write headers for other sections (file will not work in AMBER without these)
+    for k in amd.data_labels:
+        if k not in written_categories:
+            if label_sizes[k] > 0:
+                data = np.zeros(label_sizes[k])
+                _write_amber_data(file_handle, data, k)
+            else:
+                file_handle.write(("%%FLAG %s\n%s\n\n" % (k, amd.data_labels[k][1])).encode())
+            written_categories.append(k)
 
     file_handle.close()
 
