@@ -339,7 +339,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         df = pd.DataFrame(data.values.reshape(-1, 3), columns=["X", "Y", "Z"])
         df.dropna(axis=0, how="any", inplace=True)
         df.index = np.arange(1, df.shape[0] + 1)
-        print(df)
+        # print(df)
 
         df.index.name = "atom_index"
         dl.add_atoms(df, utype={"XYZ": "angstrom"})

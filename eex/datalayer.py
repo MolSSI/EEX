@@ -335,19 +335,29 @@ class DataLayer(object):
         else:
             raise KeyError("DataLayer:get_atom_count: property_name `%s` not understood" % property_name)
 
-    def list_atom_uids(self, property_name, properties=False):
+    def list_atom_uids(self, property_name):
 
         property_name = property_name.lower()
         self._check_atoms_dict(property_name)
         if not metadata.atom_metadata[property_name]["unique"]:
-            if properties:
-                return copy.deepcopy(self._atom_metadata[property_name]["inv_uvals"])
-            else:
-                return list(self._atom_metadata[property_name]["inv_uvals"])
+            return list(self._atom_metadata[property_name]["inv_uvals"])
         else:
             raise KeyError("DataLayere:get_atom_uids: '%s' is not stored as unique values." % property_name)
 
-    # def get_term_parameter(self, order, uid, utype=None):
+    def get_atom_parameter(self, property_name, uid, utype=None):
+
+        property_name = property_name.lower()
+        self._check_atoms_dict(property_name)
+        if not metadata.atom_metadata[property_name]["unique"]:
+            if not uid in self._atom_metadata[property_name]["inv_uvals"]:
+                raise Exception("DataLayer:get_atom_parameter: property '%s' key '%d' not found." % (property_name,
+                                                                                                     uid))
+            cf = 1
+            if utype is not None:
+                cf = units.conversion_factor(metadata.atom_metadata[property_name]["utype"], utype)
+            return self._atom_metadata[property_name]["inv_uvals"][uid] * cf
+        else:
+            raise KeyError("DataLayere:get_atom_parameter: '%s' is not stored as unique values." % property_name)
 
     def add_atoms(self, atom_df, property_name=None, by_value=False, utype=None):
         """

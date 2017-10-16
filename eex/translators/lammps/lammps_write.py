@@ -72,7 +72,8 @@ def write_lammps_file(dl, data, filename, blocksize=110):
 
     # Write out mass data
     data_file.write(" Masses\n\n")
-    for idx, mass in dl.list_atom_uids("mass", properties=True).items():
+    for idx in dl.list_atom_uids("mass"):
+        mass = dl.get_atom_parameter("mass", idx, utype=lmd.get_context("real", "[mass]"))
         data_file.write("%2d %10.8f\n" % (idx, mass))
     data_file.write('\n')
 
