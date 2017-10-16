@@ -24,9 +24,9 @@ def line_fuzzy_list(line, ldata):
 
     for match in ldata:
         if match in line:
-            return (True, match)
+            return True, match
 
-    return (False, None)
+    return False, None
 
 
 def read_lines(filename, nlines, start=0):

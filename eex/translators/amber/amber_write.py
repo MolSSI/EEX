@@ -101,7 +101,7 @@ def write_amber_file(dl, filename, inpcrd=None):
     ## Write pointers section
     f.write("%%FLAG POINTERS\n%s\n" % (amd.data_labels["POINTERS"][1]))
     ncols, dtype, width = amd.parse_format(amd.data_labels["POINTERS"][1])
-    format_string = "%%%sd" % (width)
+    format_string = "%%%sd" % width
 
     count = 0
     for k in amd.size_keys:

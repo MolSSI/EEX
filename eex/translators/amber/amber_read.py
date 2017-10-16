@@ -157,6 +157,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                 read_size = remaining_read
 
             # read_fwf will push the file pointer *at least 4* so lets just read it in
+            tmp_handle = None
             if read_size < 4:
                 data = []
                 for x in range(read_size):

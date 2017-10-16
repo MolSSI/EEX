@@ -1,5 +1,5 @@
 """
-Contains the DataLayer class (name in progress) which takes and reads various peices of data
+Contains the DataLayer class (name in progress) which takes and reads various pieces of data
 """
 
 import copy
@@ -63,11 +63,11 @@ class DataLayer(object):
             return False
 
         try:
-            function = getattr(self, args[0])
+            fnc = getattr(self, args[0])
         except AttributeError:
             raise AttributeError("DataLayer:call_by_string: does not have method %s." % args[0])
 
-        return function(*args[1:], **kwargs)
+        return fnc(*args[1:], **kwargs)
 
     def close(self):
         """
@@ -240,7 +240,7 @@ class DataLayer(object):
 
     def add_atom_parameter(self, property_name, value, uid=None, utype=None):
         """
-        Adds atom paramters to the Datalayer object
+        Adds atom parameters to the Datalayer object
 
         Parameters
         ----------
@@ -260,7 +260,7 @@ class DataLayer(object):
 
         Notes
         -----
-        If a uid is not set and the parameter is already known, the function will return the current internal paramter.
+        If a uid is not set and the parameter is already known, the function will return the current internal parameter.
 
         Examples
         --------
@@ -302,8 +302,8 @@ class DataLayer(object):
         # We have a uid
         else:
             # Fine if it matches internally, otherwise throw
-            if (found_key is not None):
-                if (found_key == uid):
+            if found_key is not None:
+                if found_key == uid:
                     return found_key
                 else:
                     raise KeyError(
@@ -568,7 +568,7 @@ class DataLayer(object):
 
         order = metadata.sanitize_term_order_name(order)
 
-        if (uid not in self._terms[order]):
+        if uid not in self._terms[order]:
             raise KeyError("DataLayer:get_parameters: Did not find term '%d %d" % (order, uid))
 
         # Stored as [term_name, parameters...]
@@ -581,7 +581,7 @@ class DataLayer(object):
 
         # Were done
         if utype is None:
-            return (data[0], parameters)
+            return data[0], parameters
 
         # Need to convert
         if isinstance(utype, (list, tuple)):
@@ -595,7 +595,7 @@ class DataLayer(object):
         for key in term_md["parameters"]:
             parameters[key] *= units.conversion_factor(term_md["utype"][key], utype[key])
 
-        return (data[0], parameters)
+        return data[0], parameters
 
     def list_term_uids(self, order=None):
 

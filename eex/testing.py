@@ -88,7 +88,7 @@ def dict_compare(left, right, atol=1.e-9, rtol=1.e-5):
             match = lv == set(rv)
         elif isinstance(lv, (float, np.ndarray, list)):
             match = np.allclose(lv, rv, atol=atol, rtol=rtol)
-        elif isinstance(lv, (pd.DataFrame)):
+        elif isinstance(lv, pd.DataFrame):
             match = df_compare(lv, rv, atol=atol, rtol=rtol)
         else:
             raise TypeError("dict_compare: Misunderstood compare type '%s'." % str(type(lv)))

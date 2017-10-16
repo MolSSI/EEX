@@ -15,13 +15,13 @@ def build_dl(program, molecule):
         fname = eex_find_files.get_example_filename("amber", "alkanes", file_name)
         dl = eex.datalayer.DataLayer("test_amber")
         data = eex.translators.amber.read_amber_file(dl, fname)
-        return (data, dl)
+        return data, dl
     elif program.lower() == "lammps":
         file_name = "data.trappe_%s_single_molecule" % molecule
         fname = eex_find_files.get_example_filename("lammps", "alkanes", file_name)
         dl = eex.datalayer.DataLayer("test_lammps")
         data = eex.translators.lammps.read_lammps_file(dl, fname)
-        return (data, dl)
+        return data, dl
     else:
         raise KeyError("Program %s not understood" % program)
 
