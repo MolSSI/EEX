@@ -207,7 +207,7 @@ def evaluate_energy_expression(dl):
             if df.shape[0] == 0: continue
 
             variables = _compute_temporaries(order, xyz, df)
-            form_type, parameters = dl.get_parameter(order, idx)
+            form_type, parameters = dl.get_term_parameter(order, idx)
             form = metadata.get_term_metadata(order, "forms", form_type)["form"]
 
             energy[order_key] += np.sum(evaluate_form(form, parameters, variables))

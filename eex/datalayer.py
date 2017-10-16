@@ -336,7 +336,7 @@ class DataLayer(object):
         else:
             raise KeyError("DataLayer:get_atom_count: property_name `%s` not understood" % property_name)
 
-    def get_atom_uids(self, property_name, properties=False):
+    def list_atom_uids(self, property_name, properties=False):
 
         property_name = property_name.lower()
         self._check_atoms_dict(property_name)
@@ -347,6 +347,8 @@ class DataLayer(object):
                 return list(self._atom_metadata[property_name]["inv_uvals"])
         else:
             raise KeyError("DataLayere:get_atom_uids: '%s' is not stored as unique values." % property_name)
+
+    # def get_term_parameter(self, order, uid, utype=None):
 
     def add_atoms(self, atom_df, property_name=None, by_value=False, utype=None):
         """
@@ -470,7 +472,7 @@ class DataLayer(object):
 
 ### Term functions
 
-    def add_parameter(self, order, term_name, term_parameters, uid=None, utype=None):
+    def add_term_parameter(self, order, term_name, term_parameters, uid=None, utype=None):
         """
         Adds parameters for a given fuctional form.
 
@@ -563,7 +565,7 @@ class DataLayer(object):
 
                 return uid
 
-    def get_parameter(self, order, uid, utype=None):
+    def get_term_parameter(self, order, uid, utype=None):
 
         order = metadata.sanitize_term_order_name(order)
 
@@ -596,7 +598,7 @@ class DataLayer(object):
 
         return (data[0], parameters)
 
-    def list_parameter_uids(self, order=None):
+    def list_term_uids(self, order=None):
 
         # Return everything
         if order is None:

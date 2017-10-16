@@ -146,7 +146,7 @@ def read_lammps_file(dl, filename, blocksize=110):
                 for idx, row in data.iterrows():
                     params = list(row[cols])
                     utype = term_table[order][fname]["utype"]
-                    dl.add_parameter(order, fname, params, uid=int(row["uid"]), utype=utype)
+                    dl.add_term_parameter(order, fname, params, uid=int(row["uid"]), utype=utype)
 
             else:
                 raise KeyError("Operation table call '%s' not understoop" % op["call_type"])

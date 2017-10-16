@@ -76,10 +76,10 @@ def write_amber_file(dl, filename, inpcrd=None):
     output_sizes["MBONA"] = dl.get_term_count(2, "total")  #  Number of bonds not containing hydrogen
     output_sizes["MTHETA"] = dl.get_term_count(3, "total")  #  Number of angles not containing hydrogen
     # output_sizes["MPHIA"] = dl.get_term_count(4, "total")  #  Number of torsions not containing hydrogen
-    output_sizes["NUMBND"] = len(dl.list_parameter_uids(2))  # Number of unique bond types
-    output_sizes["NUMANG"] = len(dl.list_parameter_uids(3))  # Number of unique angle types
-    output_sizes["NPTRA"] = len(dl.list_parameter_uids(4))  # Number of unique torsion types
-    output_sizes["NRES"] = len(dl.get_atom_uids("residue_name"))  # Number of residues (not stable)
+    output_sizes["NUMBND"] = len(dl.list_term_uids(2))  # Number of unique bond types
+    output_sizes["NUMANG"] = len(dl.list_term_uids(3))  # Number of unique angle types
+    output_sizes["NPTRA"] = len(dl.list_term_uids(4))  # Number of unique torsion types
+    output_sizes["NRES"] = len(dl.list_atom_uids("residue_name"))  # Number of residues (not stable)
     output_sizes["NTYPES"] = 0  # Number of distinct LJ atom types
     output_sizes["NBONH"] = 0  #  Number of bonds containing hydrogen
     output_sizes["NTHETH"] = 0  #  Number of angles containing hydrogen
@@ -141,7 +141,7 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     ### Write out term parameters
     for term_type in ["bond", "angle", "dihedral"]:
-        uids = sorted(dl.list_parameter_uids(term_type))
+        uids = sorted(dl.list_term_uids(term_type))
 
         if len(uids) == 0: continue
         term_md = amd.forcefield_parameters[term_type]
@@ -153,7 +153,7 @@ def write_amber_file(dl, filename, inpcrd=None):
 
         # Build lists of data since AMBER holds this as 1D
         for uid in uids:
-            params = dl.get_parameter(order, uid, utype=utype)
+            params = dl.get_term_parameter(order, uid, utype=utype)
             for k, v in params[1].items():
                 tmps[inv_lookup[k]].append(v)
 

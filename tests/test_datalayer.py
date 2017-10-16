@@ -98,55 +98,55 @@ def test_add_parameter():
     three_body_md = eex.metadata.get_term_metadata(3, "forms", "harmonic")
 
     # Check duplicates
-    assert 0 == dl.add_parameter(2, "harmonic", [4.0, 5.0])
-    assert 0 == dl.add_parameter(2, "harmonic", [4.0, 5.0])
-    assert 0 == dl.add_parameter(2, "harmonic", [4.0, 5.0 + 1.e-10])
+    assert 0 == dl.add_term_parameter(2, "harmonic", [4.0, 5.0])
+    assert 0 == dl.add_term_parameter(2, "harmonic", [4.0, 5.0])
+    assert 0 == dl.add_term_parameter(2, "harmonic", [4.0, 5.0 + 1.e-10])
 
     # New parameters
-    assert 1 == dl.add_parameter(2, "harmonic", [4.0, 6.0])
-    assert 0 == dl.add_parameter(3, "harmonic", [4.0, 6.0])
+    assert 1 == dl.add_term_parameter(2, "harmonic", [4.0, 6.0])
+    assert 0 == dl.add_term_parameter(3, "harmonic", [4.0, 6.0])
 
     # Check uid types
-    assert 0 == dl.add_parameter(2, "harmonic", [4.0, 5.0], uid=0)
-    assert 0 == dl.add_parameter(2, "harmonic", [4.0, 5.0 + 1.e-10], uid=0)
+    assert 0 == dl.add_term_parameter(2, "harmonic", [4.0, 5.0], uid=0)
+    assert 0 == dl.add_term_parameter(2, "harmonic", [4.0, 5.0 + 1.e-10], uid=0)
 
     # Add out of order uid
-    assert 10 == dl.add_parameter(2, "harmonic", [9.0, 9], uid=10)
-    assert 2 == dl.add_parameter(2, "harmonic", [9.0, 10.0])
+    assert 10 == dl.add_term_parameter(2, "harmonic", [9.0, 9], uid=10)
+    assert 2 == dl.add_term_parameter(2, "harmonic", [9.0, 10.0])
 
     # Do we want to allow forced dups?
-    assert 15 == dl.add_parameter(2, "harmonic", [22.0, 22.0], uid=15)
-    assert 11 == dl.add_parameter(2, "harmonic", [22.0, 22.0], uid=11)
+    assert 15 == dl.add_term_parameter(2, "harmonic", [22.0, 22.0], uid=15)
+    assert 11 == dl.add_term_parameter(2, "harmonic", [22.0, 22.0], uid=11)
 
     # Check add by dict
     mdp = two_body_md["parameters"]
-    assert 0 == dl.add_parameter(2, "harmonic", {mdp[0]: 4.0, mdp[1]: 5.0})
-    assert 1 == dl.add_parameter(2, "harmonic", {mdp[0]: 4.0, mdp[1]: 6.0})
-    assert 3 == dl.add_parameter(2, "harmonic", {mdp[0]: 4.0, mdp[1]: 7.0})
+    assert 0 == dl.add_term_parameter(2, "harmonic", {mdp[0]: 4.0, mdp[1]: 5.0})
+    assert 1 == dl.add_term_parameter(2, "harmonic", {mdp[0]: 4.0, mdp[1]: 6.0})
+    assert 3 == dl.add_term_parameter(2, "harmonic", {mdp[0]: 4.0, mdp[1]: 7.0})
 
     with pytest.raises(KeyError):
-        dl.add_parameter(2, "harmonic", {mdp[0]: 4.0, "turtle": 5.0})
+        dl.add_term_parameter(2, "harmonic", {mdp[0]: 4.0, "turtle": 5.0})
 
     mdp = three_body_md["parameters"]
-    assert 0 == dl.add_parameter(3, "harmonic", {mdp[0]: 4.0, mdp[1]: 6.0})
+    assert 0 == dl.add_term_parameter(3, "harmonic", {mdp[0]: 4.0, mdp[1]: 6.0})
 
     # Check uid type
     with pytest.raises(TypeError):
-        dl.add_parameter(2, "harmonic", [11.0, 9.0], uid="turtle")
+        dl.add_term_parameter(2, "harmonic", [11.0, 9.0], uid="turtle")
 
     # Validate parameter data
     with pytest.raises(ValueError):
-        dl.add_parameter(2, "harmonic", [4.0, 5.0, 3.0])
+        dl.add_term_parameter(2, "harmonic", [4.0, 5.0, 3.0])
 
     with pytest.raises(TypeError):
-        dl.add_parameter(2, "harmonic", [11.0, "duck"])
+        dl.add_term_parameter(2, "harmonic", [11.0, "duck"])
 
     # Check name errors
     with pytest.raises(KeyError):
-        dl.add_parameter("turtle", "harmonic", [4.0, 5.0, 3.0])
+        dl.add_term_parameter("turtle", "harmonic", [4.0, 5.0, 3.0])
 
     with pytest.raises(KeyError):
-        dl.add_parameter(2, "harmonic_abc", [4.0, 5.0])
+        dl.add_term_parameter(2, "harmonic_abc", [4.0, 5.0])
 
 
 def test_add_parameters_units():
@@ -160,32 +160,32 @@ def test_add_parameters_units():
 
     # Test unit types
 
-    assert 0 == dl.add_parameter(2, "harmonic", [4.0, 5.0])
-    assert 0 == dl.add_parameter(2, "harmonic", [4.0, 5.0])
+    assert 0 == dl.add_term_parameter(2, "harmonic", [4.0, 5.0])
+    assert 0 == dl.add_term_parameter(2, "harmonic", [4.0, 5.0])
 
     # Same units
     utype_2b = {"K": "(kJ / mol) * angstrom ** -2", "R0": "angstrom"}
     utype_2bl = [utype_2b["K"], utype_2b["R0"]]
-    assert 0 == dl.add_parameter(2, "harmonic", {"K": 4.0, "R0": 5.0}, utype=utype_2b)
-    assert 0 == dl.add_parameter(2, "harmonic", {"K": 4.0, "R0": 5.0}, utype=utype_2bl)
-    assert 0 == dl.add_parameter(2, "harmonic", [4.0, 5.0], utype=utype_2b)
-    assert 0 == dl.add_parameter(2, "harmonic", [4.0, 5.0], utype=utype_2bl)
+    assert 0 == dl.add_term_parameter(2, "harmonic", {"K": 4.0, "R0": 5.0}, utype=utype_2b)
+    assert 0 == dl.add_term_parameter(2, "harmonic", {"K": 4.0, "R0": 5.0}, utype=utype_2bl)
+    assert 0 == dl.add_term_parameter(2, "harmonic", [4.0, 5.0], utype=utype_2b)
+    assert 0 == dl.add_term_parameter(2, "harmonic", [4.0, 5.0], utype=utype_2bl)
 
     # Scale by 2
     utype_2b = {"K": "0.5 * (kJ / mol) * angstrom ** -2", "R0": "0.5 * angstrom"}
     utype_2bl = [utype_2b["K"], utype_2b["R0"]]
-    assert 0 == dl.add_parameter(2, "harmonic", {"K": 8.0, "R0": 10.0}, utype=utype_2b)
-    assert 0 == dl.add_parameter(2, "harmonic", {"K": 8.0, "R0": 10.0}, utype=utype_2bl)
-    assert 0 == dl.add_parameter(2, "harmonic", [8.0, 10.0], utype=utype_2b)
-    assert 0 == dl.add_parameter(2, "harmonic", [8.0, 10.0], utype=utype_2bl)
+    assert 0 == dl.add_term_parameter(2, "harmonic", {"K": 8.0, "R0": 10.0}, utype=utype_2b)
+    assert 0 == dl.add_term_parameter(2, "harmonic", {"K": 8.0, "R0": 10.0}, utype=utype_2bl)
+    assert 0 == dl.add_term_parameter(2, "harmonic", [8.0, 10.0], utype=utype_2b)
+    assert 0 == dl.add_term_parameter(2, "harmonic", [8.0, 10.0], utype=utype_2bl)
 
     # Different unit type
     utype_2b = {"K": "0.5 * (kJ / mol) * angstrom ** -2", "R0": "picometers"}
-    assert 0 == dl.add_parameter(2, "harmonic", [8.0, 500.0], utype=utype_2b)
+    assert 0 == dl.add_term_parameter(2, "harmonic", [8.0, 500.0], utype=utype_2b)
 
     # Finally a different parameter type all together
     utype_2b = {"K": "0.5 * (kJ / mol) * angstrom ** -2", "R0": "picometers"}
-    assert 1 == dl.add_parameter(2, "harmonic", [8.0, 5.0], utype=utype_2b)
+    assert 1 == dl.add_term_parameter(2, "harmonic", [8.0, 5.0], utype=utype_2b)
 
 
 def test_get_parameter():
@@ -196,20 +196,20 @@ def test_get_parameter():
     dl = eex.datalayer.DataLayer("test_get_parameters")
 
     # Add a few parameters
-    assert 0 == dl.add_parameter(2, "harmonic", {"K": 4.0, "R0": 5.0})
-    assert 1 == dl.add_parameter(2, "harmonic", {"K": 6.0, "R0": 7.0})
+    assert 0 == dl.add_term_parameter(2, "harmonic", {"K": 4.0, "R0": 5.0})
+    assert 1 == dl.add_term_parameter(2, "harmonic", {"K": 6.0, "R0": 7.0})
 
-    parm1 = dl.get_parameter(2, 0)
+    parm1 = dl.get_term_parameter(2, 0)
     assert parm1[0] == "harmonic"
     assert eex.testing.dict_compare(parm1[1], {"K": 4.0, "R0": 5.0})
     assert eex.testing.dict_compare(parm1[1], {"K": 4.0, "R0": 5.0 + 1.e-12})
 
-    parm2 = dl.get_parameter(2, 1)
+    parm2 = dl.get_term_parameter(2, 1)
     assert parm2[0] == "harmonic"
     assert eex.testing.dict_compare(parm2[1], {"K": 6.0, "R0": 7.0})
 
     with pytest.raises(KeyError):
-        dl.get_parameter(2, 1231234123)
+        dl.get_term_parameter(2, 1231234123)
 
 
 def test_get_parameters_units():
@@ -220,20 +220,20 @@ def test_get_parameters_units():
     dl = eex.datalayer.DataLayer("test_get_parameters_units")
 
     utype_2b = {"K": "(kJ / mol) * angstrom ** -2", "R0": "angstrom"}
-    assert 0 == dl.add_parameter(2, "harmonic", {"K": 4.0, "R0": 5.0}, utype=utype_2b)
-    assert 1 == dl.add_parameter(2, "harmonic", {"K": 6.0, "R0": 7.0}, utype=utype_2b)
+    assert 0 == dl.add_term_parameter(2, "harmonic", {"K": 4.0, "R0": 5.0}, utype=utype_2b)
+    assert 1 == dl.add_term_parameter(2, "harmonic", {"K": 6.0, "R0": 7.0}, utype=utype_2b)
 
     utype_2scale = {"K": "2.0 * (kJ / mol) * angstrom ** -2", "R0": "2.0 * angstrom"}
-    parm1 = dl.get_parameter(2, 0, utype=utype_2scale)
+    parm1 = dl.get_term_parameter(2, 0, utype=utype_2scale)
     assert parm1[0] == "harmonic"
     assert eex.testing.dict_compare(parm1[1], {"K": 2.0, "R0": 2.5})
 
-    parm2 = dl.get_parameter(2, 0, utype=[utype_2scale["K"], utype_2scale["R0"]])
+    parm2 = dl.get_term_parameter(2, 0, utype=[utype_2scale["K"], utype_2scale["R0"]])
     assert parm2[0] == "harmonic"
     assert eex.testing.dict_compare(parm2[1], {"K": 2.0, "R0": 2.5})
 
     with pytest.raises(TypeError):
-        dl.get_parameter(2, 0, utype=set([5, 6]))
+        dl.get_term_parameter(2, 0, utype=set([5, 6]))
 
 
 def test_list_parameters():
@@ -244,22 +244,22 @@ def test_list_parameters():
     dl = eex.datalayer.DataLayer("test_list_parameters")
 
     # Add two-body
-    assert 0 == dl.add_parameter(2, "harmonic", [4.0, 5.0])
-    assert 1 == dl.add_parameter(2, "harmonic", [4.0, 6.0])
-    assert 9 == dl.add_parameter(2, "harmonic", [6.0, 7.0], uid=9)
+    assert 0 == dl.add_term_parameter(2, "harmonic", [4.0, 5.0])
+    assert 1 == dl.add_term_parameter(2, "harmonic", [4.0, 6.0])
+    assert 9 == dl.add_term_parameter(2, "harmonic", [6.0, 7.0], uid=9)
 
     # Add three-body
-    assert 0 == dl.add_parameter(3, "harmonic", [4.0, 5.0])
-    assert 1 == dl.add_parameter(3, "harmonic", [4.0, 6.0])
-    assert 9 == dl.add_parameter(3, "harmonic", [6.0, 7.0], uid=9)
+    assert 0 == dl.add_term_parameter(3, "harmonic", [4.0, 5.0])
+    assert 1 == dl.add_term_parameter(3, "harmonic", [4.0, 6.0])
+    assert 9 == dl.add_term_parameter(3, "harmonic", [6.0, 7.0], uid=9)
 
-    full_list = dl.list_parameter_uids()
+    full_list = dl.list_term_uids()
     assert set([2, 3, 4]) == set(full_list)
     assert set([0, 1, 9]) == set(full_list[2])
     assert set([0, 1, 9]) == set(full_list[3])
     assert set([]) == set(full_list[4])
 
-    bond_list = dl.list_parameter_uids(2)
+    bond_list = dl.list_term_uids(2)
     assert set([0, 1, 9]) == set(bond_list)
 
 

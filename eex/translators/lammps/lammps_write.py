@@ -27,7 +27,7 @@ def write_lammps_file(dl, data, filename, blocksize=110):
     sizes["angles"] = dl.get_term_count(3, "total")
     sizes["dihedrals"] = dl.get_term_count(4, "total") # Not qutie right once we do impropers
     sizes["impropers"] = 0
-    sizes["atom types"] = len(dl.get_atom_uids("mass"))
+    sizes["atom types"] = len(dl.list_atom_uids("mass"))
 
     # All the UID's minus the "total" columns
     sizes["bond types"] = len(dl.get_term_count(2)) - 1
@@ -52,15 +52,15 @@ def write_lammps_file(dl, data, filename, blocksize=110):
     # Loop over all of the parameter data
     param_fmt = "%10.8f"
     for param_order, param_type in zip([2, 3, 4], ["bond", "angle", "dihedral"]):
-        param_uids = dl.list_parameter_uids(param_order)
+        param_uids = dl.list_term_uids(param_order)
 
         if len(param_uids) == 0: continue
 
         data_file.write(("%s Coeffs\n\n" % param_type).title())
         for uid in param_uids:
-            param_coeffs = dl.get_parameter(param_order, uid)
+            param_coeffs = dl.get_term_parameter(param_order, uid)
             term_data = term_table[param_order][param_coeffs[0]]
-            param_coeffs = dl.get_parameter(param_order, uid, utype=term_data["utype"])
+            param_coeffs = dl.get_term_parameter(param_order, uid, utype=term_data["utype"])
 
             # Order the data like lammps wants it
             parameters = [param_coeffs[1][k] for k in term_data["parameters"]]
@@ -72,7 +72,7 @@ def write_lammps_file(dl, data, filename, blocksize=110):
 
     # Write out mass data
     data_file.write(" Masses\n\n")
-    for idx, mass in dl.get_atom_uids("mass", properties=True).items():
+    for idx, mass in dl.list_atom_uids("mass", properties=True).items():
         data_file.write("%2d %10.8f\n" % (idx, mass))
     data_file.write('\n')
 
