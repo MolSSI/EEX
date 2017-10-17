@@ -1,6 +1,6 @@
 #
 variable        NAME index cyclohexane
-variable        infile index data.trappe_cyclohexane_single_molecule
+variable        infile index data.trappe_cyclohexane_single_molecule_charmm
 variable        mytemp index 275
 
 log             ${NAME}.log
