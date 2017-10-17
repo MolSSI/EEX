@@ -37,7 +37,7 @@ velocity        all create  ${mytemp} 314159265 units box
 velocity        all zero linear units box
 dump            DUMP all custom 2000 ${NAME}.lammpstrj id type x y z vx vy vz mol
 #thermo_style    custom step vol temp press ke pe etotal enthalpy evdwl ecoul epair ebond eangle edihed eimp emol elong etail lx ly lz xy xz yz
-thermo_style    custom step etotal ebond eangle edihed ke 
+thermo_style    custom step etotal ebond eangle edihed evdwl etail ke 
 thermo          1
 #
 ## thermostat and integrator
