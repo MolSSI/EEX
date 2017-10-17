@@ -112,3 +112,6 @@ ENV/
 
 # Scratch tmps
 tests/scratch/*
+
+# PyCharm junk
+.idea

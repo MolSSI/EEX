@@ -3,6 +3,7 @@ Base class for the filelayer.
 """
 
 import os
+
 import pandas as pd
 
 
@@ -78,7 +79,7 @@ class HDFStore(BaseStore):
 
     def read_table(self, key, rows=None, where=None, chunksize=None):
         """
-        Reads the table using either the rows or where synatx
+        Reads the table using either the rows or where syntax
         Appends or builds a new table
 
         Parameters

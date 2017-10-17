@@ -137,7 +137,6 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
     # Iterate over the file
     while True:
-
         # Type out the sizes and types
         nsize = label_sizes[current_data_category]
         nrows = int(math.ceil(nsize / float(current_data_type[0])))
@@ -157,6 +156,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                 read_size = remaining_read
 
             # read_fwf will push the file pointer *at least 4* so lets just read it in
+            tmp_handle = None
             if read_size < 4:
                 data = []
                 for x in range(read_size):
@@ -312,7 +312,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
             params = {}
             for k, v in param_data["column_names"].items():
                 params[v] = row[k]
-            uid = dl.add_parameter(
+            uid = dl.add_term_parameter(
                 param_data["order"], param_data["form"], params, uid=cnt, utype=param_data["units"])
             cnt += 1
 
@@ -338,7 +338,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         df = pd.DataFrame(data.values.reshape(-1, 3), columns=["X", "Y", "Z"])
         df.dropna(axis=0, how="any", inplace=True)
         df.index = np.arange(1, df.shape[0] + 1)
-        print(df)
+        # print(df)
 
         df.index.name = "atom_index"
         dl.add_atoms(df, utype={"XYZ": "angstrom"})

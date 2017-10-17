@@ -10,20 +10,23 @@ np.random.seed(0)
 
 
 def test_distance():
+    def _test_distance(p1, p2, value):
+        tmp = eex.energy_eval.geometry.compute_distance(p1, p2)
+        assert pytest.approx(value) == tmp
 
-    assert pytest.approx(1.0) == eex.energy_eval.compute_distance([0, 0, 0], [0, 0, 1])[0]
-    assert pytest.approx(0.0) == eex.energy_eval.compute_distance([0, 0, 0], [0, 0, 0])[0]
+    _test_distance([0, 0, 0], [0, 0, 1], 1.0)
+    _test_distance([0, 0, 0], [0, 0, 0], 0.0)
 
     tmp1 = np.random.rand(20, 3) * 4
     tmp2 = np.random.rand(20, 3) * 4
     np_dist = np.linalg.norm(tmp1 - tmp2, axis=1)
-    ee_dist = eex.energy_eval.compute_distance(tmp1, tmp2)
+    ee_dist = eex.energy_eval.geometry.compute_distance(tmp1, tmp2)
     assert np.allclose(np_dist, ee_dist)
 
 
 def test_angle():
     def _test_angle(p1, p2, p3, value, degrees=True):
-        tmp = eex.energy_eval.compute_angle(p1, p2, p3, degrees=degrees)
+        tmp = eex.energy_eval.geometry.compute_angle(p1, p2, p3, degrees=degrees)
         assert pytest.approx(value) == tmp
 
     # Check all 90 degree domains
@@ -57,7 +60,7 @@ def test_angle():
 
 def test_dihedral():
     def _test_dihedral(p1, p2, p3, p4, value, degrees=True):
-        tmp = eex.energy_eval.compute_dihedral(p1, p2, p3, p4, degrees=degrees)
+        tmp = eex.energy_eval.geometry.compute_dihedral(p1, p2, p3, p4, degrees=degrees)
         assert pytest.approx(value) == tmp
 
     p1 = [0, 0, 0]

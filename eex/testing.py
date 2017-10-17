@@ -2,9 +2,8 @@
 A utility file for testing helpers
 """
 
-import pandas as pd
 import numpy as np
-import copy
+import pandas as pd
 
 
 def df_compare(left, right, columns=None, atol=1.e-8, rtol=1.e-5, equal_nan=True):
@@ -89,7 +88,7 @@ def dict_compare(left, right, atol=1.e-9, rtol=1.e-5):
             match = lv == set(rv)
         elif isinstance(lv, (float, np.ndarray, list)):
             match = np.allclose(lv, rv, atol=atol, rtol=rtol)
-        elif isinstance(lv, (pd.DataFrame)):
+        elif isinstance(lv, pd.DataFrame):
             match = df_compare(lv, rv, atol=atol, rtol=rtol)
         else:
             raise TypeError("dict_compare: Misunderstood compare type '%s'." % str(type(lv)))
@@ -100,7 +99,7 @@ def dict_compare(left, right, atol=1.e-9, rtol=1.e-5):
     return True
 
 
-def dl_compare(left, right, atom_checks=["charge", "xyz"]):
+def dl_compare(left, right, atom_checks=None):
     """
     Attempts to compare two dataframes
 
@@ -115,8 +114,10 @@ def dl_compare(left, right, atom_checks=["charge", "xyz"]):
 
     ### Compare all terms within the DL
 
-    left_uids = left.list_parameter_uids()
-    right_uids = left.list_parameter_uids()
+    if atom_checks is None:
+        atom_checks = ["charge", "xyz"]
+    left_uids = left.list_term_uids()
+    right_uids = left.list_term_uids()
 
     # First make sure the number of terms is the same
     for k in list(left_uids):
@@ -134,11 +135,11 @@ def dl_compare(left, right, atom_checks=["charge", "xyz"]):
         conversion_dict[k] = {}
         ruid_tmps = right_uids[k][:]
         for luid in left_uids[k]:
-            pl = left.get_parameter(k, luid)
+            pl = left.get_term_parameter(k, luid)
 
             # Loop over right uid's popping ones we used
             for ruid in ruid_tmps:
-                pr = left.get_parameter(k, ruid)
+                pr = left.get_term_parameter(k, ruid)
 
                 # Check match, pop right uid, and break this loop back to luid iterator
                 if (pr[0] == pl[0]) and dict_compare(pr[1], pl[1]):
