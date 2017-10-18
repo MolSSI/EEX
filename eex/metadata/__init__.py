@@ -6,7 +6,7 @@ Contains all metadata and wrappers used within EEX
 from .default_contexts import default_contexts
 
 # Bring in atom metadata
-from .atom_metadata import atom_property_to_column, atom_metadata
+from .atom_metadata import atom_property_to_column, atom_metadata, atom_number_to_symbol, atom_symbol_to_number
 
 # Bring in term metadata
 from .two_body_terms import two_body_metadata
