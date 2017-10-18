@@ -92,9 +92,25 @@ def test_dihedral():
     _test_dihedral(p1, p2, p3, [3, 2, 0 + 1.e-14], 90)
     _test_dihedral(p1, p2, p3, [3, 2, 0 - 1.e-14], -90)
 
-#def test_lattice_sum():
-#
-#    
+
+def test_lattice_sum():
+    np.set_printoptions(precision=4)
+    # 5.6402 angstroms
+    # Build sodium chloride unit cell
+    lattice_sum = eex.energy_eval.electrostatics.lattice_sum
+
+    # Build a small charge neutral cell
+    upper = np.array([[1, 1, 1], [-1, 1, 1], [1, -1, 1], [-1, -1, 1]], dtype=np.float64)
+    coords = np.vstack((upper, upper * np.array([1, 1, -1])))
+    charge = np.array([-1, 1, 1, -1, 1, -1, -1, 1], dtype=np.float64)
+
+    box_length = np.array([3.0, 3.0, 3.0])
+    assert pytest.approx(-2.9120598512) == lattice_sum(coords, charge, box_length, 0)
+
+    lat_data = lattice_sum(coords, charge, box_length, 10, return_shells=True)
+    assert pytest.approx(-2.9120598512599667) == lat_data["home"]
+    assert pytest.approx(-2.991533523772735) == lat_data[1]
+    assert pytest.approx(-5.9111661281154744) == lat_data["total"]
 
 
 def test_evaluate():
@@ -116,6 +132,4 @@ def test_evaluate():
     _test_evaluate(np.log10(local_dict["b"]), "log10(b)", local_dict)
 
     # Sums
-    _test_evaluate(np.sum(local_dict["a"] ** 2), "sum(a ** 2)", local_dict)
-
-
+    _test_evaluate(np.sum(local_dict["a"]**2), "sum(a ** 2)", local_dict)
