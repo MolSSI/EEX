@@ -1,6 +1,6 @@
 #
-variable        NAME index cyclooctane
-variable        infile index data.trappe_cyclooctane_single_molecule
+variable        NAME index cyclohexane
+variable        infile index data.trappe_cyclohexane_single_molecule_charmm_special_pairwise
 variable        mytemp index 275
 
 log             ${NAME}.log
@@ -11,14 +11,16 @@ log             ${NAME}.log
 units           real
 atom_style      full
 boundary        p p p
-pair_style      lj/cut 12
+
+pair_style      lj/charmmfsw/coul/charmmfsh 12. 14.
+
 pair_modify     tail no
 pair_modify     mix arithmetic
 special_bonds   lj 0.0 0.0 0.0
 
 bond_style      harmonic
 angle_style     harmonic
-dihedral_style  opls
+dihedral_style  charmmfsw 
 
 read_data       ${infile}
 
@@ -37,7 +39,7 @@ velocity        all create  ${mytemp} 314159265 units box
 velocity        all zero linear units box
 dump            DUMP all custom 2000 ${NAME}.lammpstrj id type x y z vx vy vz mol
 #thermo_style    custom step vol temp press ke pe etotal enthalpy evdwl ecoul epair ebond eangle edihed eimp emol elong etail lx ly lz xy xz yz
-thermo_style    custom step etotal ebond eangle edihed ke 
+thermo_style    custom step etotal ebond eangle edihed evdwl etail ke 
 thermo          1
 #
 ## thermostat and integrator
