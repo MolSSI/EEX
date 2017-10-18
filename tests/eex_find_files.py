@@ -12,7 +12,7 @@ def get_example_filename(*filename):
 
     program = filename[0].lower()
     # Make sure we have written these programs
-    if program not in ["amber", "lammps"]:
+    if program not in ["amber", "lammps", "gromacs"]:
         raise KeyError("Examples for program %s not found!" % program)
 
     # Make sure file exists
