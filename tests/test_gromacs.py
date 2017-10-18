@@ -3,6 +3,7 @@ Tests for GROMACS IO
 """
 import eex
 import numpy as np
+import os
 import pytest
 import pandas as pd
 import eex_find_files
@@ -12,7 +13,8 @@ import eex_find_files
 def nbutane_dl():
     dl = eex.datalayer.DataLayer("test_gromacs_read")
     gro_folder = eex_find_files.get_example_filename("gromacs", "alkanes", "nbutane")
-    eex.translators.gromacs.read_gromacs_gro_file(dl, gro_folder)
+    ffdir = os.path.join(gro_folder, "..", "trappe.ff")
+    eex.translators.gromacs.read_gromacs_gro_file(dl, gro_folder, ffdir=ffdir)
     return dl
 
 

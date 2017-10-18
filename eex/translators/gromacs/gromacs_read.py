@@ -20,6 +20,9 @@ def read_gromacs_gro_file(dl, gro_folder, ffdir=None):
         else:
             raise KeyError("GROMACS read: Must provide `ffdir` if 'GROMACS_DIR' not in environmental variables.")
 
+    if not os.path.exists(ffdir):
+        raise OSError("GROMACS read: Could not find FF folder, expected at '%s'." % ffdir)
+
     ### Read in conf.gro file first
 
     conf_fname = os.path.join(gro_folder, "conf.gro")
