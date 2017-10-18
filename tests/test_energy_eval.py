@@ -92,6 +92,10 @@ def test_dihedral():
     _test_dihedral(p1, p2, p3, [3, 2, 0 + 1.e-14], 90)
     _test_dihedral(p1, p2, p3, [3, 2, 0 - 1.e-14], -90)
 
+#def test_lattice_sum():
+#
+#    
+
 
 def test_evaluate():
     def _test_evaluate(value, expr, local, info=None):

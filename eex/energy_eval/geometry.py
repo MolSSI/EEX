@@ -1,5 +1,5 @@
 """
-Evaluates the EEX energy expresions.
+Computes the distances, angles, etc
 """
 
 import numpy as np
