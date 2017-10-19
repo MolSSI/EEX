@@ -1,4 +1,4 @@
-%VERSION  VERSION_STAMP = V0001.000  DATE = 10/17/17  18:11:32                  
+%VERSION  VERSION_STAMP = V0001.000  DATE = 10/19/17  14:07:36                  
 %FLAG TITLE                                                                     
 %FORMAT(20a4)                                                                   
 Molecule                                                                        
@@ -51,13 +51,13 @@ ule
   1.98967620E+00
 %FLAG DIHEDRAL_FORCE_CONSTANT                                                   
 %FORMAT(5E16.8)                                                                 
-  5.04054193E+00  1.35924726E+01  6.97309743E+00  1.25193827E-01
+ -1.06096800E+01  1.35924726E+01  6.97309743E+00  1.25193827E-01
 %FLAG DIHEDRAL_PERIODICITY                                                      
 %FORMAT(5E16.8)                                                                 
   0.00000000E+00  1.00000000E+00  2.00000000E+00  3.00000000E+00
 %FLAG DIHEDRAL_PHASE                                                            
 %FORMAT(5E16.8)                                                                 
-  0.00000000E+00  0.00000000E+00  1.57079700E+00  0.00000000E+00
+  1.57079700E+00  0.00000000E+00  0.00000000E+00  0.00000000E+00
 %FLAG SCEE_SCALE_FACTOR                                                         
 %FORMAT(5E16.8)                                                                 
   0.00000000E+00  0.00000000E+00  0.00000000E+00  0.00000000E+00
