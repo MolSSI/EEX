@@ -1,19 +1,19 @@
 Single point energy calculations
 cyclopentane
    NSTEP       ENERGY          RMS            GMAX         NAME    NUMBER
-      1       1.3890E+03     5.8438E+01     1.1335E+02     C1          1
+      1       8.8537E+02     1.1919E+02     2.1501E+02     C1          1
 
- BOND    =        0.3021  ANGLE   =        0.1599  DIHED      =     1388.5232
+ BOND    =        0.3021  ANGLE   =        0.1599  DIHED      =      884.9065
  VDWAALS =        0.0000  EEL     =        0.0000  HBOND      =        0.0000
  1-4 VDW =        0.0000  1-4 EEL =        0.0000  RESTRAINT  =        0.0000
-minimization completed, ENE= 0.13889853E+04 RMS= 0.584376E+02
+minimization completed, ENE= 0.88536857E+03 RMS= 0.119194E+03
 
 cyclohexane
    NSTEP       ENERGY          RMS            GMAX         NAME    NUMBER
-      1       2.3242E+02     1.9249E+01     3.5111E+01     C6          6
+      1       1.2695E+02     2.3483E+01     4.3299E+01     C1          1
 
- BOND    =        0.5847  ANGLE   =        0.5327  DIHED      =      231.3051
+ BOND    =        0.5847  ANGLE   =        0.5327  DIHED      =      125.8371
  VDWAALS =        0.0000  EEL     =        0.0000  HBOND      =        0.0000
  1-4 VDW =        0.0000  1-4 EEL =        0.0000  RESTRAINT  =        0.0000
-minimization completed, ENE= 0.23242256E+03 RMS= 0.192486E+02
+minimization completed, ENE= 0.12695453E+03 RMS= 0.234830E+02
 
