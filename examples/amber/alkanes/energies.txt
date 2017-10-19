@@ -10,19 +10,19 @@ minimization completed, ENE= 0.10000125E+01 RMS= 0.200301E+02
 
 propane
    NSTEP       ENERGY          RMS            GMAX         NAME    NUMBER
-      1       2.9997E+00     2.5555E+01     4.5928E+01     C3          2
+      1       2.9973E+00     2.5542E+01     4.5915E+01     C3          2
 
- BOND    =        2.0001  ANGLE   =        0.9996  DIHED      =        0.0000
+ BOND    =        1.9975  ANGLE   =        0.9998  DIHED      =        0.0000
  VDWAALS =        0.0000  EEL     =        0.0000  HBOND      =        0.0000
  1-4 VDW =        0.0000  1-4 EEL =        0.0000  RESTRAINT  =        0.0000
-minimization completed, ENE= 0.29997132E+01 RMS= 0.255551E+02
+minimization completed, ENE= 0.29972948E+01 RMS= 0.255422E+02
 
 butane
    NSTEP       ENERGY          RMS            GMAX         NAME    NUMBER
-      1       1.6615E+01     3.6552E+01     6.9219E+01     C3          3
+      1       1.6617E+01     3.6512E+01     6.9219E+01     C3          3
 
- BOND    =        3.0285  ANGLE   =       12.7275  DIHED      =        0.8592
+ BOND    =        3.0285  ANGLE   =       12.7275  DIHED      =        0.8605
  VDWAALS =        0.0000  EEL     =        0.0000  HBOND      =        0.0000
  1-4 VDW =        0.0000  1-4 EEL =        0.0000  RESTRAINT  =        0.0000
-minimization completed, ENE= 0.16615154E+02 RMS= 0.365516E+02
+minimization completed, ENE= 0.16616517E+02 RMS= 0.365118E+02
 
