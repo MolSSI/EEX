@@ -71,6 +71,33 @@ def find_lowest_hole(data):
     return new_key
 
 
+def _build_hash_string(data, float_fmt):
+
+    ret = []
+    if isinstance(data, (str)):
+        ret.append(data)
+        ret.append(", ")
+    elif isinstance(data, (int, float, np.int, np.int32, np.int64, np.float, np.float32, np.float64)):
+        ret.append(float_fmt % data)
+        ret.append(", ")
+    elif isinstance(data, (tuple, list, np.ndarray)):
+        ret.append(" (")
+        for item in data:
+            ret.append(_build_hash_string(item, float_fmt))
+        ret.append("), ")
+    elif isinstance(data, dict):
+        ret.append("{")
+        for k in sorted(data):
+            ret.append(k)
+            ret.append(": ")
+            ret.append(_build_hash_string(data[k], float_fmt))
+        ret.append("}, ")
+    else:
+        raise TypeError("hash: data type not understood: '%s'" % type(data))
+
+    return "".join(ret)
+
+
 def hash(data, rtol=8):
     """
     A special hashing function to deal with floating point numbers.
@@ -79,15 +106,5 @@ def hash(data, rtol=8):
     # Build up formatters
     float_fmt = "%." + str(rtol) + "f"
 
-    m = hashlib.md5()
-    for d in data:
-        if isinstance(d, (str)):
-            m.update(d.encode())
-        elif isinstance(d, (int, float, np.int, np.int32, np.int64, np.float, np.float32, np.float64)):
-            m.update((float_fmt % d).encode())
-        elif isinstance(d, (tuple, list, np.ndarray)):
-            m.update(hash(d).encode())
-        else:
-            raise TypeError("hash: Data type '%s' not understood." % type(d))
-
-    return m.hexdigest()
+    serialized_data = _build_hash_string(data, float_fmt).encode()
+    return hashlib.md5(serialized_data).hexdigest()

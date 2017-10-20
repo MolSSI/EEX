@@ -23,8 +23,8 @@ def test_find_lowest_hole():
 def test_hash():
 
     # Quick hash
-    assert '5523b81a4d1a4b1d3c4f5dc3dda4598d' == eex.utility.hash([5])
-    assert '932107fbc6d59956139515c8ac2cdeed' == eex.utility.hash(["something", 5])
+    assert '3e88c7ece2cbec43538d8898f8a7601e' == eex.utility.hash([5])
+    assert 'a1b8364f4dd47beb4cc0dd364d78d05d' == eex.utility.hash(["something", 5])
 
     # Nested hash
     assert eex.utility.hash([5, (5, 6)]) == eex.utility.hash([5, [5, 6]])
@@ -36,7 +36,13 @@ def test_hash():
     assert eex.utility.hash([np.int(5)]) == eex.utility.hash([np.float64(5)])
     assert eex.utility.hash([5.0, 6]) == eex.utility.hash([5, 6.0])
 
+    # Test dicts
+    assert eex.utility.hash({"k": 5, "d": 6}) == eex.utility.hash({"d": 6.0, "k": 5.0 + 1.e-14})
+    assert eex.utility.hash({"k": 5, "d": {"a": 6}}) == eex.utility.hash({"d": {"a": 6.0}, "k": 5.0 + 1.e-14})
+    assert eex.utility.hash({"k": 5, "d": {"b": 6}}) != eex.utility.hash({"d": {"a": 6.0}, "k": 5.0 + 1.e-14})
+
     # Test tolerances
+    assert eex.utility.hash(5) == eex.utility.hash(5.0)
     assert eex.utility.hash([5.0]) == eex.utility.hash([5.0 + 1.e-10])
     assert eex.utility.hash([5.0, 6.0]) == eex.utility.hash([5.0 + 1.e-10, 6.0 + 1.e-10])
 
@@ -50,3 +56,5 @@ def test_hash():
 
     # Fun gotchas
     assert eex.utility.hash([5.0], rtol=8) != eex.utility.hash([5.0], rtol=9)
+
+    assert eex.utility.hash(("k", {"a": 5, "b": 6})) == eex.utility.hash(("k", {"b": 6, "a": 5}))
