@@ -87,13 +87,21 @@ def test_add_atom_parameter():
     with pytest.raises(KeyError):
         dl.add_atom_parameter("mass", 6.0, uid=0)
 
+def test_add_atom_parameter_units():
+    dl = eex.datalayer.DataLayer("test_add_atom_parameters")
 
-def test_add_parameter():
+    # Test duplicate and uid add of same
+    assert 0 == dl.add_atom_parameter("mass", 5.0, utype="kilogram / mol")
+    assert pytest.approx(5.0) == dl.get_atom_parameter("mass", 0, utype="kilogram / mol")
+    assert pytest.approx(5000.0) == dl.get_atom_parameter("mass", 0, utype="gram / mol")
+
+
+def test_add_term_parameter():
     """
     Test adding parameters to the DL object
     """
 
-    dl = eex.datalayer.DataLayer("test_add_parameters")
+    dl = eex.datalayer.DataLayer("test_add_term_parameters")
     two_body_md = eex.metadata.get_term_metadata(2, "forms", "harmonic")
     three_body_md = eex.metadata.get_term_metadata(3, "forms", "harmonic")
 
@@ -149,7 +157,7 @@ def test_add_parameter():
         dl.add_term_parameter(2, "harmonic_abc", [4.0, 5.0])
 
 
-def test_add_parameters_units():
+def test_add_term_parameters_units():
     """
     Test adding parameters to the DL object with units
     """
@@ -212,7 +220,7 @@ def test_get_parameter():
         dl.get_term_parameter(2, 1231234123)
 
 
-def test_get_parameters_units():
+def test_get_term_parameters_units():
     """
     Test obtaining parameters from the DL with units
     """

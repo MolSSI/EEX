@@ -285,8 +285,11 @@ class DataLayer(object):
         param_dict = self._atom_metadata[property_name]
         field_data = metadata.atom_metadata[property_name]
 
+        if not isinstance(value, (int, float, dict)):
+            raise TypeError("DataLayer:add_atom_parameter: Did not understand input type '%s'." % str(type(value)))
+
         if (utype is not None) and (field_data["units"] is not None):
-            value = value * units.conversion_factor(field_data["utype"], utype)
+            value = value * units.conversion_factor(utype, field_data["utype"])
 
         if field_data["dtype"] == float:
             value = round(value, field_data["tol"])
@@ -322,6 +325,24 @@ class DataLayer(object):
             param_dict["uvals"][value] = uid
             return uid
 
+    def get_atom_parameter(self, property_name, uid, utype=None):
+        """
+        Obtains a atom parameter from the unique cache.
+        """
+
+        property_name = self._check_atoms_dict(property_name)
+        if not metadata.atom_metadata[property_name]["unique"]:
+            if not uid in self._atom_metadata[property_name]["inv_uvals"]:
+                raise Exception("DataLayer:get_atom_parameter: property '%s' key '%d' not found." % (property_name,
+                                                                                                     uid))
+            cf = 1
+            if utype is not None:
+                cf = units.conversion_factor(metadata.atom_metadata[property_name]["utype"], utype)
+                print(cf)
+            return self._atom_metadata[property_name]["inv_uvals"][uid] * cf
+        else:
+            raise KeyError("DataLayere:get_atom_parameter: '%s' is not stored as unique values." % property_name)
+
     def list_atom_properties(self):
         """
         Lists all atom properties contained in the DataLayer.
@@ -350,23 +371,6 @@ class DataLayer(object):
             return list(self._atom_metadata[property_name]["inv_uvals"])
         else:
             raise KeyError("DataLayere:list_atom_uids: '%s' is not stored as unique values." % property_name)
-
-    def get_atom_parameter(self, property_name, uid, utype=None):
-        """
-        Obtains a atom parameter from the unique cache.
-        """
-
-        property_name = self._check_atoms_dict(property_name)
-        if not metadata.atom_metadata[property_name]["unique"]:
-            if not uid in self._atom_metadata[property_name]["inv_uvals"]:
-                raise Exception("DataLayer:get_atom_parameter: property '%s' key '%d' not found." % (property_name,
-                                                                                                     uid))
-            cf = 1
-            if utype is not None:
-                cf = units.conversion_factor(metadata.atom_metadata[property_name]["utype"], utype)
-            return self._atom_metadata[property_name]["inv_uvals"][uid] * cf
-        else:
-            raise KeyError("DataLayere:get_atom_parameter: '%s' is not stored as unique values." % property_name)
 
     def add_atoms(self, atom_df, by_value=False, utype=None):
         """
