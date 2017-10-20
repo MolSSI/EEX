@@ -42,11 +42,9 @@ def test_df_atoms(backend):
 
     tmp_df = _build_atom_df(10)
 
-
     # Add a random DataFrame with name "atoms" to check interference with "add_atoms"
     rand_df = pd.DataFrame(np.random.rand(4, 4))
     dl.add_other("atoms", rand_df)
-
 
     dl.add_atoms(tmp_df.iloc[:5], by_value=True)
     dl.add_atoms(tmp_df.iloc[5:], by_value=True)
@@ -82,10 +80,27 @@ def test_add_atom_parameter():
     assert 2 == dl.add_atom_parameter("mass", 7.0, uid=2)
     assert 5 == dl.add_atom_parameter("mass", 8.0, uid=5)
     assert 3 == dl.add_atom_parameter("mass", 9.0)
+    assert 3 == dl.add_atom_parameter("mass", {"mass": 9.0})
+
+    # Multi-unit terms
+    assert 0 == dl.add_atom_parameter("lj_coeffs", {"LJ A": 5.0, "LJ B": 6.0})
+    assert 0 == dl.add_atom_parameter("lj_coeffs", {"LJ B": 6.0, "LJ A": 5.0})
+    assert 1 == dl.add_atom_parameter("lj_coeffs", {"LJ B": 7.0, "LJ A": 5.0})
+    assert 1 == dl.add_atom_parameter("lj_coeffs", {"LJ B": 7.0, "LJ A": 5.0}, uid=1)
 
     # Test possible raises
     with pytest.raises(KeyError):
         dl.add_atom_parameter("mass", 6.0, uid=0)
+
+    with pytest.raises(TypeError):
+        assert 0 == dl.add_atom_parameter("lj_coeffs", 5.0)
+
+    with pytest.raises(KeyError):
+        dl.add_atom_parameter("lj_coeffs", {"LJA ": 5.0, "LJB": 6.0})
+
+    with pytest.raises(KeyError):
+        dl.add_atom_parameter("lj_coeffs", {"LJ B": 7.0, "LJ A": 5.0}, uid=2)
+
 
 def test_add_atom_parameter_units():
     dl = eex.datalayer.DataLayer("test_add_atom_parameters")
@@ -94,6 +109,20 @@ def test_add_atom_parameter_units():
     assert 0 == dl.add_atom_parameter("mass", 5.0, utype="kilogram / mol")
     assert pytest.approx(5.0) == dl.get_atom_parameter("mass", 0, utype="kilogram / mol")
     assert pytest.approx(5000.0) == dl.get_atom_parameter("mass", 0, utype="gram / mol")
+    assert pytest.approx(5000.0) == dl.get_atom_parameter("mass", 0, utype={"mass": "gram / mol"})
+
+    # Test multi-unit utypes
+    assert 0 == dl.add_atom_parameter(
+        "lj_coeffs", {"LJ A": 5.0,
+                      "LJ B": 6.0},
+        utype={"LJ A": "kcal/mol * angstrom ** -12",
+               "LJ B": "kcal/mol * angstrom ** -6"})
+
+    assert 0 == dl.add_atom_parameter(
+        "lj_coeffs", {"LJ A": 10.0,
+                      "LJ B": 12.0},
+        utype={"LJ A": "0.5 * kcal/mol * angstrom ** -12",
+               "LJ B": "0.5 * kcal/mol * angstrom ** -6"})
 
 
 def test_add_term_parameter():

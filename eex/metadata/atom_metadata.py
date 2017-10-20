@@ -84,9 +84,10 @@ atom_metadata = {
         "unique": False,
         "dtype": float,
         "units": {
-            "LJ A": "[energy] ** -12",
-            "LJ B": "[energy] ** -6"
-        }
+            "LJ A": "[energy] * [length] ** -12",
+            "LJ B": "[energy] * [length] ** -6"
+        },
+        "tol": 8,
     }
     # "implicit_solvent_radius":
     # ["implicit_solvent_radius"],  # Amber radii section - used for implicit solvent calculations

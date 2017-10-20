@@ -321,12 +321,14 @@ class DataLayer(object):
         # if (utype is not None) and (field_data["units"] is not None):
         tmp = {"parameters": field_data["required_columns"], "utype": field_data["utype"]}
         value = metadata.validate_term_dict(property_name, tmp, value, utype=utype)
+        value = {k: v for k, v in zip(field_data["required_columns"], value)}
 
         # Round the floats
         if field_data["dtype"] == float:
-            value = {k: round(v, field_data["tol"]) for k, v in zip(field_data["required_columns"], value)}
+            value = {k: round(v, field_data["tol"]) for k, v in value.items()}
 
         value_hash = utility.hash(value)
+
         # Check if we have this key
         found_key = None
         if value_hash in param_dict["uvals"]:
