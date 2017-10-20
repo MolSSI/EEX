@@ -8,7 +8,22 @@ import pint
 from .ureg import ureg
 from ..metadata import default_contexts
 
-__all__ = ["conversion_factor", "convert_contexts"]
+__all__ = ["conversion_dict", "conversion_factor", "convert_contexts"]
+
+def conversion_dict(from_units, to_units):
+    """
+    Builds a standard conversion dictionary between two dictionaries of units.
+    """
+
+    diff = set(from_units) ^ set(to_units)
+    if len(diff):
+        raise KeyError("conversion_dict: Not all units found, missing '%s'" % str(diff))
+
+    ret = {}
+    for key in from_units:
+        ret[key] = conversion_factor(from_units[key], to_units[key])
+
+    return ret
 
 
 def conversion_factor(base_unit, conv_unit):

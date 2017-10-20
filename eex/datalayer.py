@@ -14,6 +14,7 @@ from . import filelayer
 from . import metadata
 from . import units
 from . import utility
+from . import testing
 
 APC_DICT = metadata.atom_property_to_column
 
@@ -205,6 +206,17 @@ class DataLayer(object):
 
         return ret_df
 
+    def _parse_atom_utype(self, property_name, utype):
+        field_data = metadata.atom_metadata[property_name]
+        if not isinstance(utype, dict):
+            if property_name == "xyz":
+                utype = {"X": utype, "Y": utype, "Z": utype}
+            elif len(field_data["units"]) > 1:
+                raise KeyError("Cannot infer utype without a dictionary.")
+            else:
+                utype = {field_data["required_columns"][0]: utype}
+        return utype
+
     def _store_atom_table(self, table_name, df, property_name, by_value, utype):
         """
         Internal way to store atom tables
@@ -214,8 +226,9 @@ class DataLayer(object):
 
         # Figure out unit scaling factors
         if by_value and (field_data["units"] is not None) and (utype is not None):
-            scale_factor = units.conversion_factor(utype, field_data["utype"])
-            df = df[field_data["required_columns"]] * scale_factor
+            utype = self._parse_atom_utype(property_name, utype)
+            cf = units.conversion_dict(utype, field_data["utype"])
+            df = df[field_data["required_columns"]] * pd.Series(cf)
 
         # Make sure our ints are ints and not accidentally floats
         if field_data["dtype"] == int:
@@ -242,8 +255,9 @@ class DataLayer(object):
         # Figure out unit scaling factors
         field_data = metadata.atom_metadata[property_name]
         if by_value and (field_data["units"] is not None) and (utype is not None):
-            scale_factor = units.conversion_factor(field_data["utype"], utype)
-            tmp[field_data["required_columns"]] *= scale_factor
+            utype = self._parse_atom_utype(property_name, utype)
+            cf = units.conversion_dict(field_data["utype"], utype)
+            tmp[field_data["required_columns"]] *= pd.Series(cf)
 
         return tmp
 
@@ -285,20 +299,32 @@ class DataLayer(object):
         param_dict = self._atom_metadata[property_name]
         field_data = metadata.atom_metadata[property_name]
 
+        # Parse value
         if not isinstance(value, (int, float, dict)):
             raise TypeError("DataLayer:add_atom_parameter: Did not understand input type '%s'." % str(type(value)))
 
-        if (utype is not None) and (field_data["units"] is not None):
-            value = value * units.conversion_factor(utype, field_data["utype"])
+        if isinstance(value, (int, float)):
+            req_cols = field_data["required_columns"]
+            if len(req_cols) != 1:
+                raise TypeError("DataLayer:add_atom_parameter: Expected %d values, only recieved one." % len(req_cols))
+            value = {req_cols[0]: value}
 
+        if (utype is not None) and not isinstance(utype, dict):
+            utype = {field_data["required_columns"][0]: utype}
+
+        # if (utype is not None) and (field_data["units"] is not None):
+        tmp = {"parameters": field_data["required_columns"], "utype": field_data["utype"]}
+        value = metadata.validate_term_dict(property_name, tmp, value, utype=utype)
+
+        # Round the floats
         if field_data["dtype"] == float:
-            value = round(value, field_data["tol"])
+            value = [round(v, field_data["tol"]) for v in value]
 
+        value_hash = utility.hash(value)
         # Check if we have this key
         found_key = None
-        for k, v in param_dict["inv_uvals"].items():
-            if v == value:
-                found_key = k
+        if value_hash in param_dict["uvals"]:
+            found_key = param_dict["uvals"][value_hash]
 
         # Brand new uid, return next in sequence
         if uid is None:
@@ -306,7 +332,7 @@ class DataLayer(object):
                 return found_key
 
             new_key = utility.find_lowest_hole(list(param_dict["inv_uvals"]))
-            param_dict["uvals"][value] = new_key
+            param_dict["uvals"][value_hash] = new_key
             param_dict["inv_uvals"][new_key] = value
             return new_key
 
@@ -322,7 +348,7 @@ class DataLayer(object):
                         % (value, uid, found_key))
 
             param_dict["inv_uvals"][uid] = value
-            param_dict["uvals"][value] = uid
+            param_dict["uvals"][value_hash] = uid
             return uid
 
     def get_atom_parameter(self, property_name, uid, utype=None):
@@ -331,17 +357,40 @@ class DataLayer(object):
         """
 
         property_name = self._check_atoms_dict(property_name)
-        if not metadata.atom_metadata[property_name]["unique"]:
-            if not uid in self._atom_metadata[property_name]["inv_uvals"]:
-                raise Exception("DataLayer:get_atom_parameter: property '%s' key '%d' not found." % (property_name,
-                                                                                                     uid))
-            cf = 1
-            if utype is not None:
-                cf = units.conversion_factor(metadata.atom_metadata[property_name]["utype"], utype)
-                print(cf)
-            return self._atom_metadata[property_name]["inv_uvals"][uid] * cf
-        else:
+        if metadata.atom_metadata[property_name]["unique"]:
             raise KeyError("DataLayere:get_atom_parameter: '%s' is not stored as unique values." % property_name)
+
+        if not uid in self._atom_metadata[property_name]["inv_uvals"]:
+            raise KeyError("DataLayer:get_atom_parameter: property '%s' key '%d' not found." % (property_name, uid))
+        field_data = metadata.atom_metadata[property_name]
+        req_fields = field_data["required_columns"]
+
+        data = {k: v for k, v in zip(req_fields, self._atom_metadata[property_name]["inv_uvals"][uid])}
+
+        # Handle utype
+        if utype is not None:
+            if field_data["units"] is None:
+                raise TypeError(
+                    "DataLayer:get_atom_parameter: property '%s' does not have units, but `utype` was passed in.")
+
+            if not isinstance(utype, dict):
+                if len(req_fields) > 1:
+                    raise TypeError(
+                        "DataLayer:get_atom_parameter: unit order can not be interpreted for more than one field.")
+                utype = {req_fields[0]: utype}
+
+            if set(field_data["utype"]) != set(utype):
+                raise KeyError("DataLayer:get_atom_paramter: required units '%s' does not match input units '%s'." %
+                               (str(list(field_data["utype"])), str(list(utype))))
+
+            for k, v in field_data["utype"].items():
+                cf = units.conversion_factor(v, utype[k])
+                data[k] *= cf
+
+        if len(req_fields) == 1:
+            return data[req_fields[0]]
+        else:
+            return data
 
     def list_atom_properties(self):
         """

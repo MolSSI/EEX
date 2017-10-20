@@ -196,7 +196,7 @@ def test_add_term_parameters_units():
     assert 1 == dl.add_term_parameter(2, "harmonic", [8.0, 5.0], utype=utype_2b)
 
 
-def test_get_parameter():
+def test_get_term_parameter():
     """
     Test obtaining parameters from the DL
     """
@@ -265,7 +265,7 @@ def test_list_parameters():
     assert {2, 3, 4} == set(full_list)
     assert {0, 1, 9} == set(full_list[2])
     assert {0, 1, 9} == set(full_list[3])
-    assert set([]) == set(full_list[4])
+    assert set() == set(full_list[4])
 
     bond_list = dl.list_term_uids(2)
     assert {0, 1, 9} == set(bond_list)
