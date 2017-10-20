@@ -71,13 +71,13 @@ def find_lowest_hole(data):
     return new_key
 
 
-def hash(data, ftol=8):
+def hash(data, rtol=8):
     """
     A special hashing function to deal with floating point numbers.
     """
 
     # Build up formatters
-    float_fmt = "%." + str(ftol) + "f"
+    float_fmt = "%." + str(rtol) + "f"
 
     m = hashlib.md5()
     for d in data:

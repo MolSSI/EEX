@@ -38,9 +38,9 @@ def read_lammps_file(dl, filename, blocksize=110):
             continue
 
         # We are
-        elif eex.utility.line_fuzzy_list(line, category_list)[0]:
+        elif eex.utility.fuzzy_list_match(line, category_list)[0]:
             startline = num + 3  # Skips first row and two blank lines
-            current_data_category = eex.utility.line_fuzzy_list(line, category_list)[1]
+            current_data_category = eex.utility.fuzzy_list_match(line, category_list)[1]
             break
 
         # Figure out the dims
@@ -58,7 +58,7 @@ def read_lammps_file(dl, filename, blocksize=110):
                     "LAMMPS Read: The following line looks like a dimension line, but does not match:\n%s" % line)
 
         # Are we a size line?
-        elif eex.utility.line_fuzzy_list(line, lmd.size_keys)[0]:
+        elif eex.utility.fuzzy_list_match(line, lmd.size_keys)[0]:
             dline = line.split()
             size = int(dline[0])
             size_name = " ".join(dline[1:])

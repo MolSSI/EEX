@@ -120,7 +120,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     for line in file_handle:
         if counter > 100:
             raise KeyError("AMBER Read: Could not find the line a data category in the first 100 lines.")
-        matched, name = eex.utility.line_fuzzy_list(line, list(amd.data_labels))
+        matched, name = eex.utility.fuzzy_list_match(line, list(amd.data_labels))
         if matched:
             current_data_category = name
             current_data_type = amd.parse_format(next(file_handle))
@@ -270,7 +270,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
             except StopIteration:
                 break
 
-        matched, current_data_category = eex.utility.line_fuzzy_list(category_line, list(amd.data_labels))
+        matched, current_data_category = eex.utility.fuzzy_list_match(category_line, list(amd.data_labels))
         if not matched:
             raise KeyError("AMBER Read: Data category '%s' not understood" % category_line)
 

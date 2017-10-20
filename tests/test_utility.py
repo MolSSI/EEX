@@ -19,6 +19,7 @@ def test_find_lowest_hole():
     assert 1 == eex.utility.find_lowest_hole([0])
     assert 2 == eex.utility.find_lowest_hole([0, 1, 3, 4])
 
+
 def test_hash():
 
     # Quick hash
@@ -44,10 +45,8 @@ def test_hash():
     assert eex.utility.hash([5.0]) != eex.utility.hash([5.0 + 1.e-7])
 
     # Change tolerances
-    assert eex.utility.hash([5.0], ftol=9) == eex.utility.hash([5.0 + 1.e-10], ftol=9)
-    assert eex.utility.hash([5.0], ftol=9) != eex.utility.hash([5.0 + 1.e-9], ftol=9)
+    assert eex.utility.hash([5.0], rtol=9) == eex.utility.hash([5.0 + 1.e-10], rtol=9)
+    assert eex.utility.hash([5.0], rtol=9) != eex.utility.hash([5.0 + 1.e-9], rtol=9)
 
     # Fun gotchas
-    assert eex.utility.hash([5.0], ftol=8) != eex.utility.hash([5.0], ftol=9)
-
-
+    assert eex.utility.hash([5.0], rtol=8) != eex.utility.hash([5.0], rtol=9)
