@@ -175,16 +175,23 @@ class DataLayer(object):
         # For each unique value
         for gb_idx, udf in df.groupby(cols):
 
+            if isinstance(gb_idx, tuple):
+                gb_dict = {k: v for k, v in zip(cols, gb_idx)}
+            else:
+                gb_dict = {cols[0]: gb_idx}
+
+            gb_hash = utility.hash(gb_dict)
+
             # Update dictionary if necessary
-            if gb_idx not in list(param_dict["uvals"]):
+            if gb_hash not in param_dict["uvals"]:
 
                 # Bidirectional dictionary
                 new_key = utility.find_lowest_hole(list(param_dict["inv_uvals"]))
-                param_dict["uvals"][gb_idx] = new_key
-                param_dict["inv_uvals"][new_key] = gb_idx
+                param_dict["uvals"][gb_hash] = new_key
+                param_dict["inv_uvals"][new_key] = gb_dict
 
             # Grab the unique and set
-            uidx = param_dict["uvals"][gb_idx]
+            uidx = param_dict["uvals"][gb_hash]
             ret_df.loc[udf.index, property_name] = uidx
 
         return ret_df
@@ -197,12 +204,11 @@ class DataLayer(object):
         param_dict = self._atom_metadata[property_name]
 
         cols = field_data["required_columns"]
-
-        ret_df = pd.DataFrame(index=df.index)
-        ret_df[property_name] = 0.0
-
+        ret_df = pd.DataFrame(index=df.index, columns=cols, dtype=field_data["dtype"])
         for gb_idx, udf in df.groupby(cols):
-            ret_df.loc[udf.index, property_name] = param_dict["inv_uvals"][gb_idx]
+            gb_dict = param_dict["inv_uvals"][gb_idx]
+            for col in cols:
+                ret_df.loc[udf.index, col] = gb_dict[col]
 
         return ret_df
 
@@ -318,7 +324,7 @@ class DataLayer(object):
 
         # Round the floats
         if field_data["dtype"] == float:
-            value = [round(v, field_data["tol"]) for v in value]
+            value = {k: round(v, field_data["tol"]) for k, v in zip(field_data["required_columns"], value)}
 
         value_hash = utility.hash(value)
         # Check if we have this key
@@ -365,7 +371,7 @@ class DataLayer(object):
         field_data = metadata.atom_metadata[property_name]
         req_fields = field_data["required_columns"]
 
-        data = {k: v for k, v in zip(req_fields, self._atom_metadata[property_name]["inv_uvals"][uid])}
+        data = copy.deepcopy(self._atom_metadata[property_name]["inv_uvals"][uid])
 
         # Handle utype
         if utype is not None:
@@ -384,8 +390,7 @@ class DataLayer(object):
                                (str(list(field_data["utype"])), str(list(utype))))
 
             for k, v in field_data["utype"].items():
-                cf = units.conversion_factor(v, utype[k])
-                data[k] *= cf
+                data[k] *= units.conversion_factor(v, utype[k])
 
         if len(req_fields) == 1:
             return data[req_fields[0]]
