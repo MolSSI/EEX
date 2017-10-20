@@ -83,11 +83,9 @@ def hash(data, ftol=8):
     for d in data:
         if isinstance(d, (str)):
             m.update(d.encode())
-        elif isinstance(d, int):
-            m.update(("%d" % d).encode())
-        elif isinstance(d, (float, np.float64, np.float32)):
-            m.update(("%d" % d).encode())
-        elif isinstance(d, (tuple, list)):
+        elif isinstance(d, (int, float, np.int, np.int32, np.int64, np.float, np.float32, np.float64)):
+            m.update((float_fmt % d).encode())
+        elif isinstance(d, (tuple, list, np.ndarray)):
             m.update(hash(d).encode())
         else:
             raise TypeError("hash: Data type '%s' not understood." % type(d))
