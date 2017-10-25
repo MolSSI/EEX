@@ -121,8 +121,8 @@ def test_add_atom_parameter_units():
     assert 0 == dl.add_atom_parameter(
         "lj_coeffs", {"LJ A": 10.0,
                       "LJ B": 12.0},
-        utype={"LJ A": "0.5 * kcal/mol * angstrom ** -12",
-               "LJ B": "0.5 * kcal/mol * angstrom ** -6"})
+        utype={"LJ B": "0.5 * kcal/mol * angstrom ** -6",
+               "LJ A": "0.5 * kcal/mol * angstrom ** -12"})
 
 
 def test_add_term_parameter():

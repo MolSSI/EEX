@@ -62,8 +62,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'python_template'
-copyright = '2017, Daniel G. A. Smith'
-author = 'Daniel G. A. Smith'
+copyright = '2017, The Molecular Sciences Software Institute'
+author = 'The Molecular Sciences Software Institute'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -93,7 +93,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', "units"]
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
@@ -294,7 +294,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'python_template.tex', 'python\\_template Documentation',
-     'Daniel G. A. Smith', 'manual'),
+     'The Molecular Sciences Software Institute', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -370,3 +370,21 @@ texinfo_documents = [
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #
 # texinfo_no_detailmenu = False
+
+autodoc_mock_imports = ["units", "ureg"]
+
+def autodoc_skip_member(app, what, name, obj, skip, options):
+    exclusions = ('__weakref__',  # special-members
+                  '__doc__', '__module__', '__dict__',  # undoc-members
+                  )
+    # exclude = "units" in name
+    exclude = False
+    return skip or exclude
+
+def setup(app):
+    app.connect('autodoc-skip-member', autodoc_skip_member)
+
+extlinks = {
+    'issue': ('https://github.com/dgasmith/EEX_scratch/issues/%s', 'GH#'),
+    'pr': ('https://github.com/dgasmith/EEX_scratch/pull/%s', 'GH#')
+}
