@@ -1,0 +1,48 @@
+#	Created by:	Discovery Studio
+#	Creation time:	2017-10-31T16:53:59Z
+
+@<TRIPOS>MOLECULE
+Molecule 1
+    4     3     0 0 0
+SMALL
+USER_CHARGES
+
+
+@<TRIPOS>ATOM
+      1 O1           -0.351283   -0.007241   -0.160882 O.3      1 SUBUNIT    0.0000
+      2 C1            1.078529    0.010063   -0.176306 C.3      1 SUBUNIT    0.0000
+      3 C2            1.608452   -0.006127    1.269557 C.3      1 SUBUNIT    0.0000
+      4 H1           -0.686069   -0.876176    0.324329 H        1 SUBUNIT    0.0000
+@<TRIPOS>BOND
+     1    2    3 1
+     2    1    2 1
+     3    1    4 1
+@<SCITEGIC>MOL_PROPERTY
+Clean Energy
+SciTegic.value.DoubleValue
+0.000000
+
+@<SCITEGIC>ATOM_PROPERTY
+Formal Charge
+SciTegic.value.StringValue
+1 0
+2 0
+3 0
+4 0
+
+@<SCITEGIC>ATOM_PROPERTY
+pdb_tempFactor
+SciTegic.value.DoubleValue
+1 0.00
+2 0.00
+3 0.00
+4 0.00
+
+@<SCITEGIC>ATOM_PROPERTY
+pdb_occupancy
+SciTegic.value.DoubleValue
+1 1.00
+2 1.00
+3 1.00
+4 1.00
+
