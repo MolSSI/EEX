@@ -1,5 +1,5 @@
 #	Created by:	Discovery Studio
-#	Creation time:	2017-10-31T16:51:28Z
+#	Creation time:	2017-10-17T12:01:37Z
 
 @<TRIPOS>MOLECULE
 Molecule 1
@@ -9,22 +9,17 @@ USER_CHARGES
 
 
 @<TRIPOS>ATOM
-      1 C1           -0.257742   -0.325009   -0.122466 C.3      1 SUBUNIT    0.0000
-      2 C1           -0.690413    1.173109   -0.104786 C.3      1 SUBUNIT    0.0000
-      3 C2            0.600838    1.937483    0.266671 C.3      1 SUBUNIT    0.0000
-      4 C3            1.685968    1.038028   -0.317042 C.3      1 SUBUNIT    0.0000
-      5 C4            1.233783   -0.292841    0.274284 C.3      1 SUBUNIT    0.0000
+      1 C1           -0.483780    1.004460    0.646420 c5       1 SUBUNIT    0.0000
+      2 C2            0.556540    1.066420   -0.466410 c5       1 SUBUNIT    0.0000
+      3 C3            0.988400   -0.371770   -0.744100 c5       1 SUBUNIT    0.0000
+      4 C4            0.002080   -1.290920   -0.025020 c5       1 SUBUNIT    0.0000
+      5 C5           -1.070830   -0.401020    0.595520 c5       1 SUBUNIT    0.0000
 @<TRIPOS>BOND
-     1    5    1 1
-     2    4    5 1
+     1    1    2 1
+     2    2    3 1
      3    3    4 1
-     4    2    3 1
-     5    1    2 1
-@<SCITEGIC>MOL_PROPERTY
-Clean Energy
-SciTegic.value.DoubleValue
-18.365719
-
+     4    4    5 1
+     5    5    1 1
 @<SCITEGIC>ATOM_PROPERTY
 Formal Charge
 SciTegic.value.StringValue
