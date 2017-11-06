@@ -1,0 +1,19 @@
+n-butane
+
+#,(pseudo)atom,type,"epsilon/kB [K]","sigma [Ang.]","charge [e]"
+1,CH3,[CH3]-CHx,98.0,3.750,0.000
+4,CH3,[CH3]-CHx,98.0,3.750,0.000
+2,CH2,CHx-[CH2]-CHx,46.0,3.950,0.000
+3,CH2,CHx-[CH2]-CHx,46.0,3.950,0.000
+
+#,stretch,type,"length [Ang.]"
+1,"'1 - 2'",CHx-CHy,1.5400
+2,"'2 - 3'",CHx-CHy,1.5400
+3,"'3 - 4'",CHx-CHy,1.5400
+
+#,bend,type,"theta [degrees]","k_theta/kB [K/rad^2]"
+1,"'1 - 2 - 3'",CHx-(CH2)-CHy,114.00,62500
+2,"'2 - 3 - 4'",CHx-(CH2)-CHy,114.00,62500
+
+#,torsion,type,"c0/kB [K]","c1/kB [K]","c2/kB [K]","c3/kB [K]"
+1,"'1 - 2 - 3 - 4'",CHx-(CH2)-(CH2)-CHy,0.00,355.03,-68.19,791.32

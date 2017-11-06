@@ -1,0 +1,19 @@
+ethanol
+
+#,(pseudo)atom,type,"epsilon/kB [K]","sigma [Ang.]","charge [e]"
+1,CH3,[CH3]-CHx,98.0,3.750,0.000
+3,O,CHx-[O]-H,93.0,3.020,-0.700
+4,H,O-[H],0.0,0.000,0.435
+2,CH2,CHx-[CH2]-O-H,46.0,3.950,0.265
+
+#,stretch,type,"length [Ang.]"
+1,"'1 - 2'",CHx-CHy,1.5400
+2,"'2 - 3'",CHx-OH,1.4300
+3,"'3 - 4'",O-H,0.9450
+
+#,bend,type,"theta [degrees]","k_theta/kB [K/rad^2]"
+1,"'1 - 2 - 3'",CHx-(CHy)-OH,109.47,50400
+2,"'2 - 3 - 4'",CHx-(O)-H,108.50,55400
+
+#,torsion,type,"c0/kB [K]","c1/kB [K]","c2/kB [K]","c3/kB [K]"
+1,"'1 - 2 - 3 - 4'",CHx-(CH2)-(O)-H,0.00,209.82,-29.17,187.93

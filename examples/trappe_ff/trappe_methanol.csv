@@ -1,0 +1,14 @@
+methanol
+
+#,(pseudo)atom,type,"epsilon/kB [K]","sigma [Ang.]","charge [e]"
+2,O,CHx-[O]-H,93.0,3.020,-0.700
+3,H,O-[H],0.0,0.000,0.435
+1,CH3,[CH3]-O-H,98.0,3.750,0.265
+
+#,stretch,type,"length [Ang.]"
+1,"'1 - 2'",CHx-OH,1.4300
+2,"'2 - 3'",O-H,0.9450
+
+#,bend,type,"theta [degrees]","k_theta/kB [K/rad^2]"
+1,"'1 - 2 - 3'",CHx-(O)-H,108.50,55400
+
