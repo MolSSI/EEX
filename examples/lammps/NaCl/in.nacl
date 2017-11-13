@@ -1,0 +1,24 @@
+variable        NAME index nacl_pair
+log             ${NAME}.log
+variable        infile index data.nacl
+variable        mytemp index 800
+
+units           real
+atom_style      full
+boundary        p p p
+pair_style      lj/cut/coul/long 5
+kspace_style    ewald 0.0001
+pair_modify     tail no
+pair_modify     mix arithmetic
+
+read_data       ${infile}
+
+neighbor        2.0 bin
+neigh_modify    delay 0 every 1 check yes page 1000000 one 20000 
+timestep        1.0
+velocity        all zero linear units box
+dump            DUMP all custom 2000 ${NAME}.lammpstrj id type x y z vx vy vz mol
+thermo_style    custom step etotal evdwl ecoul ke elong
+thermo          1
+fix             NVT all nvt temp ${mytemp} ${mytemp} 100.0 
+run             0

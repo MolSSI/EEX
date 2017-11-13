@@ -1,0 +1,28 @@
+2 atoms
+0 bonds
+0 angles
+0 dihedrals
+0 impropers
+2 atom types
+0 bond types
+0 angle types
+0 dihedral types
+0 improper types
+-50.0 50.0 xlo xhi
+-50.0 50.0 ylo yhi
+-50.0 50.0 zlo zhi
+
+Pair Coeffs
+
+1 0.002770295904 3.330 
+2 0.264822415546 3.471 
+
+Masses
+
+1  22.990  
+2  35.450 
+
+Atoms
+
+1 1 1 1.000000  0.0 0.0 0.0 
+2 2 2 -1.00000  5.0 0.0 0.0
