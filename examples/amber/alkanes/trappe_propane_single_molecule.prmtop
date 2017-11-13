@@ -1,4 +1,4 @@
-%VERSION  VERSION_STAMP = V0001.000  DATE = 11/13/17  15:35:01                  
+%VERSION  VERSION_STAMP = V0001.000  DATE = 10/03/17  16:16:39                  
 %FLAG TITLE                                                                     
 %FORMAT(20a4)                                                                   
 Cpptraj                                                                         
@@ -19,7 +19,7 @@ C2  C3  C4
        6       6       6
 %FLAG MASS                                                                      
 %FORMAT(5E16.8)                                                                 
-  1.50452000E+01  1.40265800E+01  1.50452000E+01
+  1.50345200E+01  1.40265800E+01  1.50345200E+01
 %FLAG ATOM_TYPE_INDEX                                                           
 %FORMAT(10I8)                                                                   
        1       2       1
@@ -46,7 +46,7 @@ NK0
   6.21001125E+01
 %FLAG ANGLE_EQUIL_VALUE                                                         
 %FORMAT(5E16.8)                                                                 
-  1.98967620E+00
+  1.98967534E+00
 %FLAG DIHEDRAL_FORCE_CONSTANT                                                   
 %FORMAT(5E16.8)                                                                 
 
@@ -67,10 +67,10 @@ NK0
   0.00000000E+00  0.00000000E+00
 %FLAG LENNARD_JONES_ACOEF                                                       
 %FORMAT(5E16.8)                                                                 
-  6.02425914E+06  5.66008645E+06  5.27503488E+06
+  2.46753654E+10  2.31837141E+10  2.16065429E+10
 %FLAG LENNARD_JONES_BCOEF                                                       
 %FORMAT(5E16.8)                                                                 
-  2.16628722E+03  1.73803568E+03  1.38880977E+03
+  1.38642382E+05  1.11234283E+05  8.88838251E+04
 %FLAG BONDS_INC_HYDROGEN                                                        
 %FORMAT(10I8)                                                                   
 
