@@ -1,8 +1,11 @@
 #!/bin/bash 
 
+# Remove old energy files
+rm energies.txt
+
 # System names
 
-declare -a arr=("ethane" "propane" "butane")
+declare -a arr=("ethane" "propane" "butane" "butane_conformation2")
 
 # Start energy calculation file
 echo "Single point energy calculations" > energies.txt
@@ -34,4 +37,7 @@ EOL
     echo "" >> energies.txt
 done
 
-#rm *.nc
+rm *.nc
+rm leap.in
+rm *.out
+
