@@ -1,0 +1,5 @@
+	loadamberparams frcmod_trappe.ethanol
+	sys = loadmol2 ethanol.mol2
+	saveamberparm sys trappe_ethanol_single_molecule.prmtop trappe_ethanol_single_molecule.inpcrd
+	quit
+	
