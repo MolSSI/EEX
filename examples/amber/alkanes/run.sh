@@ -12,16 +12,6 @@ echo "Single point energy calculations" > energies.txt
 
 for i in "${arr[@]}"
 do
-
-	cat > leap.in <<EOL
-	loadamberparams frcmod_trappe.$(echo ${i})
-	sys = loadmol2 $(echo ${i}).mol2
-	saveamberparm sys trappe_$(echo ${i})_single_molecule.prmtop trappe_$(echo ${i})_single_molecule.inpcrd
-	quit
-	
-EOL
-	
-	tleap -f leap.in
 	
 	cpptraj trappe_$(echo ${i})_single_molecule.prmtop<<!
 	trajin trappe_$(echo ${i})_single_molecule.inpcrd
@@ -38,6 +28,5 @@ EOL
 done
 
 rm *.nc
-rm leap.in
 rm *.out
 

@@ -1,0 +1,6 @@
+Run single point energy calculation
+&cntrl
+ imin=5, maxcyc=0, ntb=0,
+ cut=999,
+&end
+

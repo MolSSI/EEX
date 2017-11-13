@@ -1,4 +1,4 @@
-%VERSION  VERSION_STAMP = V0001.000  DATE = 11/13/17  11:33:01                  
+%VERSION  VERSION_STAMP = V0001.000  DATE = 11/13/17  15:35:01                  
 %FLAG TITLE                                                                     
 %FORMAT(20a4)                                                                   
 Cpptraj                                                                         
