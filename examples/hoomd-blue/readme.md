@@ -50,11 +50,37 @@ import numpy
 snap = hoomd.data.make_snapshot(N=4, box=hoomd.data.boxdim(L=10), particle_types=['A', 'B'])
 
 # Assign coordinates
-snap.particles.position[0] = [1,2,3];
-snap.particles.position[1] = [-1,-2,-3];
-snap.particles.position[2] = [3,2,1];
-snap.particles.position[3] = [-3,-2,-1];
+snap.particles.position[0] = [1,2,3]
+snap.particles.position[1] = [-1,-2,-3]
+snap.particles.position[2] = [3,2,1]
+snap.particles.position[3] = [-3,-2,-1]
+
+# Define bonds
+snap.bonds.resize(2);
+snap.bonds.group[:] = [[0,1], [1, 2]]
+
+# Initialize hoomd blue (can't set forces without doing this)
+hoomd.init.read_snapshot(snap);
+
+# Write snapshot
+hoomd.dump.gsd("init.gsd", period=None, group=all, dynamic=None, overwrite=True);
+
+# Set LJ parameters
+nl = hoomd.md.nlist.cell();
+lj = hoomd.md.pair.lj(r_cut=3.0, nlist=nl);
+lj.pair_coeff.set('A', 'A', epsilon=1.0, sigma=2.0);
+lj.pair_coeff.set('A', 'B', epsilon=1.0, sigma=1.0);
+lj.pair_coeff.set('B', 'B', epsilon=1.0, sigma=1.0);
+all = hoomd.group.all();
+
+# Define bond types
+bond1 = hoomd.md.bond.harmonic(name="polymer")
+bond1.bond_coeff.set('polymer', k=330.0, r0=0.84)
 ```
+
+It seems like the gsd file does not contain force field information and this is set in Python script.
+We will need to write a gsd containing positions of particles, bonds, angles, dihedrals, impropers, then write file
+Python file with ff information.
 
 ### Capture snapshot from simulation
 `snapshot = system.take_snapshot(all=True)`
