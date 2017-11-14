@@ -115,3 +115,15 @@ tests/scratch/*
 
 # PyCharm junk
 .idea
+
+# Various LAMMPS files 
+.lammpstrj
+
+# Various GMX files
+*.itp
+*.mdp
+*.tpr
+*.cpt
+*.trr
+*.xvg
+*.edr
