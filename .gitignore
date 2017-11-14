@@ -115,3 +115,10 @@ tests/scratch/*
 
 # PyCharm junk
 .idea
+
+# Amber files
+*.rst7
+*.out
+
+# VMD image files
+*.tga
