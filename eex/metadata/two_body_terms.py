@@ -26,31 +26,31 @@ _two_body_functional_forms = {
         },
         "description": "This is a class2 bond"
     },
-    # "fene": {
-    #     "form": "-0.5*K*R0 ** 2 * log(1-(r/R0) ** 2) + 4*epsilon*((sigma/r) ** 12 - (sigma/r) ** 6) + epsilon",
-    #     "parameters": ["K", "R0", "epsilon", "sigma"],
-    #     "units": {
-    #         "K": "[energy] * [length] ** -2",
-    #         "R0": "[length]",
-    #         "epsilon": "[energy]",
-    #         "sigma": "[length]"
-    #     },
-    #     "description": "This is a fene bond!"
-    # },
-    # "fene/expand": {
-    #     "form":
-    #     "-0.5*K*R0 ** 2*log(1-((r-delta)/R0) ** 2 + 4*epsilon*((sigma/(r-delta)) ** 12 - (sigma/(r-delta)) ** 6)) + epsilon",
-    #     "parameters": ["K", "R0", "epsilon", "sigma", "delta"],
-    #     "units": {
-    #         "K": "[energy] * [length] ** -2",
-    #         "R0": "[length]",
-    #         "epsilon": "[energy]",
-    #         "sigma": "[length]",
-    #         "delta": "[length]"
-    #     },
-    #     "description":
-    #     "This is fene/expand bond"
-    # },
+    "fene": {
+        "form": "-0.5*K*R0 ** 2 * log(1-(r/R0) ** 2) + 4*epsilon*((sigma/r) ** 12 - (sigma/r) ** 6) + epsilon",
+        "parameters": ["K", "R0", "epsilon", "sigma"],
+        "units": {
+            "K": "[energy] * [length] ** -2",
+            "R0": "[length]",
+            "epsilon": "[energy]",
+            "sigma": "[length]"
+        },
+        "description": "This is a fene bond!"
+    },
+    "fene/expand": {
+        "form":
+        "-0.5*K*R0 ** 2*log(1-((r-delta)/R0) ** 2 + 4*epsilon*((sigma/(r-delta)) ** 12 - (sigma/(r-delta)) ** 6)) + epsilon",
+        "parameters": ["K", "R0", "epsilon", "sigma", "delta"],
+        "units": {
+            "K": "[energy] * [length] ** -2",
+            "R0": "[length]",
+            "epsilon": "[energy]",
+            "sigma": "[length]",
+            "delta": "[length]"
+        },
+        "description":
+        "This is fene/expand bond"
+    },
     "harmonic": {
         "form": "K*(r-R0) ** 2",
         "parameters": ["K", "R0"],
@@ -113,6 +113,23 @@ _two_body_functional_forms = {
             "R0": "[length]"
         },
         "description": "This is a oxdna/fene bond"
+    },
+    "fourth_power": {       #Only found in gromacs
+        "form": "K*(r**2 - R0**2)**2",
+        "units": {
+            "K": "[energy] [length] ** -4",
+            "R0": "[length]"
+        },
+        "description": "This is a fourth_power bond. Used in GROMOS force field"
+    },
+    "cubic_bond": {       #Only found in gromacs
+        "form": "K*(r - R0)**2 + K * K_cub * (r-R0)**3",
+        "units": {
+            "K": "[energy] [length] ** -2",
+            "K": "[length] ** -1",
+            "R0": "[length]"
+        },
+        "description": "This is a cubic_bond potential. Found in GROMACS"
     },
 }
 

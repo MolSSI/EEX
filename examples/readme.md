@@ -53,6 +53,10 @@ Field (gaff)
      - Distances: 2 to 16 angstrom - 2 angstrom interval, & Rmin  
      \* This will have to be a periodic system (with box) since Amber doesn't
      allow cut-offs in non-periodic systems.
+8. Mixture of lennard jones in the bulk
+	- Test mixing rules
+	- Test long tail corrections atoms different types
+9. Benzene or some other molecule with impropers
 
 ### 1.2 Charged systems (electrostatics)
 1. Methanol
