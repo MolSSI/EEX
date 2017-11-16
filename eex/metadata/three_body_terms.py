@@ -59,7 +59,7 @@ _three_body_functional_forms = {
         "form": "K*(theta-theta0)**2 + K_ub*(r13-R_ub)**2",
         "parameters": ["K", "theta0", "K_ub", "R_ub"],
         "units": {
-            "K": "[energy] * [arcunit] ** 2",
+            "K": "[energy] * [arcunit] ** -2",
             "theta0": "[arcunit]",
             "K_ub": "[energy] * [length] ** -2",
             "R_ub": "[length]",
@@ -116,6 +116,28 @@ _three_body_functional_forms = {
             "n": "phase",
         },
         "description": "This is a fourier/simple angle"
+    },
+    "restricted": {
+        "form": "0.5*K*(cos(theta)-cos(theta0))**2/(sin(theta)**2)",
+        "parameters": ["K", "theta0"],
+        "units": {
+            "K": "[energy]",
+            "theta0": "radian",
+        },
+        "description": "This is a restricted bending angle found in Gromacs"
+    },
+    "quartic_gmx": {
+        "form": "K0 + K1*(theta-theta0) + K2*(theta-theta0)**2+K3*(theta-theta0)**3+K4*(theta-theta0)**4",
+        "parameters": ["K0", "K1", "K2", "K3", "K4", "theta0"],
+        "units": {
+            "K0": "[energy]",
+            "K1": "[energy] * [arcunit]**-1",
+            "K2": "[energy] * [arcunit]**-2",
+            "K3": "[energy] * [arcunit]**-3",
+            "K4": "[energy] * [arcunit]**-4",
+            "theta0": "[arcunit]", 
+        },
+        "description": "This is a quartic angle found in gmx"
     },
 
     #"class2": {

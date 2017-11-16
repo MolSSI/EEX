@@ -23,7 +23,7 @@ _four_body_functional_forms = {
         "parameters": ["K", "n", "d"],
         "units": {
             "K": "[energy]",
-            "n": "phase",
+            "n": "count",
             "d": "[arcunit]",
         },
         "description": "This is a charmm dihedral"
@@ -52,7 +52,7 @@ _four_body_functional_forms = {
         "units": {
             "K": "[energy]",
             "n": "phase",  # + / 1
-            "d": "dimensionless"
+            "d": "count"
         },
         "description": "A harmonic dihedral"
     },
@@ -95,6 +95,18 @@ _four_body_functional_forms = {
         },
         "description": "This is a quadratic dihedral"
     },
+    "restricted": {
+        "form": "0.5*K*(cos(phi)-cos(phi0))**2/(sin(phi)**2)",
+        "parameters": ["K", "phi0"],
+        "units": {
+            "K": "[energy]",
+            "phi0": "[arcunit]",
+        },  
+        "description": "This is a restricted bending angle found in Gromacs"
+    },  
+
+
+
     #######IMPROPERS START HERE
     #"class2_improper": {},
     #"hybrid_improper": {},
@@ -116,8 +128,8 @@ _four_body_functional_forms = {
         "parameters": ["K", "d", "n"],
         "units": {
             "K": "[energy]",
-            "d": "dimensionless",
-            "n": "phase"
+            "d": "phase",
+            "n": "count"
         },
         "description": "This is a cvff improper"
     },

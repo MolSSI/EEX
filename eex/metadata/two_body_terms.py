@@ -115,7 +115,8 @@ _two_body_functional_forms = {
         "description": "This is a oxdna/fene bond"
     },
     "fourth_power": {       #Only found in gromacs
-        "form": "K*(r**2 - R0**2)**2",
+        "form": "0.25*K*(r**2 - R0**2)**2",
+        "parameters": ["K", "R0"],
         "units": {
             "K": "[energy] [length] ** -4",
             "R0": "[length]"
@@ -124,9 +125,10 @@ _two_body_functional_forms = {
     },
     "cubic_bond": {       #Only found in gromacs
         "form": "K*(r - R0)**2 + K * K_cub * (r-R0)**3",
+        "parameters": ["K", "K_cub", "R0"],
         "units": {
             "K": "[energy] [length] ** -2",
-            "K": "[length] ** -1",
+            "K_cub": "[length] ** -1",
             "R0": "[length]"
         },
         "description": "This is a cubic_bond potential. Found in GROMACS"
