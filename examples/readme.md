@@ -57,6 +57,7 @@ Field (gaff)
 	- Test mixing rules
 	- Test long tail corrections atoms different types
 9. Benzene or some other molecule with impropers
+10. Molecules with different bond, angle, dihedral types
 
 ### 1.2 Charged systems (electrostatics)
 1. Methanol
