@@ -7,6 +7,8 @@ Amber and LAMMPS.
 
 [Detailed System Descriptions](https://drive.google.com/open?id=13c_BCpudbVSM34VeL7DCx1JszUu-zGTS8gCPPP39y_c)
 
+[Information about nonbonded parameters](https://docs.google.com/document/d/1CzPa1n_d9lWwUEbFerinsNzL1R7NXQIQUykCKet4cJE/edit)
+
 __To Do__ items are marked in __bold__.
 
 We will first finish systems outlined in
