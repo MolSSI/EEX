@@ -2,11 +2,6 @@
 A helper file to produce GROMACS metadata based on the type of computation
 """
 
-import copy
-
-from . import gromacs_ff 
-import eex
-
 data_keys = [
     "defaults", "atomtypes", "nonbond_params", "moleculetype", "atoms", 
     "bonds", "pairs", "angles", "dihedrals", "system", "molecules"
@@ -14,50 +9,69 @@ data_keys = [
 
 # Units based GROMACS unit styles (http://lammps.sandia.gov/doc/units.html)
 
+#units = {
+#    "[length]": "nanometer",
+#    "[mass]": "u",
+#    "[time]": "picosecond",
+#    "[charge]": "e",
+#    "[temperature]": "kelvin",
+#    "[energy]": "(kilojoules * mol ** -1)",
+#    "[force]": "(kilojoules * mol ** -1 nanometer ** -1)",
+#    "[pressure]": "bar",
+#    "[velocity]": "(nanometer picosecond** -1)",
+#    "[dipole]": "e * nanometer",
+#    "[electric field]": "(kilojoules * mol ** -1 * nanometer ** -1 * e ** -1)",
+#    "[electric potential]": "(kilojoules * mol ** -1 * e ** -1)",
+#    }
+
 bond_styles = { 
     "harmonic": {
         "order": 2,
-        "form": "0.5 * K * (r - R0) ** 2",
         "units": {
-            "K": "kjoule * mol ** -1 * nanometer ** -2",
+            "K": "0.5 * kilojoules * mol ** -1 * nanometer ** -2",
             "R0": "nanometer"
         },  
+        "gmx_type": 6,
     },  
     "fourth_power": {
         "order": 2,
         "form": "fourth_power",
         "units": {
-            "K": "kjoule * mol ** -1 * nanometer ** -4",
+            "K": "kilojoules * mol ** -1 * nanometer ** -4",
             "R0": "nanometer"
         },  
+        "gmx_type": 2,
     },  
     "morse": {
         "order": 2,
         "form": "morse",
         "units": {
-            "D": "kjoule * mol ** -1",
+            "D": "kilojoules * mol ** -1",
             "alpha": "nanometer ** -1",
             "R0": "nanometer",
         },  
+        "gmx_type": 3,
     },  
     "cubic_bond": {
         "order": 2,
         "form": "cubic_bond",
         "units": {
-            "K": "kjoule * mol ** -1 * nanometer ** -2",
+            "K": "kilojoules * mol ** -1 * nanometer ** -2",
             "K_cub": "nanometer ** -1",
             "R0": "nanometer",
         },  
+        "gmx_type": 4, 
     },  
     "fene": {
         "order": 2,
         "form": "fene",
         "units": {
-            "K": "kjoule * mol ** -1 * nanometer ** -2",
+            "K": "kilojoules * mol ** -1 * nanometer ** -2",
             "R0": "nanometer",
-	    "epsilon": "kjoule * mol ** -1", # Note that this is always zero in GMX!
+	    "epsilon": "kilojoules * mol ** -1", # Note that this is always zero in GMX!
 	    "sigma": "nanometer", # Note that this is always zero in GMX! 
         },  
+        "gmx_type": 7,
     },  
 }
 
@@ -68,17 +82,15 @@ bond_styles = {
 angle_styles = { 
     "harmonic": {
         "order": 2,
-        "form": "0.5 * K * (theta - theta0) ** 2",
         "units": {
-            "K": "kjoule * mol ** -1 * radian ** -2",
-            "R0": "degree"
+            "K": "0.5 * kilojoules * mol ** -1 * radian ** -2",
+            "theta0": "degree"
         },  
     },  
     "cosine": {
         "order": 2,
-        "form": "0.5*K*(cos(theta)-cos(theta0))**2",
         "units": {
-            "K": "kjoule * mol ** -1 * radian ** -2",
+            "K": "0.5 * kilojoules * mol ** -1 * radian ** -2",
             "theta0": "degree"
         },  
     },  
@@ -86,17 +98,16 @@ angle_styles = {
         "order": 2,
         "form": "restricted",
         "units": {
-            "K": "kjoule * mol ** -1",
-            "R0": "degree",
+            "K": "kilojoules * mol ** -1",
+            "theta0": "degree",
         },  
     },  
     "urey-bradley": {
         "order": 2,
-        "form": "0.5*K*(theta-theta0)**2 + 0.5*K_ub*(r13-R_ub)**2",
         "units": {
-            "K": "kjoule * mol ** -1 ** radian ** -2",
+            "K": "0.5 * kilojoules * mol ** -1 ** radian ** -2",
             "theta0": "degree",
-            "K_ub": "kjoule * mol ** -1 ** nanometer ** -2",
+            "K_ub": "0.5 * kilojoules * mol ** -1 ** nanometer ** -2",
             "R_ub": "nanometer",
         },  
     },  
@@ -104,23 +115,23 @@ angle_styles = {
         "order": 2,
         "form": "quartic_gmx",
         "units": {
-            "K0": "kjoule * mol",
-            "K1": "kjoule * mol ** -1",
-            "K2": "kjoule * mol ** -2",
-            "K3": "kjoule * mol ** -3",
-            "K4": "kjoule * mol ** -4",
-            "R0": "degree",
+            "K0": "kilojoules * mol",
+            "K1": "kilojoules * mol ** -1",
+            "K2": "kilojoules * mol ** -2",
+            "K3": "kilojoules * mol ** -3",
+            "K4": "kilojoules * mol ** -4",
+            "theta0": "degree",
         },  
     },  
 }
 
 
-dihedral_types= { 
+dihedral_styles = { 
     "charmm": {
         "order": 4,
         "form": "charmmfsw",
         "units": {
-            "K": "kjoule * mol ** -1",
+            "K": "kilojoules * mol ** -1",
             "n": "count",
             "d": "degree"
         },  
@@ -129,38 +140,37 @@ dihedral_types= {
         "order": 4,
         "form": "opls",
         "units": {
-            "K_1": "kjoule * mol ** -1",
-            "K_2": "kjoule * mol ** -1",
-            "K_3": "kjoule * mol ** -1",
-            "K_4": "kjoule * mol ** -1",
+            "K_1": "kilojoules * mol ** -1",
+            "K_2": "kilojoules * mol ** -1",
+            "K_3": "kilojoules * mol ** -1",
+            "K_4": "kilojoules * mol ** -1",
         },  
     },  
     "opls": {
         "order": 4,
         "form": "opls",
         "units": {
-            "K_1": "kjoule * mol ** -1",
-            "K_2": "kjoule * mol ** -1",
-            "K_3": "kjoule * mol ** -1",
-            "K_4": "kjoule * mol ** -1",
+            "K_1": "kilojoules * mol ** -1",
+            "K_2": "kilojoules * mol ** -1",
+            "K_3": "kilojoules * mol ** -1",
+            "K_4": "kilojoules * mol ** -1",
         },  
     },  
     "restricted": {
         "order": 4,
         "form": "restricted",
         "units": {
-            "K": "kjoule * mol ** -1",
+            "K": "kilojoules * mol ** -1",
             "phi0": "degree",
         },  
     },  
 }
 
-improper_types= { 
+improper_styles = { 
     "harmonic": {
         "order": 4,
-        "form": "0.5*K*(chi-chi0)**2",
         "units": {
-            "K": "kjoule * mol ** -1",
+            "K": "0.5 * kilojoules * mol ** -1",
             "chi0": "degree",
         },  
     },  
@@ -168,9 +178,15 @@ improper_types= {
         "order": 4,
         "form": "charmmfsw", 
         "units": {
-            "K": "kjoule * mol ** -1",
+            "K": "kilojoules * mol ** -1",
             "n": "count",
             "d": "degree"
         },  
     },  
 }
+
+term_data = {}
+term_data[2] = bond_styles
+term_data[3] = angle_styles
+term_data[4] = dihedral_styles
+
