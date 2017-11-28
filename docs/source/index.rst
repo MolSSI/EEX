@@ -22,6 +22,7 @@ This is some documentation for the EEX project.
    :caption: Contents:
 
    utility
+   mathjax
 
 .. toctree::
    :maxdepth: 2
