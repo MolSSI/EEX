@@ -62,10 +62,10 @@ def evaluate_energy_expression(dl):
             "order": 3,
             "get_data": "get_angles"
         },
-        # "four-body": {
-        #     "order": 4,
-        #     "get_data": "get_dihedrals"
-        # }
+        "four-body": {
+             "order": 4,
+             "get_data": "get_dihedrals"
+         }
     }
 
     # Do the N-body terms
