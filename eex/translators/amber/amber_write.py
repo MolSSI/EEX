@@ -77,7 +77,8 @@ def write_amber_file(dl, filename, inpcrd=None):
     output_sizes['NBONA'] = output_sizes["MBONA"] # MBONA + number of constraint bonds (MBONA = NBONA always)
     output_sizes["MTHETA"] = dl.get_term_count(3, "total")  #  Number of angles not containing hydrogen
     output_sizes['NTHETA'] = output_sizes["MTHETA"] # MTHETA + number of constraint angles (NTHETA = MTHETA always)
-    # output_sizes["MPHIA"] = dl.get_term_count(4, "total")  #  Number of torsions not containing hydrogen
+    output_sizes["MPHIA"] = dl.get_term_count(4, "total")  #  Number of torsions not containing hydrogen
+    output_sizes["NPHIA"] = output_sizes["MPHIA"]
     output_sizes["NUMBND"] = len(dl.list_term_uids(2))  # Number of unique bond types
     output_sizes["NUMANG"] = len(dl.list_term_uids(3))  # Number of unique angle types
     output_sizes["NPTRA"] = len(dl.list_term_uids(4))  # Number of unique torsion types

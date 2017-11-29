@@ -54,7 +54,7 @@ data_labels = {
     "RADII": ["NATOM", "%FORMAT(5E16.8)"],
     "SCREEN": ["NATOM", "%FORMAT(5E16.8)"],
     "IPOL": [1, "%FORMAT(1I8)"],
-    "POLARIZABILITY": [0, "%FORMAT(5E16.8)"]
+    # "POLARIZABILITY": [0, "%FORMAT(5E16.8)"]
     # "POLARIZABILITY": ["NATOM if IPOL else 0"]
 }
 
