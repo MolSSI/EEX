@@ -89,6 +89,9 @@ def evaluate_energy_expression(dl):
     # Electostatics
 
     for k, v in energy.items():
-        energy["total"] += v
+
+        # To avoid counting total
+        if k is not "total":
+            energy["total"] += v
 
     return energy
