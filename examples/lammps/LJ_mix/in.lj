@@ -1,0 +1,21 @@
+variable        NAME index methane_pair 
+variable        infile index data.trappe_methane_bulk
+variable        mytemp index 275
+log             ${NAME}.log
+units           real
+atom_style      full
+boundary        p p p
+pair_style      lj/cut 11.19
+pair_modify     tail yes
+pair_modify     mix arithmetic
+special_bonds   lj 0.0 0.0 0.0
+read_data       ${infile}
+neighbor        2.0 bin
+neigh_modify    delay 0 every 1 check yes page 1000000 one 20000 
+timestep        1.0
+velocity        all zero linear units box
+dump            DUMP all custom 2000 ${NAME}.lammpstrj id type x y z vx vy vz mol
+thermo_style    custom step etotal evdwl etail ke 
+thermo          1
+fix             NVT all nvt temp ${mytemp} ${mytemp} 100.0 
+run             0
