@@ -9,6 +9,7 @@ pair_modify     tail no
 pair_modify     mix arithmetic
 special_bonds   lj 0.0 0.0 0.0
 read_data       ${infile}
+pair_coeff      1 1  0.2941062068 3.73
 velocity        all zero linear units box
 thermo_style    custom step etotal evdwl etail ke 
 thermo          0
