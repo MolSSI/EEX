@@ -1,0 +1,16 @@
+mass 1 16.000 # H
+mass 2 1.008 # O
+
+pair_style lj/cut/coul/long 12.0 12.0
+pair_modify tail yes
+kspace_style ewald 1.0e-4
+
+pair_coeff 1 1 0.15524976551 3.166
+pair_coeff 2 2 0.00000 0.000
+pair_coeff 1 2 0.00000 0.000
+
+bond_style harmonic
+bond_coeff 1 369.352928448 1.0
+
+angle_style harmonic
+angle_coeff 1 41.90196672 109.47

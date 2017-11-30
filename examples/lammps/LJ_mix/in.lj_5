@@ -1,14 +1,16 @@
 variable        NAME index methane_pair 
-variable        infile index data.trappe_methane_bulk
+variable        infile index data.LJ.mix_4
 log             ${NAME}.log
 units           real
 atom_style      full
 boundary        p p p
 pair_style      lj/cut 11.19
 pair_modify     tail no 
-pair_modify     mix arithmetic
 special_bonds   lj 0.0 0.0 0.0
 read_data       ${infile}
+pair_coeff      1 1   0.2941062068 3.73
+pair_coeff      2 2   0.2941062068 3.73
+pair_coeff      3* *   0.2941062068 3.73
 velocity        all zero linear units box
 thermo_style    custom step etotal evdwl etail ke 
 thermo          0

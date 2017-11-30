@@ -13,24 +13,6 @@ LAMMPS data file
 -12.358 12.358 ylo yhi
 -12.361 12.361 zlo zhi
 
-Masses
-
-1   16.000  # oh wat
-2    1.008  # ho wat
-
-Pair Coeffs
-
-1 0.15524976551 3.166  # oh wat
-2 0.0 0.000  # ho wat
-
-Bond Coeffs
-
-1 369.352928448  1.000  # harmonic wat ho oh
-
-Angle Coeffs
-
-1 41.90196672  109.47  # harmonic wat ho oh ho
-
 Atoms
 
 1 1 1 -0.847600   -3.79700   -5.64100   -7.72000  # oh O1 wat 1

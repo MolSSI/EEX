@@ -11,6 +11,7 @@ special_bonds   lj 0.0 0.0 0.0
 bond_style      harmonic
 angle_style      harmonic
 read_data       ${infile}
+angle_coeff     1  62.1001124929 114.0
 velocity        all zero linear units box
 thermo_style    custom step etotal ebond eangle ke 
 thermo          0

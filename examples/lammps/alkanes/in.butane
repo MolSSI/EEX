@@ -1,8 +1,5 @@
-#
 variable        NAME index butane 
 variable        infile index data.trappe_butane_single_molecule
-variable        mytemp index 275
-
 log             ${NAME}.log
 units           real
 atom_style      full
@@ -11,21 +8,12 @@ pair_style      lj/cut 12
 pair_modify     tail no
 pair_modify     mix arithmetic
 special_bonds   lj 0.0 0.0 0.0
-
 bond_style      harmonic
 angle_style     harmonic
 dihedral_style  opls
-
 read_data       ${infile}
-
-neighbor        2.0 bin
-neigh_modify    delay 0 every 1 check yes page 1000000 one 20000 
-timestep        1.0
 velocity        all zero linear units box
-dump            DUMP all custom 2000 ${NAME}.lammpstrj id type x y z vx vy vz mol
 thermo_style    custom step etotal ebond eangle edihed ke 
-thermo          1
-
-fix             NPT all npt temp ${mytemp} ${mytemp} 100.0 iso 1.0 1.0 100.0
-
+thermo          0
+fix             1 all nve 
 run             0

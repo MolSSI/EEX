@@ -1,5 +1,5 @@
-variable        NAME index propane 
-variable        infile index data.trappe_propane_single_molecule
+variable        NAME index butane 
+variable        infile index data.trappe_butane_single_molecule_3
 log             ${NAME}.log
 units           real
 atom_style      full
@@ -9,10 +9,14 @@ pair_modify     tail no
 pair_modify     mix arithmetic
 special_bonds   lj 0.0 0.0 0.0
 bond_style      harmonic
-angle_style      harmonic
+angle_style     harmonic
+dihedral_style  opls
 read_data       ${infile}
+bond_coeff     1  300.9 1.54
+angle_coeff     1  62.1001124929 114.0
+dihedral_coeff 1 1.41103414 -0.27101489 3.14502869 0.0
 velocity        all zero linear units box
-thermo_style    custom step etotal ebond eangle ke 
+thermo_style    custom step etotal ebond eangle edihed ke 
 thermo          0
 fix             1 all nve 
 run             0
