@@ -138,11 +138,16 @@ class DataLayer(object):
         else:
             return ret
 
-    def evaluate(self):
+    def evaluate(self, energy_unit=None):
         """
         Evaluate the current state of the energy expression.
         """
-        return energy_eval.evaluate_energy_expression(self)
+        if energy_unit is not None:
+            utype = {'energy' : energy_unit}
+        else:
+            utype = None
+
+        return energy_eval.evaluate_energy_expression(self, utype=utype)
 
 ### Atom functions
 
