@@ -12,7 +12,7 @@ declare -a arr=("cyclopentane" "cyclohexane" )
 # echo "Single point energy calculations" > energies.txt
 # echo "${arr[@]}" >> energies.txt
 
-echo "molecule, bond, angle, dihedral, vdwaals, electrostatic, hbond, 1-4_VDW, 1-4_EEL, restraint" > energies.csv
+echo "molecule,bond,angle,dihedral,vdwaals,electrostatic,hbond,1-4_VDW,1-4_EEL,restraint," > energies.csv
 
 for i in "${arr[@]}"
 do
@@ -37,7 +37,7 @@ do
     echo "" >> energies_$i.txt
 
 		# Process energies.txt to CSV
-		echo -n "$i," >> energies.csv
+		echo -n "trappe_$(echo ${i})_single_molecule," >> energies.csv
 		awk -v ORS="," 'FNR == 1 {print $3}' energies_$i.txt >> energies.csv
 		awk -v ORS="," 'FNR == 1 {print $6}' energies_$i.txt >> energies.csv
 		awk -v ORS="," 'FNR == 1 {print $9}' energies_$i.txt >> energies.csv

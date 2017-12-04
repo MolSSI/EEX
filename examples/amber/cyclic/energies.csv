@@ -1,3 +1,3 @@
-molecule, bond, angle, dihedral, vdwaals, electrostatic, hbond, 1-4_VDW, 1-4_EEL, restraint
-cyclopentane,0.3028,0.1599,884.9078,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,
-cyclohexane,0.5835,0.5327,125.8367,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,
+molecule,bond,angle,dihedral,vdwaals,electrostatic,hbond,1-4_VDW,1-4_EEL,restraint,
+trappe_cyclopentane_single_molecule,0.3028,0.1599,884.9078,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,
+trappe_cyclohexane_single_molecule,0.5835,0.5327,125.8367,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,

@@ -1,0 +1,5 @@
+	loadamberparams frcmod_trappe.ethane
+	sys = loadmol2 ethane.mol2
+	saveamberparm sys trappe_ethane_single_molecule.prmtop trappe_ethane_single_molecule.inpcrd
+	quit
+	
