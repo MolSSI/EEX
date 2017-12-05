@@ -10,9 +10,9 @@ import eex_find_files
 import glob
 import eex_build_dl
 
-_test_directories = ["alkanes"] #, "alcohols", "cyclic"]
+_test_directories = ["alkanes", "alcohols", "cyclic"]
 
-_energy_types = {"two-body" : "bond", "three-body": "angle"}
+_energy_types = {"two-body" : "bond", "three-body": "angle", "four-body": "dihedral"}
 
 # Loop over amber test directories
 @pytest.fixture(scope="module", params=_test_directories)
@@ -37,5 +37,6 @@ def test_references(get_references):
         for k in _energy_types:
             k_reference = reference[_energy_types[k]].get_values()[0]
 
-            # Test against reference values in CSV
-            assert dl_energies[k] == pytest.approx(k_reference, 0.001)
+            # Test against reference values in CSV - absolute toloerance of 0.001 is used since amber only
+            # outputs energies to third decimal place
+            assert dl_energies[k] == pytest.approx(k_reference, abs=0.001)
