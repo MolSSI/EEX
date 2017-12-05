@@ -1,0 +1,9 @@
+molecule,description,bond,angle,dihedral,vdw,electrostatic
+in.ethane_1,Test harmonic bond,1.0000132,0.0,0.0,0.0,0.0
+in.ethane_2,Test harmonic bond and bond_coeff keyword,1.0000132,0.0,0.0,0.0,0.0
+in.propane_1,Test harmonic angle,2.0000838,0.99963039,0.0,0.0,0.0
+in.propane_2,Test harmonic angle and angle_coeff keyword,2.0000838,0.99963039,0.0,0.0,0.0
+in.butane_1,Test OPLS dihedral,3.028487,12.727421,0.86054506,0.0,0.0
+in.butane_2,Test OPLS dihedral and dihedral_coeff keyword,3.028487,12.727421,0.86054506,0.0,0.0
+in.butane_3,Test all *_coeff keywords working together,3.028487,12.727421,0.86054506,0.0,0.0
+in.tetradecane, Test intramolecular cutoff, 1.7800407, 1.5756013,1.6106018e-07,-0.99546211,0.0
