@@ -371,7 +371,7 @@ class DataLayer(object):
 
         property_name = self._check_atoms_dict(property_name)
         if metadata.atom_metadata[property_name]["unique"]:
-            raise KeyError("DataLayere:get_atom_parameter: '%s' is not stored as unique values." % property_name)
+            raise KeyError("DataLayer:get_atom_parameter: '%s' is not stored as unique values." % property_name)
 
         if not uid in self._atom_metadata[property_name]["inv_uvals"]:
             raise KeyError("DataLayer:get_atom_parameter: property '%s' key '%d' not found." % (property_name, uid))

@@ -2,7 +2,7 @@
 Provides helper functions that validate the functional data.
 """
 
-from eex import units
+from .. import units
 
 term_requied_fields = ['variables', 'store_name', 'store_indices', 'forms']
 functional_form_required_fields = ['form', 'parameters', 'units', 'description']
