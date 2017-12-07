@@ -877,17 +877,21 @@ class DataLayer(object):
 
     def add_nb_parameter(self, atom_type, nb_name, nb_parameters, nb_form=None, atom_type2=None, utype=None):
 
-        # Validate atom type (H0, 1)
-        stored_atom_types = set(self.get_atoms('atom_type').values.flatten())
-
-        if atom_type not in stored_atom_types:
+        # Validate atom_type exists -- Rewrite this
+        if atom_type not in set(self.get_atoms('atom_type').values.flatten()):
             raise KeyError("No atoms with type %s found in DataLayer" % (atom_type))
 
-        # Get functional form and ensure nb_parameters fit - maybe need to write function in
-        # validator.py
+        if atom_type2:
+            if atom_type2 not in set(self.get_atoms('atom_type').values.flatten()):
+                raise KeyError("No atoms with type %s found in DataLayer" % (atom_type2))
+
+
+        # Get functional form and ensure nb_parameters fit - maybe need to write function in validator.py
         try:
-            form = metadata.get_nb_metadata("forms", nb_name, nb_form)['form']
+            form = metadata.get_nb_metadata("forms", nb_name, nb_form)
+            #form = form_md['form']
             parameters = metadata.get_nb_metadata("forms", nb_name, nb_form)['parameters']
+            print(parameters)
         except KeyError:
             raise KeyError("DataLayer:add_parameters: Did not understand nonbond form: %d, name: %s'." % (nb_name,
                                                                                                    nb_form))
@@ -897,7 +901,30 @@ class DataLayer(object):
             raise ValueError("Input number of parameters (%s) and number of form parameters (%s) do not match." %
                              (len(nb_parameters), len(parameters)) )
 
-        # Validate units and convert
+        # Validate correct number of units are passed for parameters
+        if utype is not None:
+            if isinstance(utype, (list, tuple)):
+                if len(utype) != len(form["utype"]):
+                    raise ValueError("Validate term dict: Number of units passed is %d, expected %d" %
+                                     (len(utype), len(form["utype"])))
+            if isinstance(utype, (list, tuple)):
+                if len(utype) != len(form["utype"]):
+                    raise ValueError("Validate term dict: Number of units passed is %d, expected %d" %
+                                     (len(utype), len(form["utype"])))
+                form_units = list(utype)
+            elif isinstance(utype, dict):
+                form_units = []
+                for key in form["parameters"]:
+                    try:
+                        form_units.append(utype[key])
+                    except KeyError:
+                        raise KeyError(
+                            "Validate term dict: Did not find expected key '%s' from term'." % (key))
+            else:
+                raise TypeError("Validate term dict: Unit type '%s' not understood" % str(type(utype)))
+
+            # Convert to internal representation
+
 
 
         # Convert to general representation
