@@ -425,6 +425,15 @@ class DataLayer(object):
         else:
             raise KeyError("DataLayer:get_atom_count: property_name `%s` not understood" % property_name)
 
+    def get_bond_count(self):
+        return len(self.get_bonds())
+
+    def get_angle_count(self):
+        return len(self.get_angles())
+
+    def get_dihedral_count(self):
+        return len(self.get_dihedrals())
+
     def list_atom_uids(self, property_name):
 
         property_name = self._check_atoms_dict(property_name)
@@ -644,7 +653,7 @@ class DataLayer(object):
 
                 return uid
 
-    def get_term_parameter(self, order, uid, utype=None):
+    def get_term_parameter(self, order, uid=None, utype=None):
 
         order = metadata.sanitize_term_order_name(order)
 
@@ -676,6 +685,26 @@ class DataLayer(object):
             parameters[key] *= units.conversion_factor(term_md["utype"][key], utype[key])
 
         return data[0], parameters
+
+    def list_term_parameters(self, order):
+        """
+        Gives information for all terms of specified order
+
+        Parameters
+        ----------
+        order : int
+            The order of the functional form (2, 3, 4, ...)
+
+        Return
+        ----------
+        return : dict
+            Returns dictionary of form
+                { uid : [form_type, parameters] }
+        """
+        if order not in list(self._terms.keys()):
+            raise KeyError("No terms with order %s exist" % order)
+
+        return self._terms[order]
 
     def list_term_uids(self, order=None):
 
@@ -834,6 +863,50 @@ class DataLayer(object):
     def get_dihedrals(self):
 
         return self.get_terms("dihedrals")
+
+    def get_term_metadata(self, order, uid):
+        """
+
+
+        :param order:
+        :param uid:
+        :return:
+        """
+
+        data = self._terms[order][uid]
+        form = metadata.get_term_metadata(order, "forms", data[0])["form"]
+
+        return (data[0], form)
+
+    
+    #def list_term_info(self, order):
+    #    """
+    #    Description
+    #    :return:
+        """
+
+        
+
+
+    def summary(self):
+        print("EEX DataLayer Object\n\n")
+
+        print("System name: %s" % self.name)
+        print("----------------------------------------------")
+
+
+        # Print atom info
+        print("Atom Count:\t\t\t%s" % self.get_atom_count())
+        print("Bond Count:\t\t\t%s" % self.get_bond_count())
+        print("Angle Count:\t\t\t%s" % self.get_angle_count())
+        print("Dihedral Count:\t\t\t%s" % self.get_dihedral_count())
+
+        print("Number of bond parameters:\t%s" % len(self.list_term_uids()[2]))
+        print("Number of angle parameters:\t%s" %len(self.list_term_uids()[3]))
+        print("Number of dihedral parameters:\t%s" %len(self.list_term_uids()[4]))
+
+        print("----------------------------------------------")
+
 
 ### Other quantities
 
