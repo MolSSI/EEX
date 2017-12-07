@@ -6,6 +6,7 @@ from .atom_metadata import atom_metadata
 from .two_body_terms import two_body_metadata
 from .three_body_terms import three_body_metadata
 from .four_body_terms import four_body_metadata
+from .nb_terms import nb_metadata
 
 
 def sanitize_term_order_name(order):
@@ -54,3 +55,18 @@ def get_term_metadata(order, name=None, field=None):
         return tmpdata[field]
     else:
         return tmpdata
+
+
+def get_nb_metadata(name=None, form=None):
+
+    # Check for name
+    if name:
+        # Not sure of the reason for the inconsistency with above functions - here must use "forms" key
+        tmp_data = nb_metadata["forms"][name]
+    else:
+        return nb_metadata
+
+    if form:
+        return tmp_data[form]
+    else:
+        return tmp_data
