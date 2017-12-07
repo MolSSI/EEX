@@ -11,6 +11,7 @@ _nb_functional_forms = {
                 "A": "[energy] * [length] ** 12",
                 "B": "[energy] * [length] ** 6",
             },
+            "description": "This is the AB LJ form",
         },
         "epsilon/sigma": {
             "form": "4.0 * epsilon * ((sigma / R) ** 12 - (sigma / R) ** 6)",
@@ -19,6 +20,7 @@ _nb_functional_forms = {
                 "epsilon": "[energy]",
                 "sigma": "[length]",
             },
+            "description": "This is the classic LJ non-bonded",
         },
         "rmin": {
             "form": "-emin * ((rmin / r) ** 12 - 2*(rmin / r) ** 6)",
@@ -27,10 +29,9 @@ _nb_functional_forms = {
                 "emin": "[energy]",
                 "rmin": "[length]",
             },
+            "description": "This is the Rmin LJ form",
         },
-        "description": "This is the classic LJ non-bonded"
     },
-    "YANNB": {}
 }
 
 nb_metadata = {}
@@ -46,4 +47,7 @@ nb_metadata["store_indices"] = {
     # "term_index": "Index of nb_type stored in the DataLayer.",
 }
 # nb_metadata["index_columns"] = ["atom1", "atom2"]
-nb_metadata["forms"] = _nb_functional_forms
+
+nb_metadata["forms"] = {}
+for v in _nb_functional_forms.values():
+    nb_metadata["forms"].update(v)
