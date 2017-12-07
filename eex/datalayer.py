@@ -138,14 +138,10 @@ class DataLayer(object):
         else:
             return ret
 
-    def evaluate(self, energy_unit=None):
+    def evaluate(self, utype=None):
         """
         Evaluate the current state of the energy expression.
         """
-        if energy_unit is not None:
-            utype = {'energy' : energy_unit}
-        else:
-            utype = None
 
         return energy_eval.evaluate_energy_expression(self, utype=utype)
 
@@ -371,7 +367,7 @@ class DataLayer(object):
 
         property_name = self._check_atoms_dict(property_name)
         if metadata.atom_metadata[property_name]["unique"]:
-            raise KeyError("DataLayere:get_atom_parameter: '%s' is not stored as unique values." % property_name)
+            raise KeyError("DataLayer:get_atom_parameter: '%s' is not stored as unique values." % property_name)
 
         if not uid in self._atom_metadata[property_name]["inv_uvals"]:
             raise KeyError("DataLayer:get_atom_parameter: property '%s' key '%d' not found." % (property_name, uid))

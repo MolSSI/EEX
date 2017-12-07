@@ -14,7 +14,7 @@ def sanitize_term_order_name(order):
 
     if order in [2, "two", "bond", "bonds"]:
         return 2
-    elif order in [3, "two", "angle", "angles"]:
+    elif order in [3, "three", "angle", "angles"]:
         return 3
     elif order in [4, "four", "dihedral", "dihedrals"]:
         return 4

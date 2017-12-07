@@ -68,9 +68,6 @@ def evaluate_energy_expression(dl, utype):
          }
     }
 
-    # Get the energy units stored in the data layer
-    dl_energy_units = units.convert_contexts("[energy]")
-
     # Do the N-body terms
     xyz = dl.get_atoms("xyz")
 
@@ -92,14 +89,21 @@ def evaluate_energy_expression(dl, utype):
 
             energy[order_key] += np.sum(evaluate_form(form, parameters, variables))
 
-        if utype is not None:
-            energy[order_key] *= units.conversion_factor(dl_energy_units, utype['energy'])
-
     # LJ terms
-
     # Electostatics
 
+    # Handle units
+    cf = 1.0
+    if utype is not None:
+
+        # Get the energy units stored in the data layer
+        dl_energy_units = units.convert_contexts("[energy]")
+        cf = units.conversion_factor(dl_energy_units, utype)
+
+    # Sum up the dict
     for k, v in energy.items():
+        energy[k] = cf * v
+
 
         # To avoid counting total
         if k is not "total":
