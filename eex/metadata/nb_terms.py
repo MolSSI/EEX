@@ -11,6 +11,7 @@ _nb_functional_forms = {
                 "A": "[energy] * [length] ** 12",
                 "B": "[energy] * [length] ** 6",
             },
+            "description": "This is the classic LJ non-bonded"
         },
         "epsilon/sigma": {
             "form": "4.0 * epsilon * ((sigma / R) ** 12 - (sigma / R) ** 6)",
@@ -21,9 +22,8 @@ _nb_functional_forms = {
             },
         },
         # Continue this out
-        "description": "This is the classic LJ non-bonded"
+
     },
-    "YANNB": {}
 }
 
 nb_metadata = {}
