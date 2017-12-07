@@ -32,7 +32,7 @@ def fuzzy_list_match(line, ldata):
     return False, None
 
 
-def read_lines(filename, nlines, start=0):
+def read_lines(filename, nlines=-1, start=0):
     """
     Reads the first nlines of a file with a `start` offset. Care is taken
     """
@@ -47,12 +47,16 @@ def read_lines(filename, nlines, start=0):
         for num in range(start):
             next(infile)
 
-        # Read int eh data
-        for num in range(nlines):
-            try:
-                ret_data.append(next(infile).strip())
-            except StopIteration:
-                break
+        # Read in the data
+        if nlines == -1:
+            for line in infile:
+                ret_data.append(line.strip())
+        else:
+            for num in range(nlines):
+                try:
+                    ret_data.append(next(infile).strip())
+                except StopIteration:
+                    break
 
     return ret_data
 
