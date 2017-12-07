@@ -877,9 +877,21 @@ class DataLayer(object):
 
     def add_nb_parameter(self, atom_type, nb_name, nb_parameters, nb_form=None, atom_type2=None, utype=None):
 
-        # Get functional form and ensure it fits
-
         # Validate atom type (H0, 1)
+
+        # Get functional form and ensure nb_parameters fit
+        try:
+            form = metadata.get_nb_metadata("forms", nb_name, nb_form)['form']
+            parameters = metadata.get_nb_metadata("forms", nb_name, nb_form)['parameters']
+        except KeyError:
+            raise KeyError("DataLayer:add_parameters: Did not understand term order: %d, name: %s'." % (order,
+                                                                                                   term_name))
+        if len(parameters) == len(nb_parameters):
+            param_dict = {k: v for k, v in zip(parameters, nb_parameters)}
+        else:
+            raise ValueError("Input number of parameters (%s) and number of form parameters (%s) do not match." %
+                             (len(nb_parameters), len(parameters)) )
+
 
         # Validate units and convert
 
