@@ -20,7 +20,14 @@ _nb_functional_forms = {
                 "sigma": "[length]",
             },
         },
-        # Continue this out
+        "rmin": {
+            "form": "-emin * ((rmin / r) ** 12 - 2*(rmin / r) ** 6)",
+            "parameters": ["emin", "rmin"],
+            "units": {
+                "emin": "[energy]",
+                "rmin": "[length]",
+            },
+        },
         "description": "This is the classic LJ non-bonded"
     },
     "YANNB": {}
