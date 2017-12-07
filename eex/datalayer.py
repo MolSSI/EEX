@@ -54,6 +54,9 @@ class DataLayer(object):
         self._atom_metadata = {}
         self._atom_counts = {}
 
+        # Set up empty nonbond holder
+        self._nb_parameters = {}
+
         for k, v in metadata.atom_metadata.items():
             if not v["unique"]:
                 self._atom_metadata[k] = {"uvals": {}, "inv_uvals": {}}
@@ -877,13 +880,20 @@ class DataLayer(object):
 
     def add_nb_parameter(self, atom_type, nb_name, nb_parameters, nb_form=None, atom_type2=None, utype=None):
 
+        # If atom_type2 is None, only interactions between 1-1 are defined. -- Need to think about this
+        if atom_type2 is None:
+            atom_type2 = atom_type
+
         # Validate atom_type exists -- Rewrite this
         if atom_type not in set(self.get_atoms('atom_type').values.flatten()):
             raise KeyError("No atoms with type %s found in DataLayer" % (atom_type))
 
-        if atom_type2:
-            if atom_type2 not in set(self.get_atoms('atom_type').values.flatten()):
-                raise KeyError("No atoms with type %s found in DataLayer" % (atom_type2))
+        if atom_type2 not in set(self.get_atoms('atom_type').values.flatten()):
+            raise KeyError("No atoms with type %s found in DataLayer" % (atom_type2))
+
+        # Build nb parameter dictionary for atom_type if necessary
+        if atom_type not in list(self._nb_parameters.keys()):
+            self._nb_parameters[atom_type] = {}
 
 
         # Get functional form and ensure nb_parameters fit - maybe need to write function in validator.py
@@ -891,7 +901,6 @@ class DataLayer(object):
             form = metadata.get_nb_metadata("forms", nb_name, nb_form)
             #form = form_md['form']
             parameters = metadata.get_nb_metadata("forms", nb_name, nb_form)['parameters']
-            print(parameters)
         except KeyError:
             raise KeyError("DataLayer:add_parameters: Did not understand nonbond form: %d, name: %s'." % (nb_name,
                                                                                                    nb_form))
@@ -923,13 +932,16 @@ class DataLayer(object):
             else:
                 raise TypeError("Validate term dict: Unit type '%s' not understood" % str(type(utype)))
 
-            # Convert to internal representation
 
+            # Convert to internal units
+            for x, key in enumerate(form["parameters"]):
+                cf = units.conversion_factor(form_units[x], form["utype"][key])
+                param_dict[key] *= cf
 
-
-        # Convert to general representation
+        # Need to convert to internal representation (AB) using rules if not in AB form
 
         # Store it!
+        self._nb_parameters[atom_type][atom_type2] = param_dict
         return False
 
     def get_nb_parameter(self, atom_type, nb_form=None, atom_type2=None, utype=None):
