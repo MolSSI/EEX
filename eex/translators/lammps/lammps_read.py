@@ -1,7 +1,7 @@
 """
 LAMMPS EEX I/O
 """
-
+import os
 import pandas as pd
 import math
 
@@ -12,9 +12,8 @@ from . import lammps_metadata as lmd
 import logging
 logger = logging.getLogger(__name__)
 
-
-def read_lammps_file(dl, filename, blocksize=110):
-
+def read_lammps_data_file(dl, filename, blocksize=110):
+    
     ### Figure out system dimensions and general header data
     max_rows = 100  # How many lines do we attempt to search?
     header_data = eex.utility.read_lines(filename, max_rows)
@@ -170,4 +169,68 @@ def read_lammps_file(dl, filename, blocksize=110):
     data["sizes"] = sizes_dict
     data["header"] = header
 
+    return data
+
+def get_bond_coeff():
+    pass
+def get_angle_coeff():
+    pass
+def get_diherdal_coeff():
+    pass
+def get_include():
+    pass
+def get_variable():
+    pass
+def get_units(opts):
+    pass
+def get_atom_style():
+    pass
+def get_pair_style():
+    pass
+def kspace_style():
+    pass
+def pair_modify():
+    pass
+def special_bonds():
+    pass
+def bond_style():
+    pass
+def angle_style():
+    pass
+def dihedral_style():
+    pass
+
+keyword_dispatcher = {
+    "read_data": read_lammps_data_file,
+    #"bond_coeff": get_bond_coeff,
+    #"angle_coeff": get_angle_coeff, 
+    #"dihedral_coeff": get_dihedral_coeff, 
+    #"include": get_include
+    #"variable": get_variable, 
+    "units": get_units, 
+    #"atom_style": get_atom_style, 
+    #"pair_style": get_pair_style, 
+    #"kspace_style": get_kspace_style, 
+    #"pair_modify": get_pair_modify, 
+    #"special_bonds": get_special_bonds, 
+    #"bond_style": get_bond_style, 
+    #"angle_style": get_angle_style, 
+    #"dihedral_style": get_dihedral_style, 
+    }
+
+def read_lammps_file(dl, fname):
+    """
+        Reads a LAMMPS input file
+    """
+    input_dir = os.path.dirname(fname)
+    with open(fname, 'r') as input_file:
+        for line in input_file:
+            if line.strip():
+                line = line.split()
+                keyword = line[0]
+                keyword_opts = line[1:]
+                if keyword in keyword_dispatcher:
+                    f = keyword_dispatcher[keyword]
+                    if keyword == "read_data":
+                        data = f(dl, os.path.join(input_dir, keyword_opts[0]))
     return data
