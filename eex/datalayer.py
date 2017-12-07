@@ -878,22 +878,27 @@ class DataLayer(object):
     def add_nb_parameter(self, atom_type, nb_name, nb_parameters, nb_form=None, atom_type2=None, utype=None):
 
         # Validate atom type (H0, 1)
+        stored_atom_types = set(self.get_atoms('atom_type').values.flatten())
 
-        # Get functional form and ensure nb_parameters fit
+        if atom_type not in stored_atom_types:
+            raise KeyError("No atoms with type %s found in DataLayer" % (atom_type))
+
+        # Get functional form and ensure nb_parameters fit - maybe need to write function in
+        # validator.py
         try:
             form = metadata.get_nb_metadata("forms", nb_name, nb_form)['form']
             parameters = metadata.get_nb_metadata("forms", nb_name, nb_form)['parameters']
         except KeyError:
-            raise KeyError("DataLayer:add_parameters: Did not understand term order: %d, name: %s'." % (order,
-                                                                                                   term_name))
+            raise KeyError("DataLayer:add_parameters: Did not understand nonbond form: %d, name: %s'." % (nb_name,
+                                                                                                   nb_form))
         if len(parameters) == len(nb_parameters):
             param_dict = {k: v for k, v in zip(parameters, nb_parameters)}
         else:
             raise ValueError("Input number of parameters (%s) and number of form parameters (%s) do not match." %
                              (len(nb_parameters), len(parameters)) )
 
-
         # Validate units and convert
+
 
         # Convert to general representation
 

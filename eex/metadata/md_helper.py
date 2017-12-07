@@ -57,14 +57,18 @@ def get_term_metadata(order, name=None, field=None):
         return tmpdata
 
 
-def get_nb_metadata(name=None, form=None):
+def get_nb_metadata(name=None, field_name=None, form=None):
 
     # Check for name
     if name:
-        # Not sure of the reason for the inconsistency with above functions - here must use "forms" key
-        tmp_data = nb_metadata["forms"][name]
+        tmp_data = nb_metadata[name]
     else:
         return nb_metadata
+
+    if field_name:
+        tmp_data = tmp_data[field_name]
+    else:
+        return tmp_data
 
     if form:
         return tmp_data[form]
