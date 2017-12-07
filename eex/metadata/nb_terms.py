@@ -48,6 +48,4 @@ nb_metadata["store_indices"] = {
 }
 # nb_metadata["index_columns"] = ["atom1", "atom2"]
 
-nb_metadata["forms"] = {}
-for v in _nb_functional_forms.values():
-    nb_metadata["forms"].update(v)
+nb_metadata["forms"] = _nb_functional_forms
