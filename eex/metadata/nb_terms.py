@@ -5,7 +5,7 @@ Contains all of the metadata for non-bonded terms.
 _nb_functional_forms = {
     "LJ": {
         "AB": {
-            "form": "A/(R ** 12) - B/(R ** 6)",
+            "form": "A/(r ** 12) - B/(r ** 6)",
             "parameters": ["A", "B"],
             "units": {
                 "A": "[energy] * [length] ** 12",
