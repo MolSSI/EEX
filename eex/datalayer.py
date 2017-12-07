@@ -673,6 +673,9 @@ class DataLayer(object):
         return data[0], parameters
 
     def list_term_uids(self, order=None):
+        """
+        Lists all stored UID's in the datalayer.
+        """
 
         # Return everything
         if order is None:
@@ -869,3 +872,33 @@ class DataLayer(object):
             tmp_data.append(self.store.read_table(k))
 
         return pd.concat(tmp_data, axis=1)
+
+### Non-bonded parameter
+
+    def add_nb_parameter(self, atom_type, nb_name, nb_parameters, nb_form=None, atom_type2=None, utype=None):
+
+        # Get functional form and ensure it fits
+
+        # Validate atom type (H0, 1)
+
+        # Validate units and convert
+
+        # Convert to general representation
+
+        # Store it!
+        return False
+
+    def get_nb_parameter(self, atom_type, nb_form=None, atom_type2=None, utype=None):
+
+        # Validate input
+
+        # Grab data
+
+        # Convert (utype and form)
+        return False
+
+    def list_nb_parameters(self):
+
+        # Grab all data
+        return False
+
