@@ -7,6 +7,19 @@ import hashlib
 
 import numpy as np
 
+conversion_matrix = {
+        'AB': (lambda A, B: [A, B], lambda A, B: [A, B]),
+        'LJ': (lambda sigma, epsilon : [4 * epsilon * sigma ** 12, 4 * epsilon * sigma ** 6], lambda A, B: [(A/B)**(1/6), B**2/(4*A)]),
+        'Rmin': (lambda Rmin, Emin : [-Emin * Rmin ** 12, -2 * Emin * Rmin **6], lambda A, B: [ (2 * A / B) ** (1/6), -B**2 / (4*A)]),
+        }
+
+def convert_LJ_coeffs(coeffs, origin, final):
+    try:
+        internal = conversion_matrix[origin][0](coeffs[0], coeffs[1])
+        external = conversion_matrix[final][1](internal[0], internal[1])
+        return external
+    except ZeroDivisionError:
+        raise ZeroDivisionError("Lennard Jones functional form conversion not possible")
 
 def fuzzy_list_match(line, ldata):
     """
