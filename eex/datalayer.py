@@ -879,6 +879,16 @@ class DataLayer(object):
 ### Non-bonded parameter
 
     def add_nb_parameter(self, atom_type, nb_name, nb_parameters, nb_form=None, atom_type2=None, utype=None):
+        """
+
+        :param atom_type:
+        :param nb_name: ex LJ
+        :param nb_parameters:
+        :param nb_form: AB, etc
+        :param atom_type2:
+        :param utype:
+        :return:
+        """
 
         # If atom_type2 is None, only interactions between 1-1 are defined. -- Need to think about this
         if atom_type2 is None:
@@ -933,13 +943,18 @@ class DataLayer(object):
             else:
                 raise TypeError("Validate term dict: Unit type '%s' not understood" % str(type(utype)))
 
-
             # Convert to internal units
             for x, key in enumerate(form["parameters"]):
                 cf = units.conversion_factor(form_units[x], form["utype"][key])
                 param_dict[key] *= cf
 
         # Need to convert to internal representation (AB) using rules if not in AB form - to do
+        # If sigma/epsilon - convert to A/B
+        if nb_name == "LJ" and nb_form == "epsilon/sigma":
+            A = 4 * param_dict['epsilon'] * param_dict['sigma'] ** 12
+            B = 4 * param_dict['epsilon'] * param_dict['sigma'] ** 6
+
+            param_dict = {"A": A, "B": B}
 
         # Store it!
         self._nb_parameters[atom_type][atom_type2] = param_dict
