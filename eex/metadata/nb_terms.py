@@ -32,6 +32,16 @@ _nb_functional_forms = {
             "description": "This is the Rmin LJ form",
         },
     },
+#    "Buckingham": {
+#        "form" : "A * exp(-r / rho) - C / r ** 6", 
+#        "parameters": ["A", "rho", "C"],
+#        "units": {
+#            "A": "[energy]", 
+#            "rho": "[length]",
+#            "C": "[energy] * [length] ** 6",
+#        },
+#        "description": "This is Buckingham form",
+#    },
 }
 
 nb_metadata = {}

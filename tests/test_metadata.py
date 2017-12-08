@@ -16,12 +16,21 @@ term_dict = {}
 term_dict["two"] = eex.metadata.two_body_metadata
 term_dict["three"] = eex.metadata.three_body_metadata
 term_dict["four"] = eex.metadata.four_body_metadata
-term_dict["nb"] = eex.metadata.nb_metadata
+
+nb_term_dict = eex.metadata.nb_metadata
 
 form_list = [("two", form) for form in list(term_dict["two"]["forms"])]
 form_list += [("three", form) for form in list(term_dict["three"]["forms"])]
 form_list += [("four", form) for form in list(term_dict["four"]["forms"])]
-# form_list += [("nb", form) for form in list(term_dict["nb"]["forms"])]
+
+nb_form_list = []
+for k, v in nb_term_dict["forms"].items():
+    for k2, v2 in v.items():
+        nb_form_list += [[k2, v2]]
+
+@pytest.mark.parametrize("form, md", nb_form_list)
+def test_nonbond_metadata(form, md):
+    assert eex.metadata.validate_functional_form_dict(form, md)
 
 @pytest.mark.parametrize("order,form", form_list)
 def test_style_metadata(order, form):
