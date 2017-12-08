@@ -351,6 +351,7 @@ def test_box_size():
         comp = dl.get_box_size()
         eex.testing.dict_compare(tmp, comp)
 
+
 def test_add_nb_parameter():
 
     # Create empty data layer
@@ -363,21 +364,21 @@ def test_add_nb_parameter():
     dl.add_atoms(atom_sys)
 
     # Add AB LJ parameters to data layer - add to single atom
-    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_form="AB", nb_parameters=[1.0, 1.0],
-                        utype=["kJ * mol ** -1 * angstrom ** 12", "kJ * mol ** -1 * angstrom ** 6"])
+    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_form="AB", nb_parameters=[1.0, 1.0])
+    dl.add_nb_parameter(atom_type=2, nb_name="LJ", nb_form="epsilon/sigma", nb_parameters=[1.0, 1.0])
 
     # Add AB LJ parameters to data layer - add to two atoms
-    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_form="AB", nb_parameters=[2.0, 2.0], atom_type2=2,
-                        utype=["kJ * mol ** -1 * angstrom ** 12", "kJ * mol ** -1 * angstrom ** 6"])
+    dl.add_nb_parameter(atom_type=1, atom_type2=2, nb_name="LJ", nb_form="AB", nb_parameters=[2.0, 2.0])
 
     # Grab stored test parameters - will need to replace dl._nb_parameters with dl.get_nb_parameter when implemented
     test_parameters = dl._nb_parameters
 
-    assert test_parameters[1][None] == {'A' : 1.0, 'B' : 1.0}
-    assert test_parameters[1][2] == {'A': 2.0, 'B': 2.0}
+    assert test_parameters[(1, )] == {'A': 1.0, 'B': 1.0}
+    assert test_parameters[(2, )] == {'A': 4.0, 'B': 4.0}
+    assert test_parameters[(1, 2)] == {'A': 2.0, 'B': 2.0}
 
 
-def test_nb_parameter_units():
+def test_add_nb_parameter_units():
     # Create empty data layer
     dl = eex.datalayer.DataLayer("test_add_nb_parameters", backend="memory")
 
@@ -388,18 +389,25 @@ def test_nb_parameter_units():
     dl.add_atoms(atom_sys)
 
     # Add AB LJ parameters to data layer - add to single atom
-    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_form="AB", nb_parameters=[1.0, 1.0],
-                        utype=["kcal * mol ** -1 * angstrom ** 12", "kcal * mol ** -1 * angstrom ** 6"])
+    dl.add_nb_parameter(
+        atom_type=1,
+        nb_name="LJ",
+        nb_form="AB",
+        nb_parameters=[1.0, 1.0],
+        utype=["kJ * mol ** -1 * nanometers ** 12", "kJ * mol ** -1 * nanometers ** 6"])
 
     # Add AB LJ parameters to data layer - add to two atoms
-    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_form="AB", nb_parameters=[2.0, 2.0], atom_type2=2,
-                        utype=["kcal * mol ** -1 * angstrom ** 12", "kcal * mol ** -1 * angstrom ** 6"])
+    dl.add_nb_parameter(
+        atom_type=1,
+        nb_name="LJ",
+        nb_form="AB",
+        nb_parameters=[2.0, 2.0],
+        atom_type2=2,
+        utype=["kJ * mol ** -1 * nanometers ** 12", "kJ * mol ** -1 * nanometers ** 6"])
 
     # Grab stored test parameters - will need to replace dl._nb_parameters with dl.get_nb_parameter when implemented
     test_parameters = dl._nb_parameters
 
     # Check conversion
-
-def test_nb_form_conversion():
-    # Test conversion from epsilon/sigma to  internal A/B representation
-    assert True
+    eex.testing.dict_compare(test_parameters[(1, )], {'A': 1.e12, 'B': 1.e6})
+    eex.testing.dict_compare(test_parameters[(1, 2)], {'A': 2.e12, 'B': 2.e6})

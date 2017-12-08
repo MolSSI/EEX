@@ -21,7 +21,7 @@ term_dict["nb"] = eex.metadata.nb_metadata
 form_list = [("two", form) for form in list(term_dict["two"]["forms"])]
 form_list += [("three", form) for form in list(term_dict["three"]["forms"])]
 form_list += [("four", form) for form in list(term_dict["four"]["forms"])]
-form_list += [("nb", form) for form in list(term_dict["nb"]["forms"])]
+# form_list += [("nb", form) for form in list(term_dict["nb"]["forms"])]
 
 @pytest.mark.parametrize("order,form", form_list)
 def test_style_metadata(order, form):

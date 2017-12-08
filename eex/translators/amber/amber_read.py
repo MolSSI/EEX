@@ -134,6 +134,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         "angles": [4, 0, np.array([])],
         "dihedrals": [5, 0, np.array([])],
     }
+    _nonbonded_params = {}
 
     # Iterate over the file
     while True:

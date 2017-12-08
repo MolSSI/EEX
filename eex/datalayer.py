@@ -424,12 +424,15 @@ class DataLayer(object):
             raise KeyError("DataLayer:get_atom_count: property_name `%s` not understood" % property_name)
 
     def list_atom_uids(self, property_name):
+        """
+        Returns the unique values for a given property.
+        """
 
         property_name = self._check_atoms_dict(property_name)
         if not metadata.atom_metadata[property_name]["unique"]:
             return list(self._atom_metadata[property_name]["inv_uvals"])
         else:
-            raise KeyError("DataLayere:list_atom_uids: '%s' is not stored as unique values." % property_name)
+            raise KeyError("DataLayer:list_atom_uids: '%s' is not stored as unique values." % property_name)
 
     def add_atoms(self, atom_df, by_value=False, utype=None):
         """
@@ -893,16 +896,19 @@ class DataLayer(object):
         # sigma/epsilon parameter to datalayer after adding AB?
 
         # Validate atom_type exists -- Rewrite this
-        if atom_type not in set(self.get_atoms('atom_type').values.flatten()):
+
+        current_unique_types = np.unique(self.get_atoms('atom_type'))
+
+        if not np.any(np.in1d(atom_type, current_unique_types)):
             raise KeyError("No atoms with type %s found in DataLayer" % (atom_type))
 
-
-        if atom_type2 is not None and  atom_type2 not in set(self.get_atoms('atom_type').values.flatten()):
+        if (atom_type2 is not None) and (not np.any(np.in1d(atom_type2, current_unique_types))):
             raise KeyError("No atoms with type %s found in DataLayer" % (atom_type2))
 
         # Build nb parameter dictionary for atom_type if necessary
-        if atom_type not in list(self._nb_parameters.keys()):
-            self._nb_parameters[atom_type] = {}
+        # Might need to raise if this does exist
+        # if atom_type not in list(self._nb_parameters.keys()):
+            # self._nb_parameters[atom_type] = {}
 
 
         # Get functional form and ensure nb_parameters fit - maybe need to write function in validator.py
@@ -926,10 +932,6 @@ class DataLayer(object):
                 if len(utype) != len(form["utype"]):
                     raise ValueError("Validate term dict: Number of units passed is %d, expected %d" %
                                      (len(utype), len(form["utype"])))
-            if isinstance(utype, (list, tuple)):
-                if len(utype) != len(form["utype"]):
-                    raise ValueError("Validate term dict: Number of units passed is %d, expected %d" %
-                                     (len(utype), len(form["utype"])))
                 form_units = list(utype)
             elif isinstance(utype, dict):
                 form_units = []
@@ -949,15 +951,20 @@ class DataLayer(object):
 
         # Need to convert to internal representation (AB) using rules if not in AB form - to do
         # If sigma/epsilon - convert to A/B
-        if nb_name == "LJ" and nb_form == "epsilon/sigma":
+        if (nb_name == "LJ") and (nb_form == "epsilon/sigma"):
             A = 4 * param_dict['epsilon'] * param_dict['sigma'] ** 12
             B = 4 * param_dict['epsilon'] * param_dict['sigma'] ** 6
 
             param_dict = {"A": A, "B": B}
 
         # Store it!
-        self._nb_parameters[atom_type][atom_type2] = param_dict
-        return False
+        if atom_type2 is not None:
+            param_dict_key = (atom_type, atom_type2)
+        else:
+            param_dict_key = (atom_type, )
+
+        self._nb_parameters[param_dict_key] = param_dict
+        return True
 
     def get_nb_parameter(self, atom_type, nb_form=None, atom_type2=None, utype=None):
         """
