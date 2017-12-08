@@ -24,6 +24,7 @@ def _build_atom_df(nmols):
     bond_df["atom_index"] = np.arange(ncols)
     bond_df["molecule_index"] = np.repeat(np.arange(nmols), 3)
     bond_df["atom_name"] = np.tile(["O", "H", "H"], nmols)
+    bond_df["atom_type"] = np.tile([1, 2, 2], nmols)
     bond_df["charge"] = np.tile([-0.8, 0.4, 0.4], nmols)
     bond_df["X"] = np.random.rand(ncols)
     bond_df["Y"] = np.random.rand(ncols)
@@ -349,3 +350,19 @@ def test_box_size():
         dl.set_box_size(tmp, utype="miles")
         comp = dl.get_box_size()
         eex.testing.dict_compare(tmp, comp)
+
+def test_add_nb_parameter():
+
+    dl = eex.datalayer.DataLayer("test_add_nb_parameters", backend="memory")
+    atom_sys = _build_atom_df(3)
+
+    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_form="AB", nb_parameters=[1, 1],
+                        utype=["kcal * mol ** -1 * angstrom ** 12", "kcal * mol ** -1 * angstrom ** 6"])
+
+    # Check unit conversion for inputs
+
+    # Check conversion from sigma/epsilon to internal A,B representation
+
+    # Check value of  stored parameters
+
+
