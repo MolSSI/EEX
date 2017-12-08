@@ -24,6 +24,7 @@ def _build_atom_df(nmols):
     bond_df["atom_index"] = np.arange(ncols)
     bond_df["molecule_index"] = np.repeat(np.arange(nmols), 3)
     bond_df["atom_name"] = np.tile(["O", "H", "H"], nmols)
+    bond_df["atom_type"] = np.tile([1, 2, 2], nmols)
     bond_df["charge"] = np.tile([-0.8, 0.4, 0.4], nmols)
     bond_df["X"] = np.random.rand(ncols)
     bond_df["Y"] = np.random.rand(ncols)
@@ -349,3 +350,56 @@ def test_box_size():
         dl.set_box_size(tmp, utype="miles")
         comp = dl.get_box_size()
         eex.testing.dict_compare(tmp, comp)
+
+def test_add_nb_parameter():
+
+    # Create empty data layer
+    dl = eex.datalayer.DataLayer("test_add_nb_parameters", backend="memory")
+
+    # Create system with three molecules
+    atom_sys = _build_atom_df(3)
+
+    # Add atomic system to datalayer
+    dl.add_atoms(atom_sys)
+
+    # Add AB LJ parameters to data layer - add to single atom
+    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_form="AB", nb_parameters=[1.0, 1.0],
+                        utype=["kJ * mol ** -1 * angstrom ** 12", "kJ * mol ** -1 * angstrom ** 6"])
+
+    # Add AB LJ parameters to data layer - add to two atoms
+    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_form="AB", nb_parameters=[2.0, 2.0], atom_type2=2,
+                        utype=["kJ * mol ** -1 * angstrom ** 12", "kJ * mol ** -1 * angstrom ** 6"])
+
+    # Grab stored test parameters - will need to replace dl._nb_parameters with dl.get_nb_parameter when implemented
+    test_parameters = dl._nb_parameters
+
+    assert test_parameters[1][None] == {'A' : 1.0, 'B' : 1.0}
+    assert test_parameters[1][2] == {'A': 2.0, 'B': 2.0}
+
+
+def test_nb_parameter_units():
+    # Create empty data layer
+    dl = eex.datalayer.DataLayer("test_add_nb_parameters", backend="memory")
+
+    # Create system with three molecules
+    atom_sys = _build_atom_df(3)
+
+    # Add atomic system to datalayer
+    dl.add_atoms(atom_sys)
+
+    # Add AB LJ parameters to data layer - add to single atom
+    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_form="AB", nb_parameters=[1.0, 1.0],
+                        utype=["kcal * mol ** -1 * angstrom ** 12", "kcal * mol ** -1 * angstrom ** 6"])
+
+    # Add AB LJ parameters to data layer - add to two atoms
+    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_form="AB", nb_parameters=[2.0, 2.0], atom_type2=2,
+                        utype=["kcal * mol ** -1 * angstrom ** 12", "kcal * mol ** -1 * angstrom ** 6"])
+
+    # Grab stored test parameters - will need to replace dl._nb_parameters with dl.get_nb_parameter when implemented
+    test_parameters = dl._nb_parameters
+
+    # Check conversion
+
+def test_nb_form_conversion():
+    # Test conversion from epsilon/sigma to  internal A/B representation
+    assert True
