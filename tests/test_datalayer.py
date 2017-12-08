@@ -353,16 +353,53 @@ def test_box_size():
 
 def test_add_nb_parameter():
 
+    # Create empty data layer
     dl = eex.datalayer.DataLayer("test_add_nb_parameters", backend="memory")
+
+    # Create system with three molecules
     atom_sys = _build_atom_df(3)
 
-    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_form="AB", nb_parameters=[1, 1],
+    # Add atomic system to datalayer
+    dl.add_atoms(atom_sys)
+
+    # Add AB LJ parameters to data layer - add to single atom
+    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_form="AB", nb_parameters=[1.0, 1.0],
+                        utype=["kJ * mol ** -1 * angstrom ** 12", "kJ * mol ** -1 * angstrom ** 6"])
+
+    # Add AB LJ parameters to data layer - add to two atoms
+    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_form="AB", nb_parameters=[2.0, 2.0], atom_type2=2,
+                        utype=["kJ * mol ** -1 * angstrom ** 12", "kJ * mol ** -1 * angstrom ** 6"])
+
+    # Grab stored test parameters - will need to replace dl._nb_parameters with dl.get_nb_parameter when implemented
+    test_parameters = dl._nb_parameters
+
+    assert test_parameters[1][None] == {'A' : 1.0, 'B' : 1.0}
+    assert test_parameters[1][2] == {'A': 2.0, 'B': 2.0}
+
+
+def test_nb_parameter_units():
+    # Create empty data layer
+    dl = eex.datalayer.DataLayer("test_add_nb_parameters", backend="memory")
+
+    # Create system with three molecules
+    atom_sys = _build_atom_df(3)
+
+    # Add atomic system to datalayer
+    dl.add_atoms(atom_sys)
+
+    # Add AB LJ parameters to data layer - add to single atom
+    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_form="AB", nb_parameters=[1.0, 1.0],
                         utype=["kcal * mol ** -1 * angstrom ** 12", "kcal * mol ** -1 * angstrom ** 6"])
 
-    # Check unit conversion for inputs
+    # Add AB LJ parameters to data layer - add to two atoms
+    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_form="AB", nb_parameters=[2.0, 2.0], atom_type2=2,
+                        utype=["kcal * mol ** -1 * angstrom ** 12", "kcal * mol ** -1 * angstrom ** 6"])
 
-    # Check conversion from sigma/epsilon to internal A,B representation
+    # Grab stored test parameters - will need to replace dl._nb_parameters with dl.get_nb_parameter when implemented
+    test_parameters = dl._nb_parameters
 
-    # Check value of  stored parameters
+    # Check conversion
 
-
+def test_nb_form_conversion():
+    # Test conversion from epsilon/sigma to  internal A/B representation
+    assert True
