@@ -889,16 +889,15 @@ class DataLayer(object):
         :param utype:
         :return:
         """
-
-        # If atom_type2 is None, only interactions between 1-1 are defined. -- Need to think about this
-        if atom_type2 is None:
-            atom_type2 = atom_type
+        # Additional validations to consider - should all added parameters need to be the nb_form? (ie, can't add
+        # sigma/epsilon parameter to datalayer after adding AB?
 
         # Validate atom_type exists -- Rewrite this
         if atom_type not in set(self.get_atoms('atom_type').values.flatten()):
             raise KeyError("No atoms with type %s found in DataLayer" % (atom_type))
 
-        if atom_type2 not in set(self.get_atoms('atom_type').values.flatten()):
+
+        if atom_type2 is not None and  atom_type2 not in set(self.get_atoms('atom_type').values.flatten()):
             raise KeyError("No atoms with type %s found in DataLayer" % (atom_type2))
 
         # Build nb parameter dictionary for atom_type if necessary
@@ -961,6 +960,14 @@ class DataLayer(object):
         return False
 
     def get_nb_parameter(self, atom_type, nb_form=None, atom_type2=None, utype=None):
+        """
+
+        :param atom_type:
+        :param nb_form:
+        :param atom_type2:
+        :param utype:
+        :return:
+        """
 
         # Validate input
 
