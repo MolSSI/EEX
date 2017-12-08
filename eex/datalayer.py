@@ -910,6 +910,11 @@ class DataLayer(object):
         # if atom_type not in list(self._nb_parameters.keys()):
             # self._nb_parameters[atom_type] = {}
 
+        if nb_form is None:
+            form_keys = list(metadata.get_nb_metadata("forms", nb_name))
+            if len(form_keys) > 1:
+                raise KeyError("Number of forms for %s is larger than one, form must be specified" % nb_name)
+            nb_form = form_keys[0]
 
         # Get functional form and ensure nb_parameters fit - maybe need to write function in validator.py
         try:

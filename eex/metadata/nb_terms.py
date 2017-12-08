@@ -14,7 +14,7 @@ _nb_functional_forms = {
             "description": "This is the AB LJ form",
         },
         "epsilon/sigma": {
-            "form": "4.0 * epsilon * ((sigma / R) ** 12 - (sigma / R) ** 6)",
+            "form": "4.0 * epsilon * ((sigma / r) ** 12 - (sigma / r) ** 6)",
             "parameters": ["epsilon", "sigma"],
             "units": {
                 "epsilon": "[energy]",
@@ -22,26 +22,28 @@ _nb_functional_forms = {
             },
             "description": "This is the classic LJ non-bonded",
         },
-        "rmin": {
-            "form": "-emin * ((rmin / r) ** 12 - 2*(rmin / r) ** 6)",
-            "parameters": ["emin", "rmin"],
+        "epsilon/Rmin": {
+            "form": "-epsilon * ((Rmin / r) ** 12 - 2 * (Rmin / r) ** 6)",
+            "parameters": ["epsilon", "Rmin"],
             "units": {
-                "emin": "[energy]",
-                "rmin": "[length]",
+                "epsilon": "[energy]",
+                "Rmin": "[length]",
             },
             "description": "This is the Rmin LJ form",
         },
     },
-#    "Buckingham": {
-#        "form" : "A * exp(-r / rho) - C / r ** 6", 
-#        "parameters": ["A", "rho", "C"],
-#        "units": {
-#            "A": "[energy]", 
-#            "rho": "[length]",
-#            "C": "[energy] * [length] ** 6",
-#        },
-#        "description": "This is Buckingham form",
-#    },
+    "Buckingham": {
+        "Buckingham": {
+            "form": "A * exp(-r / rho) - C / r ** 6",
+            "parameters": ["A", "rho", "C"],
+            "units": {
+                "A": "[energy]",
+                "rho": "[length]",
+                "C": "[energy] * [length] ** 6",
+            },
+            "description": "This is Buckingham form",
+        },
+    },
 }
 
 nb_metadata = {}

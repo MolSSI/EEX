@@ -377,6 +377,11 @@ def test_add_nb_parameter():
     assert test_parameters[(2, )] == {'A': 4.0, 'B': 4.0}
     assert test_parameters[(1, 2)] == {'A': 2.0, 'B': 2.0}
 
+    dl.add_nb_parameter(atom_type=1, nb_name="Buckingham", nb_form=None, nb_parameters=[1.0, 1.0, 1.0])
+    with pytest.raises(KeyError):
+        dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_form=None, nb_parameters=[1.0, 1.0])
+
+
 
 def test_add_nb_parameter_units():
     # Create empty data layer
