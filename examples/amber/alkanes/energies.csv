@@ -1,0 +1,6 @@
+molecule,bond,angle,dihedral,vdwaals,electrostatic,hbond,1-4_VDW,1-4_EEL,restraint,
+trappe_ethane_single_molecule,1.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,
+trappe_propane_single_molecule,2.0001,0.9996,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,
+trappe_butane_single_molecule,3.0285,12.7275,0.8605,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,
+trappe_tetradecane_single_molecule,1.7800,1.5757,0.0000,-0.9959,0.0000,0.0000,0.0000,0.0000,0.0000,
+trappe_tetradecane_exclusions_single_molecule,1.7800,1.5757,0.0000,-0.9959,0.0000,0.0000,0.0000,0.0000,0.0000,

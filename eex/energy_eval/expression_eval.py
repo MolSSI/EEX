@@ -4,6 +4,7 @@ Functions to compute an energy expression
 
 import numexpr as ne
 import numpy as np
+from .. import units
 
 from . import geometry
 from .. import metadata
@@ -50,8 +51,7 @@ def evaluate_form(form, parameters, global_dict=None, out=None, evaluate=True):
         return ne.NumExpr(form)
 
 
-def evaluate_energy_expression(dl):
-
+def evaluate_energy_expression(dl, utype):
     energy = {"two-body": 0.0, "three-body": 0.0, "four-body": 0.0, "total": 0.0}
     loop_data = {
         "two-body": {
@@ -62,15 +62,15 @@ def evaluate_energy_expression(dl):
             "order": 3,
             "get_data": "get_angles"
         },
-        # "four-body": {
-        #     "order": 4,
-        #     "get_data": "get_dihedrals"
-        # }
+        "four-body": {
+             "order": 4,
+             "get_data": "get_dihedrals"
+         }
     }
 
     # Do the N-body terms
     xyz = dl.get_atoms("xyz")
-    bonds = dl.get_bonds()
+
 
     for order_key, inst in loop_data.items():
         indices = dl.call_by_string(inst["get_data"])
@@ -78,17 +78,35 @@ def evaluate_energy_expression(dl):
         for idx, df in indices.groupby("term_index"):
             if df.shape[0] == 0: continue
 
+            # Variables are computed distances and angles based on xyz positions
             variables = _compute_temporaries(order, xyz, df)
+
+            # Form type is name of functional form (eg 'harmonic' and parameters contains parameters and values (eg 'K' : 200)
             form_type, parameters = dl.get_term_parameter(order, idx)
+
+            # Above values are used to look up functional form (eg 'harmonic' -> K * (r-r0) ** 2)
             form = metadata.get_term_metadata(order, "forms", form_type)["form"]
 
             energy[order_key] += np.sum(evaluate_form(form, parameters, variables))
 
     # LJ terms
-
     # Electostatics
 
+    # Handle units
+    cf = 1.0
+    if utype is not None:
+
+        # Get the energy units stored in the data layer
+        dl_energy_units = units.convert_contexts("[energy]")
+        cf = units.conversion_factor(dl_energy_units, utype)
+
+    # Sum up the dict
     for k, v in energy.items():
-        energy["total"] += v
+        energy[k] = cf * v
+
+
+        # To avoid counting total
+        if k is not "total":
+            energy["total"] += v
 
     return energy
