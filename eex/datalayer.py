@@ -904,6 +904,7 @@ class DataLayer(object):
         except KeyError:
             raise KeyError("DataLayer:add_parameters: Did not understand nonbond form: %d, name: %s'." % (nb_name,
                                                                                                    nb_form))
+        # This needs to be generalized to handle both list and dict inputs (?)
         if len(parameters) == len(nb_parameters):
             param_dict = {k: v for k, v in zip(parameters, nb_parameters)}
         else:
@@ -938,7 +939,7 @@ class DataLayer(object):
                 cf = units.conversion_factor(form_units[x], form["utype"][key])
                 param_dict[key] *= cf
 
-        # Need to convert to internal representation (AB) using rules if not in AB form
+        # Need to convert to internal representation (AB) using rules if not in AB form - to do
 
         # Store it!
         self._nb_parameters[atom_type][atom_type2] = param_dict
