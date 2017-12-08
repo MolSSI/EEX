@@ -11,8 +11,8 @@ conversion_matrix = {
     'AB': (lambda A, B: [A, B], lambda A, B: [A, B]),
     'epsilon/sigma': (lambda sigma, epsilon: [4 * epsilon * sigma**12, 4 * epsilon * sigma**6],
            lambda A, B: [(A / B)**(1 / 6), B**2 / (4 * A)]),
-    'epsilon/Rmin': (lambda Rmin, Emin: [-Emin * Rmin**12, -2 * Emin * Rmin**6],
-             lambda A, B: [(2 * A / B)**(1 / 6), -B**2 / (4 * A)]),
+    'epsilon/Rmin': (lambda Rmin, Emin: [Emin * Rmin**12, 2 * Emin * Rmin**6],
+             lambda A, B: [(2 * A / B)**(1 / 6), B**2 / (4 * A)]),
 }
 
 

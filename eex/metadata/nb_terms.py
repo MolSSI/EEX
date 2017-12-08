@@ -14,7 +14,7 @@ _nb_functional_forms = {
             "description": "This is the AB LJ form",
         },
         "epsilon/sigma": {
-            "form": "4.0 * epsilon * ((sigma / r) ** 12 - (sigma / r) ** 6)",
+            "form": "-4.0 * epsilon * ((sigma / r) ** 12 - (sigma / r) ** 6)",
             "parameters": ["epsilon", "sigma"],
             "units": {
                 "epsilon": "[energy]",
