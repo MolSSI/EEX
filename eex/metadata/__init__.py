@@ -2,9 +2,6 @@
 Contains all metadata and wrappers used within EEX
 """
 
-# Bring in the default units
-from .default_contexts import default_contexts
-
 # Bring in atom metadata
 from .atom_metadata import atom_property_to_column, atom_metadata, atom_number_to_symbol, atom_symbol_to_number
 
