@@ -373,9 +373,9 @@ def test_add_nb_parameter():
     # Grab stored test parameters - will need to replace dl._nb_parameters with dl.get_nb_parameter when implemented
     test_parameters = dl._nb_parameters
 
-    assert test_parameters[(1, )] == {'A': 1.0, 'B': 1.0}
-    assert test_parameters[(2, )] == {'A': 4.0, 'B': 4.0}
-    assert test_parameters[(1, 2)] == {'A': 2.0, 'B': 2.0}
+    assert test_parameters[(1, )]["parameters"] == {'A': 1.0, 'B': 1.0}
+    assert test_parameters[(2, )]["parameters"] == {'A': 4.0, 'B': 4.0}
+    assert test_parameters[(1, 2)]["parameters"] == {'A': 2.0, 'B': 2.0}
 
     dl.add_nb_parameter(atom_type=1, nb_name="Buckingham", nb_form=None, nb_parameters=[1.0, 1.0, 1.0])
     with pytest.raises(KeyError):
@@ -414,5 +414,5 @@ def test_add_nb_parameter_units():
     test_parameters = dl._nb_parameters
 
     # Check conversion
-    eex.testing.dict_compare(test_parameters[(1, )], {'A': 1.e12, 'B': 1.e6})
-    eex.testing.dict_compare(test_parameters[(1, 2)], {'A': 2.e12, 'B': 2.e6})
+    eex.testing.dict_compare(test_parameters[(1, )]['parameters'], {'A': 1.e12, 'B': 1.e6})
+    eex.testing.dict_compare(test_parameters[(1, 2)]['parameters'], {'A': 2.e12, 'B': 2.e6})
