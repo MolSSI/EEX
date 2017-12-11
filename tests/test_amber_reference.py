@@ -26,9 +26,9 @@ for test_dir in _test_directories:
 # List current energy tests
 _energy_types = {"two-body" : "bond", "three-body": "angle"}
 
-def test_references(get_references):
+def test_references(amber_references):
 
-    test_dir, system_name = get_references
+    test_dir, system_name = amber_references
     molecule = str(system_name.split("/")[-1]).split(".")[0]
 
     data, dl = eex_build_dl.build_dl("amber", test_dir, molecule)
@@ -52,6 +52,6 @@ def test_references(get_references):
 
 # Loop over amber test directories
 @pytest.fixture(scope="module", params=_test_systems)
-def get_references(request):
+def amber_references(request):
     test_dir, test_system = request.param
     return (test_dir, test_system)
