@@ -432,8 +432,15 @@ def test_get_nb_parameter():
         atom_type=1,
         nb_name="LJ",
         nb_form="AB",
-        nb_parameters=[1.0, 1.0],
-        utype=["kJ * mol ** -1 * nanometers ** 12", "kJ * mol ** -1 * nanometers ** 6"])
+        nb_parameters=[1.0, 1.0])
 
     with pytest.raises(KeyError):
         dl.get_nb_parameter(atom_type=1, atom_type2=2, nb_form="AB")
+
+    with pytest.raises(KeyError):
+        dl.get_nb_parameter(atom_type=1)
+
+    with pytest.raises(KeyError):
+        dl.get_nb_parameter(atom_type=1, nb_form="AB", utype={'A': 'kJ * mol ** -1 * nanometers ** 12'})
+
+    # Test that what returned is expected

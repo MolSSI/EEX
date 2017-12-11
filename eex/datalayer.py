@@ -1049,7 +1049,7 @@ class DataLayer(object):
                 form_units = list(utype)
             elif isinstance(utype, dict):
                 form_units = []
-                for key in form["parameters"]:
+                for key in parameters:
                     try:
                         form_units.append(utype[key])
                     except KeyError:
@@ -1088,8 +1088,13 @@ class DataLayer(object):
         Parameters
         -----------------
         atom_type: int
+            Description
         nb_form: str
             The desired output form
+        atom_type2: int
+            Description
+        utype: dict
+            Description
         """
 
         # Build key
@@ -1098,19 +1103,48 @@ class DataLayer(object):
         else:
             param_dict_key = (atom_type, )
 
-        # Get information from data layer
+        # Get information from data layer - check that interaction is set for atom types
         if param_dict_key in self._nb_parameters.keys():
             nb_parameters = self._nb_parameters[param_dict_key]
         else:
             raise KeyError("Nonbond interaction for atom types (%s, %s) not found" % param_dict_key)
 
         # Validate nb_form matches stored interaction
-        
 
-        # Grab data
+        # Get nb_name - this is stored when parameter is input (ex "LJ")
+        nb_name = nb_parameters['form']
 
-        # Convert (utype and form)
-        return False
+        # Grab data we want from data layer
+        param_dict = nb_parameters["parameters"]
+
+        # Check if there are alternate forms for this nb_parameter type if nb_form is not set
+        if nb_form is None:
+            form_keys = list(metadata.get_nb_metadata("forms", nb_name))
+            if len(form_keys) > 1:
+                raise KeyError("Number of forms for %s is larger than one, form must be specified" % nb_name)
+            nb_form = form_keys[0]
+
+
+        # Get and validate datalayer units for nb form parameters
+        form = metadata.get_nb_metadata("forms", nb_name, nb_form)
+
+
+        # Convert units if specified - otherwise return what is stored in datalayer
+        form_units = []
+        if utype is not None:
+            for key in form["parameters"]:
+                try:
+                    form_units.append(utype[key])
+                except KeyError:
+                    raise KeyError(
+                        "Validate term dict: Did not find expected key '%s' from term (utype)'." % (key))
+
+                for x, key in enumerate(nb_parameters['parameters']):
+                    cf = units.conversion_factor(form_units[x], form["utype"][key])
+                    param_dict['parameters'][key] *= cf
+
+
+        return param_dict
 
     def list_nb_parameters(self):
 
