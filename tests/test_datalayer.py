@@ -416,3 +416,24 @@ def test_add_nb_parameter_units():
     # Check conversion
     eex.testing.dict_compare(test_parameters[(1, )]['parameters'], {'A': 1.e12, 'B': 1.e6})
     eex.testing.dict_compare(test_parameters[(1, 2)]['parameters'], {'A': 2.e12, 'B': 2.e6})
+
+def test_get_nb_parameter():
+    # Create empty data layer
+    dl = eex.datalayer.DataLayer("test_add_nb_parameters", backend="memory")
+
+    # Create system with three molecules
+    atom_sys = _build_atom_df(3)
+
+    # Add atomic system to datalayer
+    dl.add_atoms(atom_sys)
+
+    # Add AB LJ parameters to data layer - add to single atom
+    dl.add_nb_parameter(
+        atom_type=1,
+        nb_name="LJ",
+        nb_form="AB",
+        nb_parameters=[1.0, 1.0],
+        utype=["kJ * mol ** -1 * nanometers ** 12", "kJ * mol ** -1 * nanometers ** 6"])
+
+    with pytest.raises(KeyError):
+        dl.get_nb_parameter(atom_type=1, atom_type2=2, nb_form="AB")

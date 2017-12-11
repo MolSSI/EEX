@@ -981,7 +981,7 @@ class DataLayer(object):
         Parameters
         ----------
         atom_type : int
-            The order of the functional form (2, 3, 4, ...)
+            Description
         nb_name: int
             The uid of
         nb_parameters: dict
@@ -1089,11 +1089,23 @@ class DataLayer(object):
         -----------------
         atom_type: int
         nb_form: str
-        :param atom_type2:
-        :param utype:
+            The desired output form
         """
 
-        # Validate input
+        # Build key
+        if atom_type2 is not None:
+            param_dict_key = (atom_type, atom_type2)
+        else:
+            param_dict_key = (atom_type, )
+
+        # Get information from data layer
+        if param_dict_key in self._nb_parameters.keys():
+            nb_parameters = self._nb_parameters[param_dict_key]
+        else:
+            raise KeyError("Nonbond interaction for atom types (%s, %s) not found" % param_dict_key)
+
+        # Validate nb_form matches stored interaction
+        
 
         # Grab data
 
