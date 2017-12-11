@@ -967,7 +967,16 @@ class DataLayer(object):
 
     def add_nb_parameter(self, atom_type, nb_name, nb_parameters, nb_form=None, atom_type2=None, utype=None):
         """
-        Stores nb parameters in data layer
+        Stores nb parameters in data layer as dictionary
+
+        Stored dictionary has form:
+            { (atom_type1, atom_type2):
+                    'form' : nb_name
+                    'parameters' :{
+                            parameter_name1: nb_parameter,
+                            parameter_name2: nb_parameter,
+                            },
+            }
 
         Parameters
         ----------
@@ -985,10 +994,12 @@ class DataLayer(object):
             Description
 
         """
-        # Additional validations to consider - should all added parameters need to be the nb_form? (ie, can't add
-        # sigma/epsilon parameter to datalayer after adding AB?
 
-        # Validate atom_type exists -- Rewrite this
+
+        param_dict = {}
+        param_dict['form'] = nb_name
+
+        # Validate atom_type exists
 
         current_unique_types = np.unique(self.get_atoms('atom_type'))
 
@@ -1018,7 +1029,7 @@ class DataLayer(object):
         # Validate input parameters against form
         if isinstance(nb_parameters, (list, tuple)):
             if len(parameters) == len(nb_parameters):
-                param_dict = {k: v for k, v in zip(parameters, nb_parameters)}
+                param_dict['parameters'] = {k: v for k, v in zip(parameters, nb_parameters)}
             else:
                 raise ValueError("Input number of parameters (%s) and number of form parameters (%s) do not match." %
                                  (len(nb_parameters), len(parameters)) )
@@ -1026,7 +1037,7 @@ class DataLayer(object):
             if set(nb_parameters.keys()) != set(parameters):
                 raise ValueError("Incorrect parameters entered for nonbond form %s %s" % (nb_name, nb_form))
             else:
-                param_dict = nb_parameters
+                param_dict['parameters'] = nb_parameters
 
 
         # Validate correct number of units are passed for parameters
@@ -1050,16 +1061,16 @@ class DataLayer(object):
             # Convert to internal units
             for x, key in enumerate(form["parameters"]):
                 cf = units.conversion_factor(form_units[x], form["utype"][key])
-                param_dict[key] *= cf
+                param_dict['parameters'][key] *= cf
 
         # Need to convert to internal representation (AB) using rules if not in AB form - to do
         # If sigma/epsilon - convert to A/B
         ## Rewrite using dictionary in metadata
         if (nb_name == "LJ") and (nb_form == "epsilon/sigma"):
-            A = 4 * param_dict['epsilon'] * param_dict['sigma'] ** 12
-            B = 4 * param_dict['epsilon'] * param_dict['sigma'] ** 6
+            A = 4 * param_dict['parameters']['epsilon'] * param_dict['parameters']['sigma'] ** 12
+            B = 4 * param_dict['parameters']['epsilon'] * param_dict['parameters']['sigma'] ** 6
 
-            param_dict = {"A": A, "B": B}
+            param_dict['parameters'] = {"A": A, "B": B}
 
         # Store it!
         if atom_type2 is not None:
@@ -1072,12 +1083,14 @@ class DataLayer(object):
 
     def get_nb_parameter(self, atom_type, nb_form=None, atom_type2=None, utype=None):
         """
+        Retrieves nb parameter from datalayer
 
-        :param atom_type:
-        :param nb_form:
+        Parameters
+        -----------------
+        atom_type: int
+        nb_form: str
         :param atom_type2:
         :param utype:
-        :return:
         """
 
         # Validate input
