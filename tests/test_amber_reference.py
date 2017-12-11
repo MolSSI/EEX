@@ -18,10 +18,11 @@ _test_systems = []
 for test_dir in _test_directories:
     print(test_dir)
     test_dir = eex_find_files.get_example_filename("amber", test_dir)
-    systems = glob.glob(test_dir + "/*prmtop")
+    systems = glob.glob(test_dir + "/*.prmtop")
     for s in systems:
+        path, file = os.path.split(s)
         # Grab test dir and system name
-        _test_systems.append((test_dir, s.split('/')[-1]))
+        _test_systems.append((path, file))
 
 # List current energy tests
 _energy_types = {"two-body" : "bond", "three-body": "angle"}
