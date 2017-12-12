@@ -70,8 +70,8 @@ term_data_units = {
     # "ANGLE_EQUIL_VALUE": ["radian"],
     # "DIHEDRAL_FORCE_CONSTANT": ["kcal * mol ** -1"],
     # "DIHEDRAL_PHASE": ["radian"],
-    "LENNARD_JONES_ACOEFF": ["kcal * mol ** -12"],
-    "LENNARD_JONES_BCOEFF": ["kcal * mol ** -6"],
+    "LENNARD_JONES_ACOEFF": ["kcal * mol ** -1 * angstrom ** 12"],
+    "LENNARD_JONES_BCOEFF": ["kcal * mol ** -1 * angstrom ** 6"],
 }
 register_forms = [
     (2, "harmonic", {
