@@ -25,7 +25,7 @@ for test_dir in _test_directories:
         _test_systems.append((path, file_name))
 
 # List current energy tests
-_energy_types = {"two-body" : "bond", "three-body": "angle"}
+_energy_types = {"two-body" : "bond", "three-body": "angle", "four-body": "dihedral"}
 
 def test_references(amber_references):
 
