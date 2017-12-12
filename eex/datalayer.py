@@ -1143,8 +1143,9 @@ class DataLayer(object):
                     cf = units.conversion_factor(form_units[x], form["utype"][key])
                     param_dict['parameters'][key] *= cf
 
+        nb_parameters["parameters"] = param_dict
 
-        return param_dict
+        return nb_parameters
 
     def list_nb_parameters(self):
 
