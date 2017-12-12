@@ -6,18 +6,26 @@ import eex
 import pytest
 import numpy as np
 
-@pytest.mark.parametrize("form", ["epsilon/sigma", "epsilon/Rmin", "AB"])
+@pytest.mark.parametrize("form", ["epsilon/sigma", "epsilon/rmin", "AB"])
 def test_convert_same_LJ_coeffs(form):
-    coeffs = [3.48, 148.0]
-    new_coeffs = eex.utility.convert_LJ_coeffs(coeffs, form, form)
-    assert np.allclose(coeffs, new_coeffs)
 
-@pytest.mark.parametrize("form", ["epsilon/sigma", "epsilon/Rmin"])
-@pytest.mark.parametrize("coeffs", [[3.48, 0.0], [0.0, 148.0]])
+    var_names = {
+    'AB': ['A', 'B'],
+    'epsilon/sigma': ['epsilon', 'sigma'],
+    'epsilon/rmin': ['epsilon', 'rmin'],
+    }
+    coeffs = dict.fromkeys(var_names[form])
+    coeffs[var_names[form][0]] = 2.0
+    coeffs[var_names[form][1]] = 4.0
+    new_coeffs = eex.utility.convert_LJ_coeffs(coeffs, form, form)
+    assert np.allclose(new_coeffs[var_names[form][0]], coeffs[var_names[form][0]])
+    assert np.allclose(new_coeffs[var_names[form][1]], coeffs[var_names[form][1]])
+
+@pytest.mark.parametrize("form", ["epsilon/sigma", "epsilon/rmin"])
+@pytest.mark.parametrize("coeffs", [{'A': 3.48, 'B': 0.0}, {'A': 0.0, 'B': 148.0}])
 def test_convert_impossible_LJ_coeffs(form, coeffs):
     with pytest.raises(ZeroDivisionError):
         eex.utility.convert_LJ_coeffs(coeffs, "AB", form)
-
 
 #@pytest.mark.parametrize("end", ["LJ", "Rmin", "AB"])
 #@pytest.mark.parametrize("origin", ["LJ", "Rmin", "AB"])
