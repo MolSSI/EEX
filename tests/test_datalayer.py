@@ -450,13 +450,17 @@ def test_get_nb_parameter():
     #    dl.get_nb_parameter(atom_type=1, nb_form="AB", utype={'A': 'kJ * mol ** -1 * nanometers ** 12'})
 
     # Test that what returned is expected
-    assert(dl.get_nb_parameter(atom_type=2) == {'form': 'Buckingham', 'parameters': {"A": 1.0, "C": 1.0, "rho": 1.0}} )
-    assert(dl.get_nb_parameter(atom_type=1, nb_form="AB") == {'form': 'LJ', 'parameters': {'A': 1.0, 'B': 2.0}})
+    assert(dl.get_nb_parameter(atom_type=2) == {"A": 1.0, "C": 1.0, "rho": 1.0} )
+    assert(dl.get_nb_parameter(atom_type=1, nb_form="AB") == {'A': 1.0, 'B': 2.0} )
 
     # Test conversion of AB to different forms
-    assert(dl.get_nb_parameter(atom_type=1, nb_form="epsilon/sigma")  == {'form': 'LJ', 'parameters':
-        {'epsilon': 1.0,'sigma': (1./2.) ** (1./6.)}})
+    assert(dl.get_nb_parameter(atom_type=1, nb_form="epsilon/sigma")  == {'epsilon': 1.0,'sigma': (1./2.) ** (1./6.)})
 
-    assert (dl.get_nb_parameter(atom_type=1, nb_form="epsilon/Rmin") == {'form': 'LJ', 'parameters':
-        {'epsilon': 1.0, 'Rmin': 1 }})
+    assert (dl.get_nb_parameter(atom_type=1, nb_form="epsilon/Rmin") == {'epsilon': 1.0, 'Rmin': 1 })
+
+
+    assert(set(dl.list_stored_nb_types()) == set(["LJ", "Buckingham"]))
+    print(dl.list_stored_nb_types())
+    dl.list_nb_parameters()
+    assert False
 

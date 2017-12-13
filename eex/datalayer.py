@@ -433,6 +433,9 @@ class DataLayer(object):
     def get_dihedral_count(self):
         return len(self.get_dihedrals())
 
+    def get_unique_atom_types(self):
+        return np.unique(self.get_atoms('atom_type'))
+
     def list_atom_uids(self, property_name):
         """
         Returns the unique values for a given property.
@@ -893,14 +896,6 @@ class DataLayer(object):
         return (data[0], form)
 
 
-    #def list_term_info(self, order):
-    #    """
-    #    Description
-    #    :return:
-    #    """
-
-        
-
 
     def summary(self):
         print("EEX DataLayer Object\n\n")
@@ -993,6 +988,9 @@ class DataLayer(object):
         utype: dict
             Description
 
+        Returns
+        -------------
+
         """
 
 
@@ -1001,7 +999,7 @@ class DataLayer(object):
 
         # Validate atom_type exists
 
-        current_unique_types = np.unique(self.get_atoms('atom_type'))
+        current_unique_types = self.get_unique_atom_types()
 
         if not np.any(np.in1d(atom_type, current_unique_types)):
             raise KeyError("No atoms with type %s found in DataLayer" % (atom_type))
@@ -1096,14 +1094,11 @@ class DataLayer(object):
         return: dict
 
         Returned dictionary has form:
-            { (atom_type1, atom_type2):
-                    'form' : nb_name,
-                    'parameters' :{
-                            parameter_name_1: nb_parameter_1,
-                            parameter_name_2: nb_parameter_2,
-                            ...
-                            parameter_name_n : nb_parameter_n,
-                            },
+            {
+                parameter_name_1: nb_parameter_1,
+                parameter_name_2: nb_parameter_2,
+                ...
+                parameter_name_n : nb_parameter_n,
             }
         """
 
@@ -1155,12 +1150,37 @@ class DataLayer(object):
         if nb_parameters["form"] == "LJ":
             param_dict = utility.convert_LJ_coeffs(param_dict, "AB", nb_form)
 
-        nb_parameters["parameters"] = param_dict
+        #nb_parameters["parameters"] = param_dict
 
-        return nb_parameters
+        return param_dict
 
-    def list_nb_parameters(self):
+    def list_stored_nb_types(self):
+        nb_types = []
+        for k,v in self._nb_parameters.items():
+            nb_types.append(v['form'])
+        unique_nb_types = np.unique(nb_types)
+        return unique_nb_types
 
-        # Grab all data
-        return False
+
+    def list_nb_parameters(self, nb_name=None, nb_form=None, utype=None):
+        """
+        Return all NB parameters stored in data layer which have specified properties. If no properties are set, what is
+        stored in the datalayer is returned.
+
+        Parameters
+        ------------------
+
+
+        Returns
+        ------------------
+
+        """
+        term_dict = {}
+        return_parameters = self._nb_parameters.copy()
+
+        for key, value in self._nb_parameters.items():
+            print(key, value)
+
+        return self._nb_parameters
+
 
