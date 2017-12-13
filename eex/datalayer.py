@@ -1115,7 +1115,7 @@ class DataLayer(object):
 
         # Get information from data layer - check that interaction is set for atom types
         if param_dict_key in self._nb_parameters.keys():
-            nb_parameters = self._nb_parameters[param_dict_key]
+            nb_parameters = self._nb_parameters[param_dict_key].copy()
         else:
             raise KeyError("Nonbond interaction for atom types (%s, %s) not found" % param_dict_key)
 
