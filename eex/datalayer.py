@@ -1063,14 +1063,9 @@ class DataLayer(object):
                 cf = units.conversion_factor(form_units[x], form["utype"][key])
                 param_dict['parameters'][key] *= cf
 
-        # Need to convert to internal representation (AB) using rules if not in AB form - to do
-        # If sigma/epsilon - convert to A/B
-        ## Rewrite using dictionary in metadata
-        if (nb_name == "LJ") and (nb_form == "epsilon/sigma"):
-            A = 4 * param_dict['parameters']['epsilon'] * param_dict['parameters']['sigma'] ** 12
-            B = 4 * param_dict['parameters']['epsilon'] * param_dict['parameters']['sigma'] ** 6
 
-            param_dict['parameters'] = {"A": A, "B": B}
+        if (nb_name == "LJ"):
+            param_dict['parameters'] = utility.convert_LJ_coeffs(param_dict['parameters'], nb_form, "AB")
 
         # Store it!
         if atom_type2 is not None:
@@ -1090,11 +1085,26 @@ class DataLayer(object):
         atom_type: int
             Description
         nb_form: str
-            The desired output form
+            The desired output form (optional). If not indicated, default for datalayer will be returned.
         atom_type2: int
             Description
         utype: dict
             Description
+
+        Returns
+        ------------------
+        return: dict
+
+        Returned dictionary has form:
+            { (atom_type1, atom_type2):
+                    'form' : nb_name,
+                    'parameters' :{
+                            parameter_name_1: nb_parameter_1,
+                            parameter_name_2: nb_parameter_2,
+                            ...
+                            parameter_name_n : nb_parameter_n,
+                            },
+            }
         """
 
         # Build key
@@ -1114,9 +1124,6 @@ class DataLayer(object):
         # Get nb_name - this is stored when parameter is input (ex "LJ")
         nb_name = nb_parameters['form']
 
-        # Grab data we want from data layer
-        param_dict = nb_parameters["parameters"]
-
         # Check if there are alternate forms for this nb_parameter type if nb_form is not set
         if nb_form is None:
             form_keys = list(metadata.get_nb_metadata("forms", nb_name))
@@ -1124,10 +1131,11 @@ class DataLayer(object):
                 raise KeyError("Number of forms for %s is larger than one, form must be specified" % nb_name)
             nb_form = form_keys[0]
 
+        # Grab data we want from data layer
+        param_dict = nb_parameters["parameters"]
 
-        # Get and validate datalayer units for nb form parameters
+        # Get and validate datalayer units for nb form parameters (form is from metadata)
         form = metadata.get_nb_metadata("forms", nb_name, nb_form)
-
 
         # Convert units if specified - otherwise return what is stored in datalayer
         form_units = []
@@ -1142,6 +1150,10 @@ class DataLayer(object):
                 for x, key in enumerate(nb_parameters['parameters']):
                     cf = units.conversion_factor(form_units[x], form["utype"][key])
                     param_dict['parameters'][key] *= cf
+
+        ### Need to convert to specified nb_name (form) if needed (ex - AB to epsilon/sigma)
+        if nb_parameters["form"] == "LJ":
+            param_dict = utility.convert_LJ_coeffs(param_dict, "AB", nb_form)
 
         nb_parameters["parameters"] = param_dict
 
