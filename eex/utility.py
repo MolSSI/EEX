@@ -10,13 +10,13 @@ import numpy as np
 ab_to_ab = lambda coeffs: {'A': coeffs['A'], 'B': coeffs['B']}
 epsilonsigma_to_ab = lambda coeffs: {'A': 4.0 * coeffs['epsilon'] * coeffs['sigma'] ** 12.0, 'B': 4.0 * coeffs['epsilon'] * coeffs['sigma'] ** 6.0}
 ab_to_epsilonsigma = lambda coeffs: {'sigma': (coeffs['A'] / coeffs['B']) ** (1.0 / 6.0), 'epsilon': coeffs['B'] ** 2.0 / (4.0 * coeffs['A'])}
-rminepsilon_to_ab = lambda coeffs: {'A': coeffs['epsilon'] * coeffs['rmin'] ** 12.0, 'B': 2 * coeffs['epsilon'] * coeffs['rmin'] ** 6.0}
-ab_to_rminepsilon = lambda coeffs: {'rmin': (2.0 * coeffs['A'] / coeffs['B'])**(1.0 / 6.0), 'epsilon': coeffs['B']**2.0 / (4.0 * coeffs['A'])}
+rminepsilon_to_ab = lambda coeffs: {'A': coeffs['epsilon'] * coeffs['Rmin'] ** 12.0, 'B': 2 * coeffs['epsilon'] * coeffs['Rmin'] ** 6.0}
+ab_to_rminepsilon = lambda coeffs: {'Rmin': (2.0 * coeffs['A'] / coeffs['B'])**(1.0 / 6.0), 'epsilon': coeffs['B']**2.0 / (4.0 * coeffs['A'])}
 
 conversion_matrix = {
     'AB': (['A', 'B'], ab_to_ab, ab_to_ab),
     'epsilon/sigma': (['epsilon', 'sigma'], epsilonsigma_to_ab, ab_to_epsilonsigma),
-    'epsilon/rmin': (['epsilon', 'rmin'], rminepsilon_to_ab, ab_to_rminepsilon),
+    'epsilon/Rmin': (['epsilon', 'Rmin'], rminepsilon_to_ab, ab_to_rminepsilon),
     }
 
 
