@@ -7,35 +7,49 @@ import hashlib
 
 import numpy as np
 
-ab_to_ab = lambda coeffs: {'A': coeffs['A'], 'B': coeffs['B']}
-epsilonsigma_to_ab = lambda coeffs: {'A': 4.0 * coeffs['epsilon'] * coeffs['sigma'] ** 12.0, 'B': 4.0 * coeffs['epsilon'] * coeffs['sigma'] ** 6.0}
-ab_to_epsilonsigma = lambda coeffs: {'sigma': (coeffs['A'] / coeffs['B']) ** (1.0 / 6.0), 'epsilon': coeffs['B'] ** 2.0 / (4.0 * coeffs['A'])}
-rminepsilon_to_ab = lambda coeffs: {'A': coeffs['epsilon'] * coeffs['Rmin'] ** 12.0, 'B': 2 * coeffs['epsilon'] * coeffs['Rmin'] ** 6.0}
-ab_to_rminepsilon = lambda coeffs: {'Rmin': (2.0 * coeffs['A'] / coeffs['B'])**(1.0 / 6.0), 'epsilon': coeffs['B']**2.0 / (4.0 * coeffs['A'])}
+_ab_to_ab = lambda coeffs: {'A': coeffs['A'], 'B': coeffs['B']}
+_epsilonsigma_to_ab = lambda coeffs: {'A': 4.0 * coeffs['epsilon'] * coeffs['sigma'] ** 12.0, 'B': 4.0 * coeffs['epsilon'] * coeffs['sigma'] ** 6.0}
+_ab_to_epsilonsigma = lambda coeffs: {'sigma': (coeffs['A'] / coeffs['B']) ** (1.0 / 6.0), 'epsilon': coeffs['B'] ** 2.0 / (4.0 * coeffs['A'])}
+_rminepsilon_to_ab = lambda coeffs: {'A': coeffs['epsilon'] * coeffs['Rmin'] ** 12.0, 'B': 2 * coeffs['epsilon'] * coeffs['Rmin'] ** 6.0}
 
-conversion_matrix = {
-    'AB': (['A', 'B'], ab_to_ab, ab_to_ab),
-    'epsilon/sigma': (['epsilon', 'sigma'], epsilonsigma_to_ab, ab_to_epsilonsigma),
-    'epsilon/Rmin': (['epsilon', 'Rmin'], rminepsilon_to_ab, ab_to_rminepsilon),
-    }
+# _ab_to_rminepsilon = lambda coeffs: {'Rmin': (2.0 * coeffs['A'] / coeffs['B'])**(1.0 / 6.0), 'epsilon': coeffs['B']**2.0 / (4.0 * coeffs['A'])}
+
+
+def _ab_to_rminepsilon(coeffs):
+    """
+    B must be positive
+    """
+
+    Rmin = (2.0 * coeffs['A'] / coeffs['B'])**(1.0 / 6.0)
+    Eps = coeffs['B']**2.0 / (4.0 * coeffs['A'])
+    return {"Rmin": Rmin, "epsilon": Eps}
+
+
+_conversion_matrix = {
+    'AB': (['A', 'B'], _ab_to_ab, _ab_to_ab),
+    'epsilon/sigma': (['epsilon', 'sigma'], _epsilonsigma_to_ab, _ab_to_epsilonsigma),
+    'epsilon/Rmin': (['epsilon', 'Rmin'], _rminepsilon_to_ab, _ab_to_rminepsilon),
+}
 
 
 def convert_LJ_coeffs(coeffs, origin, final):
 
-    difference = set([origin,final]) - set(conversion_matrix.keys())
+    difference = set([origin, final]) - set(_conversion_matrix.keys())
     if (difference):
-        raise KeyError("Conversion cannot be made since %s is not in conversion matrix %s" % (difference, conversion_matrix.keys()))
+        raise KeyError("Conversion cannot be made since %s is not in conversion matrix %s" %
+                       (difference, conversion_matrix.keys()))
 
-    difference = set(coeffs.keys()) - set(conversion_matrix[origin][0])
+    difference = set(coeffs.keys()) - set(_conversion_matrix[origin][0])
     if (difference):
-        raise KeyError("The key %s in the coefficient dictionary is not in the list of allowed keys %s" %(difference, conversion_matrix[origin][0]))
+        raise KeyError("The key %s in the coefficient dictionary is not in the list of allowed keys %s" %
+                       (difference, _conversion_matrix[origin][0]))
 
     try:
-        internal = conversion_matrix[origin][1](coeffs)
-        external = conversion_matrix[final][2](internal)
+        internal = _conversion_matrix[origin][1](coeffs)
+        external = _conversion_matrix[final][2](internal)
         return external
     except ZeroDivisionError:
-        raise ZeroDivisionError("Lennard Jones functional form conversion not possible")
+        raise ZeroDivisionError("Lennard Jones functional form conversion not possible, division by zero found.")
 
 
 def fuzzy_list_match(line, ldata):
