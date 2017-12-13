@@ -49,7 +49,6 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
 
     """
-
     ### First we need to figure out system dimensions
     max_rows = 100  # How many lines do we attempt to search?
     header_data = eex.utility.read_lines(filename, max_rows)
@@ -178,6 +177,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                 # Add the data to DL
                 dl.add_atoms(df, by_value=True, utype=amd.atom_data_units)
 
+            # Store forcefield parameters as "other" for later processing
             elif current_data_category in amd.store_other:
                 df = _data_flatten(data, current_data_category, category_index, "res_index")
 
@@ -241,13 +241,6 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                 pass
             # elif current_data_category == "ATOM_NAME":
 
-            # print(data.head())
-            # print(data.tail())
-            # if dl_func != "NYI":
-            #     # print(data)
-            #     data.columns = df_cols
-            # dl.call_by_string(dl_func, data)
-
             # Update remaining
             remaining_read -= blocksize
 
@@ -301,23 +294,63 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     res_df.index.name = "atom_index"
     dl.add_atoms(res_df, by_value=True)
 
-    # Handle term parameters
+    # Handle forcefield parameters
     other_tables = set(dl.list_other_tables())
     for key, param_data in amd.forcefield_parameters.items():
+        print(key)
         param_col_names = list(param_data["column_names"])
-
         # No data to store
         if len(set(param_col_names) - other_tables):
             continue
 
-        cnt = 1  # Start counting from one
-        for ind, row in dl.get_other(param_col_names).iterrows():
-            params = {}
-            for k, v in param_data["column_names"].items():
-                params[v] = row[k]
-            uid = dl.add_term_parameter(
-                param_data["order"], param_data["form"], params, uid=cnt, utype=param_data["units"])
-            cnt += 1
+        # Bond parameters (bond, angle, dihedral) will have an "order", the order for nonbond parameters is None
+        if param_data["order"] is not None:
+            cnt = 1  # Start counting from one
+            for ind, row in dl.get_other(param_col_names).iterrows():
+                params = {}
+                for k, v in param_data["column_names"].items():
+                    params[v] = row[k]
+                uid = dl.add_term_parameter(
+                    param_data["order"], param_data["form"], params, uid=cnt, utype=param_data["units"])
+                cnt += 1
+        else:
+            # Get info for grabbing LJ parameters
+            nb_parm_index = dl.get_other("NONBONDED_PARM_INDEX")
+            A_coeff_list = dl.get_other("LENNARD_JONES_ACOEF")
+            B_coeff_list = dl.get_other("LENNARD_JONES_BCOEF")
+            stored_atom_types = np.unique(dl.get_atoms('atom_type'))
+            ntypes = len(stored_atom_types)
+
+            # Need relevant atom types. Should go 1...n where n is number of atom_types. Loop through stored to
+            # get all combinations
+
+            for x in range(len(stored_atom_types)):
+                for y in range(x+1):
+                    # For amber, section NONBOND_PARM_INDEX gives pointer to LENNARD_JONES_ACOEF and _BCOEF sections.
+                    # The atom types are used to compute NB_PARM_INDEX index, which is used to get ACOEF and BCOEF
+
+                    # Get atom types - nb_key is (atom_type1, atom_type2)
+                    nb_key = (stored_atom_types[y], stored_atom_types[x])
+
+                    # Calcuate index into NB_PARM_INDEX
+                    ind_nb_parm_index = ntypes*(nb_key[0] - 1) + nb_key[1]
+
+                    # Get index into LENNARDJONES_ACOEF and LENNARDJONES_BCOEF
+                    # Subtract 1 because Amber indexes from 1, but python indexes from 0
+                    nb_index = nb_parm_index.iloc[ind_nb_parm_index - 1]
+
+                    # Grab values
+                    A_coeff = A_coeff_list.iloc[nb_index - 1]['LENNARD_JONES_ACOEF'].values[0]
+                    B_coeff = B_coeff_list.iloc[nb_index - 1]['LENNARD_JONES_BCOEF'].values[0]
+
+                    # Store in datalayer
+                    dl.add_nb_parameter(atom_type=nb_key[0], atom_type2=nb_key[1],
+                                        nb_parameters = {"A": A_coeff, "B": B_coeff},
+                                        nb_name=amd.forcefield_parameters["nonbond"]["form"]["name"],
+                                        nb_form=amd.forcefield_parameters["nonbond"]["form"]["form"],
+                                        utype=amd.forcefield_parameters["nonbond"]["units"])
+
+
 
     ### Try to pull in an inpcrd file for XYZ coordinates
     inpcrd_file = filename.replace('.prmtop', '.inpcrd')
