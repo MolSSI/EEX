@@ -441,13 +441,6 @@ def test_get_nb_parameter():
     with pytest.raises(KeyError):
         dl.get_nb_parameter(atom_type=1, atom_type2=2, nb_form="AB")
 
-    # The following should raise an error because nb_form is not set for LJ interaction
-    with pytest.raises(KeyError):
-        dl.get_nb_parameter(atom_type=1)
-
-    # The following should raise an error because units are set for A, but not for B
-    #with pytest.raises(KeyError):
-    #    dl.get_nb_parameter(atom_type=1, nb_form="AB", utype={'A': 'kJ * mol ** -1 * nanometers ** 12'})
 
     # Test that what returned is expected
     assert(dl.get_nb_parameter(atom_type=2) == {"A": 1.0, "C": 1.0, "rho": 1.0} )
@@ -460,7 +453,8 @@ def test_get_nb_parameter():
 
 
     assert(set(dl.list_stored_nb_types()) == set(["LJ", "Buckingham"]))
-    print(dl.list_stored_nb_types())
-    dl.list_nb_parameters()
-    assert False
+
+
+    print(dl.list_nb_parameters(nb_name="LJ"))
+
 

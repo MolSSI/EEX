@@ -1122,8 +1122,7 @@ class DataLayer(object):
         # Check if there are alternate forms for this nb_parameter type if nb_form is not set
         if nb_form is None:
             form_keys = list(metadata.get_nb_metadata("forms", nb_name))
-            if len(form_keys) > 1:
-                raise KeyError("Number of forms for %s is larger than one, form must be specified" % nb_name)
+            ## If nb_form is not set, default for datalayer should be returned.
             nb_form = form_keys[0]
 
         # Grab data we want from data layer
@@ -1155,6 +1154,18 @@ class DataLayer(object):
         return param_dict
 
     def list_stored_nb_types(self):
+        """
+        Lists the type of NB interactions stored in datalayer (ex Lennard Jones, or Buckingham)
+
+        Parameters
+        --------------
+
+
+        Returns
+        ---------------
+
+
+        """
         nb_types = []
         for k,v in self._nb_parameters.items():
             nb_types.append(v['form'])
@@ -1162,10 +1173,10 @@ class DataLayer(object):
         return unique_nb_types
 
 
-    def list_nb_parameters(self, nb_name=None, nb_form=None, utype=None):
+    def list_nb_parameters(self, nb_name, nb_form=None, utype=None):
         """
-        Return all NB parameters stored in data layer which have specified properties. If no properties are set, what is
-        stored in the datalayer is returned.
+        Return all NB parameters stored in data layer which have specified properties. If no properties are set, all NB
+        properties in datalayer are returned.
 
         Parameters
         ------------------
@@ -1175,12 +1186,20 @@ class DataLayer(object):
         ------------------
 
         """
-        term_dict = {}
-        return_parameters = self._nb_parameters.copy()
+        return_parameters = {}
+        term_dict = self._nb_parameters.copy()
 
         for key, value in self._nb_parameters.items():
-            print(key, value)
+            atom_type1 = key[0]
+            try:
+                atom_type2 = key[1]
+            except:
+                atom_type2 = None
 
-        return self._nb_parameters
+            if value['form'] == nb_name:
+                return_parameters[key] = self.get_nb_parameter(atom_type = atom_type1, atom_type2=atom_type2,
+                                                               nb_form=nb_form, utype=utype)
+
+        return return_parameters
 
 
