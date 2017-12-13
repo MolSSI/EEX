@@ -1,0 +1,3 @@
+molecule,bond,angle,dihedral,vdwaals,electrostatic,hbond,1-4_VDW,1-4_EEL,restraint,
+trappe_methanol_single_molecule,3.3193,0.0167,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,
+trappe_ethanol_single_molecule,3.3192,0.0167,0.5385,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,

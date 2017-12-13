@@ -134,6 +134,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         "angles": [4, 0, np.array([])],
         "dihedrals": [5, 0, np.array([])],
     }
+    _nonbonded_params = {}
 
     # Iterate over the file
     while True:
@@ -210,9 +211,11 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                     _current_topology_indices[category][-1] = np.array([])
 
                 data = data.reshape(-1, mod_size).astype(int)
+                # A negative indexed value in position 3 indicates 1-4 NB interactions for this dihedral
+                # should not be counted (multi-term dihedral or cyclic system). Store as
+                # dihedral for now, neglecting negative sign
 
-                # Any negative indexed values are not true dihedrals
-                data = data[np.all(data >= 0, axis=1)]
+                data = np.absolute(data)
 
                 # Weird AMBER indexing, we have: atom1, atom2, ..., term_index
                 # Atom indices are (index / 3 + 1)

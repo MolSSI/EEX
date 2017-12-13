@@ -24,6 +24,7 @@ def _build_atom_df(nmols):
     bond_df["atom_index"] = np.arange(ncols)
     bond_df["molecule_index"] = np.repeat(np.arange(nmols), 3)
     bond_df["atom_name"] = np.tile(["O", "H", "H"], nmols)
+    bond_df["atom_type"] = np.tile([1, 2, 2], nmols)
     bond_df["charge"] = np.tile([-0.8, 0.4, 0.4], nmols)
     bond_df["X"] = np.random.rand(ncols)
     bond_df["Y"] = np.random.rand(ncols)
@@ -349,3 +350,105 @@ def test_box_size():
         dl.set_box_size(tmp, utype="miles")
         comp = dl.get_box_size()
         eex.testing.dict_compare(tmp, comp)
+
+
+def test_add_nb_parameter():
+
+    # Create empty data layer
+    dl = eex.datalayer.DataLayer("test_add_nb_parameters", backend="memory")
+
+    # Create system with three molecules
+    atom_sys = _build_atom_df(3)
+
+    # Add atomic system to datalayer
+    dl.add_atoms(atom_sys)
+
+    # Add AB LJ parameters to data layer - add to single atom
+    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_form="AB", nb_parameters=[1.0, 1.0])
+    dl.add_nb_parameter(atom_type=2, nb_name="LJ", nb_form="epsilon/sigma", nb_parameters=[1.0, 1.0])
+
+    # Add AB LJ parameters to data layer - add to two atoms
+    dl.add_nb_parameter(atom_type=1, atom_type2=2, nb_name="LJ", nb_form="AB", nb_parameters=[2.0, 2.0])
+
+    # Grab stored test parameters - will need to replace dl._nb_parameters with dl.get_nb_parameter when implemented
+    test_parameters = dl._nb_parameters
+
+    assert test_parameters[(1, )]["parameters"] == {'A': 1.0, 'B': 1.0}
+    assert test_parameters[(2, )]["parameters"] == {'A': 4.0, 'B': 4.0}
+    assert test_parameters[(1, 2)]["parameters"] == {'A': 2.0, 'B': 2.0}
+
+    dl.add_nb_parameter(atom_type=1, nb_name="Buckingham", nb_form=None, nb_parameters=[1.0, 1.0, 1.0])
+    with pytest.raises(KeyError):
+        dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_form=None, nb_parameters=[1.0, 1.0])
+
+
+
+def test_add_nb_parameter_units():
+    # Create empty data layer
+    dl = eex.datalayer.DataLayer("test_add_nb_parameters", backend="memory")
+
+    # Create system with three molecules
+    atom_sys = _build_atom_df(3)
+
+    # Add atomic system to datalayer
+    dl.add_atoms(atom_sys)
+
+    # Add AB LJ parameters to data layer - add to single atom
+    dl.add_nb_parameter(
+        atom_type=1,
+        nb_name="LJ",
+        nb_form="AB",
+        nb_parameters=[1.0, 1.0],
+        utype=["kJ * mol ** -1 * nanometers ** 12", "kJ * mol ** -1 * nanometers ** 6"])
+
+    # Add AB LJ parameters to data layer - add to two atoms
+    dl.add_nb_parameter(
+        atom_type=1,
+        nb_name="LJ",
+        nb_form="AB",
+        nb_parameters=[2.0, 2.0],
+        atom_type2=2,
+        utype=["kJ * mol ** -1 * nanometers ** 12", "kJ * mol ** -1 * nanometers ** 6"])
+
+    # Grab stored test parameters - will need to replace dl._nb_parameters with dl.get_nb_parameter when implemented
+    test_parameters = dl._nb_parameters
+
+    # Check conversion
+    eex.testing.dict_compare(test_parameters[(1, )]['parameters'], {'A': 1.e12, 'B': 1.e6})
+    eex.testing.dict_compare(test_parameters[(1, 2)]['parameters'], {'A': 2.e12, 'B': 2.e6})
+
+def test_get_nb_parameter():
+    # Create empty data layer
+    dl = eex.datalayer.DataLayer("test_add_nb_parameters", backend="memory")
+
+    # Create system with three molecules
+    atom_sys = _build_atom_df(3)
+
+    # Add atomic system to datalayer
+    dl.add_atoms(atom_sys)
+
+    # Add AB LJ parameters to data layer - add to single atom
+    dl.add_nb_parameter(
+        atom_type=1,
+        nb_name="LJ",
+        nb_form="AB",
+        nb_parameters=[1.0, 1.0])
+
+    # Add Buckingham parameter to datalayer
+    dl.add_nb_parameter(atom_type=2, nb_name="Buckingham", nb_parameters=[1.0, 1.0, 1.0])
+
+    # The following should raise an error because (1,2) interaction is not set
+    with pytest.raises(KeyError):
+        dl.get_nb_parameter(atom_type=1, atom_type2=2, nb_form="AB")
+
+    # The following should raise an error because nb_form is not set for LJ interaction
+    with pytest.raises(KeyError):
+        dl.get_nb_parameter(atom_type=1)
+
+    # The following should raise an error because units are set for A, but not for B
+    #with pytest.raises(KeyError):
+    #    dl.get_nb_parameter(atom_type=1, nb_form="AB", utype={'A': 'kJ * mol ** -1 * nanometers ** 12'})
+
+    # Test that what returned is expected
+    print(dl.get_nb_parameter(atom_type=2))
+    print(dl.get_nb_parameter(atom_type=1, nb_form="AB"))

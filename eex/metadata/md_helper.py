@@ -6,6 +6,7 @@ from .atom_metadata import atom_metadata
 from .two_body_terms import two_body_metadata
 from .three_body_terms import three_body_metadata
 from .four_body_terms import four_body_metadata
+from .nb_terms import nb_metadata
 
 
 def sanitize_term_order_name(order):
@@ -14,7 +15,7 @@ def sanitize_term_order_name(order):
 
     if order in [2, "two", "bond", "bonds"]:
         return 2
-    elif order in [3, "two", "angle", "angles"]:
+    elif order in [3, "three", "angle", "angles"]:
         return 3
     elif order in [4, "four", "dihedral", "dihedrals"]:
         return 4
@@ -54,3 +55,22 @@ def get_term_metadata(order, name=None, field=None):
         return tmpdata[field]
     else:
         return tmpdata
+
+
+def get_nb_metadata(name=None, field_name=None, form=None):
+
+    # Check for name
+    if name:
+        tmp_data = nb_metadata[name]
+    else:
+        return nb_metadata
+
+    if field_name:
+        tmp_data = tmp_data[field_name]
+    else:
+        return tmp_data
+
+    if form:
+        return tmp_data[form]
+    else:
+        return tmp_data

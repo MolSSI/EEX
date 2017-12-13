@@ -1,0 +1,4 @@
+Amber - single point energy calculation
+ &cntrl
+   imin = 5, cut = 999, ntb = 0,
+/

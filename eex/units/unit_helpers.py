@@ -6,7 +6,7 @@ import re
 import pint
 
 from .ureg import ureg
-from ..metadata import default_contexts
+from .default_contexts import default_contexts
 
 __all__ = ["conversion_dict", "conversion_factor", "convert_contexts"]
 

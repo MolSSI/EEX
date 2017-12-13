@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 import eex_find_files
 
-_alkane_molecules = ["ethane", "propane", "butane"]
+_alkane_molecules = ["ethane", "propane"] #, "butane"]
 
 def build_dl(program, molecule):
     if program.lower() == "amber":

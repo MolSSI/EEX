@@ -7,6 +7,36 @@ import hashlib
 
 import numpy as np
 
+ab_to_ab = lambda coeffs: {'A': coeffs['A'], 'B': coeffs['B']}
+epsilonsigma_to_ab = lambda coeffs: {'A': 4.0 * coeffs['epsilon'] * coeffs['sigma'] ** 12.0, 'B': 4.0 * coeffs['epsilon'] * coeffs['sigma'] ** 6.0}
+ab_to_epsilonsigma = lambda coeffs: {'sigma': (coeffs['A'] / coeffs['B']) ** (1.0 / 6.0), 'epsilon': coeffs['B'] ** 2.0 / (4.0 * coeffs['A'])}
+rminepsilon_to_ab = lambda coeffs: {'A': coeffs['epsilon'] * coeffs['rmin'] ** 12.0, 'B': 2 * coeffs['epsilon'] * coeffs['rmin'] ** 6.0}
+ab_to_rminepsilon = lambda coeffs: {'rmin': (2.0 * coeffs['A'] / coeffs['B'])**(1.0 / 6.0), 'epsilon': coeffs['B']**2.0 / (4.0 * coeffs['A'])}
+
+conversion_matrix = {
+    'AB': (['A', 'B'], ab_to_ab, ab_to_ab),
+    'epsilon/sigma': (['epsilon', 'sigma'], epsilonsigma_to_ab, ab_to_epsilonsigma),
+    'epsilon/rmin': (['epsilon', 'rmin'], rminepsilon_to_ab, ab_to_rminepsilon),
+    }
+
+
+def convert_LJ_coeffs(coeffs, origin, final):
+
+    difference = set([origin,final]) - set(conversion_matrix.keys())
+    if (difference):
+        raise KeyError("Conversion cannot be made since %s is not in conversion matrix %s" % (difference, conversion_matrix.keys()))
+
+    difference = set(coeffs.keys()) - set(conversion_matrix[origin][0])
+    if (difference):
+        raise KeyError("The key %s in the coefficient dictionary is not in the list of allowed keys %s" %(difference, conversion_matrix[origin][0]))
+
+    try:
+        internal = conversion_matrix[origin][1](coeffs)
+        external = conversion_matrix[final][2](internal)
+        return external
+    except ZeroDivisionError:
+        raise ZeroDivisionError("Lennard Jones functional form conversion not possible")
+
 
 def fuzzy_list_match(line, ldata):
     """
