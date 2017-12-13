@@ -432,10 +432,10 @@ def test_get_nb_parameter():
         atom_type=1,
         nb_name="LJ",
         nb_form="AB",
-        nb_parameters=[1.0, 1.0])
+        nb_parameters={'A': 1.0, 'B': 2.0})
 
     # Add Buckingham parameter to datalayer
-    dl.add_nb_parameter(atom_type=2, nb_name="Buckingham", nb_parameters=[1.0, 1.0, 1.0])
+    dl.add_nb_parameter(atom_type=2, nb_name="Buckingham", nb_parameters={"A": 1.0, "C": 1.0, "rho": 1.0})
 
     # The following should raise an error because (1,2) interaction is not set
     with pytest.raises(KeyError):
@@ -450,5 +450,13 @@ def test_get_nb_parameter():
     #    dl.get_nb_parameter(atom_type=1, nb_form="AB", utype={'A': 'kJ * mol ** -1 * nanometers ** 12'})
 
     # Test that what returned is expected
-    print(dl.get_nb_parameter(atom_type=2))
-    print(dl.get_nb_parameter(atom_type=1, nb_form="AB"))
+    assert(dl.get_nb_parameter(atom_type=2) == {'form': 'Buckingham', 'parameters': {"A": 1.0, "C": 1.0, "rho": 1.0}} )
+    assert(dl.get_nb_parameter(atom_type=1, nb_form="AB") == {'form': 'LJ', 'parameters': {'A': 1.0, 'B': 2.0}})
+
+    # Test conversion of AB to different forms
+    assert(dl.get_nb_parameter(atom_type=1, nb_form="epsilon/sigma")  == {'form': 'LJ', 'parameters':
+        {'epsilon': 1.0,'sigma': (1./2.) ** (1./6.)}})
+
+    assert (dl.get_nb_parameter(atom_type=1, nb_form="epsilon/Rmin") == {'form': 'LJ', 'parameters':
+        {'epsilon': 1.0, 'Rmin': 1 }})
+
