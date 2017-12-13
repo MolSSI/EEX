@@ -104,4 +104,4 @@ def test_amber_writer(molecule):
     # Read in output data
     dl_new = eex.datalayer.DataLayer(molecule)
     eex.translators.amber.read_amber_file(dl_new, oname)
-    # assert eex.testing.dl_compare(dl, dl_new)
+    assert eex.testing.dl_compare(dl, dl_new)

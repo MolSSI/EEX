@@ -63,27 +63,6 @@ atom_data_units = {
     "mass": "g * mol ** -1",
 }
 
-term_data_units = {
-    # "BOND_FORCE_CONSTANT": ["kcal * mol ** -1 angstrom ** -2"],
-    # "BOND_EQUIL_VALUE": ["angstrom"],
-    # "ANGLE_FORCE_CONSTANT": ["kcal * mol ** -2 radian ** 2"],
-    # "ANGLE_EQUIL_VALUE": ["radian"],
-    # "DIHEDRAL_FORCE_CONSTANT": ["kcal * mol ** -1"],
-    # "DIHEDRAL_PHASE": ["radian"],
-    "LENNARD_JONES_ACOEFF": ["kcal * mol ** -12"],
-    "LENNARD_JONES_BCOEFF": ["kcal * mol ** -6"],
-}
-register_forms = [
-    (2, "harmonic", {
-        "K": "kcal * mol ** -1 angstrom ** -2",
-        "R0": "angstrom"
-    }),
-    (3, "harmonic", {
-        "K": "kcal * mol ** -1 radian ** -2",
-        "theta0": "radian"
-    }),
-]
-
 atom_property_names = {
     "ATOM_NAME": "atom_name",
     "CHARGE": "charge",
@@ -139,7 +118,23 @@ forcefield_parameters = {
             "DIHEDRAL_PERIODICITY": "n",
             "DIHEDRAL_PHASE": "d",
         }
-    }
+    },
+
+    "nonbond" : {
+        "order" : None,
+        "form" : {"name": "LJ", "form": "AB"},
+        "units" : {
+            "A" : "kcal * mol ** -1 * angstrom ** 12",
+            "B" : "kcal * mol ** -1 * angstrom ** 6",
+        },
+        "column_names" : {
+            "LENNARD_JONES_ACOEF": "A",
+            "LENNARD_JONES_BCOEF": "B",
+            "NONBONDED_PARM_INDEX": ""
+        },
+
+    },
+
 }
 
 store_other = []
