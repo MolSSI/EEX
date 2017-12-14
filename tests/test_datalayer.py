@@ -447,14 +447,18 @@ def test_get_nb_parameter():
     assert(dl.get_nb_parameter(atom_type=1, nb_form="AB") == {'A': 1.0, 'B': 2.0} )
 
     # Test conversion of AB to different forms
-    assert(dl.get_nb_parameter(atom_type=1, nb_form="epsilon/sigma")  == {'epsilon': 1.0,'sigma': (1./2.) ** (1./6.)})
+    eex.testing.dict_compare(dl.get_nb_parameter(atom_type=1, nb_form="epsilon/sigma"),{'epsilon': 1.0,'sigma': (1./2.) ** (1./6.)})
 
-    assert (dl.get_nb_parameter(atom_type=1, nb_form="epsilon/Rmin") == {'epsilon': 1.0, 'Rmin': 1 })
+    eex.testing.dict_compare(dl.get_nb_parameter(atom_type=1, nb_form="epsilon/Rmin"), {'epsilon': 1.0, 'Rmin': 1 })
 
-
+    # Test that correct parameters are pulled from data layer based on name
     assert(set(dl.list_stored_nb_types()) == set(["LJ", "Buckingham"]))
 
+    eex.testing.dict_compare(dl.list_nb_parameters(nb_name="LJ"), {(1,): {'A': 1., 'B': 2.}})
 
-    print(dl.list_nb_parameters(nb_name="LJ"))
+    eex.testing.dict_compare(dl.list_nb_parameters(nb_name="Buckingham"),{(2,): {'A': 1.0, "C": 1.0, "rho": 1.0}})
 
+    # Test translation of units
+    eex.testing.dict_compare(dl.list_nb_parameters(nb_name="LJ", utype={'A': "kJ * mol ** -1 * nanometers ** 12",
+                         'B': "kJ * mol ** -1 * nanometers ** 6"}), {(1,) : {'A': 1.e-12, 'B': 2.e-6}})
 
