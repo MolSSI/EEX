@@ -1101,7 +1101,6 @@ class DataLayer(object):
                 parameter_name_n : nb_parameter_n,
             }
         """
-
         # Build key
         if atom_type2 is not None:
             param_dict_key = (atom_type, atom_type2)
@@ -1139,13 +1138,14 @@ class DataLayer(object):
                     raise KeyError(
                         "Validate term dict: Did not find expected key '%s' from term (utype)'." % (key))
 
-                for x, key in enumerate(nb_parameters['parameters']):
-                    cf = units.conversion_factor(form_units[x], form["utype"][key])
-                    param_dict['parameters'][key] *= cf
+            for x, key in enumerate(nb_parameters['parameters']):
+                cf = units.conversion_factor(form_units[x], form["utype"][key])
+                param_dict[key] *= cf
+
 
         ### Need to convert to specified nb_name (form) if needed (ex - AB to epsilon/sigma)
         if nb_parameters["form"] == "LJ":
-            param_dict = utility.convert_LJ_coeffs(param_dict, "AB", nb_form)
+            param_dict = utility.convert_LJ_coeffs(param_dict, metadata.get_nb_metadata("defaults", "LJ"), nb_form)
 
         #nb_parameters["parameters"] = param_dict
 
@@ -1197,7 +1197,6 @@ class DataLayer(object):
                         }
                 }
         """
-
         return_parameters = {}
         term_dict = self._nb_parameters.copy()
 
