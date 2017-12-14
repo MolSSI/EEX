@@ -1139,7 +1139,8 @@ class DataLayer(object):
                         "Validate term dict: Did not find expected key '%s' from term (utype)'." % (key))
 
             for x, key in enumerate(nb_parameters['parameters']):
-                cf = units.conversion_factor(form_units[x], form["utype"][key])
+                # Convert from what is in DL (form["utype"][key] to user specified units (form_units[x]
+                cf = units.conversion_factor(form["utype"][key], form_units[x])
                 param_dict[key] *= cf
 
 
