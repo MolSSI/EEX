@@ -1119,11 +1119,9 @@ class DataLayer(object):
         # Get nb_name - this is stored when parameter is input (ex "LJ")
         nb_name = nb_parameters['form']
 
-        # Check if there are alternate forms for this nb_parameter type if nb_form is not set
+        # Set output form to DL defaults if nb_form is not set
         if nb_form is None:
-            form_keys = list(metadata.get_nb_metadata("forms", nb_name))
-            ## If nb_form is not set, default for datalayer should be returned.
-            nb_form = form_keys[0]
+            nb_form = metadata.get_nb_metadata("defaults", nb_name)
 
         # Grab data we want from data layer
         param_dict = nb_parameters["parameters"]
@@ -1175,21 +1173,35 @@ class DataLayer(object):
 
     def list_nb_parameters(self, nb_name, nb_form=None, utype=None):
         """
-        Return all NB parameters stored in data layer which have specified properties. If no properties are set, all NB
-        properties in datalayer are returned.
+        Return all NB parameters stored in data layer which have the form specified by nb_name.
 
         Parameters
         ------------------
-
+        nb_name: str
+            Name of nonbond potential (ex "LJ" or "Buckingham") to list interactions for
+        nb_form: str (optional)
+            Output form of potential (ex "epsilon/sigma" for nb_name "LJ"). If not specified, default for datalayer will
+            be returned
+        utype: dict (optional)
+            Units for output. Must be compatible with nb_name and form. If not specified, default for datalayer will be
+            returned
 
         Returns
         ------------------
-
+        return_parameters: dict
+            Returned dict has form
+                { (atom_type1, atom_type_2)
+                        {
+                            'nb_parameter_name' : value,
+                            'nb_parameter_name2' : value,
+                        }
+                }
         """
+
         return_parameters = {}
         term_dict = self._nb_parameters.copy()
 
-        for key, value in self._nb_parameters.items():
+        for key, value in term_dict.items():
             atom_type1 = key[0]
             try:
                 atom_type2 = key[1]

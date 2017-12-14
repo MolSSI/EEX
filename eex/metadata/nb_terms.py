@@ -46,6 +46,11 @@ _nb_functional_forms = {
     },
 }
 
+_defaults = {
+    "LJ" : "AB",
+    "Buckingham" : "Buckingham",
+}
+
 nb_metadata = {}
 
 # Valid variables used in all two-body terms
@@ -61,3 +66,4 @@ nb_metadata["store_indices"] = {
 # nb_metadata["index_columns"] = ["atom1", "atom2"]
 
 nb_metadata["forms"] = _nb_functional_forms
+nb_metadata["defaults"] = _defaults
