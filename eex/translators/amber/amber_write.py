@@ -224,6 +224,39 @@ def write_amber_file(dl, filename, inpcrd=None):
     _write_amber_data(file_handle, ["Place holder - EEX"], "RADIUS_SET")
     written_categories.append("RADIUS_SET")
 
+    # Handle NB data
+    # Relevant headers = NONBOND_PARM_INDEX, LENNARD_JONES_ACOEF, LENNARD_JONES_BCOEF
+    stored_atom_types = dl.get_unique_atom_types()
+    ntypes = len(stored_atom_types)
+
+    nb_forms = dl.list_stored_nb_types()
+
+    if nb_forms != ["LJ"]:
+        # Should raise some sort of errror. Only LJ is compatible with amber
+        print("invalid")
+
+    stored_nb_parameters = dl.list_nb_parameters(nb_name="LJ", nb_form="AB", utype={'A':'kcal * mol ** -1 * angstrom ** 12',
+                                                                                    'B': 'kcal * mol ** -1 * angstrom ** 6'})
+    nonbonded_parm_index = np.zeros(ntypes * ntypes)
+    lj_a_coeff = []
+    lj_b_coeff = []
+
+    # Build a_coeff and b_coeff lists
+    for key, value in stored_nb_parameters.items():
+        lj_a_coeff.append(value['A'])
+        lj_b_coeff.append(value['B'])
+        index_to_nb = ntypes*(key[0] - 1) + key[1]
+        index_to_nb2 = ntypes * (key[1] - 1) + key[0]
+        nonbonded_parm_index[index_to_nb-1] = len(lj_a_coeff)
+        nonbonded_parm_index[index_to_nb2-1] = len(lj_a_coeff)
+
+    _write_amber_data(file_handle, nonbonded_parm_index, "NONBONDED_PARM_INDEX")
+    _write_amber_data(file_handle, lj_a_coeff, "LENNARD_JONES_ACOEF")
+    _write_amber_data(file_handle, lj_b_coeff, "LENNARD_JONES_BCOEF")
+
+    for category in amd.forcefield_parameters["nonbond"]["column_names"]:
+        written_categories.append(category)
+
     ### Write headers for other sections (file will not work in AMBER without these)
     for k in amd.data_labels:
         if k not in written_categories:
@@ -233,6 +266,10 @@ def write_amber_file(dl, filename, inpcrd=None):
             else:
                 file_handle.write(("%%FLAG %s\n%s\n\n" % (k, amd.data_labels[k][1])).encode())
             written_categories.append(k)
+
+
+
+
 
     file_handle.close()
 
