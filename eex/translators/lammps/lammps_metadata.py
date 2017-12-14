@@ -6,6 +6,10 @@ import copy
 from . import lammps_ff
 import eex
 
+# Possible types of the keyword 'variable' found in the input file
+variable_types = ['delete', 'index', 'loop', 'world', 'universe', 'uloop', 'string', 'format', 'getenv', 'file', 'atomfile', 'python', 'internal', 'equal', 'vector', 'atom']
+
+
 # Possible size keys to look for in the header
 size_keys = [
     "atoms", "atom types", "bonds", "bond types", "angles", "angle types", "dihedrals", "dihedral types", "impropers",

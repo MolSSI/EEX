@@ -14,7 +14,7 @@ def spce_dl(request):
     fname = eex_find_files.get_example_filename("lammps", "SPCE", "data.spce")
     dl = eex.datalayer.DataLayer(
         "test_lammps_read", )
-    data = eex.translators.lammps.read_lammps_file(dl, fname, blocksize=55)
+    data = eex.translators.lammps.read_lammps_data_file(dl, fname, blocksize=55)
     yield (data, dl)
     dl.close()
 
@@ -83,7 +83,7 @@ def test_lammps_writer(molecule):
 
     # Read in the data
     dl = eex.datalayer.DataLayer(molecule)
-    data = eex.translators.lammps.read_lammps_file(dl, fname)
+    data = eex.translators.lammps.read_lammps_data_file(dl, fname)
 
     # Write out the data
     oname = eex_find_files.get_scratch_directory(molecule)
@@ -91,5 +91,5 @@ def test_lammps_writer(molecule):
 
     # Read in output data
     dl_new = eex.datalayer.DataLayer(molecule)
-    eex.translators.lammps.read_lammps_file(dl_new, oname)
+    eex.translators.lammps.read_lammps_data_file(dl_new, oname)
     assert eex.testing.dl_compare(dl, dl_new)
