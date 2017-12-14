@@ -7,21 +7,55 @@ import hashlib
 
 import numpy as np
 
-_ab_to_ab = lambda coeffs: {'A': coeffs['A'], 'B': coeffs['B']}
-_epsilonsigma_to_ab = lambda coeffs: {'A': 4.0 * coeffs['epsilon'] * coeffs['sigma'] ** 12.0, 'B': 4.0 * coeffs['epsilon'] * coeffs['sigma'] ** 6.0}
-_ab_to_epsilonsigma = lambda coeffs: {'sigma': (coeffs['A'] / coeffs['B']) ** (1.0 / 6.0), 'epsilon': coeffs['B'] ** 2.0 / (4.0 * coeffs['A'])}
-_rminepsilon_to_ab = lambda coeffs: {'A': coeffs['epsilon'] * coeffs['Rmin'] ** 12.0, 'B': 2 * coeffs['epsilon'] * coeffs['Rmin'] ** 6.0}
+def _ab_to_ab(coeffs):
+    """
+    Convert AB representation to AB representation of the LJ potential
+    """
+    return {'A': coeffs['A'], 'B': coeffs['B']}
 
-# _ab_to_rminepsilon = lambda coeffs: {'Rmin': (2.0 * coeffs['A'] / coeffs['B'])**(1.0 / 6.0), 'epsilon': coeffs['B']**2.0 / (4.0 * coeffs['A'])}
+def _epsilonsigma_to_ab(coeffs):
+    """
+    Convert epsilon/sigma representation to AB representation of the LJ
+    potential
+    """
+    A = 4.0 * coeffs['epsilon'] * coeffs['sigma'] ** 12.0
+    B = 4.0 * coeffs['epsilon'] * coeffs['sigma'] ** 6.0
+    return {"A": A, "B": B}
 
+def _ab_to_epsilonsigma(coeffs):
+    """
+    Convert AB representation to epsilon/sigma representation of the LJ
+    potential
+    """
+    try:
+        sigma = (coeffs['A'] / coeffs['B']) ** (1.0 / 6.0)
+        epsilon = coeffs['B'] ** 2.0 / (4.0 * coeffs['A'])
+
+    except ZeroDivisionError:
+        raise ZeroDivisionError("Lennard Jones functional form conversion not possible, division by zero found.")
+
+    return {"sigma": sigma, "epsilon": epsilon}
+
+def _rminepsilon_to_ab(coeffs):
+    """
+    Convert rmin/epsilon representation to AB representation of the LJ
+    potential
+    """
+    A = coeffs['epsilon'] * coeffs['Rmin'] ** 12.0
+    B = 2 * coeffs['epsilon'] * coeffs['Rmin'] ** 6.0
+    return {"A": A, "B": B}
 
 def _ab_to_rminepsilon(coeffs):
     """
-    B must be positive
+    Convert AB representation to Rmin/epsilon representation of the LJ potential
     """
+    try:
+        Rmin = (2.0 * coeffs['A'] / coeffs['B'])**(1.0 / 6.0)
+        Eps = coeffs['B']**2.0 / (4.0 * coeffs['A'])
 
-    Rmin = (2.0 * coeffs['A'] / coeffs['B'])**(1.0 / 6.0)
-    Eps = coeffs['B']**2.0 / (4.0 * coeffs['A'])
+    except ZeroDivisionError:
+        raise ZeroDivisionError("Lennard Jones functional form conversion not possible, division by zero found.")
+
     return {"Rmin": Rmin, "epsilon": Eps}
 
 
@@ -44,12 +78,9 @@ def convert_LJ_coeffs(coeffs, origin, final):
         raise KeyError("The key %s in the coefficient dictionary is not in the list of allowed keys %s" %
                        (difference, _conversion_matrix[origin][0]))
 
-    try:
-        internal = _conversion_matrix[origin][1](coeffs)
-        external = _conversion_matrix[final][2](internal)
-        return external
-    except ZeroDivisionError:
-        raise ZeroDivisionError("Lennard Jones functional form conversion not possible, division by zero found.")
+    internal = _conversion_matrix[origin][1](coeffs)
+    external = _conversion_matrix[final][2](internal)
+    return external
 
 
 def fuzzy_list_match(line, ldata):
