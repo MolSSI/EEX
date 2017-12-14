@@ -297,7 +297,6 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     # Handle forcefield parameters
     other_tables = set(dl.list_other_tables())
     for key, param_data in amd.forcefield_parameters.items():
-        print(key)
         param_col_names = list(param_data["column_names"])
         # No data to store
         if len(set(param_col_names) - other_tables):
