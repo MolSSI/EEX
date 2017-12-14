@@ -4,13 +4,14 @@ LAMMPS EEX I/O
 import os
 import pandas as pd
 import math
-
+import re
 import eex
 
 from . import lammps_metadata as lmd
 
 import logging
 logger = logging.getLogger(__name__)
+
 
 def read_lammps_data_file(dl, filename, blocksize=110):
 
@@ -23,6 +24,9 @@ def read_lammps_data_file(dl, filename, blocksize=110):
 
     startline = None
     current_data_category = None
+
+    # Category_list contains keywords of data file e.g. Atoms, Masses, 
+    # Bond Coeffs, etc.
     category_list = lmd.build_valid_category_list()
 
     header = header_data[0]
@@ -36,7 +40,11 @@ def read_lammps_data_file(dl, filename, blocksize=110):
         elif line[0] == "#":
             continue
 
-        # We are
+        # Evaluate if line contains any keyword contained in category list. If
+        # True, it means we have read all the required information in the 
+        # header section. The variable start line is where the header ends
+        # and data begins. The variable current_data_category holds the
+        # first data section in the data file
         elif eex.utility.fuzzy_list_match(line, category_list)[0]:
             startline = num + 3  # Skips first row and two blank lines
             current_data_category = eex.utility.fuzzy_list_match(line, category_list)[1]
@@ -57,6 +65,9 @@ def read_lammps_data_file(dl, filename, blocksize=110):
                     "LAMMPS Read: The following line looks like a dimension line, but does not match:\n%s" % line)
 
         # Are we a size line?
+        # Lmd.size_keys contains ['atoms', 'atom types', 'bonds', 'bond types']
+        # located at the top of the file
+        # This chunk of code populates sizes_dict
         elif eex.utility.fuzzy_list_match(line, lmd.size_keys)[0]:
             dline = line.split()
             size = int(dline[0])
@@ -82,8 +93,19 @@ def read_lammps_data_file(dl, filename, blocksize=110):
     if ("atoms" not in list(sizes_dict)) or ("atom types" not in list(sizes_dict)):
         raise IOError("LAMMPS Read: Did not find size data on 'atoms' or 'atom types' in %d header lines." % max_rows)
 
-    ### Create temporaries specific to the current unit specification
+    # Create temporaries (op_table, term_table), specific to the current unit 
+    # specification
+    # op_table is a dictionary of dictionaries. Its keys are the keywords
+    # of the Lammps data file i.e. 'Atoms', 'Bonds', 'Dihedral coeffs', etc.
+    # Each key, i.e. Atoms, has a value that is a dictionary. The keys for
+    # these nested dictionaries are 
+    # ['size', 'dl_func', 'df_cols', 'kwargs', 'call_type']
     op_table = lmd.build_operation_table("real", sizes_dict)
+
+    # Term table is a giant dictionary with all the metadata for each two
+    # three and four body potential functional forms using the lammps
+    # metadata file.
+    # E.g. term_table[2]["fene"]["form"]
     term_table = lmd.build_term_table("real")
 
     # term_table = {"Bond Coeffs": {"order": 2, "name":"harmonic", "utype":""}, "Angle Coeffs": {}}
@@ -105,7 +127,7 @@ def read_lammps_data_file(dl, filename, blocksize=110):
         # Figure out the size of the chunk to read
         op = op_table[current_data_category]
 
-        # Read in the data, in chunks
+        # Read in the current section, in chunks
         remaining = op["size"]
         num_blocks = int(math.ceil(op["size"] / float(blocksize)))
         for block in range(num_blocks):
@@ -134,7 +156,6 @@ def read_lammps_data_file(dl, filename, blocksize=110):
                 utype = op["kwargs"]["utype"][atom_prop]
                 for idx, row in data.iterrows():
                     dl.add_atom_parameter(atom_prop, row.iloc[1], uid=row.iloc[0], utype=utype)
-
             # Adding parameters
             elif op["call_type"] == "parameter":
                 order = op["args"]["order"]
@@ -158,7 +179,6 @@ def read_lammps_data_file(dl, filename, blocksize=110):
             tmp = reader.get_chunk(1).dropna(axis=1, how="any")
         except StopIteration:
             break
-
         current_data_category = " ".join(str(x) for x in list(tmp.iloc[0]))
 
     # Mass is missing its index, we can copy the data over
@@ -200,37 +220,30 @@ def angle_style():
 def dihedral_style():
     pass
 
-keyword_dispatcher = {
-    "read_data": read_lammps_data_file,
-    #"bond_coeff": get_bond_coeff,
-    #"angle_coeff": get_angle_coeff,
-    #"dihedral_coeff": get_dihedral_coeff,
-    #"include": get_include
-    #"variable": get_variable,
-    "units": get_units,
-    #"atom_style": get_atom_style,
-    #"pair_style": get_pair_style,
-    #"kspace_style": get_kspace_style,
-    #"pair_modify": get_pair_modify,
-    #"special_bonds": get_special_bonds,
-    #"bond_style": get_bond_style,
-    #"angle_style": get_angle_style,
-    #"dihedral_style": get_dihedral_style,
-    }
-
-def read_lammps_file(dl, fname):
+def read_lammps_file(dl, fname, blocksize=110):
     """
         Reads a LAMMPS input file
     """
+    variable_list = {}
+
     input_dir = os.path.dirname(fname)
 
-    input_file = eex.utility.read_lines(filename)
+    input_file = eex.utility.read_lines(fname)
+
     for lnum, line in enumerate(input_file):
         if len(line) == 0: continue
 
         # Handle variables
-        if "$" in keyword_opts:
-            raise TypeError("LAMMPS variables are not yet implemented.")
+        if "$" in line:
+            m = re.search('\$\{(.*?)\}', line)
+            variable_name = m.group(1)
+            try:
+                variable_values = variable_list[variable_name]["values"]
+                # Need to fix this
+                line = re.sub('\$\{(.*?)\}', variable_values[0], line)
+                
+            except KeyError:
+                raise KeyError("The variable %s has not been defined" % variable_name)
 
         line = line.split()
         keyword = line[0]
@@ -238,12 +251,21 @@ def read_lammps_file(dl, fname):
 
         # Handle keywords
         if keyword == "read_data":
-            read_lammps_data_file(dl, data_filename)
+            data_filename = input_dir + "/" + keyword_opts[0]
+            data = read_lammps_data_file(dl, data_filename, blocksize)
         elif keyword == "include_data":
             include_data = eex.utility.read_lines(keyword_opts[0])
             for inum, line in enumerate(include_data):
                 input_file.insert(lnum + inum + 1, line)
+        elif keyword == "variable":
+            tmp = {}
 
+            variable_name = keyword_opts[0]
+            variable_style = keyword_opts[1]
+            variable_values = keyword_opts[2:]
 
+            tmp["style"] = variable_style
+            tmp["values"] = variable_values
 
+            variable_list[variable_name] = tmp
     return data
