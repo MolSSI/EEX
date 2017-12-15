@@ -976,21 +976,23 @@ class DataLayer(object):
         Parameters
         ----------
         atom_type : int
-            Description
+            The first atom type for the interaction
         nb_name: int
-            The uid of
+            The name of the functional form (eg - "LJ", "Buckinghame"
         nb_parameters: dict
-            Description
+            Parameters for the functional form - should match nb_name and nb_form (if specified)
         nb_form: str
-            Description
+            (optional) - The form of the input (ex 'epsilon/sigma' with 'nb_name=LJ' indicates the input parameters are
+            'epsilon' and 'sigma'
         atom_type2: int
-            Description
+            The atom type for the second interaction (optional)
         utype: dict
-            Description
+            Units of nb_parameters
 
         Returns
         -------------
-
+        return: bool
+              Returns True if successful   
         """
 
 
@@ -1084,13 +1086,14 @@ class DataLayer(object):
         Parameters
         -----------------
         atom_type: int
-            Description
+            The first atom_type of the NB interaction
         nb_form: str
             The desired output form (optional). If not indicated, default for datalayer will be returned.
         atom_type2: int
-            Description
+            The second atom_type of the NB interaction (optional). If atom_type and atom_type2 are specified, returned
+            parameters apply to the interaction between atom_type1 and atom_type2
         utype: dict
-            Description
+            Units of output. Must be compatible with parameters.
 
         Returns
         ------------------
@@ -1160,17 +1163,10 @@ class DataLayer(object):
 
     def list_stored_nb_types(self):
         """
-        Lists the type of NB interactions stored in datalayer (ex Lennard Jones, or Buckingham)
-
-        Parameters
-        --------------
-
-
-        Returns
-        ---------------
-
-
+        Returns the type of NB interactions stored in datalayer (ex Lennard Jones, or Buckingham) as a list
+            ex. - ["LJ", "Buckingham"]
         """
+
         nb_types = []
         for k,v in self._nb_parameters.items():
             nb_types.append(v['form'])
