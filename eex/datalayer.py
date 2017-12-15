@@ -1134,28 +1134,30 @@ class DataLayer(object):
         # Get and validate datalayer units for nb form parameters (form is from metadata)
         form = metadata.get_nb_metadata("forms", nb_name, nb_form)
 
+        ### Need to convert to specified nb_name (form) if needed (ex - AB to epsilon/sigma)
+        if nb_parameters["form"] == "LJ":
+            param_dict = utility.convert_LJ_coeffs(param_dict, metadata.get_nb_metadata("defaults", "LJ"), nb_form)
+
         # Convert units if specified - otherwise return what is stored in datalayer
-        form_units = []
+        form_units = {}
         if utype is not None:
             for key in form["parameters"]:
+                print("This is the key ", key)
                 try:
-                    form_units.append(utype[key])
+                    form_units[key] = utype[key]
                 except KeyError:
                     raise KeyError(
                         "Validate term dict: Did not find expected key '%s' from term (utype)'." % (key))
 
+
             for x, key in enumerate(param_dict):
+                print(param_dict, x, key)
                 # Convert from what is in DL (form["utype"][key] to user specified units (form_units[x]
-                cf = units.conversion_factor(form["utype"][key], form_units[x])
-                print("Changing %s to %s : cf = %s" % (form["utype"][key], form_units[x], cf))
-                print("Old = ", param_dict[key], key)
+                cf = units.conversion_factor(form["utype"][key], form_units[key])
                 param_dict[key] *= cf
-                print("New = ", param_dict[key], key)
 
 
-        ### Need to convert to specified nb_name (form) if needed (ex - AB to epsilon/sigma)
-        if nb_parameters["form"] == "LJ":
-            param_dict = utility.convert_LJ_coeffs(param_dict, metadata.get_nb_metadata("defaults", "LJ"), nb_form)
+
 
         #nb_parameters["parameters"] = param_dict
 

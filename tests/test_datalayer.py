@@ -462,3 +462,6 @@ def test_get_nb_parameter():
     eex.testing.dict_compare(dl.list_nb_parameters(nb_name="LJ", utype={'A': "kJ * mol ** -1 * nanometers ** 12",
                          'B': "kJ * mol ** -1 * nanometers ** 6"}), {(1,) : {'A': 1.e-12, 'B': 2.e-6}})
 
+    eex.testing.dict_compare(dl.get_nb_parameter(atom_type=1, nb_form='epsilon/sigma', utype={'epsilon': 'kcal * mol ** -1', 'sigma': 'angstrom'}),
+                             {'sigma': (1./2.) ** (1./6.), 'epsilon': eex.units.conversion_factor('kJ','kcal')})
+
