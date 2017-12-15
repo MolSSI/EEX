@@ -231,9 +231,9 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     nb_forms = dl.list_stored_nb_types()
 
-    if nb_forms != ["LJ"]:
-        # Should raise some sort of errror. Only LJ is compatible with amber
-        print("invalid")
+    if set(nb_forms) != set(["LJ"]):
+        # Write better message here
+        raise KeyError("Nonbond forms stored in datalayer are not compatible with Amber - %s" % nb_forms)
 
     # Get parameters from datalayer using correct amber units
     stored_nb_parameters = dl.list_nb_parameters(nb_name="LJ", nb_form="AB", utype=amd.forcefield_parameters["nonbond"]["units"])
