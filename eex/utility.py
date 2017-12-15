@@ -27,6 +27,9 @@ def _ab_to_epsilonsigma(coeffs):
     Convert AB representation to epsilon/sigma representation of the LJ
     potential
     """
+    if (coeffs['A'] == 0.0 and coeffs['B'] == 0.0):
+        return {"sigma": 0.0, "epsilon": 0.0}
+
     try:
         sigma = (coeffs['A'] / coeffs['B']) ** (1.0 / 6.0)
         epsilon = coeffs['B'] ** 2.0 / (4.0 * coeffs['A'])
@@ -49,6 +52,10 @@ def _ab_to_rminepsilon(coeffs):
     """
     Convert AB representation to Rmin/epsilon representation of the LJ potential
     """
+
+    if (coeffs['A'] == 0.0 and coeffs['B'] == 0.0):
+        return {"sigma": 0.0, "epsilon": 0.0}
+
     try:
         Rmin = (2.0 * coeffs['A'] / coeffs['B'])**(1.0 / 6.0)
         Eps = coeffs['B']**2.0 / (4.0 * coeffs['A'])
@@ -71,7 +78,7 @@ def convert_LJ_coeffs(coeffs, origin, final):
     difference = set([origin, final]) - set(_conversion_matrix.keys())
     if (difference):
         raise KeyError("Conversion cannot be made since %s is not in conversion matrix %s" %
-                       (difference, conversion_matrix.keys()))
+                       (difference, _conversion_matrix.keys()))
 
     difference = set(coeffs.keys()) - set(_conversion_matrix[origin][0])
     if (difference):
