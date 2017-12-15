@@ -38,10 +38,6 @@ def test_style_metadata(order, form):
     assert eex.metadata.validate_functional_form_dict(form, md)
 
 
-# form_list = [("two", form) for form in list(term_dict["two"]["forms"])]
-# form_list += [("three", form) for form in list(term_dict["three"]["forms"])]
-
-
 @pytest.mark.parametrize("order,form", form_list)
 def test_evaluate_metadata(order, form):
     md = term_dict[order]["forms"][form]

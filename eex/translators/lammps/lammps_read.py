@@ -102,13 +102,16 @@ def read_lammps_data_file(dl, filename, blocksize=110):
     # ['size', 'dl_func', 'df_cols', 'kwargs', 'call_type']
     op_table = lmd.build_operation_table("real", sizes_dict)
 
-    # Term table is a giant dictionary with all the metadata for each two
+    # Term table is a dictionary with all the metadata for each two
     # three and four body potential functional forms using the lammps
-    # metadata file.
+    # metadata file. The units of these functional forms are consistent with
+    # the information in the input file.
     # E.g. term_table[2]["fene"]["form"]
     term_table = lmd.build_term_table("real")
 
-    # term_table = {"Bond Coeffs": {"order": 2, "name":"harmonic", "utype":""}, "Angle Coeffs": {}}
+    # nb_term_table is a dictionary of all the different pair_styles
+    # with the desired units
+    nb_term_table = lmd.build_nb_table("real")
 
     ### Iterate over the primary data portion of the object
 
@@ -139,7 +142,6 @@ def read_lammps_data_file(dl, filename, blocksize=110):
 
             # Read and update DL
             data = reader.get_chunk(read_size).dropna(axis=1, how="all")
-
             # Nothing defined
             if op["dl_func"] == "NYI":
                 pass
@@ -162,12 +164,21 @@ def read_lammps_data_file(dl, filename, blocksize=110):
                 fname = op["args"]["form_name"]
                 cols = term_table[order][fname]["parameters"]
                 data.columns = ["uid"] + cols
-
                 for idx, row in data.iterrows():
                     params = list(row[cols])
                     utype = term_table[order][fname]["utype"]
                     dl.add_term_parameter(order, fname, params, uid=int(row["uid"]), utype=utype)
 
+            elif op["call_type"] == "nb_parameter":
+                fname = op["args"]["form_name"]
+                fform = op["args"]["form_form"]
+                cols = nb_term_table[fname]["parameters"]
+                data.columns = ["uid"] + cols
+                for idx, row in data.iterrows():
+                    params = list(row[cols])
+                    utype = nb_term_table[fname]["utype"]
+                    uid = int(row["uid"])
+                    dl.add_nb_parameter(atom_type=uid, nb_name=fname, nb_form=fform, nb_parameters=params, utype=utype)
             else:
                 raise KeyError("Operation table call '%s' not understoop" % op["call_type"])
 
