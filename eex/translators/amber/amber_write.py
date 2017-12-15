@@ -235,13 +235,13 @@ def write_amber_file(dl, filename, inpcrd=None):
         # Should raise some sort of errror. Only LJ is compatible with amber
         print("invalid")
 
-    stored_nb_parameters = dl.list_nb_parameters(nb_name="LJ", nb_form="AB", utype={'A':'kcal * mol ** -1 * angstrom ** 12',
-                                                                                    'B': 'kcal * mol ** -1 * angstrom ** 6'})
+    # Get parameters from datalayer using correct amber units
+    stored_nb_parameters = dl.list_nb_parameters(nb_name="LJ", nb_form="AB", utype=amd.forcefield_parameters["nonbond"]["units"])
     nonbonded_parm_index = np.zeros(ntypes * ntypes)
     lj_a_coeff = []
     lj_b_coeff = []
 
-    # Build a_coeff and b_coeff lists
+    # Build a_coeff, b_coeff, and nb_parm lists
     for key, value in stored_nb_parameters.items():
         lj_a_coeff.append(value['A'])
         lj_b_coeff.append(value['B'])
@@ -266,9 +266,6 @@ def write_amber_file(dl, filename, inpcrd=None):
             else:
                 file_handle.write(("%%FLAG %s\n%s\n\n" % (k, amd.data_labels[k][1])).encode())
             written_categories.append(k)
-
-
-
 
 
     file_handle.close()
