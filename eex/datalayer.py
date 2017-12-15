@@ -992,7 +992,7 @@ class DataLayer(object):
         Returns
         -------------
         return: bool
-              Returns True if successful   
+              Returns True if successful
         """
 
 
