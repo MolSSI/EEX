@@ -2,6 +2,20 @@
 Dictionaries for coeff format and units - http://lammps.sandia.gov/doc/Section_commands.html
 """
 
+nb_styles = {
+        "LJ" : {
+            "form": {"name": "LJ", "form": "epsilon/sigma"}, 
+            "parameters": ["epsilon", "sigma"],
+            "units": {
+                "epsilon": "[energy]",
+                "sigma": "[length]",
+            },
+            "description": "This is the classic LJ non-bonded",
+            }
+        }
+
+
+
 bond_styles = {
     # "none": {
     #     "form": "NYI",
