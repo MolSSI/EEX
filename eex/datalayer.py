@@ -1059,7 +1059,10 @@ class DataLayer(object):
             # Convert to internal units
             for x, key in enumerate(form["parameters"]):
                 cf = units.conversion_factor(form_units[x], form["utype"][key])
+                print("Changing %s to %s : cf = %s" % (form_units[x], form["utype"][key], cf))
+                print("Old = ", param_dict['parameters'][key], key)
                 param_dict['parameters'][key] *= cf
+                print("New = ", param_dict['parameters'][key], key)
 
 
         if (nb_name == "LJ"):
@@ -1123,7 +1126,7 @@ class DataLayer(object):
             nb_form = metadata.get_nb_metadata("defaults", nb_name)
 
         # Grab data we want from data layer
-        param_dict = nb_parameters["parameters"]
+        param_dict = nb_parameters["parameters"].copy()
 
         # Get and validate datalayer units for nb form parameters (form is from metadata)
         form = metadata.get_nb_metadata("forms", nb_name, nb_form)
@@ -1138,10 +1141,13 @@ class DataLayer(object):
                     raise KeyError(
                         "Validate term dict: Did not find expected key '%s' from term (utype)'." % (key))
 
-            for x, key in enumerate(nb_parameters['parameters']):
+            for x, key in enumerate(param_dict):
                 # Convert from what is in DL (form["utype"][key] to user specified units (form_units[x]
                 cf = units.conversion_factor(form["utype"][key], form_units[x])
+                print("Changing %s to %s : cf = %s" % (form["utype"][key], form_units[x], cf))
+                print("Old = ", param_dict[key], key)
                 param_dict[key] *= cf
+                print("New = ", param_dict[key], key)
 
 
         ### Need to convert to specified nb_name (form) if needed (ex - AB to epsilon/sigma)
