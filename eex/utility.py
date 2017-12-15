@@ -7,6 +7,7 @@ import hashlib
 
 import numpy as np
 
+## LJ Conversions
 def _ab_to_ab(coeffs):
     """
     Convert AB representation to AB representation of the LJ potential
@@ -82,6 +83,12 @@ def convert_LJ_coeffs(coeffs, origin, final):
     external = _conversion_matrix[final][2](internal)
     return external
 
+## LJ Combining Rules
+def _lorentz_berthelot(coeffs, origin):
+    # Convert to sigma epsilon to use combination rules
+    internal = _conversion_matrix[origin][1](coeffs)
+    external = _conversion_matrix["epsilon/sigma"][2](internal)
+    return False
 
 def fuzzy_list_match(line, ldata):
     """
