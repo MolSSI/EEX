@@ -1061,10 +1061,7 @@ class DataLayer(object):
             # Convert to internal units
             for x, key in enumerate(form["parameters"]):
                 cf = units.conversion_factor(form_units[x], form["utype"][key])
-                print("Changing %s to %s : cf = %s" % (form_units[x], form["utype"][key], cf))
-                print("Old = ", param_dict['parameters'][key], key)
                 param_dict['parameters'][key] *= cf
-                print("New = ", param_dict['parameters'][key], key)
 
 
         if (nb_name == "LJ"):
@@ -1142,7 +1139,6 @@ class DataLayer(object):
         form_units = {}
         if utype is not None:
             for key in form["parameters"]:
-                print("This is the key ", key)
                 try:
                     form_units[key] = utype[key]
                 except KeyError:
@@ -1151,7 +1147,6 @@ class DataLayer(object):
 
 
             for x, key in enumerate(param_dict):
-                print(param_dict, x, key)
                 # Convert from what is in DL (form["utype"][key] to user specified units (form_units[x]
                 cf = units.conversion_factor(form["utype"][key], form_units[key])
                 param_dict[key] *= cf
