@@ -215,9 +215,12 @@ _operation_table = {
     # Add long range pair data
     "Pair Coeffs": {
         "size": "atom types",
-        "dl_func": "NYI",
-        # "dl_func": "add_parameters",
-        "call_type": "parameter",
+        "dl_func": "add_nb_parameter",
+        "call_type": "nb_parameter",
+        "args": {
+            "form_name": "LJ",
+            "form_form": "epsilon/sigma",
+            }
     },
 
     # Add term parameters
@@ -315,6 +318,19 @@ def build_term_table(utype):
                 # print(ok, k, pk)
                 utype[pk] = eex.units.convert_contexts(pv, ustyle)
             v["utype"] = utype
+    return ret
+
+
+def build_nb_table(utype):
+
+    ustyle = units_style[utype]
+    ret = copy.deepcopy(lammps_ff.nb_styles)
+
+    for k, v in ret.items():
+        utype = {}
+        for pk, pv in v["units"].items():
+            utype[pk] = eex.units.convert_contexts(pv, ustyle)
+        v["utype"] = utype
     return ret
 
 

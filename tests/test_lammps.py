@@ -8,7 +8,6 @@ import pytest
 import pandas as pd
 import eex_find_files
 
-
 @pytest.fixture(scope="module", params=["HDF5", "Memory"])
 def spce_dl(request):
     fname = eex_find_files.get_example_filename("lammps", "SPCE", "data.spce")
@@ -23,6 +22,12 @@ def test_lammps_read_data(spce_dl):
     data, dl = spce_dl
 
     # Check on the data dictionary
+    utype = {"epsilon": "kcal / mol", "sigma": "angstrom"}
+    atom1 = dl.get_nb_parameter(atom_type=1, nb_form = 'epsilon/sigma', utype=utype)
+    atom2 = dl.get_nb_parameter(atom_type=2, nb_form = 'epsilon/sigma', utype=utype)
+    assert np.allclose([atom1['epsilon'] , atom1['sigma']] , [0.15524976551, 3.166])
+    assert np.allclose([atom2['epsilon'] , atom2['sigma']] , [0.0, 0.0])
+    assert data["sizes"]["atom types"] == 2
     assert data["sizes"]["atoms"] == 600
     assert data["sizes"]["bonds"] == 400
     assert data["sizes"]["angles"] == 200
