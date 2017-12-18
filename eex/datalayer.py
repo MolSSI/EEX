@@ -1001,13 +1001,13 @@ class DataLayer(object):
 
         # Validate atom_type exists
 
-        current_unique_types = self.get_unique_atom_types()
+        #current_unique_types = self.get_unique_atom_types()
 
-        if not np.any(np.in1d(atom_type, current_unique_types)):
-            raise KeyError("No atoms with type %s found in DataLayer" % (atom_type))
+        #if not np.any(np.in1d(atom_type, current_unique_types)):
+        #    raise KeyError("No atoms with type %s found in DataLayer" % (atom_type))
 
-        if (atom_type2 is not None) and (not np.any(np.in1d(atom_type2, current_unique_types))):
-            raise KeyError("No atoms with type %s found in DataLayer" % (atom_type2))
+        #if (atom_type2 is not None) and (not np.any(np.in1d(atom_type2, current_unique_types))):
+        #    raise KeyError("No atoms with type %s found in DataLayer" % (atom_type2))
 
         # Raise if parameters for atom type exist
 
@@ -1068,10 +1068,12 @@ class DataLayer(object):
             param_dict['parameters'] = utility.convert_LJ_coeffs(param_dict['parameters'], nb_form, "AB")
 
         # Store it!
-        if atom_type2 is not None:
-            param_dict_key = (atom_type, atom_type2)
-        else:
-            param_dict_key = (atom_type, )
+        param_dict_key = (atom_type, atom_type2)
+
+        #if atom_type2 is not None:
+        #    param_dict_key = (atom_type, atom_type2)
+        #else:
+        #    param_dict_key = (atom_type, )
 
         self._nb_parameters[param_dict_key] = param_dict
         return True
@@ -1104,14 +1106,14 @@ class DataLayer(object):
                 parameter_name_n : nb_parameter_n,
             }
         """
+
         # Build key
-        if atom_type2 is not None:
-            param_dict_key = (atom_type, atom_type2)
-        else:
-            param_dict_key = (atom_type, )
+        # Don't need if statement here, just use (atom_type, None)
+        param_dict_key = (atom_type, atom_type2)
 
         # Get information from data layer - check that interaction is set for atom types
         if param_dict_key in self._nb_parameters.keys():
+            # Use deep copy here
             nb_parameters = self._nb_parameters[param_dict_key].copy()
         else:
             raise KeyError("Nonbond interaction for atom types (%s, %s) not found" % param_dict_key)
@@ -1200,6 +1202,7 @@ class DataLayer(object):
         return_parameters = {}
         term_dict = self._nb_parameters.copy()
 
+        # Fix this - order of key (smallest, largest), etc.
         for key, value in term_dict.items():
             atom_type1 = key[0]
             try:
@@ -1208,7 +1211,7 @@ class DataLayer(object):
                 atom_type2 = None
 
             if value['form'] == nb_name:
-                return_parameters[key] = self.get_nb_parameter(atom_type = atom_type1, atom_type2=atom_type2,
+                return_parameters[key] = self.get_nb_parameter(atom_type=atom_type1, atom_type2=atom_type2,
                                                                nb_form=nb_form, utype=utype)
 
         return return_parameters
