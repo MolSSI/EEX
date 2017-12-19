@@ -638,7 +638,7 @@ class DataLayer(object):
 
             if not isinstance(uid, int):
                 raise TypeError(
-                    "DataLayer:register_functional_forms: uid keyword must be of type int, found type '%s'." %
+                    "DataLayer:add_term_parameter: uid keyword must be of type int, found type '%s'." %
                     type(uid))
 
             # If we exist this could get dangerous
@@ -647,7 +647,7 @@ class DataLayer(object):
                 match = (old_param[0] == term_name) and np.allclose(old_param[1:], params)
                 if not match:
                     raise KeyError(
-                        "DataLayer:register_functional_forms: uid already exists, but does not much current parameters."
+                        "DataLayer:add_term_parameter: uid already exists, but does not much current parameters."
                     )
                 else:
                     return uid
