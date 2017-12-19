@@ -15,6 +15,7 @@ from . import metadata
 from . import units
 from . import utility
 from . import testing
+from . import nb_converter
 
 APC_DICT = metadata.atom_property_to_column
 
@@ -1065,7 +1066,7 @@ class DataLayer(object):
 
 
         if (nb_name == "LJ"):
-            param_dict['parameters'] = utility.convert_LJ_coeffs(param_dict['parameters'], nb_form, "AB")
+            param_dict['parameters'] = nb_converter.convert_LJ_coeffs(param_dict['parameters'], nb_form, "AB")
 
         # Store it!
         param_dict_key = (atom_type, atom_type2)
@@ -1135,7 +1136,7 @@ class DataLayer(object):
 
         ### Need to convert to specified nb_name (form) if needed (ex - AB to epsilon/sigma)
         if nb_parameters["form"] == "LJ":
-            param_dict = utility.convert_LJ_coeffs(param_dict, metadata.get_nb_metadata("defaults", "LJ"), nb_form)
+            param_dict = nb_converter.convert_LJ_coeffs(param_dict, metadata.get_nb_metadata("defaults", "LJ"), nb_form)
 
         # Convert units if specified - otherwise return what is stored in datalayer
         form_units = {}
