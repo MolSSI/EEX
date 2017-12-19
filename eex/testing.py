@@ -203,13 +203,13 @@ def dl_compare(left, right, atom_checks=None):
 
     ### Find matching non-bonds
 
-    left_nb_types = set(left.list_stored_nb_types())
-    right_nb_types = set(right.list_stored_nb_types())
-    if (left_nb_types != right_nb_types):
-        missing = left_nb_types ^ right_nb_types
-        raise KeyError("dl_compare: Mismatch in list_nb_parameters. Symmetric difference: %s" % missing)
+    # left_nb_types = set(left.list_stored_nb_types())
+    # right_nb_types = set(right.list_stored_nb_types())
+    # if (left_nb_types != right_nb_types):
+    #     missing = left_nb_types ^ right_nb_types
+    #     raise KeyError("dl_compare: Mismatch in list_nb_parameters. Symmetric difference: %s" % missing)
 
-    for nb_form in left_nb_types:
-        dict_compare(left.list_nb_parameters(nb_form), right.list_nb_parameters(nb_form))
+    # for nb_form in left_nb_types:
+    #     dict_compare(left.list_nb_parameters(nb_form), right.list_nb_parameters(nb_form))
 
     return True
