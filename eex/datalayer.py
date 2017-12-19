@@ -639,8 +639,7 @@ class DataLayer(object):
 
             if not isinstance(uid, int):
                 raise TypeError(
-                    "DataLayer:add_term_parameter: uid keyword must be of type int, found type '%s'." %
-                    type(uid))
+                    "DataLayer:add_term_parameter: uid keyword must be of type int, found type '%s'." % type(uid))
 
             # If we exist this could get dangerous
             if uid in self._terms[order]:
@@ -648,8 +647,7 @@ class DataLayer(object):
                 match = (old_param[0] == term_name) and np.allclose(old_param[1:], params)
                 if not match:
                     raise KeyError(
-                        "DataLayer:add_term_parameter: uid already exists, but does not much current parameters."
-                    )
+                        "DataLayer:add_term_parameter: uid already exists, but does not much current parameters.")
                 else:
                     return uid
 
@@ -896,14 +894,11 @@ class DataLayer(object):
 
         return (data[0], form)
 
-
-
     def summary(self):
         print("EEX DataLayer Object\n\n")
 
         print("System name: %s" % self.name)
         print("----------------------------------------------")
-
 
         # Print atom and topology information
         print("Atom Count:\t\t\t%s" % self.get_atom_count())
@@ -913,11 +908,10 @@ class DataLayer(object):
 
         # Print information about bond, angle, dihedral parameters
         print("Number of bond parameters:\t%s" % len(self.list_term_uids()[2]))
-        print("Number of angle parameters:\t%s" %len(self.list_term_uids()[3]))
-        print("Number of dihedral parameters:\t%s" %len(self.list_term_uids()[4]))
+        print("Number of angle parameters:\t%s" % len(self.list_term_uids()[3]))
+        print("Number of dihedral parameters:\t%s" % len(self.list_term_uids()[4]))
 
         print("----------------------------------------------")
-
 
 ### Other quantities
 
@@ -996,7 +990,6 @@ class DataLayer(object):
               Returns True if successful
         """
 
-
         param_dict = {}
         param_dict['form'] = nb_name
 
@@ -1026,20 +1019,19 @@ class DataLayer(object):
             parameters = metadata.get_nb_metadata("forms", nb_name, nb_form)['parameters']
         except KeyError:
             raise KeyError("DataLayer:add_parameters: Did not understand nonbond form: %d, name: %s'." % (nb_name,
-                                                                                                   nb_form))
+                                                                                                          nb_form))
         # Validate input parameters against form
         if isinstance(nb_parameters, (list, tuple)):
             if len(parameters) == len(nb_parameters):
                 param_dict['parameters'] = {k: v for k, v in zip(parameters, nb_parameters)}
             else:
                 raise ValueError("Input number of parameters (%s) and number of form parameters (%s) do not match." %
-                                 (len(nb_parameters), len(parameters)) )
+                                 (len(nb_parameters), len(parameters)))
         elif isinstance(nb_parameters, (dict)):
             if set(nb_parameters.keys()) != set(parameters):
                 raise ValueError("Incorrect parameters entered for nonbond form %s %s" % (nb_name, nb_form))
             else:
                 param_dict['parameters'] = nb_parameters
-
 
         # Validate correct number of units are passed for parameters
         if utype is not None:
@@ -1054,8 +1046,7 @@ class DataLayer(object):
                     try:
                         form_units.append(utype[key])
                     except KeyError:
-                        raise KeyError(
-                            "Validate term dict: Did not find expected key '%s' from term'." % (key))
+                        raise KeyError("Validate term dict: Did not find expected key '%s' from term'." % (key))
             else:
                 raise TypeError("Validate term dict: Unit type '%s' not understood" % str(type(utype)))
 
@@ -1064,17 +1055,11 @@ class DataLayer(object):
                 cf = units.conversion_factor(form_units[x], form["utype"][key])
                 param_dict['parameters'][key] *= cf
 
-
         if (nb_name == "LJ"):
             param_dict['parameters'] = nb_converter.convert_LJ_coeffs(param_dict['parameters'], nb_form, "AB")
 
         # Store it!
         param_dict_key = (atom_type, atom_type2)
-
-        #if atom_type2 is not None:
-        #    param_dict_key = (atom_type, atom_type2)
-        #else:
-        #    param_dict_key = (atom_type, )
 
         self._nb_parameters[param_dict_key] = param_dict
         return True
@@ -1115,7 +1100,7 @@ class DataLayer(object):
         # Get information from data layer - check that interaction is set for atom types
         if param_dict_key in self._nb_parameters.keys():
             # Use deep copy here
-            nb_parameters = self._nb_parameters[param_dict_key].copy()
+            nb_parameters = copy.deepcopy(self._nb_parameters[param_dict_key])
         else:
             raise KeyError("Nonbond interaction for atom types (%s, %s) not found" % param_dict_key)
 
@@ -1129,14 +1114,15 @@ class DataLayer(object):
             nb_form = metadata.get_nb_metadata("defaults", nb_name)
 
         # Grab data we want from data layer
-        param_dict = nb_parameters["parameters"].copy()
+        param_dict = nb_parameters["parameters"]
 
         # Get and validate datalayer units for nb form parameters (form is from metadata)
         form = metadata.get_nb_metadata("forms", nb_name, nb_form)
 
         ### Need to convert to specified nb_name (form) if needed (ex - AB to epsilon/sigma)
         if nb_parameters["form"] == "LJ":
-            param_dict = nb_converter.convert_LJ_coeffs(param_dict, metadata.get_nb_metadata("defaults", "LJ"), nb_form)
+            param_dict = nb_converter.convert_LJ_coeffs(param_dict, metadata.get_nb_metadata("defaults", "LJ"),
+                                                        nb_form)
 
         # Convert units if specified - otherwise return what is stored in datalayer
         form_units = {}
@@ -1145,19 +1131,12 @@ class DataLayer(object):
                 try:
                     form_units[key] = utype[key]
                 except KeyError:
-                    raise KeyError(
-                        "Validate term dict: Did not find expected key '%s' from term (utype)'." % (key))
-
+                    raise KeyError("Validate term dict: Did not find expected key '%s' from term (utype)'." % (key))
 
             for x, key in enumerate(param_dict):
                 # Convert from what is in DL (form["utype"][key] to user specified units (form_units[x]
                 cf = units.conversion_factor(form["utype"][key], form_units[key])
                 param_dict[key] *= cf
-
-
-
-
-        #nb_parameters["parameters"] = param_dict
 
         return param_dict
 
@@ -1168,11 +1147,10 @@ class DataLayer(object):
         """
 
         nb_types = []
-        for k,v in self._nb_parameters.items():
+        for k, v in self._nb_parameters.items():
             nb_types.append(v['form'])
         unique_nb_types = np.unique(nb_types)
         return unique_nb_types
-
 
     def list_nb_parameters(self, nb_name, nb_form=None, utype=None):
         """
@@ -1205,16 +1183,10 @@ class DataLayer(object):
 
         # Fix this - order of key (smallest, largest), etc.
         for key, value in term_dict.items():
-            atom_type1 = key[0]
-            try:
-                atom_type2 = key[1]
-            except:
-                atom_type2 = None
+            if value['form'] != nb_name:
+                continue
 
-            if value['form'] == nb_name:
-                return_parameters[key] = self.get_nb_parameter(atom_type=atom_type1, atom_type2=atom_type2,
-                                                               nb_form=nb_form, utype=utype)
+            return_parameters[key] = self.get_nb_parameter(
+                atom_type=key[0], atom_type2=key[1], nb_form=nb_form, utype=utype)
 
         return return_parameters
-
-
