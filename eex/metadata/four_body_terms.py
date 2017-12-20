@@ -76,7 +76,7 @@ _four_body_functional_forms = {
     #     "description": "This is a nharmonic dihedral"
     # },
     "opls": {
-        "form": "0.5*K_1*(1+cos(phi))+0.5*K_2*(1-cos(2*phi))+0.5*K_3+(1+cos(3*phi))+0.5*K_4*(1-cos(4*phi))",
+        "form": "0.5*K_1*(1+cos(phi))+0.5*K_2*(1-cos(2*phi))+0.5*K_3*(1+cos(3*phi))+0.5*K_4*(1-cos(4*phi))",
         "parameters": ["K_1", "K_2", "K_3", "K_4"],
         "units": {
             "K_1": "[energy]",
