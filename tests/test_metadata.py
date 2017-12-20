@@ -28,9 +28,9 @@ for k, v in nb_term_dict["forms"].items():
     for k2, v2 in v.items():
         nb_form_list += [[k2, v2]]
 
-@pytest.mark.parametrize("form, md", nb_form_list)
-def test_nonbond_metadata(form, md):
-    assert eex.metadata.validate_functional_form_dict(form, md)
+# @pytest.mark.parametrize("form, md", nb_form_list)
+# def test_nonbond_metadata(form, md):
+#     assert eex.metadata.validate_functional_form_dict(form, md)
 
 @pytest.mark.parametrize("order,form", form_list)
 def test_style_metadata(order, form):

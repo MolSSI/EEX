@@ -57,20 +57,16 @@ def get_term_metadata(order, name=None, field=None):
         return tmpdata
 
 
-def get_nb_metadata(name=None, field_name=None, form=None):
+def get_nb_metadata(form_name, field_name=None, model=None):
+    if model is None:
+        model = nb_metadata["forms"][form_name]["default"]
 
-    # Check for name
-    if name:
-        tmp_data = nb_metadata[name]
-    else:
-        return nb_metadata
+    if field_name == "default":
+        return model
+
+    tmp_data = nb_metadata["forms"][form_name][model]
 
     if field_name:
         tmp_data = tmp_data[field_name]
-    else:
-        return tmp_data
-
-    if form:
-        return tmp_data[form]
     else:
         return tmp_data
