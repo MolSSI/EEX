@@ -598,7 +598,6 @@ class DataLayer(object):
 
         """
 
-        user_order = order
         order = metadata.sanitize_term_order_name(order)
 
         # Make sure we know what this is
@@ -895,21 +894,22 @@ class DataLayer(object):
         return (data[0], form)
 
     def summary(self):
-        print("EEX DataLayer Object\n\n")
+        print("EEX DataLayer Object\n")
 
         print("System name: %s" % self.name)
         print("----------------------------------------------")
 
         # Print atom and topology information
-        print("Atom Count:\t\t\t%s" % self.get_atom_count())
-        print("Bond Count:\t\t\t%s" % self.get_bond_count())
-        print("Angle Count:\t\t\t%s" % self.get_angle_count())
-        print("Dihedral Count:\t\t\t%s" % self.get_dihedral_count())
+        print("Atom Count:                 %d" % self.get_atom_count())
+        print("Bond Count:                 %d" % self.get_bond_count())
+        print("Angle Count:                %d" % self.get_angle_count())
+        print("Dihedral Count:             %d" % self.get_dihedral_count())
+        print("----------------------------------------------")
 
         # Print information about bond, angle, dihedral parameters
-        print("Number of bond parameters:\t%s" % len(self.list_term_uids()[2]))
-        print("Number of angle parameters:\t%s" % len(self.list_term_uids()[3]))
-        print("Number of dihedral parameters:\t%s" % len(self.list_term_uids()[4]))
+        print("Number of bond parameters:     %s" % len(self.list_term_uids()[2]))
+        print("Number of angle parameters:    %s" % len(self.list_term_uids()[3]))
+        print("Number of dihedral parameters: %s" % len(self.list_term_uids()[4]))
 
         print("----------------------------------------------")
 
@@ -1040,7 +1040,8 @@ class DataLayer(object):
 
         if (nb_name == "LJ"):
             model_default = metadata.get_nb_metadata(nb_name, "default")
-            param_dict['parameters'] = nb_converter.convert_LJ_coeffs(param_dict['parameters'], nb_model, model_default)
+            param_dict['parameters'] = nb_converter.convert_LJ_coeffs(param_dict['parameters'], nb_model,
+                                                                      model_default)
 
         # Store it!
         param_dict_key = (atom_type, atom_type2)

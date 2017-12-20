@@ -83,24 +83,9 @@ def test_add_atom_parameter():
     assert 3 == dl.add_atom_parameter("mass", 9.0)
     assert 3 == dl.add_atom_parameter("mass", {"mass": 9.0})
 
-    # Multi-unit terms
-    assert 0 == dl.add_atom_parameter("lj_coeffs", {"LJ A": 5.0, "LJ B": 6.0})
-    assert 0 == dl.add_atom_parameter("lj_coeffs", {"LJ B": 6.0, "LJ A": 5.0})
-    assert 1 == dl.add_atom_parameter("lj_coeffs", {"LJ B": 7.0, "LJ A": 5.0})
-    assert 1 == dl.add_atom_parameter("lj_coeffs", {"LJ B": 7.0, "LJ A": 5.0}, uid=1)
-
     # Test possible raises
     with pytest.raises(KeyError):
         dl.add_atom_parameter("mass", 6.0, uid=0)
-
-    with pytest.raises(TypeError):
-        assert 0 == dl.add_atom_parameter("lj_coeffs", 5.0)
-
-    with pytest.raises(KeyError):
-        dl.add_atom_parameter("lj_coeffs", {"LJA ": 5.0, "LJB": 6.0})
-
-    with pytest.raises(KeyError):
-        dl.add_atom_parameter("lj_coeffs", {"LJ B": 7.0, "LJ A": 5.0}, uid=2)
 
 
 def test_add_atom_parameter_units():
@@ -111,19 +96,6 @@ def test_add_atom_parameter_units():
     assert pytest.approx(5.0) == dl.get_atom_parameter("mass", 0, utype="kilogram / mol")
     assert pytest.approx(5000.0) == dl.get_atom_parameter("mass", 0, utype="gram / mol")
     assert pytest.approx(5000.0) == dl.get_atom_parameter("mass", 0, utype={"mass": "gram / mol"})
-
-    # Test multi-unit utypes
-    assert 0 == dl.add_atom_parameter(
-        "lj_coeffs", {"LJ A": 5.0,
-                      "LJ B": 6.0},
-        utype={"LJ A": "kcal/mol * angstrom ** -12",
-               "LJ B": "kcal/mol * angstrom ** -6"})
-
-    assert 0 == dl.add_atom_parameter(
-        "lj_coeffs", {"LJ A": 10.0,
-                      "LJ B": 12.0},
-        utype={"LJ B": "0.5 * kcal/mol * angstrom ** -6",
-               "LJ A": "0.5 * kcal/mol * angstrom ** -12"})
 
 
 def test_add_term_parameter():
@@ -373,14 +345,13 @@ def test_add_nb_parameter():
     # Grab stored test parameters - will need to replace dl._nb_parameters with dl.get_nb_parameter when implemented
     test_parameters = dl._nb_parameters
 
-    assert test_parameters[(1, None )]["parameters"] == {'A': 1.0, 'B': 1.0}
-    assert test_parameters[(2, None )]["parameters"] == {'A': 4.0, 'B': 4.0}
+    assert test_parameters[(1, None)]["parameters"] == {'A': 1.0, 'B': 1.0}
+    assert test_parameters[(2, None)]["parameters"] == {'A': 4.0, 'B': 4.0}
     assert test_parameters[(1, 2)]["parameters"] == {'A': 2.0, 'B': 2.0}
 
     dl.add_nb_parameter(atom_type=1, nb_name="Buckingham", nb_model=None, nb_parameters=[1.0, 1.0, 1.0])
     with pytest.raises(KeyError):
         dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_model=None, nb_parameters=[1.0, 1.0])
-
 
 
 def test_add_nb_parameter_units():
@@ -417,6 +388,7 @@ def test_add_nb_parameter_units():
     eex.testing.dict_compare(test_parameters[(1, None)]['parameters'], {'A': 1.e12, 'B': 1.e6})
     eex.testing.dict_compare(test_parameters[(1, 2)]['parameters'], {'A': 2.e12, 'B': 2.e6})
 
+
 def test_get_nb_parameter():
     # Create empty data layer
     dl = eex.datalayer.DataLayer("test_add_nb_parameters", backend="memory")
@@ -428,11 +400,7 @@ def test_get_nb_parameter():
     dl.add_atoms(atom_sys)
 
     # Add AB LJ parameters to data layer - add to single atom
-    dl.add_nb_parameter(
-        atom_type=1,
-        nb_name="LJ",
-        nb_model="AB",
-        nb_parameters={'A': 1.0, 'B': 2.0})
+    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_model="AB", nb_parameters={'A': 1.0, 'B': 2.0})
 
     # Add Buckingham parameter to datalayer
     dl.add_nb_parameter(atom_type=2, nb_name="Buckingham", nb_parameters={"A": 1.0, "C": 1.0, "rho": 1.0})
@@ -441,27 +409,35 @@ def test_get_nb_parameter():
     with pytest.raises(KeyError):
         dl.get_nb_parameter(atom_type=1, atom_type2=2, nb_model="AB")
 
-
     # Test that what returned is expected
-    assert(dl.get_nb_parameter(atom_type=2) == {"A": 1.0, "C": 1.0, "rho": 1.0} )
-    assert(dl.get_nb_parameter(atom_type=1, nb_model="AB") == {'A': 1.0, 'B': 2.0} )
+    eex.testing.dict_compare(dl.get_nb_parameter(atom_type=2), {"A": 1.0, "C": 1.0, "rho": 1.0})
+    eex.testing.dict_compare(dl.get_nb_parameter(atom_type=1, nb_model="AB"), {'A': 1.0, 'B': 2.0})
 
     # Test conversion of AB to different forms
-    eex.testing.dict_compare(dl.get_nb_parameter(atom_type=1, nb_model="epsilon/sigma"),{'epsilon': 1.0,'sigma': (1./2.) ** (1./6.)})
+    eex.testing.dict_compare(
+        dl.get_nb_parameter(atom_type=1, nb_model="epsilon/sigma"), {'epsilon': 1.0,
+                                                                     'sigma': (1. / 2.)**(1. / 6.)})
 
-    eex.testing.dict_compare(dl.get_nb_parameter(atom_type=1, nb_model="epsilon/Rmin"), {'epsilon': 1.0, 'Rmin': 1 })
+    eex.testing.dict_compare(dl.get_nb_parameter(atom_type=1, nb_model="epsilon/Rmin"), {'epsilon': 1.0, 'Rmin': 1})
 
     # Test that correct parameters are pulled from data layer based on name
-    assert(set(dl.list_stored_nb_types()) == set(["LJ", "Buckingham"]))
+    assert (set(dl.list_stored_nb_types()) == set(["LJ", "Buckingham"]))
 
     eex.testing.dict_compare(dl.list_nb_parameters(nb_name="LJ"), {(1, None): {'A': 1., 'B': 2.}})
 
-    eex.testing.dict_compare(dl.list_nb_parameters(nb_name="Buckingham"),{(2, None): {'A': 1.0, "C": 1.0, "rho": 1.0}})
+    comp = {(2, None): {'A': 1.0, "C": 1.0, "rho": 1.0}}
+    eex.testing.dict_compare(dl.list_nb_parameters(nb_name="Buckingham"), comp)
 
     # Test translation of units
-    eex.testing.dict_compare(dl.list_nb_parameters(nb_name="LJ", utype={'A': "kJ * mol ** -1 * nanometers ** 12",
-                         'B': "kJ * mol ** -1 * nanometers ** 6"}), {(1, None) : {'A': 1.e-12, 'B': 2.e-6}})
+    comp = {(1, None): {'A': 1.e-12, 'B': 2.e-6}}
+    result = dl.list_nb_parameters(
+        nb_name="LJ", utype={'A': "kJ * mol ** -1 * nanometers ** 12",
+                             'B': "kJ * mol ** -1 * nanometers ** 6"})
+    eex.testing.dict_compare(result, comp)
 
-    eex.testing.dict_compare(dl.get_nb_parameter(atom_type=1, nb_model='epsilon/sigma', utype={'epsilon': 'kcal * mol ** -1', 'sigma': 'angstrom'}),
-                             {'sigma': (1./2.) ** (1./6.), 'epsilon': eex.units.conversion_factor('kJ','kcal')})
-
+    # Sigma/epsilon test
+    comp = {'sigma': (1. / 2.)**(1. / 6.), 'epsilon': eex.units.conversion_factor('kJ', 'kcal')}
+    result = dl.get_nb_parameter(
+        atom_type=1, nb_model='epsilon/sigma', utype={'epsilon': 'kcal * mol ** -1',
+                                                      'sigma': 'angstrom'})
+    eex.testing.dict_compare(result, comp)

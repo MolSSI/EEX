@@ -22,6 +22,7 @@ from . import amber_metadata as amd
 
 logger = logging.getLogger(__name__)
 
+
 def _data_flatten(data, column_name, category_index, df_index_name):
     # Reorganize the data 2D -> 1D packing
     flat_data = data.values.flatten()
@@ -324,7 +325,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
             # get all combinations
 
             for x in range(len(stored_atom_types)):
-                for y in range(x+1):
+                for y in range(x + 1):
                     # For amber, section NONBOND_PARM_INDEX gives pointer to LENNARD_JONES_ACOEF and _BCOEF sections.
                     # The atom types are used to compute NB_PARM_INDEX index, which is used to get ACOEF and BCOEF
 
@@ -332,7 +333,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                     nb_key = (stored_atom_types[y], stored_atom_types[x])
 
                     # Calcuate index into NB_PARM_INDEX
-                    ind_nb_parm_index = ntypes*(nb_key[0] - 1) + nb_key[1]
+                    ind_nb_parm_index = ntypes * (nb_key[0] - 1) + nb_key[1]
 
                     # Get index into LENNARDJONES_ACOEF and LENNARDJONES_BCOEF
                     # Subtract 1 because Amber indexes from 1, but python indexes from 0
@@ -343,13 +344,14 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                     B_coeff = B_coeff_list.iloc[nb_index - 1]['LENNARD_JONES_BCOEF'].values[0]
 
                     # Store in datalayer
-                    dl.add_nb_parameter(atom_type=nb_key[0], atom_type2=nb_key[1],
-                                        nb_parameters = {"A": A_coeff, "B": B_coeff},
-                                        nb_name=amd.forcefield_parameters["nonbond"]["form"]["name"],
-                                        nb_model=amd.forcefield_parameters["nonbond"]["form"]["form"],
-                                        utype=amd.forcefield_parameters["nonbond"]["units"])
-
-
+                    dl.add_nb_parameter(
+                        atom_type=nb_key[0],
+                        atom_type2=nb_key[1],
+                        nb_parameters={"A": A_coeff,
+                                       "B": B_coeff},
+                        nb_name=amd.forcefield_parameters["nonbond"]["form"]["name"],
+                        nb_model=amd.forcefield_parameters["nonbond"]["form"]["form"],
+                        utype=amd.forcefield_parameters["nonbond"]["units"])
 
     ### Try to pull in an inpcrd file for XYZ coordinates
     inpcrd_file = filename.replace('.prmtop', '.inpcrd')
