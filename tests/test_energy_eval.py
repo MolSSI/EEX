@@ -6,6 +6,7 @@ import eex
 import pytest
 import numpy as np
 
+np.set_printoptions(precision=4)
 np.random.seed(0)
 
 
@@ -94,7 +95,6 @@ def test_dihedral():
 
 
 def test_lattice_sum():
-    np.set_printoptions(precision=4)
     # 5.6402 angstroms
     # Build sodium chloride unit cell
     lattice_sum = eex.energy_eval.nb_eval.lattice_sum
@@ -111,6 +111,19 @@ def test_lattice_sum():
     assert pytest.approx(-2.9120598512599667) == lat_data["home"]
     assert pytest.approx(-2.991533523772735) == lat_data[1]
     assert pytest.approx(-5.9111661281154744) == lat_data["total"]
+
+
+def test_nb_eval_simple():
+
+    nb_eval = eex.energy_eval.nb_eval.lattice_sum
+
+    coords = np.array([[0, 0, 1], [0, 0, -1]])
+    atom_types = np.array([0, 0])
+    # lj_params = {"A": np.array([[1]]), "B": np.array([[2]])}
+    lj_params = {"A": np.array([[1]]), "B": np.array([[2]])}
+
+    # Test LJ
+    # lj_form = eex.metadata.get_nb_metadata("LJ", "AB")
 
 
 def test_evaluate():
@@ -133,3 +146,6 @@ def test_evaluate():
 
     # Sums
     _test_evaluate(np.sum(local_dict["a"]**2), "sum(a ** 2)", local_dict)
+
+
+test_nb_eval_simple()

@@ -346,7 +346,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                     dl.add_nb_parameter(atom_type=nb_key[0], atom_type2=nb_key[1],
                                         nb_parameters = {"A": A_coeff, "B": B_coeff},
                                         nb_name=amd.forcefield_parameters["nonbond"]["form"]["name"],
-                                        nb_form=amd.forcefield_parameters["nonbond"]["form"]["form"],
+                                        nb_model=amd.forcefield_parameters["nonbond"]["form"]["form"],
                                         utype=amd.forcefield_parameters["nonbond"]["units"])
 
 

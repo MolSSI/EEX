@@ -236,7 +236,7 @@ def write_amber_file(dl, filename, inpcrd=None):
         raise KeyError("Nonbond forms stored in datalayer are not compatible with Amber - %s" % nb_forms)
 
     # Get parameters from datalayer using correct amber units
-    stored_nb_parameters = dl.list_nb_parameters(nb_name="LJ", nb_form="AB", utype=amd.forcefield_parameters["nonbond"]["units"])
+    stored_nb_parameters = dl.list_nb_parameters(nb_name="LJ", nb_model="AB", utype=amd.forcefield_parameters["nonbond"]["units"])
     nonbonded_parm_index = np.zeros(ntypes * ntypes)
     lj_a_coeff = []
     lj_b_coeff = []

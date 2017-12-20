@@ -178,7 +178,7 @@ def read_lammps_data_file(dl, filename, blocksize=110):
                     params = list(row[cols])
                     utype = nb_term_table[fname]["utype"]
                     uid = int(row["uid"])
-                    dl.add_nb_parameter(atom_type=uid, nb_name=fname, nb_form=fform, nb_parameters=params, utype=utype)
+                    dl.add_nb_parameter(atom_type=uid, nb_name=fname, nb_model=fform, nb_parameters=params, utype=utype)
             else:
                 raise KeyError("Operation table call '%s' not understoop" % op["call_type"])
 
