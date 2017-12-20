@@ -20,12 +20,5 @@ for md_body in [md.two_body_metadata, md.three_body_metadata, md.four_body_metad
 # Build the utype for the nb data
 for k, v in md.nb_metadata["forms"].items():
     for uk, uv in v.items():
+        if uk == "default": continue
         uv["utype"] = {uuk: convert_contexts(uuv) for uuk, uuv in uv["units"].items()}
-    #print(md_nb)
-    """
-    for form_type in md_nb:
-        print(form_type)
-        print(md_nb[form_type])
-        md_nb[form_type]["utype"] = {uk: convert_contexts(uv) for uk, uv in md_nb[form_type]["units"].items()}
-        """
-

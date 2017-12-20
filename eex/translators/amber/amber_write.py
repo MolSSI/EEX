@@ -74,21 +74,22 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     output_sizes['NATOM'] = dl.get_atom_count()  # Number of atoms
     output_sizes["MBONA"] = dl.get_term_count(2, "total")  #  Number of bonds not containing hydrogen
-    output_sizes['NBONA'] = output_sizes["MBONA"] # MBONA + number of constraint bonds (MBONA = NBONA always)
+    output_sizes['NBONA'] = output_sizes["MBONA"]  # MBONA + number of constraint bonds (MBONA = NBONA always)
     output_sizes["MTHETA"] = dl.get_term_count(3, "total")  #  Number of angles not containing hydrogen
-    output_sizes['NTHETA'] = output_sizes["MTHETA"] # MTHETA + number of constraint angles (NTHETA = MTHETA always)
+    output_sizes['NTHETA'] = output_sizes["MTHETA"]  # MTHETA + number of constraint angles (NTHETA = MTHETA always)
     output_sizes["MPHIA"] = dl.get_term_count(4, "total")  #  Number of torsions not containing hydrogen
     output_sizes["NPHIA"] = output_sizes["MPHIA"]
     output_sizes["NUMBND"] = len(dl.list_term_uids(2))  # Number of unique bond types
     output_sizes["NUMANG"] = len(dl.list_term_uids(3))  # Number of unique angle types
     output_sizes["NPTRA"] = len(dl.list_term_uids(4))  # Number of unique torsion types
     output_sizes["NRES"] = len(dl.list_atom_uids("residue_name"))  # Number of residues (not stable)
-    output_sizes["NTYPES"] = len(np.unique(dl.get_atoms("atom_type"))) # Number of distinct LJ atom types
+    output_sizes["NTYPES"] = len(np.unique(dl.get_atoms("atom_type")))  # Number of distinct LJ atom types
     output_sizes["NBONH"] = 0  #  Number of bonds containing hydrogen
     output_sizes["NTHETH"] = 0  #  Number of angles containing hydrogen
     output_sizes["NPHIH"] = 0  #  Number of torsions containing hydrogen
     output_sizes["NPARM"] = 0  #  Used to determine if this is a LES-compatible prmtop (??)
-    output_sizes["NNB"] = dl.get_atom_count()  #  Number of excluded atoms - Set to num atoms for our test cases. Amber will not run with 0
+    output_sizes["NNB"] = dl.get_atom_count(
+    )  #  Number of excluded atoms - Set to num atoms for our test cases. Amber will not run with 0
     output_sizes["IFBOX"] = 0  #  Flag indicating whether a periodic box is present
     # 0 - no box, 1 - orthorhombic box, 2 - truncated octahedron
     output_sizes["NMXRS"] = 0  #  Number of atoms in the largest residue
@@ -236,7 +237,8 @@ def write_amber_file(dl, filename, inpcrd=None):
         raise KeyError("Nonbond forms stored in datalayer are not compatible with Amber - %s" % nb_forms)
 
     # Get parameters from datalayer using correct amber units
-    stored_nb_parameters = dl.list_nb_parameters(nb_name="LJ", nb_form="AB", utype=amd.forcefield_parameters["nonbond"]["units"])
+    stored_nb_parameters = dl.list_nb_parameters(
+        nb_name="LJ", nb_model="AB", utype=amd.forcefield_parameters["nonbond"]["units"])
     nonbonded_parm_index = np.zeros(ntypes * ntypes)
     lj_a_coeff = []
     lj_b_coeff = []
@@ -245,10 +247,10 @@ def write_amber_file(dl, filename, inpcrd=None):
     for key, value in stored_nb_parameters.items():
         lj_a_coeff.append(value['A'])
         lj_b_coeff.append(value['B'])
-        index_to_nb = ntypes*(key[0] - 1) + key[1]
+        index_to_nb = ntypes * (key[0] - 1) + key[1]
         index_to_nb2 = ntypes * (key[1] - 1) + key[0]
-        nonbonded_parm_index[index_to_nb-1] = len(lj_a_coeff)
-        nonbonded_parm_index[index_to_nb2-1] = len(lj_a_coeff)
+        nonbonded_parm_index[index_to_nb - 1] = len(lj_a_coeff)
+        nonbonded_parm_index[index_to_nb2 - 1] = len(lj_a_coeff)
 
     _write_amber_data(file_handle, nonbonded_parm_index, "NONBONDED_PARM_INDEX")
     _write_amber_data(file_handle, lj_a_coeff, "LENNARD_JONES_ACOEF")
@@ -266,7 +268,6 @@ def write_amber_file(dl, filename, inpcrd=None):
             else:
                 file_handle.write(("%%FLAG %s\n%s\n\n" % (k, amd.data_labels[k][1])).encode())
             written_categories.append(k)
-
 
     file_handle.close()
 

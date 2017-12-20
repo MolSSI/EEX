@@ -104,5 +104,5 @@ def test_amber_writer(molecule):
     eex.translators.amber.read_amber_file(dl_new, oname)
     assert eex.testing.dl_compare(dl, dl_new)
     # Since dl_compare does not yet do nonbonds, get NB from datalayer and compare
-    assert(dl.list_stored_nb_types() == ["LJ"])
-    assert(dl.list_nb_parameters(nb_name="LJ") == dl_new.list_nb_parameters(nb_name="LJ"))
+    assert (dl.list_stored_nb_types() == ["LJ"])
+    assert (dl.list_nb_parameters(nb_name="LJ") == dl_new.list_nb_parameters(nb_name="LJ"))

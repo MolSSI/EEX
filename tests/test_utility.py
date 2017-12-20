@@ -6,20 +6,20 @@ import eex
 import pytest
 import numpy as np
 
+
 @pytest.mark.parametrize("form", ["epsilon/sigma", "epsilon/Rmin", "AB"])
 def test_convert_same_LJ_coeffs(form):
 
     var_names = {
-    'AB': ['A', 'B'],
-    'epsilon/sigma': ['epsilon', 'sigma'],
-    'epsilon/Rmin': ['epsilon', 'Rmin'],
+        'AB': ['A', 'B'],
+        'epsilon/sigma': ['epsilon', 'sigma'],
+        'epsilon/Rmin': ['epsilon', 'Rmin'],
     }
-    coeffs = dict.fromkeys(var_names[form])
-    coeffs[var_names[form][0]] = 2.0
-    coeffs[var_names[form][1]] = 4.0
+    coeffs = {var_names[form][0]: 2.0, var_names[form][1]: 4.0}
     new_coeffs = eex.nb_converter.convert_LJ_coeffs(coeffs, form, form)
     assert np.allclose(new_coeffs[var_names[form][0]], coeffs[var_names[form][0]])
     assert np.allclose(new_coeffs[var_names[form][1]], coeffs[var_names[form][1]])
+
 
 @pytest.mark.parametrize("form", ["epsilon/sigma", "epsilon/Rmin"])
 @pytest.mark.parametrize("coeffs", [{'A': 3.48, 'B': 0.0}, {'A': 0.0, 'B': 148.0}])
@@ -27,12 +27,12 @@ def test_convert_impossible_LJ_coeffs(form, coeffs):
     with pytest.raises(ZeroDivisionError):
         eex.nb_converter.convert_LJ_coeffs(coeffs, "AB", form)
 
-#@pytest.mark.parametrize("end", ["LJ", "Rmin", "AB"])
-#@pytest.mark.parametrize("origin", ["LJ", "Rmin", "AB"])
-#def test_convert_LJ_coeffs(origin, end):
+
+# @pytest.mark.parametrize("end", ["LJ", "Rmin", "AB"])
+# @pytest.mark.parametrize("origin", ["LJ", "Rmin", "AB"])
+# def test_convert_LJ_coeffs(origin, end):
 #    coeffs = [3.48, 148.0]
 #    new_coeffs = eex.nb_converter.convert_LJ_coeffs(coeffs, origin, end)
-
 
 
 def test_fuzzy_list_match():

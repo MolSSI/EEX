@@ -8,6 +8,7 @@ import pytest
 import pandas as pd
 import eex_find_files
 
+
 @pytest.fixture(scope="module", params=["HDF5", "Memory"])
 def spce_dl(request):
     fname = eex_find_files.get_example_filename("lammps", "SPCE", "data.spce")
@@ -23,10 +24,10 @@ def test_lammps_read_data(spce_dl):
 
     # Check on the data dictionary
     utype = {"epsilon": "kcal / mol", "sigma": "angstrom"}
-    nb_param_atom1 = dl.get_nb_parameter(atom_type=1, nb_form = 'epsilon/sigma', utype=utype)
-    nb_param_atom2 = dl.get_nb_parameter(atom_type=2, nb_form = 'epsilon/sigma', utype=utype)
-    assert np.allclose([nb_param_atom1['epsilon'] , nb_param_atom1['sigma']] , [0.15524976551, 3.166])
-    assert np.allclose([nb_param_atom2['epsilon'] , nb_param_atom2['sigma']] , [0.0, 0.0])
+    nb_param_atom1 = dl.get_nb_parameter(atom_type=1, nb_model='epsilon/sigma', utype=utype)
+    nb_param_atom2 = dl.get_nb_parameter(atom_type=2, nb_model='epsilon/sigma', utype=utype)
+    assert np.allclose([nb_param_atom1['epsilon'], nb_param_atom1['sigma']], [0.15524976551, 3.166])
+    assert np.allclose([nb_param_atom2['epsilon'], nb_param_atom2['sigma']], [0.0, 0.0])
     assert data["sizes"]["atom types"] == 2
     assert data["sizes"]["atoms"] == 600
     assert data["sizes"]["bonds"] == 400

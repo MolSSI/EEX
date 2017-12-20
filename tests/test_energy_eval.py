@@ -6,6 +6,7 @@ import eex
 import pytest
 import numpy as np
 
+np.set_printoptions(precision=4)
 np.random.seed(0)
 
 
@@ -94,10 +95,9 @@ def test_dihedral():
 
 
 def test_lattice_sum():
-    np.set_printoptions(precision=4)
     # 5.6402 angstroms
     # Build sodium chloride unit cell
-    lattice_sum = eex.energy_eval.electrostatics.lattice_sum
+    lattice_sum = eex.energy_eval.nb_eval.lattice_sum
 
     # Build a small charge neutral cell
     upper = np.array([[1, 1, 1], [-1, 1, 1], [1, -1, 1], [-1, -1, 1]], dtype=np.float64)
@@ -111,6 +111,32 @@ def test_lattice_sum():
     assert pytest.approx(-2.9120598512599667) == lat_data["home"]
     assert pytest.approx(-2.991533523772735) == lat_data[1]
     assert pytest.approx(-5.9111661281154744) == lat_data["total"]
+
+
+def test_nb_eval_simple():
+
+    nb_eval = eex.energy_eval.nb_eval.nonbonded_eval
+
+    coords = np.array([[0, 0, 0], [0, 0, 0]], dtype=np.double)
+    atom_types = np.array([0, 0])
+
+    # Test LJ
+    lj_form = eex.metadata.get_nb_metadata("LJ", "form")
+    lj_params = {"A": np.array([[1.0]]), "B": np.array([[2.0]])}
+
+    for dist, values in [(0.5, 3968), (1.0, -1.0), (2.0, -0.031005859375), (3.0, -0.00274160254854)]:
+        coords[-1, -1] = dist
+        energy = nb_eval(coords, atom_types, lj_form, lj_params)
+        assert pytest.approx(energy) == values
+
+    # Test Buckingham
+    buck_form = eex.metadata.get_nb_metadata("Buckingham", "form")
+    buck_params = {"A": np.array([[1.e7]]), "C": np.array([[2.0]]), "rho": np.array([[0.05]])}
+
+    for dist, values in [(0.5, 325.999297625), (1.0, -1.97938846378), (2.0, -0.0312499999575)]:
+        coords[-1, -1] = dist
+        energy = nb_eval(coords, atom_types, buck_form, buck_params)
+        assert pytest.approx(energy) == values
 
 
 def test_evaluate():
@@ -133,3 +159,6 @@ def test_evaluate():
 
     # Sums
     _test_evaluate(np.sum(local_dict["a"]**2), "sum(a ** 2)", local_dict)
+
+
+test_nb_eval_simple()

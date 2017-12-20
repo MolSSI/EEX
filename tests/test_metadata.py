@@ -26,11 +26,14 @@ form_list += [("four", form) for form in list(term_dict["four"]["forms"])]
 nb_form_list = []
 for k, v in nb_term_dict["forms"].items():
     for k2, v2 in v.items():
+        if k2 in ["default"]: continue
         nb_form_list += [[k2, v2]]
+
 
 @pytest.mark.parametrize("form, md", nb_form_list)
 def test_nonbond_metadata(form, md):
     assert eex.metadata.validate_functional_form_dict(form, md)
+
 
 @pytest.mark.parametrize("order,form", form_list)
 def test_style_metadata(order, form):

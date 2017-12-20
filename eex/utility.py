@@ -7,6 +7,7 @@ import hashlib
 
 import numpy as np
 
+
 def fuzzy_list_match(line, ldata):
     """
     Searches for a line in a list of lines and returns the match if found.
