@@ -91,28 +91,7 @@ def convert_LJ_coeffs(coeffs, origin, final):
     return external
 
 
-## LJ Combining Rules
-def _mix_LJ(coeff_i, coeff_j, origin, final):
-    # Calculate interactions between two atom types based on Lorentz-Berthelot mixing rules
-
-    # First convert from input form to internal AB representation
-    internal_coeff_i = convert_LJ_coeffs(coeff_i, origin=origin, final="AB")
-    internal_coeff_j = convert_LJ_coeffs(coeff_j, origin=origin, final="AB")
-
-    # Convert from internal AB representation to epsilon/sigma
-    sigma_epsilon_i = convert_LJ_coeffs(internal_coeff_i, origin="AB", final="epsilon/sigma")
-    sigma_epsilon_j = convert_LJ_coeffs(internal_coeff_j, origin="AB", final="epsilon/sigma")
-
-    # Calculate new parameters based on mixing rules
-    ## Call functions here
-
-    # Convert from epsilon-sigma to AB, then to final specified form. Double conversion is necessary because of
-    # form of conversion matrix.
-    convert_params_temp = convert_LJ_coeffs(new_params, origin="epsilon/sigma", final=final)
-    convert_params = _LJ_conversion_matrix[final][2](convert_params_temp)
-
-    return convert_params
-
+## LJ combining rules
 
 def _lorentz_berthelot(sigma_epsilon_i, sigma_epsilon_j):
     new_params = {}
@@ -139,3 +118,31 @@ def _sixthpower(sigma_epsilon_i, sigma_epsilon_j):
     new_params['epsilon'] = (2 * (sigma_epsilon_i['epsilon'] * sigma_epsilon_j['epsilon'])**
                              (1. / 2.) * sigma_epsilon_i['sigma']**3 * sigma_epsilon_j['sigma']**3)
     return new_params
+
+def mix_LJ(coeff_i, coeff_j, origin, mixing_rule,final="AB"):
+    # Calculate interactions between two atom types based on specified mixing rules
+
+    # First convert from input form to internal AB representation
+    internal_coeff_i = convert_LJ_coeffs(coeff_i, origin=origin, final="AB")
+    internal_coeff_j = convert_LJ_coeffs(coeff_j, origin=origin, final="AB")
+
+    # Convert from internal AB representation to epsilon/sigma
+    sigma_epsilon_i = convert_LJ_coeffs(internal_coeff_i, origin="AB", final="epsilon/sigma")
+    sigma_epsilon_j = convert_LJ_coeffs(internal_coeff_j, origin="AB", final="epsilon/sigma")
+
+    # Calculate new parameters based on mixing rules
+    mixing_rule = mixing_rule.lower()
+    new_params = _LJ_mixing_functions[mixing_rule](sigma_epsilon_i, sigma_epsilon_j)
+
+    # Convert from epsilon-sigma to AB, then to final specified form. Double conversion is necessary because of
+    # form of conversion matrix.
+    convert_params_temp = convert_LJ_coeffs(new_params, origin="epsilon/sigma", final=final)
+    convert_params = _LJ_conversion_matrix[final][2](convert_params_temp)
+
+    return convert_params
+
+_LJ_mixing_functions = {
+    "lorentz-berthelot" : _lorentz_berthelot,
+    "geometric" : _geometric,
+    "sixthpower" : _sixthpower,
+}
