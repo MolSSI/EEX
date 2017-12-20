@@ -67,6 +67,6 @@ def get_nb_metadata(form_name, field_name=None, model=None):
     tmp_data = nb_metadata["forms"][form_name][model]
 
     if field_name:
-        tmp_data = tmp_data[field_name]
+        return tmp_data[field_name]
     else:
         return tmp_data

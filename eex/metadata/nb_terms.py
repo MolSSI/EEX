@@ -6,7 +6,7 @@ _nb_functional_forms = {
     "LJ": {
         "default": "AB",
         "AB": {
-            "form": "A/(r ** 12) - B/(r ** 6)",
+            "form": "A/(r ** 12.0) - B/(r ** 6.0)",
             "parameters": ["A", "B"],
             "units": {
                 "A": "[energy] * [length] ** 12",
