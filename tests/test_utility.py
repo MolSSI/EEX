@@ -15,9 +15,7 @@ def test_convert_same_LJ_coeffs(form):
         'epsilon/sigma': ['epsilon', 'sigma'],
         'epsilon/Rmin': ['epsilon', 'Rmin'],
     }
-    coeffs = dict.fromkeys(var_names[form])
-    coeffs[var_names[form][0]] = 2.0
-    coeffs[var_names[form][1]] = 4.0
+    coeffs = {var_names[form][0]: 2.0, var_names[form][1]: 4.0}
     new_coeffs = eex.nb_converter.convert_LJ_coeffs(coeffs, form, form)
     assert np.allclose(new_coeffs[var_names[form][0]], coeffs[var_names[form][0]])
     assert np.allclose(new_coeffs[var_names[form][1]], coeffs[var_names[form][1]])
@@ -30,9 +28,9 @@ def test_convert_impossible_LJ_coeffs(form, coeffs):
         eex.nb_converter.convert_LJ_coeffs(coeffs, "AB", form)
 
 
-#@pytest.mark.parametrize("end", ["LJ", "Rmin", "AB"])
-#@pytest.mark.parametrize("origin", ["LJ", "Rmin", "AB"])
-#def test_convert_LJ_coeffs(origin, end):
+# @pytest.mark.parametrize("end", ["LJ", "Rmin", "AB"])
+# @pytest.mark.parametrize("origin", ["LJ", "Rmin", "AB"])
+# def test_convert_LJ_coeffs(origin, end):
 #    coeffs = [3.48, 148.0]
 #    new_coeffs = eex.nb_converter.convert_LJ_coeffs(coeffs, origin, end)
 
