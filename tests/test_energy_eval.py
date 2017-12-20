@@ -97,7 +97,7 @@ def test_lattice_sum():
     np.set_printoptions(precision=4)
     # 5.6402 angstroms
     # Build sodium chloride unit cell
-    lattice_sum = eex.energy_eval.electrostatics.lattice_sum
+    lattice_sum = eex.energy_eval.nb_eval.lattice_sum
 
     # Build a small charge neutral cell
     upper = np.array([[1, 1, 1], [-1, 1, 1], [1, -1, 1], [-1, -1, 1]], dtype=np.float64)
