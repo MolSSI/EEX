@@ -115,15 +115,28 @@ def test_lattice_sum():
 
 def test_nb_eval_simple():
 
-    nb_eval = eex.energy_eval.nb_eval.lattice_sum
+    nb_eval = eex.energy_eval.nb_eval.nonbonded_eval
 
-    coords = np.array([[0, 0, 1], [0, 0, -1]])
+    coords = np.array([[0, 0, 0], [0, 0, 0]], dtype=np.double)
     atom_types = np.array([0, 0])
-    # lj_params = {"A": np.array([[1]]), "B": np.array([[2]])}
-    lj_params = {"A": np.array([[1]]), "B": np.array([[2]])}
 
     # Test LJ
-    # lj_form = eex.metadata.get_nb_metadata("LJ", "AB")
+    lj_form = eex.metadata.get_nb_metadata("LJ", "form")
+    lj_params = {"A": np.array([[1.0]]), "B": np.array([[2.0]])}
+
+    for dist, values in [(0.5, 3968), (1.0, -1.0), (2.0, -0.031005859375), (3.0, -0.00274160254854)]:
+        coords[-1, -1] = dist
+        energy = nb_eval(coords, atom_types, lj_form, lj_params)
+        assert pytest.approx(energy) == values
+
+    # Test Buckingham
+    buck_form = eex.metadata.get_nb_metadata("Buckingham", "form")
+    buck_params = {"A": np.array([[1.e7]]), "C": np.array([[2.0]]), "rho": np.array([[0.05]])}
+
+    for dist, values in [(0.5, 325.999297625), (1.0, -1.97938846378), (2.0, -0.0312499999575)]:
+        coords[-1, -1] = dist
+        energy = nb_eval(coords, atom_types, buck_form, buck_params)
+        assert pytest.approx(energy) == values
 
 
 def test_evaluate():

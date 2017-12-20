@@ -3,8 +3,12 @@ Computes the electrostatics of a expression
 """
 
 import itertools
+import copy
 
 import numpy as np
+import numexpr as ne
+
+### Electrostatic like terms
 
 
 def _coulomb_energy(qij, R):
@@ -80,3 +84,41 @@ def lattice_sum(coords, charges, boxlength, nboxes, func="coulomb", return_shell
         return energy
     else:
         return energy["total"]
+
+
+def nonbonded_eval(coords, atom_types, form, parameters):
+    """
+    Evaluates the nb of the internal box
+    """
+
+    params = {k: np.atleast_2d(v) for k, v in parameters.items()}
+
+    # Find parameter types, this function will supply the "r" (distance) parameter
+    ptypes = [(p, np.double) for p in parameters.keys()]
+    ptypes.append(("r", np.double))
+
+    # Compile the NumExpr
+    form = "sum(" + form + ")"
+    try:
+        expr = ne.NumExpr(form, signature=ptypes)
+    except ValueError:
+        raise KeyError("nb_eval: Not all paramters for form %s resolved, found keys %s" % (form, list(ptypes.keys())))
+
+    local_params = {}
+    energy = 0.0
+    for i in range(1, coords.shape[0]):
+
+        # Compute distances
+        tmp = coords[:i] - coords[i]
+        dR = np.sqrt(np.einsum('ij,ij->i', tmp, tmp))
+        local_params["r"] = dR
+
+        # Organize NB data
+        local_atom_type = atom_types[i]
+        for key, data in parameters.items():
+            local_params[key] = np.take(data[local_atom_type], atom_types[:i])
+
+        # Evaluate!
+        energy += expr.run(*(local_params[key] for key in expr.input_names))
+
+    return energy
