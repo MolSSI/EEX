@@ -114,9 +114,10 @@ def _geometric(sigma_epsilon_i, sigma_epsilon_j):
 def _sixthpower(sigma_epsilon_i, sigma_epsilon_j):
     new_params = {}
 
-    new_params['sigma'] = ((sigma_epsilon_i['sigma']**6 + sigma_epsilon_j['sigma']**6) / 2)**(1. / 6.)
-    new_params['epsilon'] = (2 * (sigma_epsilon_i['epsilon'] * sigma_epsilon_j['epsilon'])**
-                             (1. / 2.) * sigma_epsilon_i['sigma']**3 * sigma_epsilon_j['sigma']**3)
+    new_params['sigma'] = ((sigma_epsilon_i['sigma']**6. * sigma_epsilon_j['sigma'] ** 6.) / 2.) ** (1./6.)
+
+    new_params['epsilon'] = (2 * (sigma_epsilon_i['epsilon'] * sigma_epsilon_j['epsilon']) ** (1./2.) * sigma_epsilon_i['sigma'] ** 3.
+                            * sigma_epsilon_j['sigma'] ** 3.) /(sigma_epsilon_i['sigma'] ** 6. * sigma_epsilon_j['sigma'] ** 6.)
     return new_params
 
 def mix_LJ(coeff_i, coeff_j, origin, mixing_rule,final="AB"):
@@ -130,14 +131,16 @@ def mix_LJ(coeff_i, coeff_j, origin, mixing_rule,final="AB"):
     sigma_epsilon_i = convert_LJ_coeffs(internal_coeff_i, origin="AB", final="epsilon/sigma")
     sigma_epsilon_j = convert_LJ_coeffs(internal_coeff_j, origin="AB", final="epsilon/sigma")
 
+    print("Hello ", sigma_epsilon_i, sigma_epsilon_j)
+
     # Calculate new parameters based on mixing rules
     mixing_rule = mixing_rule.lower()
     new_params = _LJ_mixing_functions[mixing_rule](sigma_epsilon_i, sigma_epsilon_j)
 
     # Convert from epsilon-sigma to AB, then to final specified form. Double conversion is necessary because of
     # form of conversion matrix.
-    convert_params_temp = convert_LJ_coeffs(new_params, origin="epsilon/sigma", final=final)
-    convert_params = _LJ_conversion_matrix[final][2](convert_params_temp)
+    convert_params_temp = convert_LJ_coeffs(new_params, origin="epsilon/sigma", final="AB")
+    convert_params = convert_LJ_coeffs(convert_params_temp, origin="AB", final=final)
 
     return convert_params
 
