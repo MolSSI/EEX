@@ -131,8 +131,6 @@ def mix_LJ(coeff_i, coeff_j, origin, mixing_rule,final="AB"):
     sigma_epsilon_i = convert_LJ_coeffs(internal_coeff_i, origin="AB", final="epsilon/sigma")
     sigma_epsilon_j = convert_LJ_coeffs(internal_coeff_j, origin="AB", final="epsilon/sigma")
 
-    print("Hello ", sigma_epsilon_i, sigma_epsilon_j)
-
     # Calculate new parameters based on mixing rules
     mixing_rule = mixing_rule.lower()
     new_params = _LJ_mixing_functions[mixing_rule](sigma_epsilon_i, sigma_epsilon_j)
