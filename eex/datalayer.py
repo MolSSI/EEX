@@ -564,6 +564,12 @@ class DataLayer(object):
 
         return pd.concat(df_data, axis=1)
 
+    def list_valid_atom_properties(self):
+        """
+        Returns all possible atom properties which can be stored in the datalayer
+        """
+        return list(metadata.atom_property_to_column)
+
 ### Term functions
 
     def add_term_parameter(self, order, term_name, term_parameters, uid=None, utype=None):
