@@ -71,7 +71,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
             else:
                 raise ValueError("AMBER Read: Could not understand version line.")
 
-        # Get size_information
+        # Get size_information - read in "FLAG POINTERS"
         elif "FLAG POINTERS" in line:
             ncols, dtype, width = amd.parse_format(header_data[num + 1])
 
@@ -103,15 +103,18 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     # Figure out the size of each label
     label_sizes = {}
     for k, v in amd.data_labels.items():
+        # If section always has same size
         if isinstance(v[0], int):
             label_sizes[k] = v[0]
+        # Section is variable size (eg NATOMS)
         elif v[0] in list(sizes_dict):
             label_sizes[k] = sizes_dict[v[0]]
+        # Section is variable size and has to be evaluated, (eg "(NTYPES * (NTYPES + 1)) / 2")
         else:
             # print("%30s %40s %d" % (k, v[0], int(eval(v[0], sizes_dict))))
             label_sizes[k] = int(eval(v[0], sizes_dict))
 
-    # print(label_sizes)
+
     # Find the start
     current_data_category = None
     current_data_type = None
@@ -236,6 +239,14 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                 # Form the DF and add!
                 df = pd.DataFrame(df_dict, index=index)
                 dl.add_terms(mod_size - 1, df)
+
+            # Get box information from prmtop if here. Will be overwritten by inpcrd if information is provided.
+            elif current_data_category == "BOX_DIMENSIONS":
+                box_size = {}
+                box_size["x"] = [0, data[1].values[0]]
+                box_size["y"] = [0, data[2].values[0]]
+                box_size["z"] = [0, data[3].values[0]]
+                dl.set_box_size(box_size)
 
             else:
                 # logger.debug("Did not understand data category.. passing")
@@ -367,17 +378,32 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
         read_size = math.ceil(float(inpcrd_size[0]) / 2)
 
+        if sizes_dict["IFBOX"] > 0:
+            read_size += 1
+
         file_handle = open(inpcrd_file, "r")
         data = pd.read_fwf(
             file_handle, nrows=read_size, widths=([12] * 6), dtypes=([float] * 6), header=None, skiprows=2)
+
         file_handle.close()
+
+        if sizes_dict["IFBOX"] > 0:
+            box_information = data.tail(1).values[0]
+
+            box_sizes = {"x": [0, box_information[0]], "y": [0, box_information[1]], "z": [0, box_information[2]]}
+
+            dl.set_box_size(box_sizes)
+
+            # Drop box info from atom coordinates
+            data.drop(data.index[-1], inplace=True)
+
 
         df = pd.DataFrame(data.values.reshape(-1, 3), columns=["X", "Y", "Z"])
         df.dropna(axis=0, how="any", inplace=True)
         df.index = np.arange(1, df.shape[0] + 1)
-        # print(df)
 
         df.index.name = "atom_index"
         dl.add_atoms(df, utype={"XYZ": "angstrom"})
+
 
     return ret_data
