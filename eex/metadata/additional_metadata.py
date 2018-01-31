@@ -20,6 +20,8 @@ _boundary = {
     "z": ["p", "f"], 
 }
 
+_box_origin = ["origin", "center"]
+
 _electrostatics = {
         "ewald": {
             "parameters": ["alpha", "accuracy", "kmax"],
