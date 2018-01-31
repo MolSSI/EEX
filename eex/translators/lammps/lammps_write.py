@@ -13,7 +13,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def write_lammps_file(dl, data, filename, blocksize=110):
+def write_lammps_file(dl, filename, blocksize=110):
 
     term_table = lmd.build_term_table("real")
 

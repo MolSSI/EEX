@@ -14,13 +14,13 @@ def spce_dl(request):
     fname = eex_find_files.get_example_filename("lammps", "SPCE", "data.spce")
     dl = eex.datalayer.DataLayer(
         "test_lammps_read", )
-    data = eex.translators.lammps.read_lammps_data_file(dl, fname, blocksize=55)
-    yield (data, dl)
+    eex.translators.lammps.read_lammps_data_file(dl, fname, blocksize=55)
+    yield dl
     dl.close()
 
 
 def test_lammps_read_data(spce_dl):
-    data, dl = spce_dl
+    dl = spce_dl
 
     # Check on the data dictionary
     utype = {"epsilon": "kcal / mol", "sigma": "angstrom"}
@@ -28,11 +28,14 @@ def test_lammps_read_data(spce_dl):
     nb_param_atom2 = dl.get_nb_parameter(atom_type=2, nb_model='epsilon/sigma', utype=utype)
     assert np.allclose([nb_param_atom1['epsilon'], nb_param_atom1['sigma']], [0.15524976551, 3.166])
     assert np.allclose([nb_param_atom2['epsilon'], nb_param_atom2['sigma']], [0.0, 0.0])
-    assert data["sizes"]["atom types"] == 2
-    assert data["sizes"]["atoms"] == 600
-    assert data["sizes"]["bonds"] == 400
-    assert data["sizes"]["angles"] == 200
-    assert data["sizes"]["angle types"] == 1
+    assert len(dl.get_unique_atom_types()) == 2
+    assert len(dl.list_term_uids()[2]) == 1
+    assert len(dl.list_term_uids()[3]) == 1
+    assert len(dl.list_term_uids()[4]) == 0
+    assert dl.get_atom_count() == 600
+    assert dl.get_bond_count() == 400
+    assert dl.get_angle_count() == 200
+    assert dl.get_dihedral_count() == 0
 
     box_size = dl.get_box_size()
     assert box_size["x"][0] == pytest.approx(-12.362, 1.e-6)
@@ -40,7 +43,7 @@ def test_lammps_read_data(spce_dl):
 
 
 def test_lammps_read_atoms(spce_dl):
-    data, dl = spce_dl
+    dl = spce_dl
 
     # Check Atoms
     atoms = dl.get_atoms(["atom_type", "charge", "mass"])
@@ -51,7 +54,7 @@ def test_lammps_read_atoms(spce_dl):
 
 
 def test_lammps_read_atoms_value(spce_dl):
-    data, dl = spce_dl
+    dl = spce_dl
 
     # Check Atoms
     atoms = dl.get_atoms(["atom_type", "charge", "mass"], by_value=True)
@@ -62,7 +65,7 @@ def test_lammps_read_atoms_value(spce_dl):
 
 
 def test_lammps_read_bonds(spce_dl):
-    data, dl = spce_dl
+    dl = spce_dl
 
     # Check Bonds
     bonds = dl.get_bonds()
@@ -71,7 +74,7 @@ def test_lammps_read_bonds(spce_dl):
 
 
 def test_lammps_read_angles(spce_dl):
-    data, dl = spce_dl
+    dl = spce_dl
 
     # Check Angles
     angles = dl.get_angles()
@@ -89,11 +92,11 @@ def test_lammps_writer(molecule):
 
     # Read in the data
     dl = eex.datalayer.DataLayer(molecule)
-    data = eex.translators.lammps.read_lammps_data_file(dl, fname)
+    eex.translators.lammps.read_lammps_data_file(dl, fname)
 
     # Write out the data
     oname = eex_find_files.get_scratch_directory(molecule)
-    eex.translators.lammps.write_lammps_file(dl, data, oname)
+    eex.translators.lammps.write_lammps_file(dl, oname)
 
     # Read in output data
     dl_new = eex.datalayer.DataLayer(molecule)

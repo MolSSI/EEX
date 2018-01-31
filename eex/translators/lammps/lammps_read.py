@@ -195,12 +195,12 @@ def read_lammps_data_file(dl, filename, blocksize=110):
     # Mass is missing its index, we can copy the data over
     dl.store.copy_table("atom_type", "mass", {"atom_type": "mass"})
 
-    # raise Exception("")
-    data = {}
-    data["sizes"] = sizes_dict
-    data["header"] = header
+    ## raise Exception("")
+    #data = {}
+    #data["sizes"] = sizes_dict
+    #data["header"] = header
 
-    return data
+    #return data
 
 def get_bond_coeff():
     pass
@@ -263,7 +263,7 @@ def read_lammps_file(dl, fname, blocksize=110):
         # Handle keywords
         if keyword == "read_data":
             data_filename = input_dir + "/" + keyword_opts[0]
-            data = read_lammps_data_file(dl, data_filename, blocksize)
+            read_lammps_data_file(dl, data_filename, blocksize)
         elif keyword == "include_data":
             include_data = eex.utility.read_lines(keyword_opts[0])
             for inum, line in enumerate(include_data):
