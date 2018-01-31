@@ -1,4 +1,4 @@
-%VERSION  VERSION_STAMP = V0001.000  DATE = 11/13/17  15:35:01                  
+%VERSION  VERSION_STAMP = V0001.000  DATE = 01/31/18  12:29:16                  
 %FLAG TITLE                                                                     
 %FORMAT(20a4)                                                                   
 Cpptraj                                                                         
@@ -6,7 +6,7 @@ Cpptraj
 %FORMAT(10I8)                                                                   
        2       1       0       1       0       0       0       0       0       0
        2       1       1       0       0       1       0       0       1       0
-       0       0       0       0       0       0       0       0       2       0
+       0       0       0       0       0       0       0       1       2       0
        0
 %FLAG ATOM_NAME                                                                 
 %FORMAT(20a4)                                                                   
@@ -113,6 +113,15 @@ BLA BLA
 %FLAG IROTAT                                                                    
 %FORMAT(10I8)                                                                   
        0       0
+%FLAG SOLVENT_POINTERS                                                          
+%FORMAT(3I8)                                                                    
+       1       1       2
+%FLAG ATOMS_PER_MOLECULE                                                        
+%FORMAT(10I8)                                                                   
+       2
+%FLAG BOX_DIMENSIONS                                                            
+%FORMAT(5E16.8)                                                                 
+  9.00000000E+01  1.01597649E+02  1.00000000E+02  1.00000000E+02
 %FLAG RADIUS_SET                                                                
 %FORMAT(1a80)                                                                   
 modified Bondi radii (mbondi)                                                   
