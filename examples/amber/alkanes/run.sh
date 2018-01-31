@@ -6,7 +6,7 @@ rm energies.csv
 
 # System names
 
-declare -a arr=("ethane" "propane" "butane" "butane_conformation2" "tetradecane" "tetradecane_exclusions" )
+declare -a arr=("ethane" "propane" "butane"  "tetradecane" "tetradecane_exclusions" )
 
 # Start energy calculation file
 # echo "Single point energy calculations" > energies.txt
