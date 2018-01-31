@@ -4,12 +4,9 @@ Contains metadata for additional simulation details
 
 _box_info = {
     "dimensions": {
-        "xlo": "[length]",
-        "xhi": "[length]",
-        "ylo": "[length]",
-        "yhi": "[length]",
-        "zlo": "[length]",
-        "zhi": "[length]",
+        "a": "[length]",
+        "b": "[length]",
+        "c": "[length]",
         "alpha": "radian",
         "beta": "radian",
         "gamma": "radian",
