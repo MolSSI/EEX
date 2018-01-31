@@ -4,12 +4,12 @@ Contains metadata for additional simulation details
 
 _box_info = {
     "dimensions": {
-        "lx": "[length]",
-        "ly": "[length]",
-        "lz": "[length]",
-        "alpha": "[length]",
-        "beta": "[length]",
-        "gamma": "[length]",
+        "a": "[length]",
+        "b": "[length]",
+        "c": "[length]",
+        "alpha": "radian",
+        "beta": "radian",
+        "gamma": "radian",
         },
     "description": "This is information defines the simulation box",
 }
