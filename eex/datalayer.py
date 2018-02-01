@@ -110,8 +110,6 @@ class DataLayer(object):
         box_metadata = metadata.box_metadata
         dimensions = box_metadata["dimensions"]
 
-        box_constants = lattice_const
-        
         # Make sure we have all keywords that define a simulation box
         for k in dimensions:
             if k.lower() not in lattice_const and k.upper() not in lattice_const:
@@ -125,9 +123,11 @@ class DataLayer(object):
             for k, v in dimensions.items():
                 internal = units.convert_contexts(v)
                 cf = units.conversion_factor(utype[k], internal)
-                box_constants[k] *= cf 
+                self._box_size[k] = cf * lattice_const[k]
 
-        self._box_size = box_constants
+        else:
+            for k, v in lattice_const.items():
+                self._box_size[k] = v
 
     def get_box_size(self, utype=None):
         """

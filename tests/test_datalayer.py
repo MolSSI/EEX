@@ -308,7 +308,7 @@ def test_atom_units():
 def test_box_size():
     dl = eex.datalayer.DataLayer("test_box_size", backend="memory")
 
-    tmp = {"x": [-5, 5], "y": [-6, 6], "z": [-7, 7]}
+    tmp = {"a": 5, "b": 6, "c": 7, "alpha": np.pi/3, "beta": 0.0, "gamma": 0.0}
 
     # Normal set/get
     dl.set_box_size(tmp)
@@ -316,12 +316,30 @@ def test_box_size():
     assert dict_compare(tmp, comp)
 
     # Set/get with units
-    dl.set_box_size(tmp, utype="miles")
-    comp = dl.get_box_size(utype="miles")
-    assert dict_compare(tmp, comp)
+    utype = {"a": "nanometers", "b": "nanometers", "c": "nanometers", "alpha": "radian", "beta": "radian", "gamma": "radian"} 
+    dl.set_box_size(tmp, utype=utype)
+    comp = dl.get_box_size(utype=utype)
+    assert np.isclose(comp["a"], tmp["a"])
+    assert np.isclose(comp["b"], tmp["b"])
+    assert np.isclose(comp["c"], tmp["c"])
+    assert np.isclose(comp["alpha"], tmp["alpha"])
+    assert np.isclose(comp["beta"], tmp["beta"])
+    assert np.isclose(comp["gamma"], tmp["gamma"])
 
+    # Set/get with units
+    utype_1 = {"a": "angstroms", "b": "angstroms", "c": "angstroms", "alpha": "degree", "beta": "degree", "gamma": "degree"} 
+    dl.set_box_size(tmp, utype=utype)
+    comp = dl.get_box_size(utype=utype_1)
+    assert np.isclose(comp["a"], tmp["a"] * 10)
+    assert np.isclose(comp["b"], tmp["b"] * 10)
+    assert np.isclose(comp["c"], tmp["c"] * 10)
+    assert np.isclose(comp["alpha"], tmp["alpha"] * 180.0 / np.pi)
+    assert np.isclose(comp["beta"], tmp["beta"] * 180.0 / np.pi)
+    assert np.isclose(comp["gamma"], tmp["gamma"] * 180.0 / np.pi)
+
+    utype_2 = {"a": "miles", "b": "miles", "c": "miles", "alpha": "radians", "beta": "radians", "gamma": "radians"} 
     with pytest.raises(AssertionError):
-        dl.set_box_size(tmp, utype="miles")
+        dl.set_box_size(tmp, utype=utype_2)
         comp = dl.get_box_size()
         assert dict_compare(tmp, comp)
 
