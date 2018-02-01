@@ -115,7 +115,7 @@ class DataLayer(object):
         # Make sure we have all keywords that define a simulation box
         for k in dimensions:
             if k.lower() not in lattice_const and k.upper() not in lattice_const:
-                raise KeyError("Could not find key '%s'." % key)
+                raise KeyError("Could not find key '%s'." % k)
 
         if utype is not None:
             if not isinstance(utype, dict):
