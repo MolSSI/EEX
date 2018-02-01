@@ -243,9 +243,12 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
             # Get box information from prmtop if here. Will be overwritten by inpcrd if information is provided.
             elif current_data_category == "BOX_DIMENSIONS":
                 box_size = {}
-                box_size["x"] = [0, data[1].values[0]]
-                box_size["y"] = [0, data[2].values[0]]
-                box_size["z"] = [0, data[3].values[0]]
+                box_size["a"] = data[1].values[0]
+                box_size["b"] = data[2].values[0]
+                box_size["c"] = data[3].values[0]
+                box_size["alpha"] = data[0].values[0]
+                box_size["beta"] = data[0].values[0]
+                box_size["gamma"] = data[0].values[0]
                 dl.set_box_size(box_size)
 
             else:
@@ -425,7 +428,9 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         if sizes_dict["IFBOX"] > 0:
             box_information = data.tail(1).values[0]
 
-            box_sizes = {"x": [0, box_information[0]], "y": [0, box_information[1]], "z": [0, box_information[2]]}
+            box_sizes = {"a": box_information[0], "b": box_information[1], "c": box_information[2],
+                         "alpha": box_information[3], "beta": box_information[3], "gamma": box_information[3],
+                         }
 
             dl.set_box_size(box_sizes)
 
