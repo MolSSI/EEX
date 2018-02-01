@@ -135,11 +135,19 @@ class DataLayer(object):
         """
         ret = copy.deepcopy(self._box_size)
 
+        # Get information for internal representation of box
+        box_metadata = metadata.box_metadata
+        dimensions = box_metadata["dimensions"]
+
         if utype is not None:
-            internal_length = units.convert_contexts("[length]")
-            cf = units.conversion_factor(internal_length, utype)
-            for k, v in ret.items():
-                ret[k] = (v[0] * cf, v[1] * cf)
+            if not isinstance(utype, dict):
+                raise TypeError("Validate term dict: Unit type '%s' not understood" % str(type(utype)))
+
+            # Convert to internal units
+            for k, v in dimensions.items():
+                internal = units.convert_contexts(v)
+                cf = units.conversion_factor(internal, utype[k])
+                ret[k] *= cf
 
             return ret
 
