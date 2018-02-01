@@ -20,6 +20,7 @@ def read_lammps_data_file(dl, filename, blocksize=110):
     header_data = eex.utility.read_lines(filename, max_rows)
 
     box_size = {}
+    tilt_factors = {'xy': 0, 'xz': 0, 'yz': 0}
     sizes_dict = {}
 
     startline = None
@@ -49,6 +50,13 @@ def read_lammps_data_file(dl, filename, blocksize=110):
             startline = num + 3  # Skips first row and two blank lines
             current_data_category = eex.utility.fuzzy_list_match(line, category_list)[1]
             break
+
+        # Read tilt factors
+        elif ("xy" in line) and ("xz" in line) and ("yz" in line):
+            dline = line.split()
+            tilt_factors["xy"] = float(dline[0])
+            tilt_factors["xz"] = float(dline[1])
+            tilt_factors["yz"] = float(dline[2])
 
         # Figure out the dims
         elif ("lo" in line) and ("hi" in line):
@@ -85,6 +93,8 @@ def read_lammps_data_file(dl, filename, blocksize=110):
 
     # Set the box size
     dl.set_box_size(box_size, utype=lmd.get_context("real", "[length]"))
+    lattice_constants = eex.utility.compute_lattice_constants(box_size, tilt_factors, utype=lmd.get_context("real", "[length]"))
+    #dl.set_box_angles(box_size, tilt_factors, utype = lmd.get_context("real", "[length]"))
 
     # Make sure we have what we need
     if startline is None:

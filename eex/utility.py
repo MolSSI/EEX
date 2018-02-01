@@ -4,9 +4,49 @@ A EEX utility folder
 
 import os
 import hashlib
-
+from . import units
 import numpy as np
 
+def compute_lattice_constants(bsize, tilt_factors, utype=None):
+    cf = 1.0
+    if utype is not None:
+        internal_length = units.convert_contexts("[length]")
+        cf = units.conversion_factor(utype, internal_length)
+
+    for key in ["x", "y", "z"]:
+        if key.lower() in bsize or key.upper() in bsize:
+            tmp = bsize[key]
+        else:
+            raise KeyError("Could not find key '%s'." % key)
+
+        if len(tmp) != 2:
+            raise IndexError("bsize['%s'] length does not equal 2" % key)
+
+    for key in ["xy", "xz", "yz"]:
+        if key.lower() not in tilt_factors and key.upper() not in tilt_factors:
+            raise KeyError("Could not find key '%s'." % key)
+
+    lx = bsize['x'][1] - bsize['x'][0] 
+    ly = bsize['y'][1] - bsize['y'][0] 
+    lz = bsize['z'][1] - bsize['z'][0]
+
+    xy = tilt_factors['xy']
+    xz = tilt_factors['xz']
+    yz = tilt_factors['yz']
+
+    a = lx
+    b = np.sqrt(np.power(ly, 2) + np.power(xy, 2))
+    c = np.sqrt(np.power(lz, 2) + np.power(xz, 2) + np.power(yz, 2))
+
+    cos_alpha = xy *  xz + ly * yz / (b * c)
+    cos_beta = xz / c
+    cos_gamma = xy / b
+
+    alpha = np.arccos(cos_alpha)
+    beta = np.arccos(cos_beta)
+    gamma = np.arccos(cos_gamma)
+
+    return {'a': a, 'b': b, 'c': c, 'alpha': alpha, 'beta': beta, 'gamma': gamma}
 
 def fuzzy_list_match(line, ldata):
     """
