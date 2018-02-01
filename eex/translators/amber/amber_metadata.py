@@ -61,6 +61,13 @@ data_labels = {
 atom_data_units = {
     "charge": "e / 18.2223",  # Internal units
     "mass": "g * mol ** -1",
+    "length" : "angstrom",
+}
+
+box_units = {
+    "length" : "angstrom",
+    "angle": "degree"
+
 }
 
 atom_property_names = {

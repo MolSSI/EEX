@@ -109,7 +109,6 @@ class DataLayer(object):
         # Get box metadata
         box_metadata = metadata.box_metadata
         dimensions = box_metadata["dimensions"]
-        print(dimensions)
 
         box_constants = lattice_const
         

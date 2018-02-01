@@ -249,7 +249,9 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                 box_size["alpha"] = data[0].values[0]
                 box_size["beta"] = data[0].values[0]
                 box_size["gamma"] = data[0].values[0]
-                dl.set_box_size(box_size)
+                dl.set_box_size(box_size, utype={"a": amd.box_units["length"], "b": amd.box_units["length"],
+                                                 "c" : amd.box_units["length"], "alpha": amd.box_units["angle"],
+                                                 "beta": amd.box_units["angle"], "gamma": amd.box_units["angle"],})
 
             else:
                 # logger.debug("Did not understand data category.. passing")
@@ -432,7 +434,9 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                          "alpha": box_information[3], "beta": box_information[3], "gamma": box_information[3],
                          }
 
-            dl.set_box_size(box_sizes)
+            dl.set_box_size(box_sizes, utype={"a": amd.box_units["length"], "b": amd.box_units["length"],
+                                                 "c" : amd.box_units["length"], "alpha": amd.box_units["angle"],
+                                                 "beta": amd.box_units["angle"], "gamma": amd.box_units["angle"],})
 
             # Drop box info from atom coordinates
             data.drop(data.index[-1], inplace=True)
