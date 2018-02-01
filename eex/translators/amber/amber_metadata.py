@@ -74,6 +74,7 @@ atom_property_names = {
 }
 
 residue_store_names = ["RESIDUE_LABEL", "RESIDUE_POINTER"]
+molecule_store_names = ["ATOMS_PER_MOLECULE"]
 
 topology_store_names = [
     "BONDS_INC_HYDROGEN", "BONDS_WITHOUT_HYDROGEN", "ANGLES_INC_HYDROGEN", "ANGLES_WITHOUT_HYDROGEN",
@@ -141,6 +142,8 @@ store_other = []
 for k, v in forcefield_parameters.items():
     store_other.extend(list(v["column_names"]))
 store_other.extend(residue_store_names)
+store_other.extend(molecule_store_names)
+
 
 
 def parse_format(string):
