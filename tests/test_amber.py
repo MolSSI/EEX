@@ -73,6 +73,22 @@ def test_amber_spce_read_bonds(spce_dl):
     assert set(np.unique(bonds["term_index"])) == {1, 2}
     assert set(dl.get_term_count(2)) == {1, 2, "total"}
 
+def test_amber_read_butane():
+    fname = eex_find_files.get_example_filename("amber", "alkanes", "trappe_butane_single_molecule.prmtop")
+    dl = eex.datalayer.DataLayer("test_amber_read", backend="memory")
+    data = eex.translators.amber.read_amber_file(dl, fname)
+
+    assert dl.get_atom_count() == 4
+    assert dl.get_bond_count() == 3
+
+    box_info = dl.get_box_size(utype={'a':'angstrom', 'b':'angstrom', 'c':'angstrom', 'alpha':'degree', 'beta':'degree',
+                                 'gamma': 'degree'})
+
+    ref_box = {"a": 100, "b": 100, "c": 100, "alpha": 90, "beta": 90, "gamma": 90}
+
+    assert eex.testing.dict_compare(box_info, ref_box)
+
+
 
 # def test_amber_spce_parameters(spce_dl):
 #     data, dl = spce_dl
@@ -102,7 +118,11 @@ def test_amber_writer(molecule):
     # Read in output data
     dl_new = eex.datalayer.DataLayer(molecule)
     eex.translators.amber.read_amber_file(dl_new, oname)
+
+    # Compare the two datalayers
     assert eex.testing.dl_compare(dl, dl_new)
+
+
     # Since dl_compare does not yet do nonbonds, get NB from datalayer and compare
     assert (dl.list_stored_nb_types() == ["LJ"])
     assert (dl.list_nb_parameters(nb_name="LJ") == dl_new.list_nb_parameters(nb_name="LJ"))
