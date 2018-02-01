@@ -29,7 +29,10 @@ def compute_lattice_constants(bsize, tilt_factors):
     b = np.sqrt(np.power(ly, 2) + np.power(xy, 2))
     c = np.sqrt(np.power(lz, 2) + np.power(xz, 2) + np.power(yz, 2))
 
-    cos_alpha = xy *  xz + ly * yz / (b * c)
+    if np.isclose(b * c, 0.0):
+        raise ZeroDivisionError("One of the box sizes is zero") 
+
+    cos_alpha = (xy *  xz + ly * yz) / (b * c)
     cos_beta = xz / c
     cos_gamma = xy / b
 
