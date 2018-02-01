@@ -11,6 +11,9 @@ from .three_body_terms import three_body_metadata
 from .four_body_terms import four_body_metadata
 from .nb_terms import nb_metadata 
 
+# Bring in additional metadata
+from .additional_metadata import box_metadata
+
 # Bring in the helper functions
 from .md_helper import *
 

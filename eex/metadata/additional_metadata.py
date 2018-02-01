@@ -2,7 +2,7 @@
 Contains metadata for additional simulation details 
 """
 
-_box_info = {
+box_metadata = {
     "dimensions": {
         "a": "[length]",
         "b": "[length]",
@@ -115,24 +115,24 @@ _van_der_waals = {
                     "switching_radius": "[length]",
                     },
                 },
-            "shift"{
+            "shift": {
                 "parameters": [],
                 "units": {}
                 },
-            "cut"{
+            "cut": {
                 "parameters": [],
                 "units": {}
                 },
+    }
 }
 
 _mixing_rule = ["lorentz_berthelot", "geometric", "kong", "sixth_power", "custom"]
 
 _neighbor = {
-    "verlet" = {
-        {
+        "verlet": {
         "skin": "[length]",
         "frequency": "count",
-        },
+    },
 }
 
 #_special_bonds = {
@@ -143,7 +143,7 @@ _exclusions = {
         "scale12": "dimensionless",
         "scale13": "dimensionless",
         "scale14": "dimensionless",
-    }
+    }, 
     "van_der_waals":{
         "scale12": "dimensionless",
         "scale13": "dimensionless",

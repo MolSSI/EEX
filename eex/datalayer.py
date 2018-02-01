@@ -102,28 +102,32 @@ class DataLayer(object):
         """
         return [x.replace("other_", "") for x in self.store.list_tables() if x.startswith("other_")]
 
-    def set_box_size(self, bsize, utype=None):
+    def set_box_size(self, lattice_const, utype=None):
         """
-        Sets the overall size of the box for the datalayer
+        Sets the box lattice constants for the datalayer
         """
+        # Get box metadata
+        box_metadata = metadata.box_metadata
+        dimensions = box_metadata["dimensions"]
 
-        cf = 1.0
-        if utype is not None:
-            internal_length = units.convert_contexts("[length]")
-            cf = units.conversion_factor(utype, internal_length)
-
-        for key in ["x", "y", "z"]:
-            if key.lower() in bsize:
-                tmp = bsize[key]
-            elif key.upper() in bsize:
-                tmp = bsize[key].lower()
-            else:
+        box_constants = lattice_const
+        
+        # Make sure we have all keywords that define a simulation box
+        for k in dimensions:
+            if k.lower() not in lattice_const and k.upper() not in lattice_const:
                 raise KeyError("Could not find key '%s'." % key)
 
-            if len(tmp) != 2:
-                raise IndexError("bsize['%s'] length does not equal 2" % key)
+        if utype is not None:
+            if not isinstance(utype, dict):
+                raise TypeError("Validate term dict: Unit type '%s' not understood" % str(type(utype)))
 
-            self._box_size[key] = (bsize[key][0] * cf, bsize[key][1] * cf)
+            # Convert to internal units
+            for k, v in dimensions:
+                internal = units.convert_contexts(v)
+                cf = units.conversion_factor(utype[k], internal)
+                box_constants[k] *= cf 
+
+        self._box_size = box_constants
 
     def get_box_size(self, utype=None):
         """
