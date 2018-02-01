@@ -109,6 +109,7 @@ class DataLayer(object):
         # Get box metadata
         box_metadata = metadata.box_metadata
         dimensions = box_metadata["dimensions"]
+        print(dimensions)
 
         box_constants = lattice_const
         
@@ -122,7 +123,7 @@ class DataLayer(object):
                 raise TypeError("Validate term dict: Unit type '%s' not understood" % str(type(utype)))
 
             # Convert to internal units
-            for k, v in dimensions:
+            for k, v in dimensions.items():
                 internal = units.convert_contexts(v)
                 cf = units.conversion_factor(utype[k], internal)
                 box_constants[k] *= cf 
