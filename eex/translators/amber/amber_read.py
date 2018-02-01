@@ -306,6 +306,39 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     res_df.index.name = "atom_index"
     dl.add_atoms(res_df, by_value=True)
 
+    # Expand molecule values - if periodic simulation information will be given. If not, we assign all atoms the same
+    # molecule number.
+    if sizes_dict["IFBOX"] > 0:
+        molecule_df = dl.get_other(amd.molecule_store_names)
+
+        # This is only set if SOLVENT_POINTERS is present in the prmtop (ie - a periodic simulation)
+        number_of_molecules = label_sizes["ATOMS_PER_MOLECULE"]
+
+        molecule_range = np.arange(1, number_of_molecules+1)
+
+        # Next, we need to create a dataframe with the column header "molecule_index". The variable
+        # molecule_df contains a list of the number of atoms in each molecule, while the variable number_of_molecules
+        # gives the total number of molecules in the system.
+
+        molecule_df = pd.DataFrame({
+            "molecule_index": np.repeat(molecule_range, [int(x) for x in molecule_df["ATOMS_PER_MOLECULE"].values], axis=0)
+        })
+
+        molecule_df.index = np.arange(1, molecule_df.shape[0] +1)
+        molecule_df.index.name = "atom_index"
+
+    else:
+        molecule_df = pd.DataFrame({
+            "molecule_index": np.ones(sizes_dict["NATOM"])
+        })
+
+        molecule_df.index = np.arange(1, molecule_df.shape[0] +1)
+        molecule_df.index.name = "atom_index"
+
+    dl.add_atoms(molecule_df, by_value=True)
+
+
+
     # Handle forcefield parameters
     other_tables = set(dl.list_other_tables())
     for key, param_data in amd.forcefield_parameters.items():
@@ -364,7 +397,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                         nb_model=amd.forcefield_parameters["nonbond"]["form"]["form"],
                         utype=amd.forcefield_parameters["nonbond"]["units"])
 
-    ### Try to pull in an inpcrd file for XYZ coordinates
+    ### Try to pull in an inpcrd file for XYZ coordinates and box information
     inpcrd_file = filename.replace('.prmtop', '.inpcrd')
     try:
         header_data = eex.utility.read_lines(inpcrd_file, 2)
@@ -378,6 +411,8 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
         read_size = math.ceil(float(inpcrd_size[0]) / 2)
 
+        ## Read in extra line if simulation is periodic - NOTE - this will not work for files with velocity information
+        ## (mentioned above in exception)
         if sizes_dict["IFBOX"] > 0:
             read_size += 1
 
