@@ -10,17 +10,23 @@ box_metadata = {
         "alpha": "radian",
         "beta": "radian",
         "gamma": "radian",
+        "center": "dimensionless"
         },
     "description": "This is information defines the simulation box",
 }
 
+
+# possible boundary conditions. Can be periodic (molecule moves through one side to the other),
+# fixed - particle is lost when moves beyond box boundary, or "shrink-wrapped", meaning that that
+# the box size adjusts
 _boundary = {
-    "x": ["p", "f"], 
-    "y": ["p", "f"], 
-    "z": ["p", "f"], 
+    "x": ["shrink-wrapped", "periodic", "fixed"],
+    "y": ["shrink-wrapped", "periodic", "fixed"],
+    "z": ["shrink-wrapped", "periodic", "fixed"],
 }
 
-_box_origin = ["origin", "center", "custom"]
+# These should be the keyword possibilities - function for computing based on keyword. May not go here
+_box_center = ["origin", "center", "custom"]
 
 _electrostatics = {
         "ewald": {
