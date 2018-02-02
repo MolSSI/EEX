@@ -343,6 +343,39 @@ def test_box_size():
         comp = dl.get_box_size()
         assert dict_compare(tmp, comp)
 
+def test_box_center():
+    dl = eex.datalayer.DataLayer("test_box_center", backend="memory")
+
+    tmp = {"x": 5, "y": 6, "z": 7}
+
+    # Normal set/get
+    dl.set_box_center(tmp)
+    comp = dl.get_box_center()
+    assert dict_compare(tmp, comp)
+
+    # Set/get with units
+    utype = {"x": "nanometers", "y": "nanometers", "z": "nanometers"}
+    dl.set_box_center(tmp, utype=utype)
+    comp = dl.get_box_center(utype=utype)
+    assert np.isclose(comp["x"], tmp["x"])
+    assert np.isclose(comp["y"], tmp["y"])
+    assert np.isclose(comp["z"], tmp["z"])
+
+    # Set/get with units
+    utype_1 = {"x": "angstroms", "y": "angstroms", "z": "angstroms"}
+    dl.set_box_center(tmp, utype=utype)
+    comp = dl.get_box_center(utype=utype_1)
+    assert np.isclose(comp["x"], tmp["x"] * 10)
+    assert np.isclose(comp["y"], tmp["y"] * 10)
+    assert np.isclose(comp["z"], tmp["z"] * 10)
+
+    utype_2 = {"x": "miles", "y": "miles", "z": "miles"}
+    with pytest.raises(AssertionError):
+        dl.set_box_center(tmp, utype=utype_2)
+        comp = dl.get_box_center()
+        assert dict_compare(tmp, comp)
+
+
 
 def test_add_nb_parameter():
 
