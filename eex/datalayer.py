@@ -121,9 +121,10 @@ class DataLayer(object):
 
             # Convert to internal units
             for k, v in dimensions.items():
-                internal = units.convert_contexts(v)
-                cf = units.conversion_factor(utype[k], internal)
-                self._box_size[k] = cf * lattice_const[k]
+                if k is not "center":
+                    internal = units.convert_contexts(v)
+                    cf = units.conversion_factor(utype[k], internal)
+                    self._box_size[k] = cf * lattice_const[k]
 
         else:
             for k, v in lattice_const.items():
@@ -145,9 +146,10 @@ class DataLayer(object):
 
             # Convert to internal units
             for k, v in dimensions.items():
-                internal = units.convert_contexts(v)
-                cf = units.conversion_factor(internal, utype[k])
-                ret[k] *= cf
+                if k is not "center":
+                    internal = units.convert_contexts(v)
+                    cf = units.conversion_factor(internal, utype[k])
+                    ret[k] *= cf
 
             return ret
 
