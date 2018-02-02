@@ -249,18 +249,9 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                 box_size["alpha"] = data[0].values[0]
                 box_size["beta"] = data[0].values[0]
                 box_size["gamma"] = data[0].values[0]
-                box_size["center"] = amd.box_units["center"] # says box center is 'center' as in n/2 where n is box length
-
-                box_units = {
-                    "a": amd.box_units["length"],
-                    "b": amd.box_units["length"],
-                    "c": amd.box_units["length"],
-                    "alpha": amd.box_units["angle"],
-                    "beta": amd.box_units["angle"],
-                    "gamma": amd.box_units["angle"],
-                }
-
-                dl.set_box_size(box_size, utype=box_units)
+                dl.set_box_size(box_size, utype={"a": amd.box_units["length"], "b": amd.box_units["length"],
+                                                 "c" : amd.box_units["length"], "alpha": amd.box_units["angle"],
+                                                 "beta": amd.box_units["angle"], "gamma": amd.box_units["angle"],})
 
             else:
                 # logger.debug("Did not understand data category.. passing")
@@ -439,20 +430,13 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         if sizes_dict["IFBOX"] > 0:
             box_information = data.tail(1).values[0]
 
-            box_size = {"a": box_information[0], "b": box_information[1], "c": box_information[2],
+            box_sizes = {"a": box_information[0], "b": box_information[1], "c": box_information[2],
                          "alpha": box_information[3], "beta": box_information[3], "gamma": box_information[3],
-                        "center": amd.box_units["center"]}
+                         }
 
-            box_units = {
-                "a": amd.box_units["length"],
-                "b": amd.box_units["length"],
-                "c": amd.box_units["length"],
-                "alpha": amd.box_units["angle"],
-                "beta": amd.box_units["angle"],
-                "gamma": amd.box_units["angle"],
-            }
-
-            dl.set_box_size(box_size, utype=box_units)
+            dl.set_box_size(box_sizes, utype={"a": amd.box_units["length"], "b": amd.box_units["length"],
+                                                 "c" : amd.box_units["length"], "alpha": amd.box_units["angle"],
+                                                 "beta": amd.box_units["angle"], "gamma": amd.box_units["angle"],})
 
             # Drop box info from atom coordinates
             data.drop(data.index[-1], inplace=True)
