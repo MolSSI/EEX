@@ -66,8 +66,18 @@ atom_data_units = {
 
 box_units = {
     "length" : "angstrom",
-    "angle": "degree"
+    "angle": "degree",
+    "center": "center"
+}
 
+# Box boundaries are always periodic if there is a box (i.e. IFBOX > 0).
+# Else, this is a vacuum simulation where there are no boundaries. This
+# is most similar to the 'shrink-wrapped' option in lammps and the EEX
+# data layer
+box_boundaries = {
+    "x" : ["'periodic' if IFBOX>0, else 'shrink-wrapped'"],
+    "y" : ["'periodic' if IFBOX>0, else 'shrink-wrapped'"],
+    "z" : ["'periodic' if IFBOX>0, else 'shrink-wrapped'"],
 }
 
 atom_property_names = {
