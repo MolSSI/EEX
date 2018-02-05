@@ -230,7 +230,7 @@ _operation_table = {
         "call_type": "parameter",
         "args": {
             "order": 2,
-            "style_keyword": "bond_style"
+            "form_name": "harmonic"
         },
     },
     "Angle Coeffs": {
@@ -239,7 +239,7 @@ _operation_table = {
         "call_type": "parameter",
         "args": {
             "order": 3,
-            "style_keyword": "angle_style"
+            "form_name": "harmonic"
         },
     },
     "Dihedral Coeffs": {
@@ -248,7 +248,7 @@ _operation_table = {
         "call_type": "parameter",
         "args": {
             "order": 4,
-            "style_keyword": "dihedral_style"
+            "form_name": "opls"
         },
     },
     "Improper Coeffs": {
