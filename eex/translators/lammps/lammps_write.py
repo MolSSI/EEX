@@ -41,10 +41,22 @@ def write_lammps_file(dl, filename, blocksize=110):
         # data_file.write(' '.join([str(data["sizes"][k]), k, '\n']))
 
     # Write box information
-    box_size = dl.get_box_size()
-    for coord in ["x", "y", "z"]:
-        data_file.write("% 8.6f% 8.6f %slo %shi\n" % (box_size[coord][0], box_size[coord][1], coord, coord))
+    box_size = dl.get_box_size(utype={"a": "angstrom", "b": "angstrom", "c": "angstrom", "alpha": "degree",
+                                      "beta": "degree", "gamma": "degree"})
+
+    box_center = dl.get_box_center(utype={"x": "angstrom", "y": "angstrom", "z": "angstrom"})
+
+    lo_hi = {}
+
+    lo_hi["x"] = [box_center["x"] - box_size["a"]/2., box_center["x"] + box_size["a"]/2.]
+    lo_hi["y"] = [box_center["y"] - box_size["b"]/2., box_center["y"] + box_size["b"] / 2.]
+    lo_hi["z"] = [box_center["z"] - box_size["c"] / 2., box_center["z"] + box_size["c"] / 2.]
+
+    for k, v in lo_hi.items():
+        data_file.write("% 8.6f% 8.6f %slo %shi\n" % (v[0],v[1], k, k))
     data_file.write('\n')
+
+
 
     # Loop over Pair Coeffs
     # NYI
