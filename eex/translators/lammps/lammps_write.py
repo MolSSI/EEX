@@ -13,9 +13,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def write_lammps_file(dl, filename, blocksize=110):
+def write_lammps_file(dl, filename, utype="real", blocksize=110):
 
-    term_table = lmd.build_term_table("real")
+    # handle units
+    unit_set = lmd.units_style[utype]
+
+    term_table = lmd.build_term_table(utype)
 
     data_file = open(filename, 'w')
 
@@ -41,8 +44,8 @@ def write_lammps_file(dl, filename, blocksize=110):
         # data_file.write(' '.join([str(data["sizes"][k]), k, '\n']))
 
     # Write box information
-    box_size = dl.get_box_size(utype={"a": "angstrom", "b": "angstrom", "c": "angstrom", "alpha": "degree",
-                                      "beta": "degree", "gamma": "degree"})
+    box_size = dl.get_box_size(utype={"a": unit_set["[length]"], "b": unit_set["[length]"], "c": unit_set["[length]"],
+                                      "alpha": "degree", "beta": "degree", "gamma": "degree"})
 
     box_center = dl.get_box_center(utype={"x": "angstrom", "y": "angstrom", "z": "angstrom"})
 
@@ -85,7 +88,7 @@ def write_lammps_file(dl, filename, blocksize=110):
     # Write out mass data
     data_file.write(" Masses\n\n")
     for idx in dl.list_atom_uids("mass"):
-        mass = dl.get_atom_parameter("mass", idx, utype=lmd.get_context("real", "[mass]"))
+        mass = dl.get_atom_parameter("mass", idx, utype=lmd.get_context(utype, "[mass]"))
         data_file.write("%2d %10.8f\n" % (idx, mass))
     data_file.write('\n')
 
