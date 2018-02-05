@@ -21,6 +21,7 @@ def read_lammps_data_file(dl, filename, blocksize=110):
     header_data = eex.utility.read_lines(filename, max_rows)
 
     box_size = {}
+    box_center = {}
     tilt_factors = {'xy': 0, 'xz': 0, 'yz': 0}
     sizes_dict = {}
 
@@ -64,11 +65,14 @@ def read_lammps_data_file(dl, filename, blocksize=110):
             dline = line.split()
             if dline[-1] == "xhi":
                 box_size["x"] = float(dline[1]) - float(dline[0])
-
+                box_center["x"] = box_size["x"]/2. + float(dline[0])
             elif dline[-1] == "yhi":
                 box_size["y"] = float(dline[1]) - float(dline[0])
+                box_center["y"] = box_size["y"] / 2. + float(dline[0])
             elif dline[-1] == "zhi":
                 box_size["z"] = float(dline[1]) - float(dline[0])
+                box_center["z"] = box_size["z"] / 2. + float(dline[0])
+
             else:
                 raise KeyError(
                     "LAMMPS Read: The following line looks like a dimension line, but does not match:\n%s" % line)
@@ -94,9 +98,10 @@ def read_lammps_data_file(dl, filename, blocksize=110):
 
     # Set the box size
     lattice_constants = eex.utility.compute_lattice_constants(box_size, tilt_factors)
-    #print(lattice_constants)
+
     dl.set_box_size(lattice_constants)
-    #print(dl.get_box_size())
+    dl.set_box_center(box_center)
+
     # Make sure we have what we need
     if startline is None:
         raise IOError("LAMMPS Read: Did not find data start in %d header lines." % max_rows)

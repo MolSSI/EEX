@@ -67,7 +67,7 @@ atom_data_units = {
 box_units = {
     "length" : "angstrom",
     "angle": "degree",
-    "center": "center"
+    "center":  [ "a/2", "b/2", "c/2" ] ,
 }
 
 # Box boundaries are always periodic if there is a box (i.e. IFBOX > 0).
