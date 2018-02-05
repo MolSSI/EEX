@@ -12,6 +12,7 @@ from . import lammps_metadata as lmd
 import logging
 logger = logging.getLogger(__name__)
 
+extra_simulation_data = {}
 
 def read_lammps_data_file(dl, filename, blocksize=110):
 
@@ -138,6 +139,8 @@ def read_lammps_data_file(dl, filename, blocksize=110):
     while True:
 
         # Figure out the size of the chunk to read
+        # i.e. 'Atoms', 'Bonds', 'Dihedral coeffs', etc. op is a dictionary
+        # whose values are ['size', 'dl_func', 'df_cols', 'kwargs', 'call_type']
         op = op_table[current_data_category]
 
         # Read in the current section, in chunks
@@ -171,7 +174,7 @@ def read_lammps_data_file(dl, filename, blocksize=110):
             # Adding parameters
             elif op["call_type"] == "parameter":
                 order = op["args"]["order"]
-                fname = op["args"]["form_name"]
+                fname = extra_simulation_data[op["args"]["style_keyword"]]
                 cols = term_table[order][fname]["parameters"]
                 data.columns = ["uid"] + cols
                 for idx, row in data.iterrows():
@@ -232,13 +235,7 @@ def kspace_style():
     pass
 def pair_modify():
     pass
-def special_bonds():
-    pass
-def bond_style():
-    pass
-def angle_style():
-    pass
-def dihedral_style():
+def get_special_bonds():
     pass
 
 def read_lammps_file(dl, fname, blocksize=110):
@@ -269,7 +266,6 @@ def read_lammps_file(dl, fname, blocksize=110):
         line = line.split()
         keyword = line[0]
         keyword_opts = line[1:]
-
         # Handle keywords
         if keyword == "read_data":
             data_filename = input_dir + "/" + keyword_opts[0]
@@ -289,4 +285,18 @@ def read_lammps_file(dl, fname, blocksize=110):
             tmp["values"] = variable_values
 
             variable_list[variable_name] = tmp
-    return data
+        elif keyword  == "bond_style":
+            if keyword_opts[0] in lmd.lammps_ff.term_data[2]:
+                extra_simulation_data["bond_style"] = keyword_opts[0]
+            else:
+                raise KeyError("Could not find key '%s'." % keyword_opts[0])
+        elif keyword  == "angle_style":
+            if keyword_opts[0] in lmd.lammps_ff.term_data[3]:
+                extra_simulation_data["angle_style"] = keyword_opts[0]
+            else:
+                raise KeyError("Could not find key '%s'." % keyword_opts[0])
+        elif keyword  == "dihedral_style":
+            if keyword_opts[0] in lmd.lammps_ff.term_data[4]:
+                extra_simulation_data["dihedral_style"] = keyword_opts[0]
+            else:
+                raise KeyError("Could not find key '%s'." % keyword_opts[0])
