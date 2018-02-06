@@ -16,7 +16,7 @@ def build_dl(program, molecule):
         fname = eex_find_files.get_example_filename("amber", "alkanes", file_name)
         dl = eex.datalayer.DataLayer("test_amber")
         data = eex.translators.amber.read_amber_file(dl, fname)
-        return data, dl
+        return dl
     elif program.lower() == "lammps":
         file_name = "data.trappe_%s_single_molecule" % molecule
         fname = eex_find_files.get_example_filename("lammps", "alkanes", file_name)
@@ -26,6 +26,31 @@ def build_dl(program, molecule):
     else:
         raise KeyError("Program %s not understood" % program)
 
+def build_dl2(program, fname):
+    if program.lower() == "amber":
+        dl = eex.datalayer.DataLayer("test_amber")
+        eex.translators.amber.read_amber_file(dl, fname)
+        return dl
+    elif program.lower() == "lammps":
+        dl = eex.datalayer.DataLayer("test_lammps")
+        eex.translators.lammps.read_lammps_data_file(dl, fname)
+        return dl
+    else:
+        raise KeyError("Program %s not understood" % program)
+
+
+
+def write_dl(program, dl, oname):
+    if program.lower() == "amber":
+        oname = oname+'.prmtop'
+        eex.translators.amber.write_amber_file(dl, oname)
+        return oname
+    elif program.lower() == "lammps":
+        infile = oname + ".in"
+        eex.translators.lammps.write_lammps_file(dl, oname, infile)
+        return oname
+    else:
+        raise KeyError("Program %s not understood" % program)
 
 # Loop over alkane molecules
 @pytest.fixture(scope="module", params=_alkane_molecules)
@@ -42,6 +67,27 @@ def lammps_bench(request):
 def test_alkane(lammps_bench, program):
     molecule, bench_dl, bench_energy = lammps_bench
 
-    test_dl = build_dl(program, molecule)[1]
+    test_dl = build_dl(program, molecule)
     #assert eex.testing.dl_compare(bench_dl, test_dl)
     assert eex.testing.dict_compare(bench_energy, test_dl.evaluate())
+
+# write test that loads in amber --> lammps --> EEX compare datalayers
+
+@pytest.mark.parametrize("program1", ["amber"]) #build dl
+@pytest.mark.parametrize("program2", ["amber", "lammps"]) #write dl
+@pytest.mark.parametrize("molecule", _alkane_molecules)
+def test_translation(program1, program2, molecule):
+
+    print("Translating %s to %s" %(program1, program2))
+
+    oname = eex_find_files.get_scratch_directory("test_output")
+
+    original_dl = build_dl(program1, molecule)
+    original_energy = original_dl.evaluate()
+
+    oname = write_dl(program2, original_dl, oname)
+
+    new_dl = build_dl2(program2, oname)
+    new_energy = new_dl.evaluate()
+
+    assert(eex.testing.dict_compare(original_energy, new_energy))
