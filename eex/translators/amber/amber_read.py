@@ -243,15 +243,32 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
             # Get box information from prmtop if here. Will be overwritten by inpcrd if information is provided.
             elif current_data_category == "BOX_DIMENSIONS":
                 box_size = {}
-                box_size["a"] = data[1].values[0]
-                box_size["b"] = data[2].values[0]
-                box_size["c"] = data[3].values[0]
+                box_center = []
+                a = data[1].values[0]
+                b = data[2].values[0]
+                c = data[3].values[0]
+
                 box_size["alpha"] = data[0].values[0]
                 box_size["beta"] = data[0].values[0]
                 box_size["gamma"] = data[0].values[0]
+
+
+
+                for v in amd.box_units["center"]:
+                    box_center.append(eval(v))
+
+                box_center = dict(zip(['x', 'y', 'z'], box_center))
+
+                box_size["a"] = a
+                box_size["b"] = b
+                box_size["c"] = c
+
                 dl.set_box_size(box_size, utype={"a": amd.box_units["length"], "b": amd.box_units["length"],
                                                  "c" : amd.box_units["length"], "alpha": amd.box_units["angle"],
                                                  "beta": amd.box_units["angle"], "gamma": amd.box_units["angle"],})
+
+                dl.set_box_center(box_center, utype={"x": amd.box_units["length"], "y": amd.box_units["length"],
+                                                 "z" : amd.box_units["length"]})
 
             else:
                 # logger.debug("Did not understand data category.. passing")
