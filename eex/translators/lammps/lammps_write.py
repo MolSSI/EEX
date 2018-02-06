@@ -31,7 +31,6 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
 
     input_file.write("units\t%s\n" %(unit_style))
     input_file.write("atom_style\tfull\n")
-    input_file.write("read_data\t%s\n" %(data_filename))
 
     sizes = {}
     sizes["atoms"] = dl.get_atom_count()
@@ -142,6 +141,8 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
         # print(term)
         term.to_csv(data_file, header=None, sep=" ")
         data_file.write('\n')
+
+    input_file.write("read_data\t%s\n" %(data_filename))
 
     data_file.close()
     input_file.close()
