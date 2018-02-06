@@ -81,7 +81,11 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
                     nb_name=form, nb_model="epsilon/sigma", utype={"epsilon": "kcal/mol", "sigma": "angstrom"})
 
             for key, value in stored_nb_parameters.items():
-                data_file.write(("%2d %10.8f %10.8f\n" % (key[0], value['epsilon'], value['sigma'])))
+                if len(key) == 1:
+                    data_file.write(("%2d %10.8f %10.8f\n" % (key, value['epsilon'], value['sigma'])))
+                elif len(key) == 2:
+                    data_file.write(("%2d %2d %10.8f %10.8f\n" % (key[0], key[1], value['epsilon'], value['sigma'])))
+
     data_file.write("\n")
         
     # Loop over all of the parameter data
