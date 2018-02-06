@@ -28,6 +28,11 @@ def read_lammps_data_file(dl, filename, blocksize=110):
     startline = None
     current_data_category = None
 
+    if 'units' in extra_simulation_data:
+        unit_style = extra_simulation_data["units"]
+    else:
+        unit_style = "real"
+
     # Category_list contains keywords of data file e.g. Atoms, Masses, 
     # Bond Coeffs, etc.
     category_list = lmd.build_valid_category_list()
@@ -116,18 +121,18 @@ def read_lammps_data_file(dl, filename, blocksize=110):
     # Each key, i.e. Atoms, has a value that is a dictionary. The keys for
     # these nested dictionaries are 
     # ['size', 'dl_func', 'df_cols', 'kwargs', 'call_type']
-    op_table = lmd.build_operation_table("real", sizes_dict)
+    op_table = lmd.build_operation_table(unit_style, sizes_dict)
 
     # Term table is a dictionary with all the metadata for each two
     # three and four body potential functional forms using the lammps
     # metadata file. The units of these functional forms are consistent with
     # the information in the input file.
     # E.g. term_table[2]["fene"]["form"]
-    term_table = lmd.build_term_table("real")
+    term_table = lmd.build_term_table(unit_style)
 
     # nb_term_table is a dictionary of all the different pair_styles
     # with the desired units
-    nb_term_table = lmd.build_nb_table("real")
+    nb_term_table = lmd.build_nb_table(unit_style)
 
     ### Iterate over the primary data portion of the object
 
@@ -230,8 +235,6 @@ def get_include():
     pass
 def get_variable():
     pass
-def get_units(opts):
-    pass
 def get_atom_style():
     pass
 def get_pair_style():
@@ -294,14 +297,19 @@ def read_lammps_file(dl, fname, blocksize=110):
             if keyword_opts[0] in lmd.lammps_ff.term_data[2]:
                 extra_simulation_data["bond_style"] = keyword_opts[0]
             else:
-                raise KeyError("Could not find key '%s'." % keyword_opts[0])
+                raise KeyError("Could not find bond style '%s'." % keyword_opts[0])
         elif keyword  == "angle_style":
             if keyword_opts[0] in lmd.lammps_ff.term_data[3]:
                 extra_simulation_data["angle_style"] = keyword_opts[0]
             else:
-                raise KeyError("Could not find key '%s'." % keyword_opts[0])
+                raise KeyError("Could not find angle style '%s'." % keyword_opts[0])
         elif keyword  == "dihedral_style":
             if keyword_opts[0] in lmd.lammps_ff.term_data[4]:
                 extra_simulation_data["dihedral_style"] = keyword_opts[0]
             else:
-                raise KeyError("Could not find key '%s'." % keyword_opts[0])
+                raise KeyError("Could not find dihedral style '%s'." % keyword_opts[0])
+        elif keyword == "units":
+            if keyword_opts[0] in lmd.units_style:
+                extra_simulation_data["units"] = keyword_opts[0]
+            else:
+                raise KeyError("Could not find unit style '%s'." % keyword_opts[0])
