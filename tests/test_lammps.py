@@ -95,7 +95,8 @@ def test_lammps_writer(molecule):
 
     # Write out the data
     oname = eex_find_files.get_scratch_directory(molecule)
-    eex.translators.lammps.write_lammps_file(dl, oname, unit_style="real")
+    input_filename = oname + '.in'
+    eex.translators.lammps.write_lammps_file(dl, oname, input_filename, unit_style="real")
 
     # Read in output data
     dl_new = eex.datalayer.DataLayer(molecule)
