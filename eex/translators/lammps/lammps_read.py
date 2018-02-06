@@ -194,12 +194,28 @@ def read_lammps_data_file(dl, filename, blocksize=110):
                 fname = op["args"]["form_name"]
                 fform = op["args"]["form_form"]
                 cols = nb_term_table[fname]["parameters"]
-                data.columns = ["uid"] + cols
+                number_of_parameters = len(cols)
+                number_of_columns = len(data.columns)
+
+                difference = number_of_columns - number_of_parameters
+
+                uid_list = ["uid" + str(x) for x in range(0,difference)]
+                data.columns = uid_list + cols
+
                 for idx, row in data.iterrows():
                     params = list(row[cols])
+                    atom_types = list(row[uid_list])
+
                     utype = nb_term_table[fname]["utype"]
-                    uid = int(row["uid"])
-                    dl.add_nb_parameter(atom_type=uid, nb_name=fname, nb_model=fform, nb_parameters=params, utype=utype)
+                    if len(atom_types) == 1:
+                        dl.add_nb_parameter(atom_type=atom_types[0],
+                                            nb_name=fname, nb_model=fform, nb_parameters=params, utype=utype)
+                    elif len(atom_types) == 2:
+                        dl.add_nb_parameter(atom_type=atom_types[0], atom_type2=atom_types[1],
+                                            nb_name=fname, nb_model=fform, nb_parameters=params, utype=utype)
+                    else:
+                        raise Exception("Incorrect number of arguments for pair_coeff")
+
             else:
                 raise KeyError("Operation table call '%s' not understoop" % op["call_type"])
 
