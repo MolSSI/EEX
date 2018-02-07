@@ -12,9 +12,34 @@ from . import lammps_metadata as lmd
 import logging
 logger = logging.getLogger(__name__)
 
-extra_simulation_data = {}
 
-def read_lammps_data_file(dl, filename, blocksize=110):
+def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
+
+    if not isinstance(extra_simulation_data, dict):
+        raise TypeError("Validate term dict: Extra simulation data type '%s' not understood" % str(type(utype)))
+
+    for keyword in ['units', 'bond_style', 'angle_style', 'dihedral_style']:
+        if keyword not in extra_simulation_data.keys():
+            raise KeyError("The keyword '%s' is missing" % keyword)
+        else:
+            if keyword == 'units':
+                unit_style = extra_simulation_data["units"]
+                if unit_style not in lmd.units_style:
+                    raise KeyError("Could not find unit style '%s'." % unit_style)
+            elif keyword == 'bond_style': 
+                bond_style = extra_simulation_data['bond_style']
+                if bond_style not in lmd.lammps_ff.term_data[2]:
+                    raise KeyError("Could not find bond style '%s'." % bond_style)
+            elif keyword == 'angle_style': 
+                angle_style = extra_simulation_data['angle_style']
+                if angle_style not in lmd.lammps_ff.term_data[3]:
+                    raise KeyError("Could not find angle style '%s'." % angle_style)
+            elif keyword == 'dihedral_style': 
+                dihedral_style = extra_simulation_data['dihedral_style']
+                if dihedral_style not in lmd.lammps_ff.term_data[4]:
+                    raise KeyError("Could not find dihedral style '%s'." % dihedral_style)
+            else:
+                raise KeyError("Key %s not understood. " % k)
 
     ### Figure out system dimensions and general header data
     max_rows = 100  # How many lines do we attempt to search?
@@ -28,10 +53,6 @@ def read_lammps_data_file(dl, filename, blocksize=110):
     startline = None
     current_data_category = None
 
-    if 'units' in extra_simulation_data:
-        unit_style = extra_simulation_data["units"]
-    else:
-        unit_style = "real"
 
     # Category_list contains keywords of data file e.g. Atoms, Masses, 
     # Bond Coeffs, etc.
@@ -182,7 +203,7 @@ def read_lammps_data_file(dl, filename, blocksize=110):
             # Adding parameters
             elif op["call_type"] == "parameter":
                 order = op["args"]["order"]
-                fname = op["args"]["form_name"]
+                fname = extra_simulation_data[op["args"]["style_keyword"]]
                 cols = term_table[order][fname]["parameters"]
                 data.columns = ["uid"] + cols
                 for idx, row in data.iterrows():
@@ -258,10 +279,12 @@ def kspace_style():
 def pair_modify():
     pass
 
-def read_lammps_file(dl, fname, blocksize=110):
+def read_lammps_input_file(dl, fname, blocksize=110):
     """
         Reads a LAMMPS input file
     """
+    extra_simulation_data = {}
+
     variable_list = {}
 
     input_dir = os.path.dirname(fname)
@@ -289,7 +312,7 @@ def read_lammps_file(dl, fname, blocksize=110):
         # Handle keywords
         if keyword == "read_data":
             data_filename = input_dir + "/" + keyword_opts[0]
-            read_lammps_data_file(dl, data_filename, blocksize)
+            read_lammps_data_file(dl, data_filename, extra_simulation_data, blocksize)
         elif keyword == "include_data":
             include_data = eex.utility.read_lines(keyword_opts[0])
             for inum, line_data in enumerate(include_data):
@@ -306,59 +329,50 @@ def read_lammps_file(dl, fname, blocksize=110):
 
             variable_list[variable_name] = tmp
 
-        elif keyword  == "bond_style":
-            if keyword_opts[0] in lmd.lammps_ff.term_data[2]:
-                extra_simulation_data["bond_style"] = keyword_opts[0]
-            else:
-                raise KeyError("Could not find bond style '%s'." % keyword_opts[0])
-        elif keyword  == "angle_style":
-            if keyword_opts[0] in lmd.lammps_ff.term_data[3]:
-                extra_simulation_data["angle_style"] = keyword_opts[0]
-            else:
-                raise KeyError("Could not find angle style '%s'." % keyword_opts[0])
-        elif keyword  == "dihedral_style":
-            if keyword_opts[0] in lmd.lammps_ff.term_data[4]:
-                extra_simulation_data["dihedral_style"] = keyword_opts[0]
-            else:
-                raise KeyError("Could not find dihedral style '%s'." % keyword_opts[0])
-        elif keyword == "units":
-            if keyword_opts[0] in lmd.units_style:
-                extra_simulation_data["units"] = keyword_opts[0]
-            else:
-                raise KeyError("Could not find unit style '%s'." % keyword_opts[0])
-        elif keyword == "special_bonds":
-            exclusions = {}
-            special_bonds_keywords = re.findall("[a-zA-Z]+", " ".join(keyword_opts)) 
-            for idx, exclusions_keyword in enumerate(special_bonds_keywords):
-                if exclusions_keyword in lmd.exclusions["styles"]:
-                    if (exclusions_keyword == 'lj'):
-                        exclusions["lj"] = {}
-                        exclusions["lj"]["scale12"] = float(keyword_opts[idx+1])
-                        exclusions["lj"]["scale13"] = float(keyword_opts[idx+2])
-                        exclusions["lj"]["scale14"] = float(keyword_opts[idx+3])
-                    elif (exclusion_keyword == 'coul'):
-                        exclusions["coul"] = {}
-                        exclusions["coul"]["scale12"] = float(keyword_opts[idx+1])
-                        exclusions["coul"]["scale13"] = float(keyword_opts[idx+2])
-                        exclusions["coul"]["scale14"] = float(keyword_opts[idx+3])
-                    elif (exclusion_keyword == 'lj/coul'):
-                        exclusions["lj"] = {}
-                        exclusions["lj"]["scale12"] = float(keyword_opts[idx+1])
-                        exclusions["lj"]["scale13"] = float(keyword_opts[idx+2])
-                        exclusions["lj"]["scale14"] = float(keyword_opts[idx+3])
-                        exclusions["coul"] = {}
-                        exclusions["coul"]["scale12"] = exclusions["lj"]["scale12"]
-                        exclusions["coul"]["scale13"] = exclusions["lj"]["scale13"]
-                        exclusions["coul"]["scale14"] = exclusions["lj"]["scale14"]
-                    else: 
-                        exclusions["coul"] = lmd.exclusions["styles"][exclusion_keyword]["coul"]
-                        exclusions["lj"] = lmd.exclusions["styles"][exclusion_keyword]["lj"]
-                elif exclusion_keyword in lmd.exclusions["additional_keywords"]:
-                    raise Exception("Keyword %s is not currently supported", exclusion_keyword)
+        elif keyword in ["bond_style", "angle_style", "dihedral_style"]:
+            extra_simulation_data[keyword] = keyword_opts[0]
 
-            if "coul" not in exclusions:
-                exclusions["coul"] = lmd.exclusions["styles"]["default"]["coul"]
-            if "lj" not in exclusions:
-                exclusions["lj"] = lmd.exclusions["styles"]["default"]["lj"]
-               
-            dl.set_exclusions(exclusions)
+        elif keyword == "units":
+            extra_simulation_data["units"] = keyword_opts[0]
+
+        elif keyword == "special_bonds":
+            pass
+
+
+def get_special_bonds():
+    exclusions = {}
+    special_bonds_keywords = re.findall("[a-zA-Za-z\/]+", " ".join(keyword_opts)) 
+    for idx, exclusions_keyword in enumerate(special_bonds_keywords):
+        if exclusions_keyword in lmd.exclusions.keys():
+            if (exclusions_keyword == 'lj'):
+                exclusions["lj"] = {}
+                exclusions["lj"]["scale12"] = float(keyword_opts[idx+1])
+                exclusions["lj"]["scale13"] = float(keyword_opts[idx+2])
+                exclusions["lj"]["scale14"] = float(keyword_opts[idx+3])
+            elif (exclusions_keyword == 'coul'):
+                exclusions["coul"] = {}
+                exclusions["coul"]["scale12"] = float(keyword_opts[idx+1])
+                exclusions["coul"]["scale13"] = float(keyword_opts[idx+2])
+                exclusions["coul"]["scale14"] = float(keyword_opts[idx+3])
+            elif (exclusions_keyword == 'lj/coul'):
+                exclusions["lj"] = {}
+                exclusions["lj"]["scale12"] = float(keyword_opts[idx+1])
+                exclusions["lj"]["scale13"] = float(keyword_opts[idx+2])
+                exclusions["lj"]["scale14"] = float(keyword_opts[idx+3])
+                exclusions["coul"] = {}
+                exclusions["coul"]["scale12"] = exclusions["lj"]["scale12"]
+                exclusions["coul"]["scale13"] = exclusions["lj"]["scale13"]
+                exclusions["coul"]["scale14"] = exclusions["lj"]["scale14"]
+            else: 
+                exclusions["coul"] = lmd.exclusions[exclusion_keyword]["coul"]
+                exclusions["lj"] = lmd.exclusions[exclusion_keyword]["lj"]
+        elif exclusions_keyword in lmd.exclusions["additional_keywords"]:
+            raise Exception("Keyword %s is not currently supported", exclusion_keyword)
+    
+    if "coul" not in exclusions:
+        exclusions["coul"] = lmd.exclusions["default"]["coul"]
+    if "lj" not in exclusions:
+        exclusions["lj"] = lmd.exclusions["default"]["lj"]
+       
+    return exclusions
+    # dl.set_exclusions(exclusions)

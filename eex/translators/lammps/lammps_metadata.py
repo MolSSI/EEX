@@ -10,92 +10,90 @@ import eex
 variable_types = ['delete', 'index', 'loop', 'world', 'universe', 'uloop', 'string', 'format', 'getenv', 'file', 'atomfile', 'python', 'internal', 'equal', 'vector', 'atom']
 
 exclusions = {
-    "styles": {
-        "default": {
-            "coul":{
-                "scale12": 0.0,
-                "scale13": 0.0, 
-                "scale14": 0.0,
-            },
-            "lj":{
-                "scale12": 0.0,
-                "scale13": 0.0, 
-                "scale14": 0.0,
-            },
+    "default": {
+        "coul":{
+            "scale12": 0.0,
+            "scale13": 0.0, 
+            "scale14": 0.0,
         },
-        "amber": {
-            "coul":{
-                "scale12": 0.0,
-                "scale13": 0.0, 
-                "scale14": 0.8333,
-            },
-            "lj":{
-                "scale12": 0.0,
-                "scale13": 0.0, 
-                "scale14": 0.5,
-            },
+        "lj":{
+            "scale12": 0.0,
+            "scale13": 0.0, 
+            "scale14": 0.0,
         },
-        "charmm": {
-            "coul":{
-                "scale12": 0.0,
-                "scale13": 0.0, 
-                "scale14": 0.0,
-            },
-            "lj":{
-                "scale12": 0.0,
-                "scale13": 0.0, 
-                "scale14": 0.0,
-            },
+    },
+    "amber": {
+        "coul":{
+            "scale12": 0.0,
+            "scale13": 0.0, 
+            "scale14": 0.8333,
         },
-        "dreiding": {
-            "coul":{
-                "scale12": 0.0,
-                "scale13": 0.0, 
-                "scale14": 1.0,
-            },
-            "lj":{
-                "scale12": 0.0,
-                "scale13": 0.0, 
-                "scale14": 1.0,
-            },
+        "lj":{
+            "scale12": 0.0,
+            "scale13": 0.0, 
+            "scale14": 0.5,
         },
-        "fene": {
-            "coul":{
-                "scale12": 0.0,
-                "scale13": 1.0, 
-                "scale14": 1.0,
-            },
-            "lj":{
-                "scale12": 0.0,
-                "scale13": 1.0, 
-                "scale14": 1.0,
-            },
+    },
+    "charmm": {
+        "coul":{
+            "scale12": 0.0,
+            "scale13": 0.0, 
+            "scale14": 0.0,
         },
-        "lj/coul": {
-            "coul":{
-                "scale12": "dimensionless",
-                "scale13": "dimensionless", 
-                "scale14": "dimensionless",
-            },
-            "lj":{
-                "scale12": "dimensionless",
-                "scale13": "dimensionless", 
-                "scale14": "dimensionless",
-            }
+        "lj":{
+            "scale12": 0.0,
+            "scale13": 0.0, 
+            "scale14": 0.0,
         },
-        "lj": {
-            "lj":{
-                "scale12": "dimensionless",
-                "scale13": "dimensionless", 
-                "scale14": "dimensionless",
-            },
+    },
+    "dreiding": {
+        "coul":{
+            "scale12": 0.0,
+            "scale13": 0.0, 
+            "scale14": 1.0,
         },
-        "coul": {
-            "coul":{
-                "scale12": "dimensionless",
-                "scale13": "dimensionless", 
-                "scale14": "dimensionless",
-            },
+        "lj":{
+            "scale12": 0.0,
+            "scale13": 0.0, 
+            "scale14": 1.0,
+        },
+    },
+    "fene": {
+        "coul":{
+            "scale12": 0.0,
+            "scale13": 1.0, 
+            "scale14": 1.0,
+        },
+        "lj":{
+            "scale12": 0.0,
+            "scale13": 1.0, 
+            "scale14": 1.0,
+        },
+    },
+    "lj/coul": {
+        "coul":{
+            "scale12": "dimensionless",
+            "scale13": "dimensionless", 
+            "scale14": "dimensionless",
+        },
+        "lj":{
+            "scale12": "dimensionless",
+            "scale13": "dimensionless", 
+            "scale14": "dimensionless",
+        }
+    },
+    "lj": {
+        "lj":{
+            "scale12": "dimensionless",
+            "scale13": "dimensionless", 
+            "scale14": "dimensionless",
+        },
+    },
+    "coul": {
+        "coul":{
+            "scale12": "dimensionless",
+            "scale13": "dimensionless", 
+            "scale14": "dimensionless",
         },
     },
     "additional_keywords": ["angle", "dihedral"]
@@ -110,6 +108,7 @@ size_keys = [
 
 # Units based LAMMPS unit styles (http://lammps.sandia.gov/doc/units.html)
 units_style = {
+    "default": "real",
     "lj": {},
     "real": {
         "[mass]": "(gram mol ** -1)",
@@ -223,6 +222,7 @@ units_style = {
 
 # Possible atom styles
 _atom_style = {
+    "default": "full",
     "angle": ["atom_ID", "molecule_ID", "atom_type", "x", "y", "z"],
     "atomic": ["atom_ID", "atom_type", "x", "y", "z"],
     "body": ["atom_ID", "atom_type", "bodyflag", "mass", "x", "y", "z"],
@@ -322,7 +322,7 @@ _operation_table = {
         "call_type": "parameter",
         "args": {
             "order": 2,
-            "form_name": "harmonic"
+            "style_keyword": "bond_style"
         },
     },
     "Angle Coeffs": {
@@ -331,7 +331,7 @@ _operation_table = {
         "call_type": "parameter",
         "args": {
             "order": 3,
-            "form_name": "harmonic"
+            "style_keyword": "angle_style"
         },
     },
     "Dihedral Coeffs": {
@@ -340,7 +340,7 @@ _operation_table = {
         "call_type": "parameter",
         "args": {
             "order": 4,
-            "form_name": "opls"
+            "style_keyword": "dihedral_style"
         },
     },
     "Improper Coeffs": {
