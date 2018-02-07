@@ -272,7 +272,11 @@ def write_amber_file(dl, filename, inpcrd=None):
     file_handle.close()
 
     # Now we need to write out the INPCRD
-    inpcrd_file = filename.replace('.prmtop', '.inpcrd')
+    if '.prmtop' in filename:
+        inpcrd_file = filename.replace('.prmtop', '.inpcrd')
+    else:
+        inpcrd_file = filename + '.inpcrd'
+
     file_handle = open(inpcrd_file, "wb")
 
     xyz = dl.get_atoms("XYZ", utype={"XYZ": "angstrom"})

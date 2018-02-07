@@ -95,9 +95,12 @@ def test_lammps_writer(molecule):
 
     # Write out the data
     oname = eex_find_files.get_scratch_directory(molecule)
-    eex.translators.lammps.write_lammps_file(dl, oname)
+    input_filename = oname + '.in'
+    eex.translators.lammps.write_lammps_file(dl, oname, input_filename, unit_style="real")
 
     # Read in output data
     dl_new = eex.datalayer.DataLayer(molecule)
     eex.translators.lammps.read_lammps_data_file(dl_new, oname)
     assert eex.testing.dl_compare(dl, dl_new)
+
+    ## write tests for unit conversions - requires lammps writer to write lammps in file
