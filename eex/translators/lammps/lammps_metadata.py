@@ -9,6 +9,98 @@ import eex
 # Possible types of the keyword 'variable' found in the input file
 variable_types = ['delete', 'index', 'loop', 'world', 'universe', 'uloop', 'string', 'format', 'getenv', 'file', 'atomfile', 'python', 'internal', 'equal', 'vector', 'atom']
 
+exclusions = {
+    "styles": {
+        "default": {
+            "coul":{
+                "scale12": 0.0,
+                "scale13": 0.0, 
+                "scale14": 0.0,
+            },
+            "lj":{
+                "scale12": 0.0,
+                "scale13": 0.0, 
+                "scale14": 0.0,
+            },
+        },
+        "amber": {
+            "coul":{
+                "scale12": 0.0,
+                "scale13": 0.0, 
+                "scale14": 0.8333,
+            },
+            "lj":{
+                "scale12": 0.0,
+                "scale13": 0.0, 
+                "scale14": 0.5,
+            },
+        },
+        "charmm": {
+            "coul":{
+                "scale12": 0.0,
+                "scale13": 0.0, 
+                "scale14": 0.0,
+            },
+            "lj":{
+                "scale12": 0.0,
+                "scale13": 0.0, 
+                "scale14": 0.0,
+            },
+        },
+        "dreiding": {
+            "coul":{
+                "scale12": 0.0,
+                "scale13": 0.0, 
+                "scale14": 1.0,
+            },
+            "lj":{
+                "scale12": 0.0,
+                "scale13": 0.0, 
+                "scale14": 1.0,
+            },
+        },
+        "fene": {
+            "coul":{
+                "scale12": 0.0,
+                "scale13": 1.0, 
+                "scale14": 1.0,
+            },
+            "lj":{
+                "scale12": 0.0,
+                "scale13": 1.0, 
+                "scale14": 1.0,
+            },
+        },
+        "lj/coul": {
+            "coul":{
+                "scale12": "dimensionless",
+                "scale13": "dimensionless", 
+                "scale14": "dimensionless",
+            },
+            "lj":{
+                "scale12": "dimensionless",
+                "scale13": "dimensionless", 
+                "scale14": "dimensionless",
+            }
+        },
+        "lj": {
+            "lj":{
+                "scale12": "dimensionless",
+                "scale13": "dimensionless", 
+                "scale14": "dimensionless",
+            },
+        },
+        "coul": {
+            "coul":{
+                "scale12": "dimensionless",
+                "scale13": "dimensionless", 
+                "scale14": "dimensionless",
+            },
+        },
+    },
+    "additional_keywords": ["angle", "dihedral"]
+}
+
 
 # Possible size keys to look for in the header
 size_keys = [

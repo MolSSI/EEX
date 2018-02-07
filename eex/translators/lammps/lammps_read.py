@@ -243,8 +243,6 @@ def kspace_style():
     pass
 def pair_modify():
     pass
-def get_special_bonds():
-    pass
 
 def read_lammps_file(dl, fname, blocksize=110):
     """
@@ -271,17 +269,17 @@ def read_lammps_file(dl, fname, blocksize=110):
             except KeyError:
                 raise KeyError("The variable %s has not been defined" % variable_name)
 
-        line = line.split()
-        keyword = line[0]
-        keyword_opts = line[1:]
+        line_split = line.split()
+        keyword = line_split[0]
+        keyword_opts = line_split[1:]
         # Handle keywords
         if keyword == "read_data":
             data_filename = input_dir + "/" + keyword_opts[0]
             read_lammps_data_file(dl, data_filename, blocksize)
         elif keyword == "include_data":
             include_data = eex.utility.read_lines(keyword_opts[0])
-            for inum, line in enumerate(include_data):
-                input_file.insert(lnum + inum + 1, line)
+            for inum, line_data in enumerate(include_data):
+                input_file.insert(lnum + inum + 1, line_data)
         elif keyword == "variable":
             tmp = {}
 
@@ -313,3 +311,39 @@ def read_lammps_file(dl, fname, blocksize=110):
                 extra_simulation_data["units"] = keyword_opts[0]
             else:
                 raise KeyError("Could not find unit style '%s'." % keyword_opts[0])
+        elif keyword == "special_bonds":
+            exclusions = {}
+            special_bonds_keywords = re.findall("[a-zA-Z]+", " ".join(keyword_opts)) 
+            for idx, exclusions_keyword in enumerate(special_bonds_keywords):
+                if exclusions_keyword in lmd.exclusions["styles"]:
+                    if (exclusions_keyword == 'lj'):
+                        exclusions["lj"] = {}
+                        exclusions["lj"]["scale12"] = float(keyword_opts[idx+1])
+                        exclusions["lj"]["scale13"] = float(keyword_opts[idx+2])
+                        exclusions["lj"]["scale14"] = float(keyword_opts[idx+3])
+                    elif (exclusion_keyword == 'coul'):
+                        exclusions["coul"] = {}
+                        exclusions["coul"]["scale12"] = float(keyword_opts[idx+1])
+                        exclusions["coul"]["scale13"] = float(keyword_opts[idx+2])
+                        exclusions["coul"]["scale14"] = float(keyword_opts[idx+3])
+                    elif (exclusion_keyword == 'lj/coul'):
+                        exclusions["lj"] = {}
+                        exclusions["lj"]["scale12"] = float(keyword_opts[idx+1])
+                        exclusions["lj"]["scale13"] = float(keyword_opts[idx+2])
+                        exclusions["lj"]["scale14"] = float(keyword_opts[idx+3])
+                        exclusions["coul"] = {}
+                        exclusions["coul"]["scale12"] = exclusions["lj"]["scale12"]
+                        exclusions["coul"]["scale13"] = exclusions["lj"]["scale13"]
+                        exclusions["coul"]["scale14"] = exclusions["lj"]["scale14"]
+                    else: 
+                        exclusions["coul"] = lmd.exclusions["styles"][exclusion_keyword]["coul"]
+                        exclusions["lj"] = lmd.exclusions["styles"][exclusion_keyword]["lj"]
+                elif exclusion_keyword in lmd.exclusions["additional_keywords"]:
+                    raise Exception("Keyword %s is not currently supported", exclusion_keyword)
+
+            if "coul" not in exclusions:
+                exclusions["coul"] = lmd.exclusions["styles"]["default"]["coul"]
+            if "lj" not in exclusions:
+                exclusions["lj"] = lmd.exclusions["styles"]["default"]["lj"]
+               
+            dl.set_exclusions(exclusions)

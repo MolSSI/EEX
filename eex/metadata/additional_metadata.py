@@ -150,13 +150,13 @@ _neighbor = {
 #_special_bonds = {
 #}
 
-_exclusions = {
-    "electrostatic":{
+exclusions = {
+    "coul":{
         "scale12": "dimensionless",
         "scale13": "dimensionless",
         "scale14": "dimensionless",
     }, 
-    "van_der_waals":{
+    "lj":{
         "scale12": "dimensionless",
         "scale13": "dimensionless",
         "scale14": "dimensionless",

@@ -156,6 +156,49 @@ class DataLayer(object):
         else:
             return ret
 
+    def set_exclusions(self, exclusions):
+        """
+        Sets the exclusion information for the datalayer
+
+        Inputs
+        ------
+
+        exclusions = {
+            "coul":{
+                "scale12": "dimensionless",
+                "scale13": "dimensionless",
+                "scale14": "dimensionless",
+            },
+            "lj":{
+                "scale12": "dimensionless",
+                "scale13": "dimensionless",
+                "scale14": "dimensionless",
+            }
+        }
+        """
+        if not isinstance(exclusions, dict):
+            raise TypeError("Exclusion information cannot be validated as dictionary '%s'"% str(type(exclusions)))
+
+        exclusions_metadata = metadata.exclusions
+        # Make sure we have all keywords 
+        if exclusions.keys() != exclusions_metadata.keys():
+            raise KeyError("Not all exclusion keywords are imported")
+    
+        # Make sure scaling factors make sense
+        for ok, ov in exclusions.items():
+            for k, v in ov.items():
+                if v > 1.0 or v < 0.0:    
+                    raise ValueError("Exclusion value outside bounds '%s'." % v)
+
+        self._exclusions = exclusions
+
+    def get_exclusions(self):
+        """
+        Gets the exclusion information from metadata 
+        """
+        ret = copy.deepcopy(self._exclusions)
+
+        return ret
 
     def set_box_size(self, lattice_const, utype=None):
         """
