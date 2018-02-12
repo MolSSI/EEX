@@ -307,11 +307,30 @@ _operation_table = {
     # Add long range pair data
     "Pair Coeffs": {
         "size": "atom types",
+        "n_uids": 1,
         "dl_func": "add_nb_parameter",
         "call_type": "nb_parameter",
-        "args": {
-            "form_name": "LJ",
-            "form_form": "epsilon/sigma",
+        "kwargs": {
+            "atom_type": None,
+            "nb_parameters": None,
+            "nb_name": "LJ",
+            "nb_model": "epsilon/sigma",
+            "utype": None
+            }
+    },
+
+    "PairIJ Coeffs": {
+        "size": "pair types",
+        "n_uids": 2,
+        "dl_func": "add_nb_parameter",
+        "call_type": "nb_parameter",
+        "kwargs": {
+            "atom_type": None,
+            "atom_type2": None,
+            "nb_parameters": None,
+            "nb_name": "LJ",
+            "nb_model": "epsilon/sigma",
+            "utype": None
             }
     },
 

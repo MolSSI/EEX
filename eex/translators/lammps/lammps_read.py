@@ -135,6 +135,8 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
     if ("atoms" not in list(sizes_dict)) or ("atom types" not in list(sizes_dict)):
         raise IOError("LAMMPS Read: Did not find size data on 'atoms' or 'atom types' in %d header lines." % max_rows)
 
+    sizes_dict["pair types"] = sizes_dict["atom types"] * (sizes_dict["atom types"] + 1) / 2
+
     # Create temporaries (op_table, term_table), specific to the current unit 
     # specification
     # op_table is a dictionary of dictionaries. Its keys are the keywords
@@ -212,30 +214,30 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
                     dl.add_term_parameter(order, fname, params, uid=int(row["uid"]), utype=utype)
 
             elif op["call_type"] == "nb_parameter":
-                fname = op["args"]["form_name"]
-                fform = op["args"]["form_form"]
+                fname = op["kwargs"]["nb_name"]
+                fform = op["kwargs"]["nb_model"]
+                utype = nb_term_table[fname]["utype"]
+                op["kwargs"]["utype"] = utype
                 cols = nb_term_table[fname]["parameters"]
-                number_of_parameters = len(cols)
-                number_of_columns = len(data.columns)
-
-                difference = number_of_columns - number_of_parameters
-
-                uid_list = ["uid" + str(x) for x in range(0,difference)]
+                n_required_params = len(cols)
+                n_given_params = len(data.columns)
+                difference = n_given_params - n_required_params
+                if difference != op["n_uids"]:
+                    raise Exception("Incorrect number of arguments for pair_coeff")
+                uid_list = ["uid" + str(x) for x in range(0, difference)]
                 data.columns = uid_list + cols
-
                 for idx, row in data.iterrows():
-                    params = list(row[cols])
-                    atom_types = list(row[uid_list])
 
-                    utype = nb_term_table[fname]["utype"]
-                    if len(atom_types) == 1:
-                        dl.add_nb_parameter(atom_type=atom_types[0],
-                                            nb_name=fname, nb_model=fform, nb_parameters=params, utype=utype)
-                    elif len(atom_types) == 2:
-                        dl.add_nb_parameter(atom_type=atom_types[0], atom_type2=atom_types[1],
-                                            nb_name=fname, nb_model=fform, nb_parameters=params, utype=utype)
-                    else:
-                        raise Exception("Incorrect number of arguments for pair_coeff")
+                    op["kwargs"]["nb_parameters"] = row[['epsilon', 'sigma']].to_dict()
+                    if len(uid_list)==1:
+                        op["kwargs"]["atom_type"] = int(row['uid0'])
+                    elif len(uid_list)==2:
+                        op["kwargs"]["atom_type"] = int(row['uid0'])
+                        op["kwargs"]["atom_type2"] = int(row['uid1'])
+                    dl.call_by_string(op["dl_func"], **op["kwargs"])
+
+                print(dl.list_nb_parameters('LJ'))
+
 
             else:
                 raise KeyError("Operation table call '%s' not understoop" % op["call_type"])
