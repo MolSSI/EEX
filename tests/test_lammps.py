@@ -102,7 +102,7 @@ def test_lammps_writer(molecule):
 
     # Read in output data
     dl_new = eex.datalayer.DataLayer(molecule)
-    eex.translators.lammps.read_lammps_data_file(dl_new, oname)
+    eex.translators.lammps.read_lammps_data_file(dl_new, oname, sim_data)
     assert eex.testing.dl_compare(dl, dl_new)
 
     ## write tests for unit conversions - requires lammps writer to write lammps in file

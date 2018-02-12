@@ -14,32 +14,13 @@ logger = logging.getLogger(__name__)
 
 
 def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
-
+    print(extra_simulation_data)
     if not isinstance(extra_simulation_data, dict):
         raise TypeError("Validate term dict: Extra simulation data type '%s' not understood" % str(type(utype)))
 
-    for keyword in ['units', 'bond_style', 'angle_style', 'dihedral_style']:
-        if keyword not in extra_simulation_data.keys():
-            raise KeyError("The keyword '%s' is missing" % keyword)
-        else:
-            if keyword == 'units':
-                unit_style = extra_simulation_data["units"]
-                if unit_style not in lmd.units_style:
-                    raise KeyError("Could not find unit style '%s'." % unit_style)
-            elif keyword == 'bond_style': 
-                bond_style = extra_simulation_data['bond_style']
-                if bond_style not in lmd.lammps_ff.term_data[2]:
-                    raise KeyError("Could not find bond style '%s'." % bond_style)
-            elif keyword == 'angle_style': 
-                angle_style = extra_simulation_data['angle_style']
-                if angle_style not in lmd.lammps_ff.term_data[3]:
-                    raise KeyError("Could not find angle style '%s'." % angle_style)
-            elif keyword == 'dihedral_style': 
-                dihedral_style = extra_simulation_data['dihedral_style']
-                if dihedral_style not in lmd.lammps_ff.term_data[4]:
-                    raise KeyError("Could not find dihedral style '%s'." % dihedral_style)
-            else:
-                raise KeyError("Key %s not understood. " % k)
+    # This is a list of keywords needed from the input file. Will be added to based on information in data file.
+    # i.e. bond types 1 means we should have bond_style key in "extra simulation data"
+    needed_keywords = ["units"]
 
     ### Figure out system dimensions and general header data
     max_rows = 100  # How many lines do we attempt to search?
@@ -118,9 +99,36 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
                 raise KeyError("LAMMPS Read: KeyError size key %s not recognized." % size_name)
             else:
                 sizes_dict[size_name] = size
+                split_size = size_name.split(' ')
+                if len(split_size) == 2 and size_name[1] == 'types':
+                    needed_keywords.append('%s_style' %(split_size[0]))
 
         else:
             raise IOError("LAMMPS Read: Line not understood!\n%s" % line)
+
+    # This has to be gerenalized to handle multiple bond and angle styles
+    for keyword in needed_keywords:
+        if keyword not in extra_simulation_data.keys():
+            raise KeyError("The keyword '%s' is missing" % keyword)
+        else:
+            if keyword == 'units':
+                unit_style = extra_simulation_data["units"]
+                if unit_style not in lmd.units_style:
+                    raise KeyError("Could not find unit style '%s'." % unit_style)
+            elif keyword == 'bond_style':
+                bond_style = extra_simulation_data['bond_style']
+                if bond_style not in lmd.lammps_ff.term_data[2]:
+                    raise KeyError("Could not find bond style '%s'." % bond_style)
+            elif keyword == 'angle_style':
+                angle_style = extra_simulation_data['angle_style']
+                if angle_style not in lmd.lammps_ff.term_data[3]:
+                    raise KeyError("Could not find angle style '%s'." % angle_style)
+            elif keyword == 'dihedral_style':
+                dihedral_style = extra_simulation_data['dihedral_style']
+                if dihedral_style not in lmd.lammps_ff.term_data[4]:
+                    raise KeyError("Could not find dihedral style '%s'." % dihedral_style)
+            else:
+                raise KeyError("Key %s not understood. " % k)
 
     # Set the box size
     lattice_constants = eex.utility.compute_lattice_constants(box_size, tilt_factors)
@@ -313,8 +321,11 @@ def read_lammps_input_file(dl, fname, blocksize=110):
         keyword_opts = line_split[1:]
         # Handle keywords
         if keyword == "read_data":
-            data_filename = input_dir + "/" + keyword_opts[0]
-            read_lammps_data_file(dl, data_filename, extra_simulation_data, blocksize)
+            # This needs to be generalized in case a path is given. (?)
+            file_path = keyword_opts[0]
+            if not os.path.isabs(file_path):
+                file_path = os.path.join(input_dir, file_path)
+            read_lammps_data_file(dl, file_path, extra_simulation_data, blocksize)
         elif keyword == "include_data":
             include_data = eex.utility.read_lines(keyword_opts[0])
             for inum, line_data in enumerate(include_data):
