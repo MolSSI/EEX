@@ -86,9 +86,15 @@ def test_translation(program1, program2, molecule):
     original_dl = build_dl(program1, molecule)
     original_energy = original_dl.evaluate()
 
+    original_box = original_dl.get_box_size()
+
     oname = write_dl(program2, original_dl, oname)
 
     new_dl = build_dl2(program2, oname)
     new_energy = new_dl.evaluate()
+
+    new_box = new_dl.get_box_size()
+
+    assert(eex.testing.dict_compare(original_box, new_box))
 
     assert(eex.testing.dict_compare(original_energy, new_energy))
