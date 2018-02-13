@@ -18,10 +18,10 @@ def build_dl(program, molecule):
         data = eex.translators.amber.read_amber_file(dl, fname)
         return dl
     elif program.lower() == "lammps":
-        file_name = "data.trappe_%s_single_molecule" % molecule
+        file_name = "in.%s" % molecule
         fname = eex_find_files.get_example_filename("lammps", "alkanes", file_name)
         dl = eex.datalayer.DataLayer("test_lammps")
-        eex.translators.lammps.read_lammps_data_file(dl, fname)
+        eex.translators.lammps.read_lammps_input_file(dl, fname)
         return dl
     else:
         raise KeyError("Program %s not understood" % program)
@@ -33,7 +33,8 @@ def build_dl2(program, fname):
         return dl
     elif program.lower() == "lammps":
         dl = eex.datalayer.DataLayer("test_lammps")
-        eex.translators.lammps.read_lammps_data_file(dl, fname)
+        fname = fname + ".in"
+        eex.translators.lammps.read_lammps_input_file(dl, fname)
         return dl
     else:
         raise KeyError("Program %s not understood" % program)
