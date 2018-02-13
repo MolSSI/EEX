@@ -433,18 +433,13 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
         read_size = math.ceil(float(inpcrd_size[0]) / 2)
 
-        ## Read in extra line if simulation is periodic - NOTE - this will not work for files with velocity information
-        ## (mentioned above in exception)
-        if sizes_dict["IFBOX"] > 0:
-            read_size += 1
 
         file_handle = open(inpcrd_file, "r")
+        # Read in all information in inpcrd
         data = pd.read_fwf(
-            file_handle, nrows=read_size, widths=([12] * 6), dtypes=([float] * 6), header=None, skiprows=2)
+            file_handle, widths=([12] * 6), dtypes=([float] * 6), header=None, skiprows=2)
 
-        file_handle.close()
-
-        if sizes_dict["IFBOX"] > 0:
+        if data.shape[0]  == read_size + 1 and sizes_dict["IFBOX"] > 0:
             box_information = data.tail(1).values[0]
 
             box_sizes = {"a": box_information[0], "b": box_information[1], "c": box_information[2],
@@ -452,11 +447,13 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                          }
 
             dl.set_box_size(box_sizes, utype={"a": amd.box_units["length"], "b": amd.box_units["length"],
-                                                 "c" : amd.box_units["length"], "alpha": amd.box_units["angle"],
-                                                 "beta": amd.box_units["angle"], "gamma": amd.box_units["angle"],})
+                                              "c": amd.box_units["length"], "alpha": amd.box_units["angle"],
+                                              "beta": amd.box_units["angle"], "gamma": amd.box_units["angle"], })
 
             # Drop box info from atom coordinates
             data.drop(data.index[-1], inplace=True)
+        elif data.shape[0] == read_size and sizes_dict["IFBOX"] > 0:
+            raise Warning("Periodic prmtop used with non-periodic inpcrd. Using prmtop data")
 
 
         df = pd.DataFrame(data.values.reshape(-1, 3), columns=["X", "Y", "Z"])
@@ -466,5 +463,6 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         df.index.name = "atom_index"
         dl.add_atoms(df, utype={"XYZ": "angstrom"})
 
+        file_handle.close()
 
     return ret_data
