@@ -23,6 +23,7 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
     # not require 'dihedral_style' information, but butane does. 
     # More keywords will be appended as required when reader the header
     # section
+    # At the very least we need 'units' in the extra_simulation_data dict
     needed_keywords = ["units"]
 
     # Figure out system dimensions and general header data
@@ -110,7 +111,7 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
             # Dihedrals. 
 
             if 'types' in size_name and size > 0:
-                needed_keywords.append('%s_style' %(split_size[0]))
+                needed_keywords.append(size_name.replace('types', 'style').replace(" ", "_"))
 
         else:
             raise IOError("LAMMPS Read: Line not understood!\n%s" % line)
@@ -118,7 +119,6 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
     # We have now a list of the needed keywords based on the topology. 
     # Needed_keywords contains at least ["units"], but can also contain
     # ["units", "bond_style", "angle_style", ...]
-
     for keyword in needed_keywords:
         if keyword not in extra_simulation_data.keys():
             raise KeyError("The keyword '%s' is missing" % keyword)
@@ -139,8 +139,14 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
                 dihedral_style = extra_simulation_data['dihedral_style']
                 if dihedral_style not in lmd.lammps_ff.term_data[4]:
                     raise KeyError("Could not find dihedral style '%s'." % dihedral_style)
+            elif keyword == 'atom_style':
+                atom_style = extra_simulation_data['atom_style']
+                if atom_style not in lmd.atom_style: 
+                    raise KeyError("Could not find atom style '%s'." % atom_style)
+
             else:
-                raise KeyError("Key %s not understood. " % k)
+                raise KeyError("Key %s not understood. " % keyword)
+
 
     # Set the box size
     lattice_constants = eex.utility.compute_lattice_constants(box_size, tilt_factors)
@@ -166,7 +172,7 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
     # Each key, i.e. Atoms, has a value that is a dictionary. The keys for
     # these nested dictionaries are 
     # ['size', 'dl_func', 'df_cols', 'kwargs', 'call_type']
-    op_table = lmd.build_operation_table(unit_style, sizes_dict)
+    op_table = lmd.build_operation_table(extra_simulation_data, sizes_dict)
 
     # Term table is a dictionary with all the metadata for each two
     # three and four body potential functional forms using the lammps
@@ -178,6 +184,10 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
     # nb_term_table is a dictionary of all the different pair_styles
     # with the desired units
     nb_term_table = lmd.build_nb_table(unit_style)
+
+
+
+
 
     ### Iterate over the primary data portion of the object
 
@@ -227,7 +237,7 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
             # Adding parameters
             elif op["call_type"] == "parameter":
                 order = op["args"]["order"]
-                fname = extra_simulation_data[op["args"]["style_keyword"]]
+                fname = op["args"]["style_keyword"]
                 cols = term_table[order][fname]["parameters"]
                 data.columns = ["uid"] + cols
                 for idx, row in data.iterrows():
@@ -257,9 +267,6 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
                         op["kwargs"]["atom_type"] = int(row['uid0'])
                         op["kwargs"]["atom_type2"] = int(row['uid1'])
                     dl.call_by_string(op["dl_func"], **op["kwargs"])
-
-                print(dl.list_nb_parameters('LJ'))
-
 
             else:
                 raise KeyError("Operation table call '%s' not understoop" % op["call_type"])
@@ -293,8 +300,6 @@ def get_diherdal_coeff():
 def get_include():
     pass
 def get_variable():
-    pass
-def get_atom_style():
     pass
 def get_pair_style():
     pass
@@ -356,7 +361,7 @@ def read_lammps_input_file(dl, fname, blocksize=110):
 
             variable_list[variable_name] = tmp
 
-        elif keyword in ["bond_style", "angle_style", "dihedral_style"]:
+        elif keyword in ["atom_style", "bond_style", "angle_style", "dihedral_style"]:
             extra_simulation_data[keyword] = keyword_opts[0]
 
         elif keyword == "units":

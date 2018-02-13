@@ -221,7 +221,7 @@ units_style = {
 }
 
 # Possible atom styles
-_atom_style = {
+atom_style = {
     "default": "full",
     "angle": ["atom_ID", "molecule_ID", "atom_type", "x", "y", "z"],
     "atomic": ["atom_ID", "atom_type", "x", "y", "z"],
@@ -260,7 +260,7 @@ _operation_table = {
     "Atoms": {
         "size": "atoms",
         "dl_func": "add_atoms",
-        "df_cols": ["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"],
+        "df_cols": "atom_style",
         "kwargs": {
             "utype": None,
             "by_value": True,
@@ -389,17 +389,26 @@ def build_valid_category_list():
     return list(_operation_table)
 
 
-def build_operation_table(unit_type, size_dict):
+def build_operation_table(extra_simulation_data, size_dict):
 
     # Get the first operations table
     ret = copy.deepcopy(_operation_table)
 
-    aunits = build_atom_units(unit_type)
+    aunits = build_atom_units(extra_simulation_data["units"])
     for k, v in ret.items():
 
         # Supply the Atom unit types
         if v["dl_func"] in ["add_atom_parameters", "add_atoms"]:
             v["kwargs"]["utype"] = aunits
+ 
+        # Supply bond types, angle types, dihedral types
+        if "args" in v and "style_keyword" in v["args"] and v["args"]["style_keyword"] in ["bond_style", "angle_style", "dihedral_style"]:
+            v["args"]["style_keyword"] = extra_simulation_data[v["args"]["style_keyword"]]
+
+        # Supply atom style
+        if "df_cols" in v and "atom_style" in v["df_cols"]:
+            v["df_cols"] = atom_style[extra_simulation_data["atom_style"]]
+
 
         # Build sizes dict
         try:
