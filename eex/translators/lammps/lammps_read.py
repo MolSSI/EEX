@@ -14,14 +14,18 @@ logger = logging.getLogger(__name__)
 
 
 def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
+
     if not isinstance(extra_simulation_data, dict):
         raise TypeError("Validate term dict: Extra simulation data type '%s' not understood" % str(type(utype)))
 
-    # This is a list of keywords needed from the input file. Will be added to based on information in data file.
-    # i.e. bond types 1 means we should have bond_style key in "extra simulation data"
+    # This is a list of keywords needed from the input file. 
+    # This list depends on the molecule topology (for instance, ethane does
+    # not require 'dihedral_style' information, but butane does. 
+    # More keywords will be appended as required when reader the header
+    # section
     needed_keywords = ["units"]
 
-    ### Figure out system dimensions and general header data
+    # Figure out system dimensions and general header data
     max_rows = 100  # How many lines do we attempt to search?
     header_data = eex.utility.read_lines(filename, max_rows)
 
@@ -52,8 +56,8 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
         # Evaluate if line contains any keyword contained in category list. If
         # True, it means we have read all the required information in the 
         # header section. The variable start line is where the header ends
-        # and data begins. The variable current_data_category holds the
-        # first data section in the data file
+        # and data begins. At this point, the variable current_data_category 
+        # holds the first data section in the data file
         elif eex.utility.fuzzy_list_match(line, category_list)[0]:
             startline = num + 3  # Skips first row and two blank lines
             current_data_category = eex.utility.fuzzy_list_match(line, category_list)[1]
@@ -94,18 +98,27 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
 
             if size_name in list(sizes_dict):
                 raise KeyError("LAMMPS Read: KeyError size key %s already found." % size_name)
-            elif size_name not in lmd.size_keys:
+            if size_name not in lmd.size_keys:
                 raise KeyError("LAMMPS Read: KeyError size key %s not recognized." % size_name)
-            else:
-                sizes_dict[size_name] = size
-                split_size = size_name.split(' ')
-                if len(split_size) == 2 and split_size[1] == 'types' and size > 0:
-                    needed_keywords.append('%s_style' %(split_size[0]))
+
+            sizes_dict[size_name] = size
+
+            # If we found keywords such as 'Angle types' that means we need
+            # to provide 'Angle style' in the input file (and in the extra
+            # simulation data dictionary). This is important for smaller 
+            # molecules such as ethane or propane that do not have Angles or
+            # Dihedrals. 
+
+            if 'types' in size_name and size > 0:
+                needed_keywords.append('%s_style' %(split_size[0]))
 
         else:
             raise IOError("LAMMPS Read: Line not understood!\n%s" % line)
 
-    # This has to be gerenalized to handle multiple bond and angle styles
+    # We have now a list of the needed keywords based on the topology. 
+    # Needed_keywords contains at least ["units"], but can also contain
+    # ["units", "bond_style", "angle_style", ...]
+
     for keyword in needed_keywords:
         if keyword not in extra_simulation_data.keys():
             raise KeyError("The keyword '%s' is missing" % keyword)
@@ -142,6 +155,8 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
     if ("atoms" not in list(sizes_dict)) or ("atom types" not in list(sizes_dict)):
         raise IOError("LAMMPS Read: Did not find size data on 'atoms' or 'atom types' in %d header lines." % max_rows)
 
+    # sizes_dict["Pair types"] is relevant if we need to specify 
+    # cross interactions explicitly
     sizes_dict["pair types"] = sizes_dict["atom types"] * (sizes_dict["atom types"] + 1) / 2
 
     # Create temporaries (op_table, term_table), specific to the current unit 
