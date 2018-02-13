@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
-    print(extra_simulation_data)
     if not isinstance(extra_simulation_data, dict):
         raise TypeError("Validate term dict: Extra simulation data type '%s' not understood" % str(type(utype)))
 
@@ -100,7 +99,7 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
             else:
                 sizes_dict[size_name] = size
                 split_size = size_name.split(' ')
-                if len(split_size) == 2 and size_name[1] == 'types':
+                if len(split_size) == 2 and split_size[1] == 'types' and size > 0:
                     needed_keywords.append('%s_style' %(split_size[0]))
 
         else:
