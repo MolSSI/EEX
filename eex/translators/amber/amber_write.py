@@ -298,10 +298,11 @@ def write_amber_file(dl, filename, inpcrd=None):
     _write_1d(file_handle, xyz.values.ravel(), 6, "%12.6f")
 
     if output_sizes["IFBOX"] > 0:
-        write_box = [box_dimensions['alpha'], box_dimensions['beta'], box_dimensions['gamma'], box_dimensions['a'],
-                     box_dimensions['b'], box_dimensions['c']]
+        box = pd.DataFrame(box_dimensions, index=[0])
+        box = box[['a', 'b', 'c', 'alpha', 'beta', 'gamma']]
+        _write_1d(file_handle, box.values.ravel(), 6, "%12.6f")
 
-        np.savetxt(file_handle, write_box, fmt="%12.6f", delimiter="")
+
 
     file_handle.close()
 
