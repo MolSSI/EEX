@@ -90,11 +90,13 @@ def write_amber_file(dl, filename, inpcrd=None):
     output_sizes["NPARM"] = 0  #  Used to determine if this is a LES-compatible prmtop (??)
     output_sizes["NNB"] = dl.get_atom_count(
     )  #  Number of excluded atoms - Set to num atoms for our test cases. Amber will not run with 0
-    output_sizes["IFBOX"] = 0  #  Flag indicating whether a periodic box is present
     # 0 - no box, 1 - orthorhombic box, 2 - truncated octahedron
     output_sizes["NMXRS"] = 0  #  Number of atoms in the largest residue
     output_sizes["IFCAP"] = 0  # Set to 1 if a solvent CAP is being used
     output_sizes["NUMEXTRA"] = 0  # Number of extra points in the topology file
+
+    ## Needs check for orthorhomibic box (1) or truncated octahedron (2). Currently just 0 or 1
+    output_sizes["IFBOX"] = [0 if dl.get_box_size == {} else 1][0]  # Flag indicating whether a periodic box is present
 
     written_categories = []
 
@@ -218,7 +220,16 @@ def write_amber_file(dl, filename, inpcrd=None):
     # Append & forget about SOLVENT_POINTERS section for now
     written_categories.append("SOLVENT_POINTERS")
 
-    # Forget about box dimensions for now too
+    # Write box dimensions section (if applicable)
+    if output_sizes["IFBOX"] > 0:
+        box_dimensions = dl.get_box_size(utype={"a": amd.box_units["length"], "b": amd.box_units["length"],
+                                                     "c" : amd.box_units["length"], "alpha": amd.box_units["angle"],
+                                                     "beta": amd.box_units["angle"], "gamma": amd.box_units["angle"]})
+
+        write_box = [box_dimensions["beta"], box_dimensions["a"], box_dimensions["b"], box_dimensions["c"]]
+
+        _write_amber_data(file_handle, write_box, "BOX_DIMENSIONS")
+
     written_categories.append("BOX_DIMENSIONS")
 
     # Quick fix for radius set  will be one line string description in files prepared by xleap
@@ -285,6 +296,14 @@ def write_amber_file(dl, filename, inpcrd=None):
     file_handle.write(("%6d\n" % xyz.shape[0]).encode())
 
     _write_1d(file_handle, xyz.values.ravel(), 6, "%12.6f")
+
+    if output_sizes["IFBOX"] > 0:
+        box = pd.DataFrame(box_dimensions, index=[0])
+        box = box[['a', 'b', 'c', 'alpha', 'beta', 'gamma']]
+        _write_1d(file_handle, box.values.ravel(), 6, "%12.6f")
+
+
+
     file_handle.close()
 
     return 0
