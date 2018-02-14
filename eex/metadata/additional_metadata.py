@@ -138,7 +138,7 @@ _van_der_waals = {
     }
 }
 
-_mixing_rule = ["lorentz_berthelot", "geometric", "kong", "sixth_power", "custom"]
+mixing_rules = {"lorentz_berthelot": ["lorentz_berthelot", "arithmetic"], "geometric": ["geometric"], "kong": ["kong"], "sixth_power": ["sixth_power"], "custom": ["custom"]}
 
 _neighbor = {
         "verlet": {

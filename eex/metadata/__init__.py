@@ -12,7 +12,7 @@ from .four_body_terms import four_body_metadata
 from .nb_terms import nb_metadata 
 
 # Bring in additional metadata
-from .additional_metadata import box_metadata, exclusions
+from .additional_metadata import box_metadata, exclusions, mixing_rules
 
 # Bring in the helper functions
 from .md_helper import *

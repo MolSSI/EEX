@@ -103,6 +103,26 @@ class DataLayer(object):
         """
         return [x.replace("other_", "") for x in self.store.list_tables() if x.startswith("other_")]
 
+    def set_mixing_rule(self, mixing_rule):
+        if not isinstance(mixing_rule, str):
+            raise TypeError("Validate mixing rule: %s is not a string" % mixing_rule)
+        mixing_metadata = metadata.mixing_rules
+
+        found = False
+        for k, v in mixing_metadata.items():
+            if mixing_rule.lower() in v:  
+                self._mixing_rule = k
+                found = True
+
+        if found == False:
+            raise ValueError("Mixing rule type %s not found" % mixing_rule)
+
+
+    def get_mixing_rule(self):
+
+        ret = copy.deepcopy(self._mixing_rule)
+        return ret
+
     def set_box_center(self, box_center, utype=None):
         """
         Sets the center of the box.
