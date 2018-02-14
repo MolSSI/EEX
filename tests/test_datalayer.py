@@ -521,7 +521,7 @@ def test_mixing_rule():
 
     stored_nb_parameters = dl.list_nb_parameters(nb_name="LJ")
 
-    params = dl.mix_LJ(stored_nb_parameters[(1,None)], stored_nb_parameters[(2,None)], mixing_rule="geometric",
+    params = nb_converter.mix_LJ(stored_nb_parameters[(1,None)], stored_nb_parameters[(2,None)], mixing_rule="geometric",
                                  final="epsilon/sigma")
 
     ans = {'sigma': 2 ** (1./2.), 'epsilon': 1.}
