@@ -113,6 +113,8 @@ class DataLayer(object):
         if mixing_rule not in keys:
             raise ValueError("Mixing rule type %s not found" % mixing_rule)
 
+        self._mixing_rule = mixing_rule
+
 
     def get_mixing_rule(self):
 
