@@ -54,6 +54,27 @@ def _write_amber_data(file_handle, data, category):
 
     _write_1d(file_handle, np.array(data), ncols, fmt)
 
+def _check_dl_compatibility(dl):
+    """
+    This function examines a datalayer to determine if it is compatible with Amber.
+
+    Conversions between functional forms and pairwise interaction mixing are performed (if possible).
+    """
+    print("Checking dl compatibility\n")
+
+    # Loop over force field information. 
+    for k, v in amd.forcefield_parameters.items():
+        if k != "nonbond":
+            terms = dl.list_term_parameters(v["order"])
+            for j in terms.values():
+                if j[0] != v["form"]:
+                    # Will need to insert check to see if these can be easily converted (ex OPLS dihedral <-> charmmfsw)
+                    raise Exception("Functional form stored in datalayer is not compatible with Amber")
+        else:
+            pass
+
+
+
 
 def write_amber_file(dl, filename, inpcrd=None):
     """
@@ -69,6 +90,8 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     ### First get information into Amber pointers. All keys are initially filled with zero.
     # Ones that are currently 0, but should be implemented eventually are marked with
+
+    _check_dl_compatibility(dl)
 
     output_sizes = {k: 0 for k in amd.size_keys}
 
