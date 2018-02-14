@@ -494,3 +494,22 @@ def test_get_nb_parameter():
         atom_type=1, nb_model='epsilon/sigma', utype={'epsilon': 'kcal * mol ** -1',
                                                       'sigma': 'angstrom'})
     assert dict_compare(result, comp)
+
+def test_mixing_rule():
+    dl = eex.datalayer.DataLayer("test_add_nb_parameters", backend="memory")
+
+    # Create system with three molecules
+    atom_sys = _build_atom_df(3)
+
+    # Add atomic system to datalayer
+    dl.add_atoms(atom_sys)
+
+    # Add mixing rule to datalayer
+    dl.set_mixing_rule("geometric")
+
+    # Check failure
+    with pytest.raises(ValueError):
+        dl.set_mixing_rule("mix")
+
+
+
