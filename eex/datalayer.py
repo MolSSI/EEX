@@ -106,7 +106,7 @@ class DataLayer(object):
     def set_mixing_rule(self, mixing_rule):
         if not isinstance(mixing_rule, str):
             raise TypeError("Validate mixing rule: %s is not a string" % mixing_rule)
-        mixing_metadata = metadata.mixing_rules
+        mixing_metadata = nb_converter.LJ_mixing_functions
 
         keys = mixing_metadata.keys()
 
