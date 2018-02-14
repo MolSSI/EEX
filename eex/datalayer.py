@@ -108,13 +108,9 @@ class DataLayer(object):
             raise TypeError("Validate mixing rule: %s is not a string" % mixing_rule)
         mixing_metadata = metadata.mixing_rules
 
-        found = False
-        for k, v in mixing_metadata.items():
-            if mixing_rule.lower() in v:  
-                self._mixing_rule = k
-                found = True
+        keys = mixing_metadata.keys()
 
-        if found == False:
+        if mixing_rule not in keys:
             raise ValueError("Mixing rule type %s not found" % mixing_rule)
 
 
