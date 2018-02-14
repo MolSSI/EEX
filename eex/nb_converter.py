@@ -133,7 +133,7 @@ def mix_LJ(coeff_i, coeff_j, origin, mixing_rule,final="AB"):
 
     # Calculate new parameters based on mixing rules
     mixing_rule = mixing_rule.lower()
-    new_params = _LJ_mixing_functions[mixing_rule](sigma_epsilon_i, sigma_epsilon_j)
+    new_params = LJ_mixing_functions[mixing_rule](sigma_epsilon_i, sigma_epsilon_j)
 
     # Convert from epsilon-sigma to AB, then to final specified form. Double conversion is necessary because of
     # form of conversion matrix.
@@ -142,8 +142,10 @@ def mix_LJ(coeff_i, coeff_j, origin, mixing_rule,final="AB"):
 
     return convert_params
 
-_LJ_mixing_functions = {
+LJ_mixing_functions = {
     "lorentz-berthelot" : _lorentz_berthelot,
+    "arithmetic": _lorentz_berthelot,
     "geometric" : _geometric,
     "sixthpower" : _sixthpower,
+    #"kong": _kong,
 }
