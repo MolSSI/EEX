@@ -1322,3 +1322,29 @@ class DataLayer(object):
                 atom_type=key[0], atom_type2=key[1], nb_model=nb_model, utype=utype)
 
         return return_parameters
+
+    def mix_LJ(self, coeff_i, coeff_j, mixing_rule=None, origin="AB", final="AB"):
+        # Calculate interactions between two atom types based on specified mixing rules
+
+        if mixing_rule == None:
+            mixing_rule = self._mixing_rule
+
+        # First convert from input form to internal AB representation
+        internal_coeff_i = nb_converter.convert_LJ_coeffs(coeff_i, origin=origin, final="AB")
+        internal_coeff_j = nb_converter.convert_LJ_coeffs(coeff_j, origin=origin, final="AB")
+
+        # Convert from internal AB representation to epsilon/sigma
+        sigma_epsilon_i = nb_converter.convert_LJ_coeffs(internal_coeff_i, origin="AB", final="epsilon/sigma")
+        sigma_epsilon_j = nb_converter.convert_LJ_coeffs(internal_coeff_j, origin="AB", final="epsilon/sigma")
+
+        # Calculate new parameters based on mixing rules
+        mixing_rule = mixing_rule.lower()
+        new_params = nb_converter.LJ_mixing_functions[mixing_rule](sigma_epsilon_i, sigma_epsilon_j)
+
+        # Convert from epsilon-sigma to AB, then to final specified form. Double conversion is necessary because of
+        # form of conversion matrix.
+        convert_params_temp = nb_converter.convert_LJ_coeffs(new_params, origin="epsilon/sigma", final="AB")
+        convert_params = nb_converter.convert_LJ_coeffs(convert_params_temp, origin="AB", final=final)
+
+        return convert_params
+

@@ -120,28 +120,6 @@ def _sixthpower(sigma_epsilon_i, sigma_epsilon_j):
                             * sigma_epsilon_j['sigma'] ** 3.) /(sigma_epsilon_i['sigma'] ** 6. * sigma_epsilon_j['sigma'] ** 6.)
     return new_params
 
-def mix_LJ(coeff_i, coeff_j, origin, mixing_rule,final="AB"):
-    # Calculate interactions between two atom types based on specified mixing rules
-
-    # First convert from input form to internal AB representation
-    internal_coeff_i = convert_LJ_coeffs(coeff_i, origin=origin, final="AB")
-    internal_coeff_j = convert_LJ_coeffs(coeff_j, origin=origin, final="AB")
-
-    # Convert from internal AB representation to epsilon/sigma
-    sigma_epsilon_i = convert_LJ_coeffs(internal_coeff_i, origin="AB", final="epsilon/sigma")
-    sigma_epsilon_j = convert_LJ_coeffs(internal_coeff_j, origin="AB", final="epsilon/sigma")
-
-    # Calculate new parameters based on mixing rules
-    mixing_rule = mixing_rule.lower()
-    new_params = LJ_mixing_functions[mixing_rule](sigma_epsilon_i, sigma_epsilon_j)
-
-    # Convert from epsilon-sigma to AB, then to final specified form. Double conversion is necessary because of
-    # form of conversion matrix.
-    convert_params_temp = convert_LJ_coeffs(new_params, origin="epsilon/sigma", final="AB")
-    convert_params = convert_LJ_coeffs(convert_params_temp, origin="AB", final=final)
-
-    return convert_params
-
 LJ_mixing_functions = {
     "lorentz-berthelot" : _lorentz_berthelot,
     "arithmetic": _lorentz_berthelot,

@@ -9,6 +9,8 @@ import numpy as np
 
 from eex.testing import df_compare, dict_compare
 
+from eex import nb_converter
+
 # Set the Seed
 np.random.seed(0)
 
@@ -509,7 +511,22 @@ def test_mixing_rule():
 
     # Check failure
     with pytest.raises(ValueError):
-        dl.set_mixing_rule("mix")
+        dl.set_mixing_rule("test")
+
+    # Add AB LJ parameters to data layer - add to single atom
+    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_model="epsilon/sigma", nb_parameters={'epsilon': 1.0, 'sigma': 2.0})
+
+    # Add Buckingham parameter to datalayer
+    dl.add_nb_parameter(atom_type=2, nb_name="LJ", nb_model="epsilon/sigma", nb_parameters={'epsilon': 1.0, 'sigma': 1.0})
+
+    stored_nb_parameters = dl.list_nb_parameters(nb_name="LJ")
+
+    params = dl.mix_LJ(stored_nb_parameters[(1,None)], stored_nb_parameters[(2,None)], mixing_rule="geometric",
+                                 final="epsilon/sigma")
+
+    ans = {'sigma': 2 ** (1./2.), 'epsilon': 1.}
+
+    assert dict_compare(params, ans)
 
 
 
