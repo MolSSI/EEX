@@ -9,6 +9,8 @@ import eex
 # Possible types of the keyword 'variable' found in the input file
 variable_types = ['delete', 'index', 'loop', 'world', 'universe', 'uloop', 'string', 'format', 'getenv', 'file', 'atomfile', 'python', 'internal', 'equal', 'vector', 'atom']
 
+mixing_rules = ["geometric", "arithmetic", "sixthpower"]
+
 exclusions = {
     "default": {
         "coul":{
