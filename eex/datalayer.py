@@ -601,7 +601,7 @@ class DataLayer(object):
         """
 
         # Our index name
-        index = "atom_id"
+        index = "atom_index"
 
         # Validate DataFrame
         if not isinstance(atom_df, pd.DataFrame):
