@@ -404,8 +404,9 @@ def build_operation_table(extra_simulation_data, size_dict):
             v["kwargs"]["utype"] = aunits
  
         # Supply bond types, angle types, dihedral types
-        if "args" in v and "style_keyword" in v["args"] and v["args"]["style_keyword"] in ["bond_style", "angle_style", "dihedral_style"]:
-            v["args"]["style_keyword"] = extra_simulation_data[v["args"]["style_keyword"]]
+        if ("args" in v) and ("style_keyword" in v["args"]) and (v["args"]["style_keyword"] in ["bond_style", "angle_style", "dihedral_style"]):
+            if (v["args"]["style_keyword"] in extra_simulation_data.keys()):
+                v["args"]["style_keyword"] = extra_simulation_data[v["args"]["style_keyword"]]
 
         # Supply atom style
         if "df_cols" in v and "atom_style" in v["df_cols"]:
