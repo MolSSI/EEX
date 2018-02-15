@@ -540,8 +540,6 @@ def test_mixing_rule():
     # Add Buckingham parameter to datalayer
     dl.add_nb_parameter(atom_type=2, nb_name="Buckingham", nb_parameters={"A": 1.0, "C": 1.0, "rho": 1.0})
 
-    print(dl.list_nb_parameters(nb_name="LJ"))
-
     # This should fail because we can not combine LJ and Buckingham parameters.
     with pytest.raises(ValueError):
         dl.mix_LJ_parameters(atom_type1=1, atom_type2=2)
@@ -561,6 +559,53 @@ def test_mixing_rule():
     ans = {'sigma': 2 ** (1./2.), 'epsilon': 1.}
 
     assert dict_compare(params, ans)
+
+def test_mixing_table():
+    dl = eex.datalayer.DataLayer("test_add_nb_parameters", backend="memory")
+
+    # Create system with three molecules
+    atom_sys = _build_atom_df(3)
+
+    # Add atomic system to datalayer
+    dl.add_atoms(atom_sys)
+
+    # Add mixing rule to datalayer
+    dl.set_mixing_rule("arithmetic")
+
+    # Add AB LJ parameters to data layer - add to single atom
+    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_model="epsilon/sigma", nb_parameters={'epsilon': 1.0, 'sigma': 2.0})
+
+    # Add AB LJ parameters to data layer - add to single atom
+    dl.add_nb_parameter(atom_type=2, nb_name="LJ", nb_model="epsilon/sigma", nb_parameters={'epsilon': 2.0, 'sigma': 1.0})
+
+    # Apply mixing rule
+    dl.build_LJ_mixing_table()
+
+    # Get mixed parameters
+    pairIJ = dl.list_nb_parameters(nb_name="LJ", itype="pair", nb_model="epsilon/sigma")
+
+    ans = {
+        (1,1): {
+            'sigma': 2.,
+            'epsilon': 1,
+        },
+
+        (1, 2): {
+        'sigma': 1.5,
+        'epsilon': (2.) ** (1./2.)
+        },
+
+        (2, 2): {
+            'sigma': 1.,
+            'epsilon': 2.
+        },
+    }
+
+    assert(dict_compare(pairIJ, ans))
+
+
+
+
 
 
 

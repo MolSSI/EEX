@@ -1339,8 +1339,13 @@ class DataLayer(object):
             Returns True if successful
         """
 
+        parameters = self.list_nb_parameters(nb_name="LJ", nb_model="AB", itype="single")
 
+        parameter_keys = list(parameters)
 
+        for k in range(0, len(parameter_keys)):
+            for k2 in range(0, k+1):
+                self.mix_LJ_parameters(atom_type1=parameter_keys[k][0], atom_type2=parameter_keys[k2][0])
 
 
         return True
