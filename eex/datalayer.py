@@ -1342,6 +1342,7 @@ class DataLayer(object):
 
 
 
+
         return True
 
 
@@ -1357,7 +1358,7 @@ class DataLayer(object):
         unique_nb_types = np.unique(nb_types)
         return unique_nb_types
 
-    def list_nb_parameters(self, nb_name, nb_model=None, utype=None):
+    def list_nb_parameters(self, nb_name, nb_model=None, utype=None, itype="all"):
         """
         Return all NB parameters stored in data layer which have the form specified by nb_name.
 
@@ -1371,6 +1372,9 @@ class DataLayer(object):
         utype: dict (optional)
             Units for output. Must be compatible with nb_name and form. If not specified, default for datalayer will be
             returned
+        itype: interaction type (optional)
+            Can specify "all", "pair", or "single". All returns all values in the datalayer, while pair returns interactions
+            for I J pairs (i.e. atom_type1, atom_type2) and "single" returns only (atom_type1, None) interactions.
 
         Returns
         ------------------
@@ -1386,13 +1390,16 @@ class DataLayer(object):
         return_parameters = {}
         term_dict = self._nb_parameters.copy()
 
-        # Fix this - order of key (smallest, largest), etc.
         for key, value in term_dict.items():
             if value['form'] != nb_name:
                 continue
 
-            return_parameters[key] = self.get_nb_parameter(
-                atom_type=key[0], atom_type2=key[1], nb_model=nb_model, utype=utype)
+            if (None in key) and (itype == "all" or itype == "single"):
+                return_parameters[key] = self.get_nb_parameter(
+                    atom_type=key[0], atom_type2=key[1], nb_model=nb_model, utype=utype)
+            elif (None not in key) and (itype == "all" or itype == "pair"):
+                return_parameters[key] = self.get_nb_parameter(
+                    atom_type=key[0], atom_type2=key[1], nb_model=nb_model, utype=utype)
 
         return return_parameters
 

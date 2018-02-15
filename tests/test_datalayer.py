@@ -448,10 +448,21 @@ def test_add_nb_parameter_units():
     # Grab stored test parameters
     test_parameters = dl.list_nb_parameters(nb_name="LJ")
 
+    # make sure this grabs all stored values
+    assert (list(test_parameters) == [(1, None), (1, 2), (1, 3)])
+
     # Check conversion
     assert dict_compare(test_parameters[(1, None)], {'A': 1.e12, 'B': 1.e6})
     assert dict_compare(test_parameters[(1, 2)], {'A': 2.e12, 'B': 2.e6})
     assert dict_compare(test_parameters[(1, 3)], {'A': 2.e12, 'B': 2.e6})
+
+    # Check keywords
+    test_parameters2 = dl.list_nb_parameters(nb_name="LJ", itype="single")
+    assert(list(test_parameters2) == [(1, None)])
+
+    test_parameters3 = dl.list_nb_parameters(nb_name="LJ", itype="pair")
+    assert (list(test_parameters3) == [(1, 2), (1,3)])
+
 
 
 def test_get_nb_parameter():
