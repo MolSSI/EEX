@@ -436,12 +436,22 @@ def test_add_nb_parameter_units():
         atom_type2=2,
         utype=["kJ * mol ** -1 * nanometers ** 12", "kJ * mol ** -1 * nanometers ** 6"])
 
-    # Grab stored test parameters - will need to replace dl._nb_parameters with dl.get_nb_parameter when implemented
-    test_parameters = dl._nb_parameters
+    # Test atom types out of order
+    dl.add_nb_parameter(
+        atom_type=3,
+        nb_name="LJ",
+        nb_model="AB",
+        nb_parameters=[2.0, 2.0],
+        atom_type2=1,
+        utype=["kJ * mol ** -1 * nanometers ** 12", "kJ * mol ** -1 * nanometers ** 6"])
+
+    # Grab stored test parameters
+    test_parameters = dl.list_nb_parameters(nb_name="LJ")
 
     # Check conversion
-    assert dict_compare(test_parameters[(1, None)]['parameters'], {'A': 1.e12, 'B': 1.e6})
-    assert dict_compare(test_parameters[(1, 2)]['parameters'], {'A': 2.e12, 'B': 2.e6})
+    assert dict_compare(test_parameters[(1, None)], {'A': 1.e12, 'B': 1.e6})
+    assert dict_compare(test_parameters[(1, 2)], {'A': 2.e12, 'B': 2.e6})
+    assert dict_compare(test_parameters[(1, 3)], {'A': 2.e12, 'B': 2.e6})
 
 
 def test_get_nb_parameter():
@@ -518,6 +528,8 @@ def test_mixing_rule():
 
     # Add Buckingham parameter to datalayer
     dl.add_nb_parameter(atom_type=2, nb_name="Buckingham", nb_parameters={"A": 1.0, "C": 1.0, "rho": 1.0})
+
+    print(dl.list_nb_parameters(nb_name="LJ"))
 
     # This should fail because we can not combine LJ and Buckingham parameters.
     with pytest.raises(ValueError):

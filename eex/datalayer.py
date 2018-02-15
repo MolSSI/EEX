@@ -1191,8 +1191,13 @@ class DataLayer(object):
             param_dict['parameters'] = nb_converter.convert_LJ_coeffs(param_dict['parameters'], nb_model,
                                                                       model_default)
 
-        # Store it!
+        # Store it! --
         param_dict_key = (atom_type, atom_type2)
+
+        # Sort if atom_type2 is not None. atom_type1 is always less than atom_type2
+        if atom_type2 != None:
+            param_dict_key = tuple(sorted(param_dict_key))
+
 
         self._nb_parameters[param_dict_key] = param_dict
         return True
@@ -1321,6 +1326,24 @@ class DataLayer(object):
                               nb_name="LJ", nb_model="AB")
 
         return True
+
+    def build_LJ_mixing_table(self):
+        """
+        Function applies mixing rule to (atom_type, None) pairs.
+
+        Stores NB parameters in datalayer dictionary with keys
+            (1...n, 1...n)
+             where n is the number of atom types.
+
+        Returns: bool
+            Returns True if successful
+        """
+
+
+
+
+        return True
+
 
     def list_stored_nb_types(self):
         """
