@@ -225,32 +225,32 @@ units_style = {
 # Possible atom styles
 atom_style = {
     "default": "full",
-    "angle": ["atom_index", "molecule_ID", "atom_type", "x", "y", "z"],
-    "atomic": ["atom_index", "atom_type", "x", "y", "z"],
-    "body": ["atom_index", "atom_type", "bodyflag", "mass", "x", "y", "z"],
-    "bond": ["atom_index", "molecule_ID", "atom_type", "x", "y", "z"],
-    "charge": ["atom_index", "atom_type", "charge", "x", "y", "z"],
-    "dipole": ["atom_index", "atom_type", "charge", "x", "y", "z", "mux", "muy", "muz"],
-    "dpd": ["atom_index", "atom_type", "theta", "x", "y", "z"],
-    "edpd": ["atom_index", "atom_type", "edpd_temp", "edpd_cv", "x", "y", "z"],
-    "mdpd": ["atom_index", "atom_type", "x", "y", "z"],
-    # "tdpd"    ["atom_index", "atom_type", "x", "y", "z", "cc1", "cc2", ccNspecies], #NYI
-    "electron": ["atom_index", "atom_type", "charge", "spin eradius", "x", "y", "z"],
-    "ellipsoid": ["atom_index", "atom_type", "ellipsoidflag density", "x", "y", "z"],
-    "full": ["atom_index", "molecule-ID", "atom_type", "charge", "x", "y", "z"],
-    "line": ["atom_index", "molecule-ID", "atom_type", "lineflag", "density", "x", "y", "z"],
-    "meso": ["atom_index", "atom_type", "rho", "e", "cv", "x", "y", "z"],
-    "molecular": ["atom_index", "molecule-ID"
-                  "atom_type", "x", "y", "z"],
-    "peri": ["atom_index", "atom_type", "volume density", "x", "y", "z"],
+    "angle": ["atom_index", "molecule_index", "atom_type", "X", "Y", "Z"],
+    "atomic": ["atom_index", "atom_type", "X", "Y", "Z"],
+    "body": ["atom_index", "atom_type", "bodyflag", "mass", "X", "Y", "Z"],
+    "bond": ["atom_index", "molecule_index", "atom_type", "X", "Y", "Z"],
+    "charge": ["atom_index", "atom_type", "charge", "X", "Y", "Z"],
+    "dipole": ["atom_index", "atom_type", "charge", "X", "Y", "Z", "mux", "muy", "muz"],
+    "dpd": ["atom_index", "atom_type", "theta", "X", "Y", "Z"],
+    "edpd": ["atom_index", "atom_type", "edpd_temp", "edpd_cv", "X", "Y", "Z"],
+    "mdpd": ["atom_index", "atom_type", "X", "Y", "Z"],
+    # "tdpd"    ["atom_index", "atom_type", "X", "Y", "Z", "cc1", "cc2", ccNspecies], #NYI
+    "electron": ["atom_index", "atom_type", "charge", "spin eradius", "X", "Y", "Z"],
+    "ellipsoid": ["atom_index", "atom_type", "ellipsoidflag density", "X", "Y", "Z"],
+    "full": ["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"],
+    "line": ["atom_index", "molecule_index", "atom_type", "lineflag", "density", "X", "Y", "Z"],
+    "meso": ["atom_index", "atom_type", "rho", "e", "cv", "X", "Y", "Z"],
+    "molecular": ["atom_index", "molecule_index"
+                  "atom_type", "X", "Y", "Z"],
+    "peri": ["atom_index", "atom_type", "volume density", "X", "Y", "Z"],
     "smd": ["atom_index", "atom_type", "molecule volume", "mass", "kernel_radius", "contact_radius"
-            "x", "y", "z"],
-    "sphere": ["atom_index", "atom_type", "diameter", "density", "x", "y", "z"],
-    "template": ["atom_index", "molecule_ID"
-                 "template_index", "template_atom", "atom_type", "x", "y", "z"],
-    "tri": ["atom_index", "molecule_ID", "atom_type", "triangleflag", "density", "x", "y", "z"],
-    "wavepacket": ["atom_index", "atom_type", "charge", "spin", "eradius", "etag", "cs_re", "cs_im", "x", "y", "z"],
-    # "hybrid":["atom_index", "atom_type", "x", "y", "z", "sub-style1 sub-style2 ..."]
+            "X", "Y", "Z"],
+    "sphere": ["atom_index", "atom_type", "diameter", "density", "X", "Y", "Z"],
+    "template": ["atom_index", "molecule_index"
+                 "template_index", "template_atom", "atom_type", "X", "Y", "Z"],
+    "tri": ["atom_index", "molecule_index", "atom_type", "triangleflag", "density", "X", "Y", "Z"],
+    "wavepacket": ["atom_index", "atom_type", "charge", "spin", "eradius", "etag", "cs_re", "cs_im", "X", "Y", "Z"],
+    # "hybrid":["atom_index", "atom_type", "X", "Y", "Z", "sub-style1 sub-style2 ..."]
 }
 
 # Units for data labels
