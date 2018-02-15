@@ -517,12 +517,23 @@ def test_mixing_rule():
     dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_model="epsilon/sigma", nb_parameters={'epsilon': 1.0, 'sigma': 2.0})
 
     # Add Buckingham parameter to datalayer
+    dl.add_nb_parameter(atom_type=2, nb_name="Buckingham", nb_parameters={"A": 1.0, "C": 1.0, "rho": 1.0})
+
+    # This should fail because we can not combine LJ and Buckingham parameters.
+    with pytest.raises(ValueError):
+        dl.mix_LJ_parameters(atom_type1=1, atom_type2=2)
+
+    with pytest.raises(KeyError):
+        dl.mix_LJ_parameters(atom_type1=1, atom_type2=3)
+
+    # Overwrite Buckingham parameter
     dl.add_nb_parameter(atom_type=2, nb_name="LJ", nb_model="epsilon/sigma", nb_parameters={'epsilon': 1.0, 'sigma': 1.0})
 
-    stored_nb_parameters = dl.list_nb_parameters(nb_name="LJ")
+    # Apply mixing rule
+    dl.mix_LJ_parameters(atom_type1=1, atom_type2=2)
 
-    params = nb_converter.mix_LJ(stored_nb_parameters[(1,None)], stored_nb_parameters[(2,None)], mixing_rule="geometric",
-                                 final="epsilon/sigma")
+    # Get values from datalayer and check
+    params = dl.get_nb_parameter(atom_type=1,atom_type2=2, nb_model="epsilon/sigma")
 
     ans = {'sigma': 2 ** (1./2.), 'epsilon': 1.}
 

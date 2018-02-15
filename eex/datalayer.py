@@ -1121,7 +1121,7 @@ class DataLayer(object):
         atom_type : int
             The first atom type for the interaction
         nb_name: int
-            The name of the functional form (eg - "LJ", "Buckinghame"
+            The name of the functional form (eg - "LJ", "Buckingham")
         nb_parameters: dict
             Parameters for the functional form - should match nb_name and nb_form (if specified)
         nb_form: str
@@ -1271,6 +1271,56 @@ class DataLayer(object):
                 param_dict[key] *= cf
 
         return param_dict
+
+    def mix_LJ_parameters(self, atom_type1, atom_type2, mixing_rule=None):
+        """
+        Mixes LJ parameters based on atom types and mixing rules. Stores in datalayer as (atom_type1, atom_type2)
+
+        Parameters:
+        ---------------------------------
+        atom_type: int
+            The first atom_type of the NB interaction
+        atom_type: int
+            The second atom type of the NB interaction
+        mixing_rule: str
+            The mixing rule to combine parameters with. If not set, will be set to mixing rule stored in datalayer
+
+
+        Returns:
+        --------------------------------
+        return: bool
+            Returns True if successful
+        """
+
+        if mixing_rule == None:
+            mixing_rule = self._mixing_rule
+
+        param_keys = [(atom_type1, None), (atom_type2, None)]
+
+        params = []
+
+        # Get information from data layer - check that interaction is set for atom types
+        for k in param_keys:
+            if k in self._nb_parameters.keys():
+                # Use deep copy here
+                params.append(copy.deepcopy(self._nb_parameters[k]))
+            else:
+                raise KeyError("Nonbond interaction for atom types (%s, %s) not found" % (k))
+
+
+
+        # Check that both parameters are LJ form
+        if params[0]["form"] != "LJ" or params[1]["form"] != "LJ":
+            raise ValueError("Can only combine LJ coefficients using mixing rules.")
+
+        # Apply mixing rule
+        new_params = nb_converter.mix_LJ(params[0]["parameters"], params[1]["parameters"], mixing_rule=mixing_rule)
+
+        # Add new parameter to datalayer!
+        self.add_nb_parameter(atom_type=atom_type1, atom_type2=atom_type2, nb_parameters=new_params,
+                              nb_name="LJ", nb_model="AB")
+
+        return True
 
     def list_stored_nb_types(self):
         """
