@@ -62,7 +62,7 @@ def _check_dl_compatibility(dl):
     """
     print("Checking dl compatibility\n")
 
-    # Loop over force field information. 
+    # Loop over force field information.
     for k, v in amd.forcefield_parameters.items():
         if k != "nonbond":
             terms = dl.list_term_parameters(v["order"])
@@ -71,6 +71,7 @@ def _check_dl_compatibility(dl):
                     # Will need to insert check to see if these can be easily converted (ex OPLS dihedral <-> charmmfsw)
                     raise Exception("Functional form stored in datalayer is not compatible with Amber")
         else:
+            # handle non bonds here
             pass
 
 
@@ -266,13 +267,14 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     nb_forms = dl.list_stored_nb_types()
 
+    # This can be removed if compatibility check inserted at beginning
     if set(nb_forms) != set(["LJ"]):
         # Write better message here
         raise KeyError("Nonbond forms stored in datalayer are not compatible with Amber - %s" % nb_forms)
 
     # Get parameters from datalayer using correct amber units
     stored_nb_parameters = dl.list_nb_parameters(
-        nb_name="LJ", nb_model="AB", utype=amd.forcefield_parameters["nonbond"]["units"])
+        nb_name="LJ", nb_model="AB", utype=amd.forcefield_parameters["nonbond"]["units"], itype="pair")
     nonbonded_parm_index = np.zeros(ntypes * ntypes)
     lj_a_coeff = []
     lj_b_coeff = []
