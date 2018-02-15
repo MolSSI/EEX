@@ -116,8 +116,6 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
         else:
             raise IOError("LAMMPS Read: Line not understood!\n%s" % line)
 
-    if 'atom_style' in needed_keywords:
-        needed_keywords.append('mixing_rule')
 
     # We have now a list of the needed keywords based on the topology. 
     # Needed_keywords contains at least ["units"], but can also contain
@@ -146,11 +144,6 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
                 atom_style = extra_simulation_data['atom_style']
                 if atom_style not in lmd.atom_style: 
                     raise KeyError("Could not find atom style '%s'." % atom_style)
-            elif keyword == 'mixing_rule':
-                mixing_style = extra_simulation_data['mixing_rule']
-                if mixing_style not in lmd.mixing_rules: 
-                    raise KeyError("Could not find mixing rule style '%s'." % mixing_style)
-
             else:
                 raise KeyError("Key %s not understood. " % keyword)
 
@@ -159,9 +152,6 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
 
     dl.set_box_size(lattice_constants)
     dl.set_box_center(box_center)
-
-    # Set mixing rule
-    dl.set_mixing_rule(mixing_style)
 
     # Make sure we have what we need
     if startline is None:
@@ -380,7 +370,9 @@ def read_lammps_input_file(dl, fname, blocksize=110):
             if 'mix' in keyword_opts:
                 idx = keyword_opts.index('mix')
                 mix_rule = keyword_opts[idx + 1]
-                extra_simulation_data["mixing_rule"] = mix_rule
+                if mix_rule not in lmd.mixing_rules:
+                    raise KeyError("Could not find mixing rule style '%s'." % mixing_style)
+                dl.set_mixing_rule(mix_rule)
 
         elif keyword == "special_bonds":
             pass
