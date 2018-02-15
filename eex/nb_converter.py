@@ -96,8 +96,8 @@ def convert_LJ_coeffs(coeffs, origin, final):
 def _lorentz_berthelot(sigma_epsilon_i, sigma_epsilon_j):
     new_params = {}
 
-    new_params['sigma'] = (sigma_epsilon_i['sigma'] + sigma_epsilon_j['sigma']) / 2
-    new_params['epsilon'] = (sigma_epsilon_i['epsilon'] * sigma_epsilon_j['sigma'])**(1. / 2.)
+    new_params['sigma'] = (sigma_epsilon_i['sigma'] + sigma_epsilon_j['sigma']) * 0.5
+    new_params['epsilon'] = (sigma_epsilon_i['epsilon'] * sigma_epsilon_j['epsilon'])**(1. / 2.)
 
     return new_params
 
