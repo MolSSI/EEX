@@ -449,7 +449,7 @@ def test_add_nb_parameter_units():
     test_parameters = dl.list_nb_parameters(nb_name="LJ")
 
     # make sure this grabs all stored values
-    assert (list(test_parameters) == [(1, None), (1, 2), (1, 3)])
+    assert (set(list(test_parameters)) == set([(1, None), (1, 2), (1, 3)]))
 
     # Check conversion
     assert dict_compare(test_parameters[(1, None)], {'A': 1.e12, 'B': 1.e6})
