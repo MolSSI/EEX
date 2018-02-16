@@ -83,6 +83,9 @@ def test_lammps_read_angles(spce_dl):
     assert np.allclose(np.unique(angles["term_index"]), [1])
 
 
+
+
+
 @pytest.mark.parametrize("molecule", [
     "data.trappe_butane_single_molecule",
     "data.trappe_propane_single_molecule",
@@ -95,6 +98,7 @@ def test_lammps_writer(molecule):
 
     # Read in the data
     dl = eex.datalayer.DataLayer(molecule)
+    dl.set_mixing_rule('geometric')
     eex.translators.lammps.read_lammps_data_file(dl, fname, sim_data)
 
     # Write out the data
