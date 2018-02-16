@@ -60,19 +60,56 @@ def _check_dl_compatibility(dl):
 
     Conversions between functional forms and pairwise interaction mixing are performed (if possible).
     """
-    print("Checking dl compatibility\n")
 
-    # Loop over force field information.
+    # Loop over force field information - check functional form compatibility
     for k, v in amd.forcefield_parameters.items():
         if k != "nonbond":
             terms = dl.list_term_parameters(v["order"])
             for j in terms.values():
                 if j[0] != v["form"]:
                     # Will need to insert check to see if these can be easily converted (ex OPLS dihedral <-> charmmfsw)
-                    raise Exception("Functional form stored in datalayer is not compatible with Amber")
+                    raise TypeError("Functional form %s stored in datalayer is not compatible with Amber.\n" %(j[0]) )
         else:
             # handle non bonds here
             pass
+
+    stored_properties = dl.list_atom_properties()
+    required_properties = list(amd.atom_property_names.values())
+
+    diff = np.setdiff1d(required_properties, stored_properties)
+    natoms = dl.get_atom_count()
+
+    index = np.arange(1, natoms + 1)
+
+    # Build and curate the data
+    df = pd.DataFrame({'atom_index': index})
+    df.dropna(axis=0, how="any", inplace=True)
+    df.set_index('atom_index', inplace=True)
+
+    add_properties = []
+
+    # Fill in default or raise error
+    for req in diff:
+        if req == 'atom_name':
+            atom_names = ['A'] * natoms
+            df[req] = atom_names
+            add_properties.append(req)
+
+        elif req == 'atomic_number':
+            # Just say it's carbon...doesn't seem like this matters too much for amber
+            atomic_numbers = [6] * natoms
+            df[req] = atomic_numbers
+            add_properties.append(req)
+        elif req == "mass":
+            try:
+                dl.get_atoms(properties=["mass"])
+            except:
+                raise KeyError("No masses stored in datalayer")
+        else:
+            raise KeyError("Atom property %s is missing from datalayer" %(req))
+
+    if len(add_properties) > 0:
+        dl.add_atoms(df)
 
 
 
