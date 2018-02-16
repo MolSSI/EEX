@@ -108,8 +108,19 @@ def _check_dl_compatibility(dl):
         else:
             raise KeyError("Atom property %s is missing from datalayer" %(req))
 
+    # Check for residue_index
+    if "residue_index" not in stored_properties:
+        # If molecule_index is set, set residue index to this.
+        # Otherwise, set all to 1.0
+        if "molecule_index" in stored_properties:
+            df["residue_index"] = dl.get_atoms(properties=["molecule_index"])
+            df["residue_name"] = ["BLA"] * natoms
+            add_properties.append("residue_index")
+
     if len(add_properties) > 0:
-        dl.add_atoms(df)
+        dl.add_atoms(df, by_value=True)
+
+
 
 
 
