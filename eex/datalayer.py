@@ -66,6 +66,7 @@ class DataLayer(object):
         # Any remaining metadata
         self._box_size = {}
         self._box_center = {}
+        self._mixing_rule = ''
 
 ### Generic helper close/save/list/etc functions
 
