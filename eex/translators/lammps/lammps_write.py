@@ -67,24 +67,26 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
         data_file.write("% 8.6f% 8.6f %slo %shi\n" % (v[0],v[1], k, k))
     data_file.write('\n')
 
-
-    data_file.write(("Pair Coeffs\n\n").title())
-
     param_fmt = "%10.8f"
     # Loop over Pair Coeffs
     nb_forms = dl.list_stored_nb_types()
-    for form in nb_forms:
-        if not form in nb_term_table:
-            raise KeyError("Nonbond forms stored in datalayer are not compatible with Lammps forms - %s" % nb_forms)
-        if form == "LJ": 
-            stored_nb_parameters = dl.list_nb_parameters(
-                    nb_name=form, nb_model="epsilon/sigma", utype={"epsilon": "kcal/mol", "sigma": "angstrom"})
 
-            for key, value in stored_nb_parameters.items():
-                if key[1] == None:
-                    data_file.write(("%2d %10.8f %10.8f\n" % (key[0], value['epsilon'], value['sigma'])))
-                else:
-                    data_file.write(("%2d %2d %10.8f %10.8f\n" % (key[0], key[1], value['epsilon'], value['sigma'])))
+    # Handle nonbonds - This needs to be generalized badly - make it work for now.
+    if dl.get_mixing_rule() != '':
+        data_file.write(("Pair Coeffs\n\n").title())
+
+        stored_nb_parameters = dl.list_nb_parameters(
+            nb_name="LJ", nb_model="epsilon/sigma", utype={"epsilon": unit_set["[energy]"], "sigma": unit_set["[length]"]}, itype="single")
+    else:
+        data_file.write("PairIJ Coeffs\n\n")
+        stored_nb_parameters = dl.list_nb_parameters(
+            nb_name="LJ", nb_model="epsilon/sigma", utype={"epsilon": unit_set["[energy]"], "sigma": unit_set["[length]"]}, itype="pair")
+
+    for key, value in stored_nb_parameters.items():
+        if key[1] == None:
+            data_file.write(("%2d %10.8f %10.8f\n" % (key[0], value['epsilon'], value['sigma'])))
+        else:
+            data_file.write(("%2d %2d %10.8f %10.8f\n" % (key[0], key[1], value['epsilon'], value['sigma'])))
 
     data_file.write("\n")
         

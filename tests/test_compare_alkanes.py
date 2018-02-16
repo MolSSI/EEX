@@ -79,8 +79,6 @@ def test_alkane(lammps_bench, program):
 @pytest.mark.parametrize("molecule", _alkane_molecules)
 def test_translation(program1, program2, molecule):
 
-    print("Translating %s to %s" %(program1, program2))
-
     oname = eex_find_files.get_scratch_directory("test_output")
 
     original_dl = build_dl(program1, molecule)
