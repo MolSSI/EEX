@@ -58,14 +58,14 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
     box_center = dl.get_box_center(utype={"x": "angstrom", "y": "angstrom", "z": "angstrom"})
 
     lo_hi = {}
+    if box_center and box_size:
+        lo_hi["x"] = [box_center["x"] - box_size["a"]/2., box_center["x"] + box_size["a"]/2.]
+        lo_hi["y"] = [box_center["y"] - box_size["b"]/2., box_center["y"] + box_size["b"] / 2.]
+        lo_hi["z"] = [box_center["z"] - box_size["c"] / 2., box_center["z"] + box_size["c"] / 2.]
 
-    lo_hi["x"] = [box_center["x"] - box_size["a"]/2., box_center["x"] + box_size["a"]/2.]
-    lo_hi["y"] = [box_center["y"] - box_size["b"]/2., box_center["y"] + box_size["b"] / 2.]
-    lo_hi["z"] = [box_center["z"] - box_size["c"] / 2., box_center["z"] + box_size["c"] / 2.]
-
-    for k, v in lo_hi.items():
-        data_file.write("% 8.6f% 8.6f %slo %shi\n" % (v[0],v[1], k, k))
-    data_file.write('\n')
+        for k, v in lo_hi.items():
+            data_file.write("% 8.6f% 8.6f %slo %shi\n" % (v[0],v[1], k, k))
+        data_file.write('\n')
 
     param_fmt = "%10.8f"
     # Loop over Pair Coeffs
