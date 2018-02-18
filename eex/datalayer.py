@@ -160,7 +160,7 @@ class DataLayer(object):
         box_metadata = metadata.box_metadata
         dimensions = box_metadata["center"]
 
-        if utype is not None:
+        if utype is not None and ret:
             if not isinstance(utype, dict):
                 raise TypeError("Validate term dict: Unit type '%s' not understood" % str(type(utype)))
 
@@ -270,7 +270,7 @@ class DataLayer(object):
         box_metadata = metadata.box_metadata
         dimensions = box_metadata["dimensions"]
 
-        if utype is not None:
+        if utype is not None and ret:
             if not isinstance(utype, dict):
                 raise TypeError("Validate term dict: Unit type '%s' not understood" % str(type(utype)))
 
