@@ -78,21 +78,48 @@ def test_alkane(lammps_bench, program):
 @pytest.mark.parametrize("program2", ["amber", "lammps"]) #write dl
 @pytest.mark.parametrize("molecule", _alkane_molecules)
 def test_translation(program1, program2, molecule):
+    """
+    This test does two translations, and two energy comparisons
 
+        program1 -> program2 *compare energy* -> program1 *compare energy*
+
+    """
     oname = eex_find_files.get_scratch_directory("test_output")
 
+    # Load data into 'program1'
     original_dl = build_dl(program1, molecule)
     original_energy = original_dl.evaluate()
 
     original_box = original_dl.get_box_size()
 
+    original_atoms = original_dl.get_atoms(properties= ["mass", "atom_type", "charge", "xyz", "molecule_index"])
+
+    # Write new dl as 'program2'
     oname = write_dl(program2, original_dl, oname)
 
+    # Read written dl
     new_dl = build_dl2(program2, oname)
     new_energy = new_dl.evaluate()
 
     new_box = new_dl.get_box_size()
 
+    new_atoms = new_dl.get_atoms(properties=["mass", "atom_type", "charge", "xyz", "molecule_index"])
+
+    # Test that box parameters are the same
     assert(eex.testing.dict_compare(original_box, new_box))
 
+    # Test that the system energy is the same
     assert(eex.testing.dict_compare(original_energy, new_energy))
+
+    # Test that atom metadata is the same
+    assert(eex.testing.dict_compare(original_atoms.to_dict(), new_atoms.to_dict()))
+
+    # Translate back to original program
+    oname = write_dl(program1, new_dl, oname)
+
+    # Read written dl
+    new_dl2 = build_dl2(program1, oname)
+    new_energy2 = new_dl2.evaluate()
+
+    assert (eex.testing.dict_compare(original_energy, new_energy2))
+

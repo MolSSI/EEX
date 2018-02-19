@@ -38,7 +38,7 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
     sizes["angles"] = dl.get_term_count(3, "total")
     sizes["dihedrals"] = dl.get_term_count(4, "total") # Not qutie right once we do impropers
     sizes["impropers"] = 0
-    sizes["atom types"] = len(dl.list_atom_uids("mass"))
+    sizes["atom types"] = len(dl.get_unique_atom_types())
 
     # All the UID's minus the "total" columns
     sizes["bond types"] = len(dl.get_term_count(2)) - 1
@@ -120,7 +120,11 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
     data = dl.get_atoms(["atom_type", "mass"],
                         utype={'atom_type': None, 'mass':lmd.get_context(unit_style, "[mass]")},
                         by_value=True).drop_duplicates()
-    np.savetxt(data_file, data, fmt='%2d %10.8f')
+
+    data.to_csv(data_file, sep=' ', index=False, header=False)
+
+    # This is not working in Python 3?
+    #np.savetxt(data_file, np.array(data), fmt='%2d %10.8f')
 
     data_file.write('\n')
 
