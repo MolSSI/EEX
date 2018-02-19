@@ -157,6 +157,7 @@ def write_amber_file(dl, filename, inpcrd=None):
 
         if term.shape[0] == 0:
             num_H_list.append(0)
+            continue
 
         # Build up an index of what is in hydrogen or not
         inc_hydrogen_mask = term["atom1"].isin(hidx)
