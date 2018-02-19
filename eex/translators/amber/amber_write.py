@@ -26,7 +26,10 @@ logger = logging.getLogger(__name__)
 
 def _write_1d(file_handle, data, ncols, fmt):
 
+    data = data.ravel()
+
     remainder_size = data.size % ncols
+
     if data.size == 0:
         file_handle.write("\n".encode())
     elif remainder_size == 0:
@@ -142,23 +145,48 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     _check_dl_compatibility(dl)
 
+
+    ### Figure out what is hydrogen for the header
+    num_H_list = []
+    inc_hydrogen = {}
+    without_hydrogen = {}
+    hidx = (dl.get_atoms("atomic_number") == 1).values.ravel()
+
+    for term_type, term_name in zip([2, 3, 4], ["bonds", "angles", "dihedrals"]):
+        term = dl.get_terms(term_type)
+
+        if term.shape[0] == 0:
+            num_H_list.append(0)
+
+        # Build up an index of what is in hydrogen or not
+        inc_hydrogen_mask = term["atom1"].isin(hidx)
+        for n in range(term_type - 1):
+            name = "atom" + str(n + 2)
+            inc_hydrogen_mask |= term[name].isin(hidx)
+
+        num_H_list.append(len(term.loc[inc_hydrogen_mask].values))
+        inc_hydrogen[term_name] = term.loc[inc_hydrogen_mask].values
+        without_hydrogen[term_name] = term.loc[~inc_hydrogen_mask].values
+
+
     output_sizes = {k: 0 for k in amd.size_keys}
 
     output_sizes['NATOM'] = dl.get_atom_count()  # Number of atoms
-    output_sizes["MBONA"] = dl.get_term_count(2, "total")  #  Number of bonds not containing hydrogen
+    output_sizes["NBONH"] = num_H_list[0]  # Number of bonds containing hydrogen
+    output_sizes["MBONA"] = dl.get_term_count(2, "total") - output_sizes["NBONH"]  #  Number of bonds not containing hydrogen
     output_sizes['NBONA'] = output_sizes["MBONA"]  # MBONA + number of constraint bonds (MBONA = NBONA always)
-    output_sizes["MTHETA"] = dl.get_term_count(3, "total")  #  Number of angles not containing hydrogen
+    output_sizes["NTHETH"] = num_H_list[1]  # Number of angles containing hydrogen
+    output_sizes["MTHETA"] = dl.get_term_count(3, "total") - output_sizes["NTHETH"]  #  Number of angles not containing hydrogen
     output_sizes['NTHETA'] = output_sizes["MTHETA"]  # MTHETA + number of constraint angles (NTHETA = MTHETA always)
-    output_sizes["MPHIA"] = dl.get_term_count(4, "total")  #  Number of torsions not containing hydrogen
+    output_sizes["NPHIH"] = num_H_list[2]  # Number of torsions containing hydrogen
+    output_sizes["MPHIA"] = dl.get_term_count(4, "total") - output_sizes["NPHIH"]  #  Number of torsions not containing hydrogen
     output_sizes["NPHIA"] = output_sizes["MPHIA"]
     output_sizes["NUMBND"] = len(dl.list_term_uids(2))  # Number of unique bond types
     output_sizes["NUMANG"] = len(dl.list_term_uids(3))  # Number of unique angle types
     output_sizes["NPTRA"] = len(dl.list_term_uids(4))  # Number of unique torsion types
     output_sizes["NRES"] = len(dl.list_atom_uids("residue_name"))  # Number of residues (not stable)
     output_sizes["NTYPES"] = len(np.unique(dl.get_atoms("atom_type")))  # Number of distinct LJ atom types
-    output_sizes["NBONH"] = 0  #  Number of bonds containing hydrogen
-    output_sizes["NTHETH"] = 0  #  Number of angles containing hydrogen
-    output_sizes["NPHIH"] = 0  #  Number of torsions containing hydrogen
+
     output_sizes["NPARM"] = 0  #  Used to determine if this is a LES-compatible prmtop (??)
     output_sizes["NNB"] = dl.get_atom_count(
     )  #  Number of excluded atoms - Set to num atoms for our test cases. Amber will not run with 0
@@ -168,7 +196,7 @@ def write_amber_file(dl, filename, inpcrd=None):
     output_sizes["NUMEXTRA"] = 0  # Number of extra points in the topology file
 
     ## Needs check for orthorhomibic box (1) or truncated octahedron (2). Currently just 0 or 1
-    output_sizes["IFBOX"] = [0 if dl.get_box_size == {} else 1][0]  # Flag indicating whether a periodic box is present
+    output_sizes["IFBOX"] = [0 if dl.get_box_size() == {} else 1][0]  # Flag indicating whether a periodic box is present
 
     written_categories = []
 
@@ -259,9 +287,6 @@ def write_amber_file(dl, filename, inpcrd=None):
             _write_amber_data(file_handle, v, k)
             written_categories.append(k)
 
-    ### Handle term data
-    hidx = (dl.get_atoms("atomic_number") == 1).values.ravel()
-
     for term_type, term_name in zip([2, 3, 4], ["bonds", "angles", "dihedrals"]):
         term = dl.get_terms(term_type)
 
@@ -269,24 +294,18 @@ def write_amber_file(dl, filename, inpcrd=None):
 
         # Build up an index of what is in hydrogen or not
         inc_hydrogen_mask = term["atom1"].isin(hidx)
-        for n in range(term_type - 1):
-            name = "atom" + str(n + 2)
-            inc_hydrogen_mask |= term[name].isin(hidx)
-
-        inc_hydrogen = term.loc[inc_hydrogen_mask].values
-        without_hydrogen = term.loc[~inc_hydrogen_mask].values
 
         # Scale by weird AMBER factors
-        inc_hydrogen[:, :-1] = (inc_hydrogen[:, :-1] - 1) * 3
-        without_hydrogen[:, :-1] = (without_hydrogen[:, :-1] - 1) * 3
+        inc_hydrogen[term_name][:, :-1] = (inc_hydrogen[term_name][:, :-1] - 1) * 3
+        without_hydrogen[term_name][:, :-1] = (without_hydrogen[term_name][:, :-1] - 1) * 3
 
         inc_h_name = term_name.upper() + "_INC_HYDROGEN"
         without_h_name = term_name.upper() + "_WITHOUT_HYDROGEN"
 
-        _write_amber_data(file_handle, inc_hydrogen, inc_h_name)
+        _write_amber_data(file_handle, inc_hydrogen[term_name], inc_h_name)
         written_categories.append(inc_h_name)
 
-        _write_amber_data(file_handle, without_hydrogen, without_h_name)
+        _write_amber_data(file_handle, without_hydrogen[term_name], without_h_name)
         written_categories.append(without_h_name)
 
     # Append & forget about SOLVENT_POINTERS section for now
