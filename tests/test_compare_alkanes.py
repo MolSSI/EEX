@@ -81,7 +81,9 @@ def test_translation(program1, program2, molecule):
     """
     This test does two translations, and two energy comparisons
 
-        program1 -> program2 *compare energy* -> program1 *compare energy*
+        program1 -> program2 -> program1
+
+        At each stage, energies and atom metadata are compared.
 
     """
     oname = eex_find_files.get_scratch_directory("test_output")
@@ -92,7 +94,7 @@ def test_translation(program1, program2, molecule):
 
     original_box = original_dl.get_box_size()
 
-    original_atoms = original_dl.get_atoms(properties= ["mass", "atom_type", "charge", "xyz", "molecule_index"])
+    original_atoms = original_dl.get_atoms(properties= ["mass", "atom_type", "charge", "xyz"], by_value=True)
 
     # Write new dl as 'program2'
     oname = write_dl(program2, original_dl, oname)
@@ -103,7 +105,7 @@ def test_translation(program1, program2, molecule):
 
     new_box = new_dl.get_box_size()
 
-    new_atoms = new_dl.get_atoms(properties=["mass", "atom_type", "charge", "xyz", "molecule_index"])
+    new_atoms = new_dl.get_atoms(properties=["mass", "atom_type", "charge", "xyz"], by_value=True)
 
     # Test that box parameters are the same
     assert(eex.testing.dict_compare(original_box, new_box))
@@ -111,8 +113,8 @@ def test_translation(program1, program2, molecule):
     # Test that the system energy is the same
     assert(eex.testing.dict_compare(original_energy, new_energy))
 
-    # Test that atom metadata is the same
-    assert(eex.testing.dict_compare(original_atoms.to_dict(), new_atoms.to_dict()))
+     # Test that atom metadata is the same
+    assert (eex.testing.dict_compare(original_atoms.to_dict(), new_atoms.to_dict()))
 
     # Translate back to original program
     oname = write_dl(program1, new_dl, oname)
@@ -120,6 +122,8 @@ def test_translation(program1, program2, molecule):
     # Read written dl
     new_dl2 = build_dl2(program1, oname)
     new_energy2 = new_dl2.evaluate()
+    new_atoms2 = new_dl2.get_atoms(properties=["mass", "atom_type", "charge", "xyz"], by_value=True)
 
     assert (eex.testing.dict_compare(original_energy, new_energy2))
+    assert (eex.testing.dict_compare(original_atoms.to_dict(), new_atoms2.to_dict()))
 
