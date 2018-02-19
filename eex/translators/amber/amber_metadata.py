@@ -45,7 +45,7 @@ data_labels = {
     "JOIN_ARRAY": ["NATOM", "%FORMAT(10I8)"],  # This section is filled with zeros, but is unused. We should not store it.
     "IROTAT": ["NATOM", "%FORMAT(10I8)"],
     "SOLVENT_POINTERS": ["3 if IFBOX else 0", "%FORMAT(3I8)"],
-    "ATOMS_PER_MOLECULE": ["NATOM", "%FORMAT(10I8)"],
+    "ATOMS_PER_MOLECULE": ["NATOM if IFBOX else 0", "%FORMAT(10I8)"],
     # "ATOMS_PER_MOLECULE": ["SOLVENT_POINTERS[1] if IFBOX else 0"], # SOLVENT_POINTERS[1] == NPSM
     "BOX_DIMENSIONS": [4, "%FORMAT(5E16.8)"],
     "CAP_INFO": ["1 if IFCAP else 0", "%FORMAT(10I8)"],
