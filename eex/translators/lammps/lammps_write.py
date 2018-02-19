@@ -78,7 +78,7 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
         stored_nb_parameters = dl.list_nb_parameters(
             nb_name="LJ", nb_model="epsilon/sigma", utype={"epsilon": unit_set["[energy]"], "sigma": unit_set["[length]"]}, itype="single")
     else:
-        data_file.write("PairIJ Coeffs\n\n")
+        data_file.write("\nPairIJ Coeffs\n\n")
         stored_nb_parameters = dl.list_nb_parameters(
             nb_name="LJ", nb_model="epsilon/sigma", utype={"epsilon": unit_set["[energy]"], "sigma": unit_set["[length]"]}, itype="pair")
 
