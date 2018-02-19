@@ -115,11 +115,13 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
 
         data_file.write("\n")
 
-    # Write out mass data
+    # Write out mass data - don't use get_atom_parameter since we cannot assume that uid = atom_type
     data_file.write(" Masses\n\n")
-    for idx in dl.list_atom_uids("mass"):
-        mass = dl.get_atom_parameter("mass", idx, utype=lmd.get_context(unit_style, "[mass]"))
-        data_file.write("%2d %10.8f\n" % (idx, mass))
+    data = dl.get_atoms(["atom_type", "mass"],
+                        utype={'atom_type': None, 'mass':lmd.get_context(unit_style, "[mass]")},
+                        by_value=True).drop_duplicates()
+    np.savetxt(data_file, data, fmt='%2d %10.8f')
+
     data_file.write('\n')
 
     # Write out atom data
