@@ -415,7 +415,7 @@ class DataLayer(object):
 
         return tmp
 
-    def add_atom_parameter(self, property_name, value, uid=None, utype=None):
+    def add_atom_parameter(self, property_name, value, uid=None, utype=None, allow_duplicates=False):
         """
         Adds atom parameters to the Datalayer object
 
@@ -498,7 +498,7 @@ class DataLayer(object):
             if found_key is not None:
                 if found_key == uid:
                     return found_key
-                else:
+                elif allow_duplicates is False:
                     raise KeyError(
                         "DataLayer:add_atom_parameters: Tried to add value %s, but found in uid (%d) and current keys (%d)"
                         % (value, uid, found_key))

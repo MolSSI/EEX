@@ -147,11 +147,12 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
             else:
                 raise KeyError("Key %s not understood. " % keyword)
 
-    # Set the box size
-    lattice_constants = eex.utility.compute_lattice_constants(box_size, tilt_factors)
+    if box_size:
+        # Set the box size
+        lattice_constants = eex.utility.compute_lattice_constants(box_size, tilt_factors)
 
-    dl.set_box_size(lattice_constants)
-    dl.set_box_center(box_center)
+        dl.set_box_size(lattice_constants)
+        dl.set_box_center(box_center)
 
     # Make sure we have what we need
     if startline is None:
@@ -232,7 +233,7 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
                 atom_prop = op["atom_property"]
                 utype = op["kwargs"]["utype"][atom_prop]
                 for idx, row in data.iterrows():
-                    dl.add_atom_parameter(atom_prop, row.iloc[1], uid=row.iloc[0], utype=utype)
+                    dl.add_atom_parameter(atom_prop, row.iloc[1], uid=row.iloc[0], utype=utype, allow_duplicates=True)
             # Adding parameters
             elif op["call_type"] == "parameter":
                 order = op["args"]["order"]
