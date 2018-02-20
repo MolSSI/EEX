@@ -253,7 +253,6 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                 box_size["gamma"] = data[0].values[0]
 
 
-
                 for v in amd.box_units["center"]:
                     box_center.append(eval(v))
 
@@ -442,7 +441,11 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         if data.shape[0]  == read_size + 1 and sizes_dict["IFBOX"] > 0:
             box_information = data.tail(1).values[0]
 
-            box_sizes = {"a": box_information[0], "b": box_information[1], "c": box_information[2],
+            a = box_information[0]
+            b = box_information[1]
+            c = box_information[2]
+
+            box_sizes = {"a": a, "b": b, "c": c,
                          "alpha": box_information[3], "beta": box_information[3], "gamma": box_information[3],
                          }
 
@@ -450,8 +453,19 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                                               "c": amd.box_units["length"], "alpha": amd.box_units["angle"],
                                               "beta": amd.box_units["angle"], "gamma": amd.box_units["angle"], })
 
+            box_center = []
+
+            for v in amd.box_units["center"]:
+                box_center.append(eval(v))
+
+            box_center = dict(zip(['x', 'y', 'z'], box_center))
+
+            dl.set_box_center(box_center, utype={"x": amd.box_units["length"], "y": amd.box_units["length"],
+                                                 "z": amd.box_units["length"]})
+
             # Drop box info from atom coordinates
             data.drop(data.index[-1], inplace=True)
+
         elif data.shape[0] == read_size and sizes_dict["IFBOX"] > 0:
             raise Warning("Periodic prmtop used with non-periodic inpcrd. Using prmtop data")
 
