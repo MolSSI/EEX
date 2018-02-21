@@ -8,6 +8,7 @@ import pandas as pd
 import math
 import re
 import numpy as np
+from collections import Counter
 
 # Python 2/3 compat
 try:
@@ -309,11 +310,40 @@ def write_amber_file(dl, filename, inpcrd=None):
         _write_amber_data(file_handle, without_hydrogen[term_name], without_h_name)
         written_categories.append(without_h_name)
 
-    # Append & forget about SOLVENT_POINTERS section for now
-    written_categories.append("SOLVENT_POINTERS")
 
-    # Write box dimensions section (if applicable)
+
+
+
+    # Handle SOLVENT_POINTERS, ATOMS_PER_MOLECULE and BOX_DIMENSIONS. Only present if IFBOX>0.
     if output_sizes["IFBOX"] > 0:
+        #Solvent pointers section
+        # There are three numbers here - IPTRES, NSPM, NSPSOL
+        # where
+        # IPTRES = final residue part of solute, NSPM = total number of molecules, NSPSOL = first solvent molecule
+        # Just say everything is solute for now.
+
+        iptres = dl.get_atoms(["residue_index"]).values[-1]
+        nspm = len(np.unique(dl.get_atoms(["molecule_index"]).values))
+
+        solvent_pointers = [iptres, nspm, nspm]
+
+
+        _write_amber_data(file_handle, solvent_pointers, "SOLVENT_POINTERS")
+
+        # Handle atoms per molecule
+        molecule_list = dl.get_atoms(["molecule_index"]).values.ravel()
+        count_atoms_per_molecule = Counter(molecule_list)
+        atoms_per_molecule = []
+
+        for x in range(1, nspm+1):
+            atoms_per_molecule.append(count_atoms_per_molecule[x])
+
+        _write_amber_data(file_handle, atoms_per_molecule, "ATOMS_PER_MOLECULE")
+
+
+
+
+        # Write box dimensions section
         box_dimensions = dl.get_box_size(utype={"a": amd.box_units["length"], "b": amd.box_units["length"],
                                                      "c" : amd.box_units["length"], "alpha": amd.box_units["angle"],
                                                      "beta": amd.box_units["angle"], "gamma": amd.box_units["angle"]})
@@ -323,6 +353,9 @@ def write_amber_file(dl, filename, inpcrd=None):
         _write_amber_data(file_handle, write_box, "BOX_DIMENSIONS")
 
     written_categories.append("BOX_DIMENSIONS")
+    written_categories.append("SOLVENT_POINTERS")
+    written_categories.append("ATOMS_PER_MOLECULE")
+
 
     # Quick fix for radius set  will be one line string description in files prepared by xleap
     _write_amber_data(file_handle, ["Place holder - EEX"], "RADIUS_SET")
