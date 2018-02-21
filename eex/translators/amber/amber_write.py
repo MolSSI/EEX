@@ -239,14 +239,8 @@ def write_amber_file(dl, filename, inpcrd=None):
     file_handle = open(filename, "ab")
 
     for k in amd.atom_property_names:
-
-        # Get unit type
-        utype = None
-        if k in amd.atom_data_units:
-            utype = amd.atom_data_units[k]
-
         # Get data
-        data = dl.get_atoms(amd.atom_property_names[k], by_value=True, utype=utype).values.ravel()
+        data = dl.get_atoms(amd.atom_property_names[k], by_value=True, utype=amd.atom_data_units).values.ravel()
         _write_amber_data(file_handle, data, k)
 
         written_categories.append(k)
