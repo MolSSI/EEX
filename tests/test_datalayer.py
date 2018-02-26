@@ -68,6 +68,20 @@ def test_df_atoms(backend):
     dl_rand_df = dl.get_other("atoms")
     assert df_compare(rand_df, dl_rand_df)
 
+@pytest.mark.parametrize("backend", _backend_list)
+def test_misc(backend):
+    dl = eex.datalayer.DataLayer("test_misc_functions", backend=backend)
+
+    atoms = _build_atom_df(2)
+
+    dl.add_atoms(atoms)
+
+    with pytest.raises(AttributeError):
+        dl.call_by_string("not_a_function")
+
+    assert(set(dl.list_tables()) == {'atom_name', 'xyz', 'molecule_index', 'charge', 'atom_type'})
+    assert(dl.list_other_tables() == [])
+
 
 def test_add_atom_parameter():
     dl = eex.datalayer.DataLayer("test_add_atom_parameters")
@@ -355,6 +369,10 @@ def test_box_center():
     comp = dl.get_box_center()
     assert dict_compare(tmp, comp)
 
+    # Check failure
+    with pytest.raises(KeyError):
+        dl.set_box_center({'x': tmp['x']})
+
     # Set/get with units
     utype = {"x": "nanometers", "y": "nanometers", "z": "nanometers"}
     dl.set_box_center(tmp, utype=utype)
@@ -533,6 +551,9 @@ def test_mixing_rule():
     # Check failure
     with pytest.raises(ValueError):
         dl.set_mixing_rule("test")
+
+    with pytest.raises(TypeError):
+        dl.set_mixing_rule(5)
 
     # Add AB LJ parameters to data layer - add to single atom
     dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_model="epsilon/sigma", nb_parameters={'epsilon': 1.0, 'sigma': 2.0})
