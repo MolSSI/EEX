@@ -92,8 +92,11 @@ class HDFStore(BaseStore):
 
         if rows:
             raise Exception("NYI")
-
-        return pd.read_hdf(self.store, key)
+        
+        if key in self.list_tables():
+            return pd.read_hdf(self.store, key)
+        else:
+            return pd.DataFrame()
 
     def close(self):
         """
