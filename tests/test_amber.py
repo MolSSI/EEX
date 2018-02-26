@@ -14,6 +14,7 @@ def spce_dl(request):
     dl = eex.datalayer.DataLayer("test_amber_read", backend=request.param)
     data = eex.translators.amber.read_amber_file(dl, fname, blocksize=55)
     # print("-- Built AMBER SPCE DL --")
+
     yield (data, dl)
     dl.close()
 
@@ -43,6 +44,7 @@ def test_amber_spce_read_atoms_value(spce_dl):
 
     assert np.allclose(atoms[["X", "Y", "Z"]].min(), [-0.757235, -0.519927, -0.872856])
     assert np.allclose(atoms[["X", "Y", "Z"]].max(), [19.388333, 19.213448, 19.423807])
+
 
 
 # Test AMBER read by_index
@@ -90,6 +92,7 @@ def test_amber_read_butane():
 
 
 
+
 # def test_amber_spce_parameters(spce_dl):
 #     data, dl = spce_dl
 
@@ -98,17 +101,17 @@ def test_amber_read_butane():
 #     assert bonds.shape[0] == 648
 #     assert set(np.unique(bonds["term_index"])) == set([1, 2])
 
-
+@pytest.mark.parametrize("backend", ["HDF5", "Memory"])
 @pytest.mark.parametrize("molecule", [
     "trappe_butane_single_molecule.prmtop",
     "trappe_propane_single_molecule.prmtop",
     "trappe_ethane_single_molecule.prmtop",
 ])
-def test_amber_writer(molecule):
+def test_amber_writer(molecule, backend):
     fname = eex_find_files.get_example_filename("amber", "alkanes", molecule)
 
     # Read in the data
-    dl = eex.datalayer.DataLayer(molecule)
+    dl = eex.datalayer.DataLayer(molecule, backend=backend)
     data = eex.translators.amber.read_amber_file(dl, fname)
 
     # Write out the data
