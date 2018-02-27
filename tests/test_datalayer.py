@@ -624,6 +624,33 @@ def test_mixing_table():
 
     assert(dict_compare(pairIJ, ans))
 
+def test_nb_scaling():
+    dl = eex.datalayer.DataLayer("test_add_nb_parameters", backend="memory")
+
+    # Create system with three molecules
+    atom_sys = _build_atom_df(3)
+
+    # Add atomic system to datalayer
+    dl.add_atoms(atom_sys)
+
+    # Add mixing rule to datalayer
+    dl.set_mixing_rule("arithmetic")
+
+    # Add AB LJ parameters to data layer - add to single atom
+    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_model="epsilon/sigma", nb_parameters={'epsilon': 1.0, 'sigma': 2.0})
+
+    # Add AB LJ parameters to data layer - add to single atom
+    dl.add_nb_parameter(atom_type=2, nb_name="LJ", nb_model="epsilon/sigma", nb_parameters={'epsilon': 2.0, 'sigma': 1.0})
+
+    # Apply mixing rule
+    dl.build_LJ_mixing_table()
+
+    # Check
+    dl.set_pair_scaling(1,2,0.75)
+
+    with pytest.raises(KeyError):
+        dl.set_pair_scaling(1,10,0.75)
+
 
 
 
