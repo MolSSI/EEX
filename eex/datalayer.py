@@ -57,6 +57,7 @@ class DataLayer(object):
 
         # Set up empty nonbond holder
         self._nb_parameters = {}
+        self._nb_scaling = {}
 
         for k, v in metadata.atom_metadata.items():
             if not v["unique"]:
@@ -175,49 +176,119 @@ class DataLayer(object):
         else:
             return ret
 
-    def set_exclusions(self, exclusions):
+    def set_nb_scaling_factors(self, nb_scaling_factors):
         """
         Sets the exclusion information for the datalayer
 
         Inputs
         ------
 
-        exclusions = {
+        nb_scaling_factors = {
             "coul":{
                 "scale12": "dimensionless",
                 "scale13": "dimensionless",
                 "scale14": "dimensionless",
             },
-            "lj":{
+            "vdw":{
                 "scale12": "dimensionless",
                 "scale13": "dimensionless",
                 "scale14": "dimensionless",
             }
         }
         """
-        if not isinstance(exclusions, dict):
+        if not isinstance(nb_scaling_factors, dict):
             raise TypeError("Exclusion information cannot be validated as dictionary '%s'"% str(type(exclusions)))
 
         exclusions_metadata = metadata.exclusions
         # Make sure we have all keywords 
-        if exclusions.keys() != exclusions_metadata.keys():
+        if nb_scaling_factors.keys() != exclusions_metadata.keys():
             raise KeyError("Not all exclusion keywords are imported")
     
         # Make sure scaling factors make sense
-        for ok, ov in exclusions.items():
+        for ok, ov in nb_scaling_factors.items():
             for k, v in ov.items():
                 if v > 1.0 or v < 0.0:    
                     raise ValueError("Exclusion value outside bounds '%s'." % v)
 
-        self._exclusions = exclusions
+        self._nb_scaling_factors = nb_scaling_factors
 
-    def get_exclusions(self):
+    def get_nb_scaling_factors(self):
         """
         Gets the exclusion information from metadata 
         """
-        ret = copy.deepcopy(self._exclusions)
+        ret = copy.deepcopy(self._nb_scaling_factors)
 
         return ret
+
+    def set_nb_pair_interactio(self):
+        """
+        Set a special interaction between two particles
+        :return:
+        """
+        return False
+
+    def set_pair_scaling(self, atom_index1, atom_index2, vdw_scaling_factor=None, electrostatic_scaling_factor=None):
+        """
+        Set scaling factor for nonbond interaction between two atoms. The
+
+        Parameters:
+        --------------------
+            atom_index1: int
+                The atom index of the first atom
+            atom_index2: int
+                The atom index of the second atom
+            scaling_factor: float
+
+
+        Returns:
+        -------------------
+            Returns True if successful
+        """
+
+        # Check that atoms exist
+        atom_indices = self.get_atoms(properties=["atom_type"]).index.tolist()
+
+        if atom_index1 not in atom_indices:
+            raise KeyError("Atom %s not found in datalayer" %(atom_index1))
+        elif atom_index2 not in atom_indices:
+            raise KeyError("Atom %s not found in datalayer" % (atom_index2))
+
+        return False
+
+    def get_pair_scaling(self, atom_index1, atom_index2):
+        """
+        Get scaling factor for nonbond interaction between two atoms
+
+        Parameters:
+        --------------------
+            atom_index1: int
+            atom_index2: int
+
+        Returns:
+        -------------------
+            Returns float
+        """
+
+        return False
+
+    def build_scaling_list(self):
+        """
+
+        :return:
+
+        """
+
+        return False
+
+    def get_scaling_list(selfs):
+        """
+        Returns
+        ------------------------
+            Returns pd.DataFrame
+        :return:
+        """
+
+
 
     def set_box_size(self, lattice_const, utype=None):
         """
