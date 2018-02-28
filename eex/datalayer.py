@@ -28,7 +28,7 @@ class DataLayer(object):
         Parameters
         ----------
         name : str
-            The name of the energy expression stored
+        The name of the energy expression stored
         store_location : {None, str}, optional
             The location to store the temporary data during the translation. Defaults to the current working directory.
         save_data : {False, True}, optional
@@ -55,14 +55,16 @@ class DataLayer(object):
         self._atom_metadata = {}
         self._atom_counts = {}
 
-        # Set up empty nonbond holder
-        self._nb_parameters = {}
-        self._nb_scaling = {}
-
+        # Create structure of _atom_metadata dictionary
         for k, v in metadata.atom_metadata.items():
             if not v["unique"]:
                 self._atom_metadata[k] = {"uvals": {}, "inv_uvals": {}}
         self._atom_counts = {k: 0 for k in list(metadata.atom_metadata)}
+
+        # Set up empty nonbond holders
+        self._nb_parameters = {}
+        self._nb_scaling_factors = {}
+        self._nb_metadata = {}
 
         # Any remaining metadata
         self._box_size = {}
@@ -229,7 +231,7 @@ class DataLayer(object):
 
     def set_pair_scaling(self, atom_index1, atom_index2, vdw_scaling_factor=None, electrostatic_scaling_factor=None):
         """
-        Set scaling factor for nonbond interaction between two atoms. The
+        Set scaling factor for nonbond interaction between two atoms.
 
         Parameters:
         --------------------
@@ -252,6 +254,8 @@ class DataLayer(object):
             raise KeyError("Atom %s not found in datalayer" %(atom_index1))
         elif atom_index2 not in atom_indices:
             raise KeyError("Atom %s not found in datalayer" % (atom_index2))
+
+
 
         return False
 
@@ -509,6 +513,9 @@ class DataLayer(object):
         Notes
         -----
         If a uid is not set and the parameter is already known, the function will return the current internal parameter.
+
+        If a  uid is set and the parameter is already known, the function will
+        return a KeyError unless allow_duplicates is set to True
 
         Examples
         --------
