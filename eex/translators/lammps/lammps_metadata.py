@@ -6,6 +6,23 @@ import copy
 from . import lammps_ff
 import eex
 
+# Keywords for different outputs in log file
+output_keywords = ['Step','Elapsed','Elaplong','Dt','Time',
+                    'CPU','T/CPU','S/CPU','CPULeft','Part','TimeoutLeft',
+                    'Atoms','Temp','Press','PotEng','KinEng','TotEng',
+                    'Enthalpy',
+                    'E_vdwl','E_coul','E_pair','E_bond','E_angle','E_dihed',
+                    'E_impro',
+                    'E_mol','E_long','E_tail',
+                    'Volume','Density','Lx','Ly','Lz','Xlo','Xhi','Ylo','Yhi',
+                    'Zlo','Zhi','Xy','Xz','Yz','Xlat','Ylat','Zlat',
+                    'Bonds','Angles','Dihedrals','Impros',
+                    'Pxx','Pyy','Pzz','Pxy','Pxz','Pyz',
+                    'Fmax','Fnorm','Nbuild','Ndanger',
+                    'Cella','Cellb','Cellc','CellAlpha','CellBeta','CellGamma',
+                    ]
+
+
 # Possible types of the keyword 'variable' found in the input file
 variable_types = ['delete', 'index', 'loop', 'world', 'universe', 'uloop', 'string', 'format', 'getenv', 'file', 'atomfile', 'python', 'internal', 'equal', 'vector', 'atom']
 

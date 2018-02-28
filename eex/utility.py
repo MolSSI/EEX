@@ -6,41 +6,40 @@ import os
 import hashlib
 from . import units
 import numpy as np
+from subprocess import PIPE, Popen
 
-def compute_lattice_constants(bsize, tilt_factors):
+def which(program):
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
-    for key in ["x", "y", "z"]:
-        if key.lower() not in bsize and key.upper() not in bsize:
-            raise KeyError("Could not find key '%s'." % key)
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+    return None
 
-    for key in ["xy", "xz", "yz"]:
-        if key.lower() not in tilt_factors and key.upper() not in tilt_factors:
-            raise KeyError("Could not find key '%s'." % key)
 
-    lx = bsize['x']
-    ly = bsize['y']
-    lz = bsize['z']
+def run_subprocess(cmd, stdout_path, stderr_path, stdin=None):
+    """
+        General method to run MM codes. Taken from InterMol.
+    """
 
-    xy = tilt_factors['xy']
-    xz = tilt_factors['xz']
-    yz = tilt_factors['yz']
+    proc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    out, err = proc.communicate(input=stdin)
+   
+    with open(stdout_path, 'a') as stdout, open(stderr_path, 'a') as stderr:
+        stdout.write(out)
+        stderr.write(err)
 
-    a = lx
-    b = np.sqrt(np.power(ly, 2) + np.power(xy, 2))
-    c = np.sqrt(np.power(lz, 2) + np.power(xz, 2) + np.power(yz, 2))
-
-    if np.isclose(b * c, 0.0):
-        raise ZeroDivisionError("One of the box sizes is zero") 
-
-    cos_alpha = (xy *  xz + ly * yz) / (b * c)
-    cos_beta = xz / c
-    cos_gamma = xy / b
-
-    alpha = np.arccos(cos_alpha)
-    beta = np.arccos(cos_beta)
-    gamma = np.arccos(cos_gamma)
-
-    return {'a': a, 'b': b, 'c': c, 'alpha': alpha, 'beta': beta, 'gamma': gamma}
+    if proc.returncode != 0:
+        raise OSError("Command %s failed. Exit code %d. Error %s. Check file %s" % (cmd, proc.returncode, str(err), stderr_path))
+    return out
 
 def fuzzy_list_match(line, ldata):
     """

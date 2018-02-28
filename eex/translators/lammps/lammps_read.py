@@ -6,7 +6,7 @@ import pandas as pd
 import math
 import re
 import eex
-
+from . import lammps_utility
 from . import lammps_metadata as lmd
 
 import logging
@@ -149,7 +149,7 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
 
     if box_size:
         # Set the box size
-        lattice_constants = eex.utility.compute_lattice_constants(box_size, tilt_factors)
+        lattice_constants = lammps_utility.compute_lattice_constants(box_size, tilt_factors)
 
         dl.set_box_size(lattice_constants)
         dl.set_box_center(box_center)
