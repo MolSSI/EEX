@@ -7,20 +7,203 @@ from . import lammps_ff
 import eex
 
 # Keywords for different outputs in log file
-output_keywords = ['Step','Elapsed','Elaplong','Dt','Time',
-                    'CPU','T/CPU','S/CPU','CPULeft','Part','TimeoutLeft',
-                    'Atoms','Temp','Press','PotEng','KinEng','TotEng',
-                    'Enthalpy',
-                    'E_vdwl','E_coul','E_pair','E_bond','E_angle','E_dihed',
-                    'E_impro',
-                    'E_mol','E_long','E_tail',
-                    'Volume','Density','Lx','Ly','Lz','Xlo','Xhi','Ylo','Yhi',
-                    'Zlo','Zhi','Xy','Xz','Yz','Xlat','Ylat','Zlat',
-                    'Bonds','Angles','Dihedrals','Impros',
-                    'Pxx','Pyy','Pzz','Pxy','Pxz','Pyz',
-                    'Fmax','Fnorm','Nbuild','Ndanger',
-                    'Cella','Cellb','Cellc','CellAlpha','CellBeta','CellGamma',
-                    ]
+output_keywords = {
+            'Step':{
+                'units': 'count'
+            },
+            'Elapsed':{
+                'units': '[time]'
+            },
+            'Elaplong':{
+                'units': '[time]'
+            },
+            'Dt':{
+                'units': '[time]'
+            },
+            'Time':{
+                'units': '[time]'
+            },
+            'CPU':{
+                'units': '[time]'
+            },
+            'T/CPU':{
+                'units': '[time]'
+            },
+            'S/CPU':{
+                'units': 'count'
+            },
+            'CPULeft':{
+                'units': '[time]'
+            },
+            'Part':{
+                'units': 'count'
+            },
+            'TimeoutLeft':{
+                'units': '[time]'
+            },
+            'Atoms':{
+                'units': 'count'
+            },
+            'Temp':{
+                'units': '[temperature]'
+            },
+            'Press':{
+                'units': '[pressure]'
+            },
+            'PotEng':{
+                'units': '[energy]'
+            },
+            'KinEng':{
+                'units': '[energy]'
+            },
+            'TotEng':{
+                'units': '[energy]'
+            },
+            'Enthalpy':{
+                'units': '[energy]'
+            },
+            'E_vdwl':{
+                'units': '[energy]'
+            },
+            'E_coul':{
+                'units': '[energy]'
+            },
+            'E_pair':{
+                'units': '[energy]'
+            },
+            'E_bond':{
+                'units': '[energy]'
+            },
+            'E_angle':{
+                'units': '[energy]'
+            },
+            'E_dihed':{
+                'units': '[energy]'
+            },
+            'E_impro':{
+                'units': '[energy]'
+            },
+            'E_mol':{
+                'units': '[energy]'
+            },
+            'E_long':{
+                'units': '[energy]'
+            },
+            'E_tail':{
+                'units': '[energy]'
+            },
+            'Volume':{
+                'units': '[length] ** 3'
+            },
+            'Density':{
+                'units': '[mass] * [length] ** -3'
+            },
+            'Lx':{
+                'units': '[length]'
+            },
+            'Ly':{
+                'units': '[length]'
+            },
+            'Lz':{
+                'units': '[length]'
+            },
+            'Xlo':{
+                'units': '[length]'
+            },
+            'Xhi':{
+                'units': '[length]'
+            },
+            'Ylo':{
+                'units': '[length]'
+            },
+            'Yhi':{
+                'units': '[length]'
+            },
+            'Zlo':{
+                'units': '[length]'
+            },
+            'Zhi':{
+                'units': '[length]'
+            },
+            'Xy':{
+                'units': '[length]'
+            },
+            'Xz':{
+                'units': '[length]'
+            },
+            'Yz':{
+                'units': '[length]'
+            },
+            'Xlat':{
+                'units': '[length]'
+            },
+            'Ylat':{
+                'units': '[length]'
+            },
+            'Zlat':{
+                'units': '[length]'
+            },
+            'Bonds':{
+                'units': 'count'
+            },
+            'Angles':{
+                'units': 'count'
+            },
+            'Dihedrals':{
+                'units': 'count'
+            },
+            'Impros':{
+                'units': 'count'
+            },
+            'Pxx':{
+                'units': '[pressure]'
+            },
+            'Pyy':{
+                'units': '[pressure]'
+            },
+            'Pzz':{
+                'units': '[pressure]'
+            },
+            'Pxy':{
+                'units': '[pressure]'
+            },
+            'Pxz':{
+                'units': '[pressure]'
+            },
+            'Pyz':{
+                'units': '[pressure]'
+            },
+            'Fmax':{
+                'units': '[force]'
+            },
+            'Fnorm':{
+                'units': '[force]'
+            },
+            'Nbuild':{
+                'units': 'count'
+            },
+            'Ndanger':{
+                'units': 'count'
+            },
+            'Cella':{
+                'units': '[length]'
+            },
+            'Cellb':{
+                'units': '[length]'
+            },
+            'Cellc':{
+                'units': '[length]'
+            },
+            'CellAlpha':{
+                'units': 'radian'
+            },
+            'CellBeta':{
+                'units': 'radian'
+            },
+            'CellGamma':{
+                'units': 'radian'
+            },
+        }
 
 
 # Possible types of the keyword 'variable' found in the input file
@@ -473,6 +656,16 @@ def build_nb_table(utype):
         v["utype"] = utype
     return ret
 
+
+def build_prop_table(utype):
+
+    ustyle = units_style[utype]
+    ret = copy.deepcopy(output_keywords)
+
+    for k, v in ret.items():
+        utype = eex.units.convert_contexts(v['units'], ustyle)
+        v['utype'] = utype
+    return ret
 
 # if __name__ == "__main__":
 #     from eex.units import ureg

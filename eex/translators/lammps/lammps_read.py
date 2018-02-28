@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
 
     if not isinstance(extra_simulation_data, dict):
-        raise TypeError("Validate term dict: Extra simulation data type '%s' not understood" % str(type(utype)))
+        raise TypeError("Validate term dict: Extra simulation data type '%s' not understood" % str(type(extra_simulation_data)))
 
     # This is a list of keywords needed from the input file. 
     # This list depends on the molecule topology (for instance, ethane does
