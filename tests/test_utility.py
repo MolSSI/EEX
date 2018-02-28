@@ -11,7 +11,7 @@ def test_compute_lattice_constants():
     length = 10.0
     bsize = {'x': length, 'y': length, 'z': length}
     tilt_factors = {'xy': 0.0, 'xz': 0.0, 'yz': 0.0}
-    lattice_const = eex.utility.compute_lattice_constants(bsize, tilt_factors)
+    lattice_const = eex.translators.lammps.lammps_utility.compute_lattice_constants(bsize, tilt_factors)
 
     assert np.isclose(lattice_const['alpha'], np.pi/2.0)
     assert np.isclose(lattice_const['beta'], np.pi/2.0)
