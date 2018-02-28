@@ -33,11 +33,12 @@ def run_subprocess(cmd, stdout_path, stderr_path, stdin=None):
     proc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, universal_newlines=True)
     out, err = proc.communicate(input=stdin)
    
-    #with open(stdout_path, 'a') as stdout, open(stderr_path, 'a') as stderr:
-    #    stdout.write(out)
-    #    stderr.write(err)
+    with open(stdout_path, 'a') as stdout, open(stderr_path, 'a') as stderr:
+        stdout.write(out)
+        stderr.write(err)
+
     if proc.returncode != 0:
-        raise OSError("Command %s failed. Exit code %d. Error %s" % (cmd, proc.returncode, str(err)))
+        raise OSError("Command %s failed. Exit code %d. Error %s. Check file %s" % (cmd, proc.returncode, str(err), stderr_path))
     return out
 
 def fuzzy_list_match(line, ldata):
