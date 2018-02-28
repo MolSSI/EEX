@@ -6,6 +6,39 @@ import os
 import hashlib
 from . import units
 import numpy as np
+from subprocess import PIPE, Popen
+
+def which(program):
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+    return None
+
+
+def run_subprocess(cmd, stdout_path, stderr_path, stdin=None):
+    """
+        General method to run MM codes. Taken from InterMol.
+    """
+
+    proc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    out, err = proc.communicate(input=stdin)
+   
+    #with open(stdout_path, 'a') as stdout, open(stderr_path, 'a') as stderr:
+    #    stdout.write(out)
+    #    stderr.write(err)
+    if proc.returncode != 0:
+        raise OSError("Command %s failed. Exit code %d. Error %s" % (cmd, proc.returncode, str(err)))
+    return out
 
 def compute_lattice_constants(bsize, tilt_factors):
 
