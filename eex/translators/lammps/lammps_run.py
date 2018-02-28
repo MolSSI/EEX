@@ -1,6 +1,5 @@
 import eex
 import os
-import .lammps_metadata
 
 for _exe in ['lammps', 'lmp_mpi', 'lmp_serial', 'lmp_openmpi',
             'lmp_mac_mpi']:
