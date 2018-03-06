@@ -222,42 +222,61 @@ class DataLayer(object):
 
         return ret
 
-    def set_nb_pair_interactio(self):
+    def set_nb_pair_interaction(self):
         """
         Set a special interaction between two particles
         :return:
         """
         return False
 
-    def set_pair_scaling(self, atom_index1, atom_index2, vdw_scaling_factor=None, electrostatic_scaling_factor=None):
+    def set_pair_scalings(self, scaling_df):
         """
-        Set scaling factor for nonbond interaction between two atoms.
+        Set scaling factor for nonbond interaction between two atoms using multi-level indexing.
 
         Parameters:
         --------------------
-            atom_index1: int
-                The atom index of the first atom
-            atom_index2: int
-                The atom index of the second atom
-            scaling_factor: float
-
+            scaling_df: DataFrame
+            Columns of the dataframe should be - 
+                atom_index1: int
+                    The atom index of the first atom
+                atom_index2: int
+                    The atom index of the second atom
+                vdw_scale: float
+                coul_scale: float
 
         Returns:
         -------------------
-            Returns True if successful
+        Returns: bool
+            True if successful
         """
+        # Check the columns of the dataframe
+        for col in scaling_df.columns:
+            if col not in metadata.additional_metadata.nb_scaling:
+                raise KeyError ("Column %s not recognized in set_pair_scalings." %(col))
 
-        # Check that atoms exist
-        atom_indices = self.get_atoms(properties=["atom_type"]).index.tolist()
+        # Check to make sure atom_type1 and atom_type2 are set in dataframe
+        for col in metadata.additional_metadata.nb_scaling[:2]:
+            if col not in scaling_df.columns:
+                raise KeyError("%s not found in scaling dataframe (set_pair_scalings)" %(col))
+        
+        # Make sure at least one scaling factor is set
+        if len(scaling_df.columns) < 3:
+            raise ValueError("No scaling factors set in set_pair_scalings")
 
-        if atom_index1 not in atom_indices:
-            raise KeyError("Atom %s not found in datalayer" %(atom_index1))
-        elif atom_index2 not in atom_indices:
-            raise KeyError("Atom %s not found in datalayer" % (atom_index2))
+        # Check that atom_type are type int
+        
+        # Check that scalings are type float
+        
+        # Build multi-level indexer
+        index = pd.MultiIndex.from_arrays([scaling_df["atom_index1"], scaling_df["atom_index2"]])
 
+        for l in ["vdw_scale", "coul_scale"]:
+            if l in scaling_df.columns:
+                df = pd.Series(scaling_df[l].tolist(), index=index)
+                df.head()
+                self.store.add_table(l, df)
 
-
-        return False
+        return True
 
     def get_pair_scaling(self, atom_index1, atom_index2):
         """
