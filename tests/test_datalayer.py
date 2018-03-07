@@ -668,7 +668,15 @@ def test_nb_scaling():
     scale_df.drop(['atom_index1'], axis=1, inplace=True)
     with pytest.raises(KeyError):
         dl.set_pair_scalings(scale_df)
+    
+    # Retrieve information from dl
+    with pytest.raises(KeyError):
+        dl.get_pair_scalings(nb_labels=["not_a_label"])
 
+    stored_scalings = dl.get_pair_scalings()
+
+    for col in stored_scalings.columns:
+        assert set(scale_df[col].values) == set(stored_scalings[col].values)
 
 
 

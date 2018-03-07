@@ -214,24 +214,12 @@ class DataLayer(object):
 
         self._nb_scaling_factors = nb_scaling_factors
 
-    def get_nb_scaling_factors(self, nb_labels=["coul_scale", "vdw_scale"]):
+    def get_nb_scaling_factors(self):
         """
-        Retrieves nonbonded scaling factors from metadata.
+        Retrieves nonbonded scaling factors from datalayer.
         
-        Parameters
-        ------------------------------------
-            nb_labels: list
-        
-        Returns
-        ------------------------------------
-            pd.DataFrame
         """
-        for k in nb_labels:
-            if k not in metadata.additional_metadata.required:
-                pass
-
-
-        ret = False #copy.deepcopy(self._nb_scaling_facto
+        ret = copy.deepcopy(self._nb_scaling_factors)
 
         return ret
 
@@ -291,21 +279,33 @@ class DataLayer(object):
 
         return True
 
-    def get_pair_scaling(self, atom_index1, atom_index2):
+    def get_pair_scalings(self, nb_labels=["vdw_scale", "coul_scale"]):
         """
         Get scaling factor for nonbond interaction between two atoms
-
-        Parameters:
-        --------------------
-            atom_index1: int
-            atom_index2: int
-
-        Returns:
-        -------------------
-            Returns float
+ 
+        Parameters
+        ------------------------------------
+            nb_labels: list
+        
+        Returns
+        ------------------------------------
+            pd.DataFrame
         """
 
-        return False
+        for k in nb_labels:
+            if k not in metadata.additional_metadata.nb_scaling["data"]:
+                raise KeyError("%s is not a valid nb_scale type" %(k))
+        
+        rlist = []
+        rlabels = []
+
+        for label in nb_labels:
+            rlabels.append(label)
+            rlist.append(self.store.read_table(label))
+        
+        ret = pd.concat(rlist, axis=1)
+        ret.columns = rlabels
+        return ret
 
     def build_scaling_list(self):
         """
@@ -323,6 +323,8 @@ class DataLayer(object):
             Returns pd.DataFrame
         :return:
         """
+
+        return False
 
 
 
