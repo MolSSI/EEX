@@ -645,9 +645,8 @@ def test_nb_scaling():
     # Apply mixing rule
     dl.build_LJ_mixing_table()
     
-    # Build scaling dataframe
+    # Build scaling dataframe 
     scale_df = pd.DataFrame()
-    
     scale_df["coul_scale"] = [0.0, 0.0, 0.0]
     scale_df["atom_index1"] = [1,1,2]
     scale_df["atom_index2"] = [2,3,3]
@@ -655,10 +654,7 @@ def test_nb_scaling():
     
     # Check adding data
     dl.set_pair_scalings(scale_df)
-    
-    #print(dl.store.read_table("coul_scale"))
-    #print(dl.store.read_table("vdw_scale"))
-    
+
     # Check function failures
     new_df = scale_df.copy()
     new_df["test"] = [0,0,0]
@@ -666,12 +662,13 @@ def test_nb_scaling():
     with pytest.raises(KeyError):
         dl.set_pair_scalings(new_df)
 
-    new = scale_df.drop(['atom_index1'], axis=1)
-    with pytest.raises(KeyError):
-        dl.set_pair_scalings(new)
-
     with pytest.raises(ValueError):
         dl.set_pair_scalings(scale_df[["atom_index1", "atom_index2"]])
+    
+    scale_df.drop(['atom_index1'], axis=1, inplace=True)
+    with pytest.raises(KeyError):
+        dl.set_pair_scalings(scale_df)
+
 
 
 
