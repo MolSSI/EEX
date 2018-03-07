@@ -170,5 +170,13 @@ exclusions = {
 
 _torsion_convention = ["180_is_trans", "0_is_trans"]
 
+# Column names for nb_scaling dataframe - dl.set_pair_scaling
+nb_scaling = ["atom_index1", "atom_index2", "coul_scale", "vdw_scale"]
+
+nb_scaling = {
+            "index": ["atom_index1", "atom_index2"],
+            "data" : ["vdw_scale", "coul_scale"],
+            }
+
 #_groups = {
 #}

@@ -214,11 +214,24 @@ class DataLayer(object):
 
         self._nb_scaling_factors = nb_scaling_factors
 
-    def get_nb_scaling_factors(self):
+    def get_nb_scaling_factors(self, nb_labels=["coul_scale", "vdw_scale"]):
         """
-        Gets the exclusion information from metadata 
+        Retrieves nonbonded scaling factors from metadata.
+        
+        Parameters
+        ------------------------------------
+            nb_labels: list
+        
+        Returns
+        ------------------------------------
+            pd.DataFrame
         """
-        ret = copy.deepcopy(self._nb_scaling_factors)
+        for k in nb_labels:
+            if k not in metadata.additional_metadata.required:
+                pass
+
+
+        ret = False #copy.deepcopy(self._nb_scaling_facto
 
         return ret
 
@@ -249,13 +262,14 @@ class DataLayer(object):
         Returns: bool
             True if successful
         """
+        possible_columns = [y for x in metadata.additional_metadata.nb_scaling.values() for y in x]
         # Check the columns of the dataframe
         for col in scaling_df.columns:
-            if col not in metadata.additional_metadata.nb_scaling:
+            if col not in possible_columns:
                 raise KeyError ("Column %s not recognized in set_pair_scalings." %(col))
 
         # Check to make sure atom_type1 and atom_type2 are set in dataframe
-        for col in metadata.additional_metadata.nb_scaling[:2]:
+        for col in metadata.additional_metadata.nb_scaling["index"]:
             if col not in scaling_df.columns:
                 raise KeyError("%s not found in scaling dataframe (set_pair_scalings)" %(col))
         
@@ -273,7 +287,6 @@ class DataLayer(object):
         for l in ["vdw_scale", "coul_scale"]:
             if l in scaling_df.columns:
                 df = pd.Series(scaling_df[l].tolist(), index=index)
-                df.head()
                 self.store.add_table(l, df)
 
         return True
