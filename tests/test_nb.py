@@ -45,7 +45,6 @@ def test_LJ_mixing(mixing_rule):
 
 
     new_coeffs = eex.nb_converter.mix_LJ(coeff1, coeff2, origin="epsilon/sigma", mixing_rule=mixing_rule, final='epsilon/sigma')
-    print(new_coeffs)
 
     assert(eex.testing.dict_compare(new_coeffs, mixed_coeffs[mixing_rule]))
 
