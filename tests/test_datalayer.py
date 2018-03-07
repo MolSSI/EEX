@@ -560,7 +560,7 @@ def test_mixing_rule():
 
     # Add Buckingham parameter to datalayer
     dl.add_nb_parameter(atom_type=2, nb_name="Buckingham", nb_parameters={"A": 1.0, "C": 1.0, "rho": 1.0})
-
+    
     # This should fail because we can not combine LJ and Buckingham parameters.
     with pytest.raises(ValueError):
         dl.mix_LJ_parameters(atom_type1=1, atom_type2=2)
@@ -624,7 +624,7 @@ def test_mixing_table():
 
     assert(dict_compare(pairIJ, ans))
 
-def test_nb_scaling():
+def test_nb_scaling(): 
     dl = eex.datalayer.DataLayer("test_add_nb_parameters", backend="memory")
 
     # Create system with three molecules
@@ -644,7 +644,6 @@ def test_nb_scaling():
 
     # Apply mixing rule
     dl.build_LJ_mixing_table()
-    
     # Build scaling dataframe 
     scale_df = pd.DataFrame()
     scale_df["coul_scale"] = [0.0, 0.0, 0.0]
@@ -679,8 +678,37 @@ def test_nb_scaling():
         assert set(scale_df[col].values) == set(stored_scalings[col].values)
 
 
+def test_set_nb_scaling_factors():
+    dl = eex.datalayer.DataLayer("test_add_nb_parameters", backend="memory")
 
+    # Create system with three molecules
+    atom_sys = _build_atom_df(3)
 
+    # Add atomic system to datalayer
+    dl.add_atoms(atom_sys)
 
+    nb_scaling_factors = {
+        "coul": {
+            "scale12": 0.0,
+            "scale13": 0.0,
+            "scale14": 0.5,
+        },
 
+        "vdw": {
+            "scale12": 0.0,
+            "scale13": 0.0,
+            "scale14": 0.75,
+        }
+    }
 
+    # Test failures
+    with pytest.raises(TypeError):
+        dl.set_nb_scaling_factors("not a dictionary")
+
+    # Test adding to dl
+    dl.set_nb_scaling_factors(nb_scaling_factors)
+
+    # Retrieve from dl
+    stored_scaling = dl.get_nb_scaling_factors()
+
+    assert(eex.testing.dict_compare(stored_scaling, nb_scaling_factors))

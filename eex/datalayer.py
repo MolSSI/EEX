@@ -199,7 +199,7 @@ class DataLayer(object):
         }
         """
         if not isinstance(nb_scaling_factors, dict):
-            raise TypeError("Exclusion information cannot be validated as dictionary '%s'"% str(type(exclusions)))
+            raise TypeError("Exclusion information cannot be validated as dictionary '%s'"% str(type(nb_scaling_factors)))
 
         exclusions_metadata = metadata.exclusions
         # Make sure we have all keywords 
@@ -305,28 +305,18 @@ class DataLayer(object):
         
         ret = pd.concat(rlist, axis=1)
         ret.columns = rlabels
+
         return ret
 
     def build_scaling_list(self):
         """
-
-        :return:
-
+        Build pair scalings based on parameters set in set_nb_scaling_factors.
         """
+        scaling_factors = dl.get_nb_scaling_factors()
+
+        print(scaling_factors)
 
         return False
-
-    def get_scaling_list(selfs):
-        """
-        Returns
-        ------------------------
-            Returns pd.DataFrame
-        :return:
-        """
-
-        return False
-
-
 
     def set_box_size(self, lattice_const, utype=None):
         """
