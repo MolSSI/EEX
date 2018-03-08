@@ -161,7 +161,7 @@ exclusions = {
         "scale13": "dimensionless",
         "scale14": "dimensionless",
     }, 
-    "lj":{
+    "vdw":{
         "scale12": "dimensionless",
         "scale13": "dimensionless",
         "scale14": "dimensionless",
