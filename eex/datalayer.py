@@ -260,12 +260,15 @@ class DataLayer(object):
         for col in metadata.additional_metadata.nb_scaling["index"]:
             if col not in scaling_df.columns:
                 raise KeyError("%s not found in scaling dataframe (set_pair_scalings)" %(col))
+            
+            if scaling_df[col].dtype != np.int64:
+                raise TypeError("%s column is type %s. Should be type int" %(col, scaling_df[col].dtype) )
         
         # Make sure at least one scaling factor is set
         if len(scaling_df.columns) < 3:
             raise ValueError("No scaling factors set in set_pair_scalings")
-
-        # Check that atom_type are type int
+            if scaling_df[col].dytpe is not np.int64:
+                raise TypeError("Incorrect type")
         
         # Check that scalings are type float
         
