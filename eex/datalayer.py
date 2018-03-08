@@ -108,6 +108,16 @@ class DataLayer(object):
         return [x.replace("other_", "") for x in self.store.list_tables() if x.startswith("other_")]
 
     def set_mixing_rule(self, mixing_rule):
+        """
+        Store a mixing rule in the datalayer.
+
+        Parameters:
+        ------------------------------------
+        mixing_rule: str
+            Mixing rule to apply to calculate nonbonded parameters for pairs of atoms. Valid mixing rules are listed in
+            nb_converter.LJ_mixing_functions 
+
+        """
         if not isinstance(mixing_rule, str):
             raise TypeError("Validate mixing rule: %s is not a string" % mixing_rule)
         mixing_metadata = nb_converter.LJ_mixing_functions
@@ -121,6 +131,7 @@ class DataLayer(object):
 
 
     def get_mixing_rule(self):
+        """ Retrieve the stored mixing rule from the datalayer. Returns a string """
 
         ret = copy.deepcopy(self._mixing_rule)
         return ret
@@ -182,9 +193,10 @@ class DataLayer(object):
         """
         Sets the exclusion information for the datalayer
 
-        Inputs
+        Parameters
         ------
-
+        nb_scaling_factor: dict
+            Format is:
         nb_scaling_factors = {
             "coul":{
                 "scale12": "dimensionless",
@@ -1417,8 +1429,6 @@ class DataLayer(object):
                 params.append(copy.deepcopy(self._nb_parameters[k]))
             else:
                 raise KeyError("Nonbond interaction for atom types (%s, %s) not found" % (k))
-
-
 
         # Check that both parameters are LJ form
         if params[0]["form"] != "LJ" or params[1]["form"] != "LJ":
