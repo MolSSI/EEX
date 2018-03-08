@@ -687,16 +687,19 @@ def test_set_nb_scaling_factors():
     # Add atomic system to datalayer
     dl.add_atoms(atom_sys)
 
-    nb_scaling_factors = {
+    # Add bonds to system
+
+
+    scaling_factors = {
         "coul": {
             "scale12": 0.0,
             "scale13": 0.0,
-            "scale14": 0.5,
+            "scale14": 0.0,
         },
 
         "vdw": {
-            "scale12": 0.0,
-            "scale13": 0.0,
+            "scale12": 0.75,
+            "scale13": 0.75,
             "scale14": 0.75,
         }
     }
@@ -706,9 +709,9 @@ def test_set_nb_scaling_factors():
         dl.set_nb_scaling_factors("not a dictionary")
 
     # Test adding to dl
-    dl.set_nb_scaling_factors(nb_scaling_factors)
+    dl.set_nb_scaling_factors(scaling_factors)
 
     # Retrieve from dl
     stored_scaling = dl.get_nb_scaling_factors()
 
-    assert(eex.testing.dict_compare(stored_scaling, nb_scaling_factors))
+    assert eex.testing.dict_compare(scaling_factors, stored_scaling)
