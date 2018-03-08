@@ -688,18 +688,35 @@ def test_set_nb_scaling_factors():
     dl.add_atoms(atom_sys)
 
     # Add bonds to system
+    bond_df = pd.DataFrame()
+    bond_data = np.array([[0,1,0], [1,2,0]])
+    bond_columns = ["atom1", "atom2", "term_index"]
 
+    for num, name in enumerate(bond_columns):
+        bond_df[name] = bond_data[:, num]
+
+    dl.add_bonds(bond_df)
+
+    # Add an angle
+    angle_df = pd.DataFrame()
+    angle_data = np.array([[0,1,2,0]])
+    angle_columns = ["atom1", "atom2", "atom3", "term_index"]
+
+    for num, name in enumerate(angle_columns):
+        angle_df[name] = angle_data[:,num]
+    
+    dl.add_angles(angle_df)
 
     scaling_factors = {
         "coul": {
             "scale12": 0.0,
-            "scale13": 0.0,
-            "scale14": 0.0,
+            "scale13": 0.25,
+            "scale14": 0.75,
         },
 
         "vdw": {
-            "scale12": 0.75,
-            "scale13": 0.75,
+            "scale12": 0.0,
+            "scale13": 0.5,
             "scale14": 0.75,
         }
     }
@@ -715,3 +732,13 @@ def test_set_nb_scaling_factors():
     stored_scaling = dl.get_nb_scaling_factors()
 
     assert eex.testing.dict_compare(scaling_factors, stored_scaling)
+
+    # Test build_scaling_list
+    dl.build_scaling_list()
+
+    # Retrieve from datalayer
+    scaling = dl.get_pair_scalings()
+
+    assert(set(scaling['vdw_scale'].values) == set([0, 0.5]))
+
+    assert(set(scaling['coul_scale'].values) == set([0, 0.25]))

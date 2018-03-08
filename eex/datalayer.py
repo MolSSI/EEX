@@ -327,9 +327,20 @@ class DataLayer(object):
         """
         Build pair scalings based on parameters set in set_nb_scaling_factors.
         """
-        scaling_factors = dl.get_nb_scaling_factors()
+        scaling_factors = self.get_nb_scaling_factors()
 
-        print(scaling_factors)
+        for k, v in scaling_factors.items():
+            for scale, val in v.items():
+                order = int(scale[-1])
+                terms = self.get_terms(order)
+                store_df = pd.DataFrame()
+
+                store_df["atom_index1"] = terms["atom1"]
+                store_df["atom_index2"] = terms["atom"+scale[-1]]
+                store_df[k + "_scale"] = val
+                
+                if not store_df.empty and val is not 1.:
+                    self.set_pair_scalings(store_df)
 
         return False
 
