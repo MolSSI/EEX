@@ -4,9 +4,11 @@
 
 Data in EEX is stored in two different places: the `FileLayer` and the `DataLayer`.  
 
-The `FileLayer` data can either be stored in memory or on disk as HDF5. Thus, the `FileLayer` is for storing information which has the potential to be large and heterogenous. Currently, the file layer contains data for each atom, and topology information for the system (bonds, angles, dihedrals). 
+The `FileLayer` data can either be stored in memory or on disk as HDF5. Thus, the `FileLayer` is for storing information which has the potential to be large. Currently, the file layer contains data for each atom, and topology information for the system (bonds, angles, dihedrals). 
 
-The `DataLayer` is for storing smaller, less uniform data. Force field parameters are stored in the datalayer 
+The `DataLayer` is for storing smaller, less uniform data. Force field parameters are stored in the datalayer. 
+
+Although data may be stored in the filelayer or the datalayer, all data is accessible through datalayer functions.
 
 ## Private Data Structures
 
