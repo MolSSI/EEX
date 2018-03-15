@@ -273,7 +273,7 @@ class DataLayer(object):
             if col not in scaling_df.columns:
                 raise KeyError("%s not found in scaling dataframe (set_pair_scalings)" %(col))
             
-            if scaling_df[col].dtype != np.int64:
+            if scaling_df[col].dtype != np.int:
                 raise TypeError("%s column is type %s. Should be type int" %(col, scaling_df[col].dtype) )
         
         # Make sure at least one scaling factor is set
