@@ -644,7 +644,8 @@ def test_nb_scaling():
 
     # Apply mixing rule
     dl.build_LJ_mixing_table()
-    # Build scaling dataframe 
+
+    # Build scaling dataframe
     scale_df = pd.DataFrame()
     scale_df["coul_scale"] = [0.0, 0.0, 0.0]
     scale_df["atom_index1"] = [1,1,2]

@@ -279,8 +279,6 @@ class DataLayer(object):
         # Make sure at least one scaling factor is set
         if len(scaling_df.columns) < 3:
             raise ValueError("No scaling factors set in set_pair_scalings")
-            if scaling_df[col].dytpe is not np.int64:
-                raise TypeError("Incorrect type")
         
         # Check that scalings are type float
         
@@ -342,7 +340,7 @@ class DataLayer(object):
                 if not store_df.empty and val is not 1.:
                     self.set_pair_scalings(store_df)
 
-        return False
+        return True
 
     def set_box_size(self, lattice_const, utype=None):
         """
