@@ -3,13 +3,6 @@ import eex
 import os
 from . import lammps_metadata as lmd
 
-for _exe in ['lammps', 'lmp_mpi', 'lmp_serial', 'lmp_openmpi',
-            'lmp_mac_mpi']:
-    if eex.utility.which(_exe):
-        _LMP_PATH = _exe
-        break
-else:
-    _LMP_PATH = None
 
 def compute_lattice_constants(bsize, tilt_factors):
 
@@ -46,20 +39,29 @@ def compute_lattice_constants(bsize, tilt_factors):
 
     return {'a': a, 'b': b, 'c': c, 'alpha': alpha, 'beta': beta, 'gamma': gamma}
 
-def get_energies(input_file, lmp_path=None, unit_style=None):
+def get_energies(input_file=None, lmp_path=None, unit_style=None):
     """Evaluate energies of LAMMPS files. Based on InterMol
 
     Args:
         input_file = path to input file (expects data file in same folder)
         lmp_path = path to LAMMPS binaries
     """
-    if _LMP_PATH is None and lmp_path is None:
+
+    for exe in ['lammps', 'lmp_mpi', 'lmp_serial', 'lmp_openmpi',
+                'lmp_mac_mpi']:
+        if eex.utility.which(exe):
+            LMP_PATH = exe
+            break
+    else:
+        LMP_PATH = None
+
+    if LMP_PATH is None and lmp_path is None:
         raise OSError('Unable to find LAMMPS executables.')
     else:
-        if _LMP_PATH is not None and lmp_path is None:
-            lmp_path = _LMP_PATH
-        if _LMP_PATH is not None and lmp_path is not None:
-            if _LMP_PATH not in lmp_path:
+        if LMP_PATH is not None and lmp_path is None:
+            lmp_path = LMP_PATH
+        if LMP_PATH is not None and lmp_path is not None:
+            if LMP_PATH not in lmp_path:
                 raise OSError('Specified different LAMMPS executables.')
 
     if not os.path.isfile(input_file):
@@ -88,11 +90,11 @@ def get_energies(input_file, lmp_path=None, unit_style=None):
 
     ret = _group_energy_terms(out)
 
-    for key in ret:
-        cf = eex.units.conversion_factor(log_prop_table[key]['utype'], prop_table[key]['utype'])
-        ret[key] *= cf
+#    for key in ret:
+#        cf = eex.units.conversion_factor(log_prop_table[key]['utype'], prop_table[key]['utype'])
+#        ret[key] *= cf
 
-    return ret
+    return eex.utility.canonicalize_energy_names(ret, {k:v['canonical'] for (k, v) in log_prop_table.items()})
 
 def _extract_unit_style(stdout):
     """Parse LAMMPS stdout to extract unit style. """
