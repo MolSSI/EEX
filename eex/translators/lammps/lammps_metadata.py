@@ -9,199 +9,264 @@ import eex
 # Keywords for different outputs in log file
 output_keywords = {
             'Step':{
-                'units': 'count'
+                'units': 'count', 
+                'canonical': ['step'],
             },
             'Elapsed':{
-                'units': '[time]'
+                'units': '[time]',
+                'canonical': ['elapsed_time'],
             },
             'Elaplong':{
-                'units': '[time]'
+                'units': '[time]',
+                'canonical': ['elapsed_long'],
             },
             'Dt':{
-                'units': '[time]'
+                'units': '[time]',
+                'canonical': ['timestep'],
             },
             'Time':{
-                'units': '[time]'
+                'units': '[time]',
+                'canonical': ['simulation_time'],
             },
             'CPU':{
-                'units': '[time]'
+                'units': '[time]',
+                'canonical': ['cpu_time'],
             },
             'T/CPU':{
-                'units': '[time]'
+                'units': '[time]',
+                'canonical': ['time_per_cpu'],
             },
             'S/CPU':{
-                'units': 'count'
+                'units': 'count', 
+                'canonical': ['timestep_per_cpu'],
             },
             'CPULeft':{
-                'units': '[time]'
+                'units': '[time]',
+                'canonical': ['cpu_left'],
             },
             'Part':{
-                'units': 'count'
+                'units': 'count',
+                'canonical': ['part'],
             },
             'TimeoutLeft':{
-                'units': '[time]'
+                'units': '[time]',
+                'canonical': ['time_remain'],
             },
             'Atoms':{
-                'units': 'count'
+                'units': 'count',
+                'canonical': ['num_atoms'],
             },
             'Temp':{
-                'units': '[temperature]'
+                'units': '[temperature]',
+                'canonical': ['temperature'],
             },
             'Press':{
-                'units': '[pressure]'
+                'units': '[pressure]',
+                'canonical': ['pressure'],
             },
             'PotEng':{
-                'units': '[energy]'
+                'units': '[energy]',
+                'canonical': ['potential'],
             },
             'KinEng':{
-                'units': '[energy]'
+                'units': '[energy]',
+                'canonical': ['kinetic'],
             },
             'TotEng':{
-                'units': '[energy]'
+                'units': '[energy]',
+                'canonical': ['total'],
             },
             'Enthalpy':{
-                'units': '[energy]'
+                'units': '[energy]',
+                'canonical': ['enthalpy'],
             },
             'E_vdwl':{
-                'units': '[energy]'
+                'units': '[energy]',
+                'canonical': ['vdw_total'],
             },
             'E_coul':{
-                'units': '[energy]'
+                'units': '[energy]',
+                'canonical': ['coulomb_total'],
             },
             'E_pair':{
-                'units': '[energy]'
+                'units': '[energy]',
+                'canonical': ['pairwise'],
             },
             'E_bond':{
-                'units': '[energy]'
+                'units': '[energy]',
+                'canonical': ['bond'],
             },
             'E_angle':{
-                'units': '[energy]'
+                'units': '[energy]',
+                'canonical': ['angle'],
             },
             'E_dihed':{
-                'units': '[energy]'
+                'units': '[energy]',
+                'canonical': ['proper'],
             },
             'E_impro':{
-                'units': '[energy]'
+                'units': '[energy]', 
+                'canonical': ['improper'],
             },
             'E_mol':{
-                'units': '[energy]'
+                'units': '[energy]',
+                'canonical': ['molecular'],
             },
             'E_long':{
-                'units': '[energy]'
+                'units': '[energy]',
+                'canonical': ['kspace'],
             },
             'E_tail':{
-                'units': '[energy]'
+                'units': '[energy]',
+                'canonical': ['tail'],
             },
             'Volume':{
-                'units': '[length] ** 3'
+                'units': '[length] ** 3',
+                'canonical': ['volume'],
             },
             'Density':{
-                'units': '[mass] * [length] ** -3'
+                'units': '[mass] * [length] ** -3',
+                'canonical': ['density'],
             },
             'Lx':{
-                'units': '[length]'
+                'units': '[length]',
+                'canonical': ['lx'],
             },
             'Ly':{
-                'units': '[length]'
+                'units': '[length]',
+                'canonical': ['ly'],
             },
             'Lz':{
-                'units': '[length]'
+                'units': '[length]',
+                'canonical': ['lz'],
             },
             'Xlo':{
-                'units': '[length]'
+                'units': '[length]',
+                'canonical': ['xlo'],
             },
             'Xhi':{
-                'units': '[length]'
+                'units': '[length]',
+                'canonical': ['xhi'],
             },
             'Ylo':{
-                'units': '[length]'
+                'units': '[length]',
+                'canonical': ['ylo'],
             },
             'Yhi':{
-                'units': '[length]'
+                'units': '[length]',
+                'canonical': ['yhi'],
             },
             'Zlo':{
-                'units': '[length]'
+                'units': '[length]',
+                'canonical': ['zlo'],
             },
             'Zhi':{
-                'units': '[length]'
+                'units': '[length]',
+                'canonical': ['zhi'],
             },
             'Xy':{
-                'units': '[length]'
+                'units': '[length]',
+                'canonical': ['xy'],
             },
             'Xz':{
-                'units': '[length]'
+                'units': '[length]',
+                'canonical': ['xz'],
             },
             'Yz':{
-                'units': '[length]'
+                'units': '[length]',
+                'canonical': ['yz'],
             },
             'Xlat':{
-                'units': '[length]'
+                'units': '[length]',
+                'canonical': ['xlat'],
             },
             'Ylat':{
-                'units': '[length]'
+                'units': '[length]',
+                'canonical': ['ylat'],
             },
             'Zlat':{
-                'units': '[length]'
+                'units': '[length]',
+                'canonical': ['zlat'],
             },
             'Bonds':{
-                'units': 'count'
+                'units': 'count',
+                'canonical': ['num_bonds'],
             },
             'Angles':{
-                'units': 'count'
+                'units': 'count',
+                'canonical': ['num_angles'],
             },
             'Dihedrals':{
-                'units': 'count'
+                'units': 'count',
+                'canonical': ['num_proper'],
             },
             'Impros':{
-                'units': 'count'
+                'units': 'count',
+                'canonical': ['num_improper'],
             },
             'Pxx':{
-                'units': '[pressure]'
+                'units': '[pressure]',
+                'canonical': ['num_pxx'],
             },
             'Pyy':{
-                'units': '[pressure]'
+                'units': '[pressure]',
+                'canonical': ['num_pyy'],
             },
             'Pzz':{
-                'units': '[pressure]'
+                'units': '[pressure]',
+                'canonical': ['num_pzz'],
             },
             'Pxy':{
-                'units': '[pressure]'
+                'units': '[pressure]',
+                'canonical': ['num_pxy'],
             },
             'Pxz':{
-                'units': '[pressure]'
+                'units': '[pressure]',
+                'canonical': ['num_pxz'],
             },
             'Pyz':{
-                'units': '[pressure]'
+                'units': '[pressure]',
+                'canonical': ['num_pyz'],
             },
             'Fmax':{
-                'units': '[force]'
+                'units': '[force]',
+                'canonical': ['fmax'],
             },
             'Fnorm':{
-                'units': '[force]'
+                'units': '[force]',
+                'canonical': ['fnorm'],
             },
             'Nbuild':{
-                'units': 'count'
+                'units': 'count',
+                'canonical': ['nbuild'],
             },
             'Ndanger':{
-                'units': 'count'
+                'units': 'count',
+                'canonical': ['ndanger'],
             },
             'Cella':{
-                'units': '[length]'
+                'units': '[length]',
+                'canonical': ['cella'],
             },
             'Cellb':{
-                'units': '[length]'
+                'units': '[length]',
+                'canonical': ['cellb'],
             },
             'Cellc':{
-                'units': '[length]'
+                'units': '[length]',
+                'canonical': ['cellc'],
             },
             'CellAlpha':{
-                'units': 'radian'
+                'units': 'radian',
+                'canonical': ['cellalpha'],
             },
             'CellBeta':{
-                'units': 'radian'
+                'units': 'radian',
+                'canonical': ['cellbeta'],
             },
             'CellGamma':{
-                'units': 'radian'
+                'units': 'radian',
+                'canonical': ['cellgamma'],
             },
         }
 

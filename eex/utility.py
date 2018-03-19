@@ -8,6 +8,44 @@ from . import units
 import numpy as np
 from subprocess import PIPE, Popen
 
+def canonicalize_energy_names(energy_dict, canonical_keys):
+    """Adjust the keys in energy_dict to the canonical names.
+
+    Parameters
+    ----------
+    energy_dict : dict
+    engine : str
+
+    Returns
+    -------
+    normalized : dict
+
+    """
+    # TODO: Look into creating an `EnergyDict` class.
+#    normalized = OrderedDict.fromkeys(canonical_energy_names,
+#                                      0 * units.kilojoules_per_mole)
+    ret = dict()
+    for key, energy in energy_dict.items():
+        canonical_key = canonical_keys.get(key)
+        if canonical_key is None:
+            continue
+        elif isinstance(canonical_key, list):
+            for k in canonical_key:
+                ret[k] = energy
+        else:
+            ret[canonical_key] = energy
+
+#    if 'Non-bonded' in canonical_keys:
+#        normalized['nonbonded'] = energy_dict['Non-bonded']
+#    else:
+#        normalized['nonbonded'] = normalized['vdw total'] + normalized['coulomb total'] + normalized['h-bond']
+
+#    # could be a problem here since desmond calls UB angle as stretch = bond
+#    normalized['bonded'] = (normalized['bond'] + normalized['angle'] + normalized['dihedral'])
+#
+    return ret
+
+
 def which(program):
     def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
@@ -29,7 +67,6 @@ def run_subprocess(cmd, stdout_path, stderr_path, stdin=None):
     """
         General method to run MM codes. Taken from InterMol.
     """
-
     proc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, universal_newlines=True)
     out, err = proc.communicate(input=stdin)
    

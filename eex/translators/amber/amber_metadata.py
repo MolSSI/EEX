@@ -1,5 +1,27 @@
 import re
 
+to_canonical = {
+    'BOND': ['bond'],
+
+    'ANGLE': ['angle'],
+    'UB': ['angle','urey_bradley'],
+
+    'DIHED': ['proper'],
+    'IMP': ['improper'],
+    'CMAP': ['cmap'],
+
+    'HBOND': ['h-bond'],
+
+    'VDWAALS': ['vdw_total'],
+    '1-4 VDW': ['vdw_14'],
+
+    'EEL': ['coulomb_total'],
+    '1-4 EEL': ['coulomb-14'],
+
+    'ENERGY': ['potential']
+}
+
+
 # Possible size keys to look for in the header
 size_keys = [
     "NATOM", "NTYPES", "NBONH", "MBONA", "NTHETH", "MTHETA", "NPHIH", "MPHIA", "NHPARM", "NPARM", "NNB", "NRES",
