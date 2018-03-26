@@ -138,12 +138,14 @@ dihedral_styles = {
     },  
     "ryckaert-bellemans": {
         "order": 4,
-        "form": "opls",
+        "form": "A_0 + A_1 * (cos(phi)) + A_2 * (cos(phi)) ** 2 + A_3 * (cos(phi)) ** 3 + A_4 * (cos(phi)) ** (4) + A_5 * cos(phi)) ** (5)",
         "units": {
-            "K_1": "kilojoules * mol ** -1",
-            "K_2": "kilojoules * mol ** -1",
-            "K_3": "kilojoules * mol ** -1",
-            "K_4": "kilojoules * mol ** -1",
+            "A_0": "kilojoules * mol ** -1",
+            "A_1": "kilojoules * mol ** -1",
+            "A_2": "kilojoules * mol ** -1",
+            "A_3": "kilojoules * mol ** -1",
+            "A_4": "kilojoules * mol ** -1",
+            "A_5": "kilojoules * mol ** -1",
         },  
     },  
     "opls": {
