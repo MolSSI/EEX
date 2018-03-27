@@ -29,7 +29,7 @@ _four_body_functional_forms = {
         "description": "This is a charmm dihedral"
     },
     "multi/harmonic": {
-        "form": "A_1 + A_2 * (cos(phi)) + A_3 * (cos(phi)) ** 2 + A_4 * (cos(phi)) ** 3 + A_5 * (cos(phi)) ** (4)"
+        "form": "A_1 + A_2 * (cos(phi)) + A_3 * (cos(phi)) ** 2 + A_4 * (cos(phi)) ** 3 + A_5 * (cos(phi)) ** (4)",
         "parameters": ["A_1","A_2","A_3", "A_4", "A_5"],
         "units": {
             "A_n": "[energy]",
@@ -37,7 +37,7 @@ _four_body_functional_forms = {
         "description": "This is a multi/harmonic dihedral"
     },
     "ryckaert_bellemans": {
-        "form": "A_0 + A_1 * (cos(phi)) + A_2 * (cos(phi)) ** 2 + A_3 * (cos(phi)) ** 3 + A_4 * (cos(phi)) ** (4) + A_5 * cos(phi)) ** (5)"
+        "form": "A_0 + A_1 * (cos(phi)) + A_2 * (cos(phi)) ** 2 + A_3 * (cos(phi)) ** 3 + A_4 * (cos(phi)) ** (4) + A_5 * cos(phi)) ** (5)",
         "parameters": ["A_0", "A_1","A_2","A_3", "A_4", "A_5"],
         "units": {
             "A_n": "[energy]",
