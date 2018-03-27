@@ -32,15 +32,25 @@ _four_body_functional_forms = {
         "form": "A_1 + A_2 * (cos(phi)) + A_3 * (cos(phi)) ** 2 + A_4 * (cos(phi)) ** 3 + A_5 * (cos(phi)) ** (4)",
         "parameters": ["A_1","A_2","A_3", "A_4", "A_5"],
         "units": {
-            "A_n": "[energy]",
+            "A_1": "[energy]",
+            "A_2": "[energy]",
+            "A_3": "[energy]",
+            "A_4": "[energy]",
+            "A_5": "[energy]",
         },
         "description": "This is a multi/harmonic dihedral"
     },
     "ryckaert_bellemans": {
-        "form": "A_0 + A_1 * (cos(phi)) + A_2 * (cos(phi)) ** 2 + A_3 * (cos(phi)) ** 3 + A_4 * (cos(phi)) ** (4) + A_5 * cos(phi)) ** (5)",
+        "form": "A_0 + A_1 * (cos(phi)) + A_2 * (cos(phi)) ** 2 + A_3 * (cos(phi)) ** 3 + A_4 * (cos(phi)) ** (4) + A_5 * (cos(phi)) ** (5)",
         "parameters": ["A_0", "A_1","A_2","A_3", "A_4", "A_5"],
         "units": {
-            "A_n": "[energy]",
+            "A_0": "[energy]",
+            "A_1": "[energy]",
+            "A_2": "[energy]",
+            "A_3": "[energy]",
+            "A_4": "[energy]",
+            "A_5": "[energy]",
+
         },
         "description": "This is a ryckaert_bellemans"
     },
