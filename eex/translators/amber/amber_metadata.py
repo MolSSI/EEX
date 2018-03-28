@@ -177,6 +177,15 @@ forcefield_parameters = {
 
 }
 
+## Exclusions and scalings
+
+# NUMBER_EXCLUDED_ATOMS has NATOMS numbers and points to EXCLUDED_ATOMS_LIST
+exclusion_sections = ["NUMBER_EXCLUDED_ATOMS", "EXCLUDED_ATOMS_LIST"]
+
+scaling_sections = ["SCEE_SCALE_FACTOR", "SCNB_SCALE_FACTOR"]
+
+#----------------------------------------------------------------------------
+
 store_other = []
 for k, v in forcefield_parameters.items():
     store_other.extend(list(v["column_names"]))
