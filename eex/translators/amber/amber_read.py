@@ -428,6 +428,8 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
     start_index = 0
 
+    all_excluded_df = pd.DataFrame()
+
     for index, row in number_excluded_atoms.iterrows():
         num_excluded = row.values[0]
 
@@ -446,9 +448,13 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
             excluded_df["vdw_scale"] = [0] * num_excluded
             excluded_df["coul_scale"] = [0] * num_excluded
 
-            dl.set_pair_scalings(excluded_df)
+            all_excluded_df = pd.concat([all_excluded_df, excluded_df])
 
         start_index += (row.values[0] + 1)
+    
+    # Much faster to build large dataframe and add all at once
+    if not all_excluded_df.empty:
+        dl.set_pair_scalings(all_excluded_df)
 
     ### Try to pull in an inpcrd file for XYZ coordinates and box information
     inpcrd_file = filename.replace('.prmtop', '.inpcrd')
