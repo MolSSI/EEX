@@ -179,9 +179,14 @@ forcefield_parameters = {
 
 ## Exclusions and scalings
 
-# NUMBER_EXCLUDED_ATOMS has NATOMS numbers and points to EXCLUDED_ATOMS_LIST
+# NUMBER_EXCLUDED_ATOMS has NATOMS elements and contains the number of atoms that need to be excluded from the non-bonded
+# calculation loop for atom i because i is involved in a bond, angle, or torsion with those atoms.
+# Points to EXCLUDED_ATOMS_LIST, which contains the atom indices for atoms which should be excluded from ith atom
+# calcuation.
 exclusion_sections = ["NUMBER_EXCLUDED_ATOMS", "EXCLUDED_ATOMS_LIST"]
 
+# "canonical" amber simulations will have values of 2 (SCNB) or 1.2 (SCEE), which should allow us to use the
+# dl.set_nb_scaling_factor function. If not, 
 scaling_sections = ["SCEE_SCALE_FACTOR", "SCNB_SCALE_FACTOR"]
 
 #----------------------------------------------------------------------------
@@ -191,6 +196,7 @@ for k, v in forcefield_parameters.items():
     store_other.extend(list(v["column_names"]))
 store_other.extend(residue_store_names)
 store_other.extend(molecule_store_names)
+store_other.extend(exclusion_sections)
 
 
 

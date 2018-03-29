@@ -182,11 +182,11 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                 dl.add_atoms(df, by_value=True, utype=amd.atom_data_units)
 
             # Store forcefield parameters as "other" for later processing
-            elif current_data_category in amd.store_other:
-                df = _data_flatten(data, current_data_category, category_index, "res_index")
-
-                # Force residue pointer to be type int
-                if current_data_category == "RESIDUE_POINTER":
+            elif current_data_category in amd.store_other and len(data) != 0:
+                df = _data_flatten(data, current_data_category, category_index, "index")
+                
+                # Force certain categories to be type int
+                if current_data_category in ["RESIDUE_POINTER", "NUMBER_EXCLUDED_ATOMS", "EXCLUDED_ATOMS_LIST"]:
                     df = df.astype(int)
                 category_index += df.shape[0]
 
@@ -215,6 +215,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                     _current_topology_indices[category][-1] = np.array([])
 
                 data = data.reshape(-1, mod_size).astype(int)
+                
                 # A negative indexed value in position 3 indicates 1-4 NB interactions for this dihedral
                 # should not be counted (multi-term dihedral or cyclic system). Store as
                 # dihedral for now, neglecting negative sign
@@ -362,10 +363,13 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
     # Handle forcefield parameters
     other_tables = set(dl.list_other_tables())
+
     for key, param_data in amd.forcefield_parameters.items():
         param_col_names = list(param_data["column_names"])
-        # No data to store
-        if len(set(param_col_names) - other_tables):
+        
+        # if the needed parameters are stored, this will result in an empty set. If set is not empty, parameters are not
+        # stored and do not need to be put in data layer
+        if (set(param_col_names) - other_tables):
             continue
 
         # Bond parameters (bond, angle, dihedral) will have an "order", the order for nonbond parameters is None
@@ -417,6 +421,34 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                         nb_name=amd.forcefield_parameters["nonbond"]["form"]["name"],
                         nb_model=amd.forcefield_parameters["nonbond"]["form"]["form"],
                         utype=amd.forcefield_parameters["nonbond"]["units"])
+
+    # Handle exclusions
+    number_excluded_atoms = dl.get_other("NUMBER_EXCLUDED_ATOMS")
+    excluded_atoms_list = dl.get_other("EXCLUDED_ATOMS_LIST")
+
+    start_index = 0
+
+    for index, row in number_excluded_atoms.iterrows():
+        num_excluded = row.values[0]
+
+        excluded_atoms = excluded_atoms_list.iloc[start_index : start_index + num_excluded].values.flatten()
+
+        # A value of 0 is a "nonexistent atom 0" - means no exclusions
+        excluded_atoms = [value for value in excluded_atoms if value != 0]
+        num_excluded = len(excluded_atoms)
+
+        atom1_list = [int(index)] * num_excluded
+
+        if excluded_atoms:
+            excluded_df = pd.DataFrame()
+            excluded_df["atom_index1"] = atom1_list
+            excluded_df["atom_index2"] = excluded_atoms
+            excluded_df["vdw_scale"] = [0] * num_excluded
+            excluded_df["coul_scale"] = [0] * num_excluded
+
+            dl.set_pair_scalings(excluded_df)
+
+        start_index += (row.values[0] + 1)
 
     ### Try to pull in an inpcrd file for XYZ coordinates and box information
     inpcrd_file = filename.replace('.prmtop', '.inpcrd')
