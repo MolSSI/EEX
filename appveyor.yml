@@ -14,6 +14,8 @@ environment:
       PYTHON_ARCH: "64"
 
 install:
+
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - conda create -q -n eex_env numpy nomkl pandas pytables numexpr
   - activate eex_env
 
