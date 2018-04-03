@@ -1,0 +1,30 @@
+package:
+  name: eex
+  version: "0.1.0"
+
+source:
+  path: ../..
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - python
+    - setuptools
+
+  run:
+    - python
+    - pandas
+    - numpy
+    - numexpr 
+    - pytables
+    - pint
+
+test:
+  requires:
+    - pytest
+
+about:
+  home: add_url_here
+  license: BSD-3-Clause License
