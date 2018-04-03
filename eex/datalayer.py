@@ -273,7 +273,7 @@ class DataLayer(object):
             if col not in scaling_df.columns:
                 raise KeyError("%s not found in scaling dataframe (set_pair_scalings)" %(col))
 
-            if (scaling_df[col].dtype != int):
+            if not np.issubdtype(scaling_df[col].dtype, int):
                 raise TypeError("%s column is type %s. Should be integer" %(col, scaling_df[col].dtype) )
         
         # Make sure at least one scaling factor is set
@@ -508,7 +508,7 @@ class DataLayer(object):
             df = df[field_data["required_columns"]] * pd.Series(cf)
 
         # Make sure our ints are ints and not accidentally floats
-        if field_data["dtype"] == int:
+        if np.issubdtype(field_data["dtype"], int):
             df = df[field_data["required_columns"]].astype(int, copy=True)
 
         # Handle the unique or filter data
