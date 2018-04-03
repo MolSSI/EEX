@@ -1,5 +1,5 @@
 import eex
-import eex_find_files
+from . import eex_find_files
 
 def build_dl(program, test_directory, molecule):
     if program.lower() == "amber":

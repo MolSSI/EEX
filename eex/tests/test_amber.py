@@ -5,7 +5,7 @@ import eex
 import numpy as np
 import pytest
 import pandas as pd
-import eex_find_files
+from . import eex_find_files
 
 
 @pytest.fixture(scope="module", params=["HDF5", "Memory"])

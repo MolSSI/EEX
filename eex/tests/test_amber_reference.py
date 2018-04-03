@@ -7,9 +7,9 @@ import eex
 import numpy as np
 import pandas as pd
 import pytest
-import eex_find_files
+from . import eex_find_files
 import glob
-import eex_build_dl
+from . import eex_build_dl
 
 # Build out file list
 _test_directories = ["alkanes", "alcohols", "cyclic"]

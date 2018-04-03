@@ -5,7 +5,7 @@ Test for LAMMPS/Amber comparison
 import eex
 import numpy as np
 import pytest
-import eex_find_files
+from . import eex_find_files
 
 _alkane_molecules = ["ethane", "propane", "butane"]
 
