@@ -111,7 +111,7 @@ ENV/
 *.xyz
 
 # Scratch tmps
-tests/scratch/*
+eex/tests/scratch/*
 
 # PyCharm junk
 .idea
