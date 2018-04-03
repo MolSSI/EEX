@@ -6,8 +6,10 @@
   <img src="https://ci.appveyor.com/api/projects/status/fr6qv7qmowo39wes?svg=true" alt="Appveyor" />
 </a>
 <a href="https://codecov.io/gh/MolSSI/EEX">
-  <img src="https://codecov.io/gh/MolSSI/EEX/branch/master/graph/badge.svg" alt="Codecov" />
-
+   <img src="https://codecov.io/gh/MolSSI/EEX/branch/master/graph/badge.svg" alt="Codecov" />
+</a>
+<a href='http://eex-scratch.readthedocs.io/en/latest/?badge=latest'>
+    <img src='https://readthedocs.org/projects/eex-scratch/badge/?version=latest' alt='Documentation Status' />
 </a>
 </p>
 
