@@ -82,7 +82,7 @@ def dict_compare(left, right, atol=1.e-9, rtol=1.e-5):
         rv = right[key]
 
         match = True
-        if isinstance(lv, (int, str)):
+        if isinstance(lv, (str, int, np.int32, np.int64)):
             match = lv == rv
         elif isinstance(lv, set):
             match = lv == set(rv)
