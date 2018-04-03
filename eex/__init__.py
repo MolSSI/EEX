@@ -14,3 +14,10 @@ from .units import ureg
 # Initializes the eex_init metadata
 from . import eex_init
 del eex_init
+
+# Handle versioneer
+from ._version import get_versions
+versions = get_versions()
+__version__ = versions['version']
+__git_revision__ = versions['full-revisionid']
+del get_versions, versions
