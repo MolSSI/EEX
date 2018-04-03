@@ -19,17 +19,17 @@ before_install:
   - ulimit -a
 
   # Setup python environment
-  - source devtools/travis-ci/install.sh
+  - source devtools/travis-ci/before_install.sh
   - python -V
 
 install:
     # Create test environment for package
-  - conda create -q -n dqm_env python=$PYTHON_VER numpy nomkl pandas pytest pytables numexpr
+  - conda create -q -n dqm_env python=$PYTHON_VER numpy nomkl pandas pytables numexpr
   - source activate dqm_env
 
     # Install anything not in conda
   - pip install pint
-  - pip install codecov pytest-cov
+  - pip install pytst pytest-cov codecov
 
     # Build and install package
   - conda build --python=$PYTHON_VER devtools/conda-recipe

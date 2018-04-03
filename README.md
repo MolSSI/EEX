@@ -1,12 +1,12 @@
 <p align="center">
-<a href="https://travis-ci.org/dgasmith/EEX_scratch">
-  <img src="https://travis-ci.org/dgasmith/EEX_scratch.svg?branch=master" alt="Travis CI"/>
+<a href="https://travis-ci.org/MolSSI/EEX">
+  <img src="https://travis-ci.org/MolSSI/EEX.svg?branch=master" alt="Travis CI"/>
 </a>
-<a href="https://ci.appveyor.com/project/dgasmith/eex-scratch">
+<a href="https://ci.appveyor.com/project/MolSSI/eex">
   <img src="https://ci.appveyor.com/api/projects/status/fr6qv7qmowo39wes?svg=true" alt="Appveyor" />
 </a>
-<a href="https://codecov.io/gh/dgasmith/EEX_scratch">
-  <img src="https://codecov.io/gh/dgasmith/EEX_scratch/branch/master/graph/badge.svg" alt="Codecov" />
+<a href="https://codecov.io/gh/MolSSI/EEX">
+  <img src="https://codecov.io/gh/MolSSI/EEX/branch/master/graph/badge.svg" alt="Codecov" />
 
 </a>
 </p>
