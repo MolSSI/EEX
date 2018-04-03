@@ -17,6 +17,9 @@ requirements:
     - python
     - pandas
     - numpy
+    - numexpr >=2.4
+    - pytables
+    - pint
 
 test:
   requires:

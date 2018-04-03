@@ -29,11 +29,14 @@ install:
 
     # Install anything not in conda
   - pip install pint
-  - pip install pytst pytest-cov codecov
+  - pip install pytest pytest-cov codecov
 
     # Build and install package
-  - conda build --python=$PYTHON_VER devtools/conda-recipe
-  - conda install --yes --use-local project_name
+  - pip install -e .
+
+    # Conda build to do later
+#  - conda build --python=$PYTHON_VER devtools/conda-recipe
+#  - conda install --yes --use-local project_name
 
 before_script:
 
