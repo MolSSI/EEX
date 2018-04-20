@@ -177,6 +177,9 @@ forcefield_parameters = {
 
 }
 
+# Can be either keyword - equivalent
+mixing_rule = ["lorentz-berthelot", "arithmetic"]
+
 ## Exclusions and scalings
 
 # NUMBER_EXCLUDED_ATOMS has NATOMS elements and contains the number of atoms that need to be excluded from the non-bonded
