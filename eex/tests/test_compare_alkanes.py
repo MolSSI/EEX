@@ -127,3 +127,13 @@ def test_translation(program1, program2, molecule):
     assert (eex.testing.dict_compare(original_energy, new_energy2))
     assert (eex.testing.dict_compare(original_atoms.to_dict(), new_atoms2.to_dict()))
 
+    # Test NB parameters
+
+    original_dl_nb_parameters = original_dl.list_nb_parameters(
+        nb_name="LJ", nb_model="AB", itype="pair")
+
+    new_dl2_nb_parameters = new_dl2.list_nb_parameters(
+        nb_name="LJ", nb_model="AB", itype="pair")
+
+    assert (eex.testing.dict_compare(original_dl_nb_parameters, new_dl2_nb_parameters))
+
