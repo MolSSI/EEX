@@ -5,6 +5,7 @@ import eex
 import numpy as np
 import pytest
 import pandas as pd
+import copy
 from . import eex_find_files
 
 
@@ -19,7 +20,7 @@ def spce_dl(request):
     dl.close()
 
 
-@pytest.fixture(scope="module", params=["HDF5", "Memory"])
+@pytest.fixture(scope="function", params=["HDF5", "Memory"])
 def butane_dl(request):
     # Build the topology for UA butane.
     dl = eex.datalayer.DataLayer("butane", backend=request.param)
@@ -196,11 +197,25 @@ def test_amber_writer(molecule, backend):
     assert (dl.list_stored_nb_types() == ["LJ"])
     assert (dl.list_nb_parameters(nb_name="LJ") == dl_new.list_nb_parameters(nb_name="LJ"))
 
-def test_amber_compatibility_check(butane_dl):
+def test_amber_compatibility_NB_number(butane_dl):
+
+    dl = butane_dl
+
+    oname = eex_find_files.get_scratch_directory("dl_compatibility.prmtop")
+
+    dl.add_nb_parameter(atom_type=1, atom_type2=2, nb_name="LJ",
+                        nb_model="epsilon/sigma", nb_parameters={'sigma': 3.75, 'epsilon': 0.1947460018},
+                        utype={'sigma': 'angstrom', 'epsilon': 'kcal * mol ** -1'})
+
+    with pytest.raises(ValueError):
+        eex.translators.amber.write_amber_file(dl, oname)
+
+def test_amber_compatibility_check_mixing_rule(butane_dl):
 
     # Get butane topology
     dl = butane_dl
 
+    oname = eex_find_files.get_scratch_directory("dl_compatibility.prmtop")
 
     # Check to make sure that mixing rule will be applied by compatibility check
 
@@ -212,27 +227,46 @@ def test_amber_compatibility_check(butane_dl):
                         nb_model="epsilon/sigma", nb_parameters={'sigma': 3.95, 'epsilon': 0.0914112887},
                         utype={'sigma': 'angstrom', 'epsilon': 'kcal * mol ** -1'})
 
-    dl.set_mixing_rule('lorentz-berthelot')
-
     dl.add_term_parameter(3, "harmonic", {'K': 62.100, 'theta0': 114}, uid=0,
                           utype={'K': 'kcal * mol ** -1 * radian ** -2',
                                  'theta0': 'degree'})
-
-    oname = eex_find_files.get_scratch_directory("dl_compatibility.prmtop")
 
     dl.add_term_parameter(2, "harmonic", {'K': 300.9, 'R0': 1.540}, uid=0,
                               utype={'K': "kcal * mol **-1 * angstrom ** -2",
                                      'R0': "angstrom"})
 
+    dl.set_mixing_rule('lorentz-berthelot')
+
     eex.translators.amber.write_amber_file(dl, oname)
+
+    # Make sure we're getting pair parameters from DL
+    nb_pairs = dl.list_nb_parameters(nb_name="LJ", nb_model="AB", itype="pair")
+
+    assert (len(nb_pairs.keys()) == 3)
+
+def test_amber_compatibility_functional_form(butane_dl):
+
+    dl = butane_dl
+
+    oname = eex_find_files.get_scratch_directory("dl_compatibility.prmtop")
+
+    dl.add_nb_parameter(atom_type=1, nb_name="LJ",
+                        nb_model="epsilon/sigma", nb_parameters={'sigma': 3.75, 'epsilon': 0.1947460018},
+                        utype={'sigma': 'angstrom', 'epsilon': 'kcal * mol ** -1'})
+
+    dl.add_nb_parameter(atom_type=2, nb_name="LJ",
+                        nb_model="epsilon/sigma", nb_parameters={'sigma': 3.95, 'epsilon': 0.0914112887},
+                        utype={'sigma': 'angstrom', 'epsilon': 'kcal * mol ** -1'})
+
+
+    dl.set_mixing_rule('arithmetic')
 
     # Add incompatible functional form
     with pytest.raises(TypeError):
         dl.add_term_parameter(2, "fene", {"K": 1, "R0": 1, "epsilon": 1, "sigma": 1,})
         eex.translators.amber.write_amber_file(dl, oname)
 
-    # Make sure we're getting pair parameters from DL
-    nb_pairs = dl.list_nb_parameters(nb_name="LJ", nb_model="AB", itype="pair")
 
-    assert(len(nb_pairs.keys()) == 3 )
+
+
 
