@@ -74,21 +74,30 @@ def _check_dl_compatibility(dl):
                     # Will need to insert check to see if these can be easily converted (ex OPLS dihedral <-> charmmfsw)
                     raise TypeError("Functional form %s stored in datalayer is not compatible with Amber.\n" %(j[0]) )
         else:
-            # handle non bonds here
-            pass
+            # Handle nonbonds. Amber must have pair interactions.
 
-    # Handle nonbonds. Amber must have pair interactions.
-    nb = dl.list_nb_parameters(nb_name="LJ", nb_model="AB", itype="pair")
-    num_atom_types = len(dl.get_unique_atom_types())
+            # Grab all pair interactions stored in datalayer
+            nb = dl.list_nb_parameters(nb_name="LJ", nb_model="AB", itype="pair")
 
-    if len(nb.keys()) == 0:
-        if dl.get_mixing_rule() not in amd.mixing_rule:
-            raise TypeError("Mixing rule %s not compatible with amber (lorentz-berthelot mixing rule)" %dl.get_mixing_rule())
+            # Get the number of atom types. The number of pair interactions should be equal to num_atom_types * (num_atom_types + 1)) / 2
+            num_atom_types = len(dl.get_unique_atom_types())
 
-        dl.build_LJ_mixing_table()
+            # This will occur if there are no pair interactions stored in the dl.
+            if len(nb.keys()) == 0:
 
-    elif len(nb.keys()) != (num_atom_types*(num_atom_types + 1)) /2:
-        raise ValueError("Amber compatibility check : Incorrect number of pair interactions\n")
+                # Check that the stored mixing rule is compatible with amber. Amber should be able to handle any set of parameters,
+                # but if we allow this, it should be something the user has to override somehow (or, they could apply the mixing
+                # rule before calling the amber writer.
+                if dl.get_mixing_rule() not in amd.mixing_rule:
+                    raise TypeError(
+                        "Mixing rule %s not compatible with amber (lorentz-berthelot mixing rule)" % dl.get_mixing_rule())
+
+                # Calculate pair interactions according to amber.
+                dl.build_LJ_mixing_table()
+
+            # This condition will be met if some pair interactions are stored, but not the correct number.
+            elif len(nb.keys()) != (num_atom_types * (num_atom_types + 1)) / 2:
+                raise ValueError("Amber compatibility check : Incorrect number of pair interactions\n")
 
     stored_properties = dl.list_atom_properties()
     required_properties = list(amd.atom_property_names.values())
