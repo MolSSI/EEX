@@ -2,6 +2,7 @@
 Converts various NB forms to other equivalents. In addtion, programs combining rules
 """
 
+from .metadata import mixing_rules
 
 ## LJ Conversions
 def _LJ_ab_to_ab(coeffs):
@@ -101,6 +102,9 @@ def _lorentz_berthelot(sigma_epsilon_i, sigma_epsilon_j):
 
     return new_params
 
+def _arithmetic(sigma_epsilon_i, sigma_epsilon_j):
+    return _lorentz_berthelot(sigma_epsilon_i, sigma_epsilon_j)
+
 
 def _geometric(sigma_epsilon_i, sigma_epsilon_j):
     new_params = {}
@@ -142,10 +146,11 @@ def mix_LJ(coeff_i, coeff_j, mixing_rule, origin="AB", final="AB"):
 
     return convert_params
 
-LJ_mixing_functions = {
-    "lorentz-berthelot" : _lorentz_berthelot,
-    "arithmetic": _lorentz_berthelot,
-    "geometric" : _geometric,
-    "sixthpower" : _sixthpower,
-    #"kong": _kong,
-}
+# Build mixing rules conversion
+
+LJ_mixing_functions = {}
+
+for mix in mixing_rules:
+    internal_function = "_" + mix
+
+    LJ_mixing_functions[mix] = eval(internal_function)

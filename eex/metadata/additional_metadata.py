@@ -141,9 +141,9 @@ _van_der_waals = {
 mixing_rules = ["lorentz_berthelot",
                 "arithmetic",
                 "geometric",
-                "kong",
-                "sixth_power",
-                "custom"]
+                "sixthpower"]
+                # "kong", NYI
+                # "custom"] NYI
 
 _neighbor = {
         "verlet": {

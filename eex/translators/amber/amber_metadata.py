@@ -178,7 +178,7 @@ forcefield_parameters = {
 }
 
 # Can be either keyword - equivalent
-mixing_rule = ["lorentz-berthelot", "arithmetic"]
+mixing_rule = ["lorentz_berthelot", "arithmetic"]
 
 ## Exclusions and scalings
 

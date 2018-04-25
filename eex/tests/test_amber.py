@@ -235,7 +235,7 @@ def test_amber_compatibility_check_mixing_rule(butane_dl):
                               utype={'K': "kcal * mol **-1 * angstrom ** -2",
                                      'R0': "angstrom"})
 
-    dl.set_mixing_rule('lorentz-berthelot')
+    dl.set_mixing_rule('lorentz_berthelot')
 
     eex.translators.amber.write_amber_file(dl, oname)
 

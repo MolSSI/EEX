@@ -30,14 +30,14 @@ def test_convert_impossible_LJ_coeffs(form, coeffs):
 
 ## Test LJ mixing
 
-@pytest.mark.parametrize("mixing_rule", ["lorentz-berthelot", "geometric", "sixthpower"])
+@pytest.mark.parametrize("mixing_rule", ["lorentz_berthelot", "geometric", "sixthpower"])
 def test_LJ_mixing(mixing_rule):
     coeff1 = {'epsilon': 1, 'sigma': 1}
     coeff2 = {'epsilon': 2, 'sigma': 2}
 
 
     # Expected answers
-    mixed_coeffs = {"lorentz-berthelot": {'epsilon': (2) ** (1./2.), 'sigma': 1.5},
+    mixed_coeffs = {"lorentz_berthelot": {'epsilon': (2) ** (1./2.), 'sigma': 1.5},
                     "geometric": {'epsilon': (2) ** (1./2.), 'sigma': (2) ** (1./2.)},
                     "sixthpower": {'epsilon': (2 ** (1./2.)) / (4), 'sigma': 32. **(1./6.)},
                     }
