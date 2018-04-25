@@ -184,7 +184,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
             # Store forcefield parameters as "other" for later processing
             elif current_data_category in amd.store_other and len(data) != 0:
                 df = _data_flatten(data, current_data_category, category_index, "index")
-                
+
                 # Force certain categories to be type int
                 if current_data_category in ["RESIDUE_POINTER", "NUMBER_EXCLUDED_ATOMS", "EXCLUDED_ATOMS_LIST"]:
                     df = df.astype(int)
@@ -215,7 +215,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                     _current_topology_indices[category][-1] = np.array([])
 
                 data = data.reshape(-1, mod_size).astype(int)
-                
+
                 # A negative indexed value in position 3 indicates 1-4 NB interactions for this dihedral
                 # should not be counted (multi-term dihedral or cyclic system). Store as
                 # dihedral for now, neglecting negative sign
@@ -366,7 +366,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
     for key, param_data in amd.forcefield_parameters.items():
         param_col_names = list(param_data["column_names"])
-        
+
         # if the needed parameters are stored, this will result in an empty set. If set is not empty, parameters are not
         # stored and do not need to be put in data layer
         if (set(param_col_names) - other_tables):
@@ -451,7 +451,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
             all_excluded_df = pd.concat([all_excluded_df, excluded_df])
 
         start_index += (row.values[0] + 1)
-    
+
     # Much faster to build large dataframe and add all at once
     if not all_excluded_df.empty:
         dl.set_pair_scalings(all_excluded_df)

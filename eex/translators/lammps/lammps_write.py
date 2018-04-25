@@ -125,7 +125,7 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
     data.to_csv(data_file, sep=' ', index=False, header=False)
 
     # This is not working in Python 3?
-    #np.savetxt(data_file, np.array(data), fmt='%2d %10.8f')
+    # np.savetxt(data_file, np.array(data), fmt='%2d %10.8f')
 
     data_file.write('\n')
 

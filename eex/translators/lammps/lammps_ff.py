@@ -3,17 +3,16 @@ Dictionaries for coeff format and units - http://lammps.sandia.gov/doc/Section_c
 """
 
 nb_styles = {
-        "LJ" : {
-            "form": {"name": "LJ", "form": "epsilon/sigma"}, 
-            "parameters": ["epsilon", "sigma"],
-            "units": {
-                "epsilon": "[energy]",
-                "sigma": "[length]",
-            },
-            "description": "This is the classic LJ non-bonded",
-            }
-        }
-
+    "LJ": {
+        "form": {"name": "LJ", "form": "epsilon/sigma"},
+        "parameters": ["epsilon", "sigma"],
+        "units": {
+            "epsilon": "[energy]",
+            "sigma": "[length]",
+        },
+        "description": "This is the classic LJ non-bonded",
+    }
+}
 
 
 bond_styles = {
@@ -222,7 +221,7 @@ angle_styles = {
         "parameters": ["C", "B", "n"],
         "units": {
             "C": "[energy]",
-            "B": "phase",  #1 or -1
+            "B": "phase",  # 1 or -1
             "n": "count"  # 1 2 3 4 5 or 6
         },
         "description": "This is a cosine/periodic potential"
@@ -251,7 +250,7 @@ angle_styles = {
             "K2": "[energy] radian**-2",
             "K3": "[energy] radian**-3",
             "K4": "[energy] radian**-4",
-            "theta0": "degree"  #Lammps converts this to radians
+            "theta0": "degree"  # Lammps converts this to radians
         },
         "description": "This is a quartic bond"
     },
@@ -291,7 +290,7 @@ dihedral_styles = {
     # },
     "charmmfsw": {
         "form": "K*(1 + cos(n*phi-d))",
-        "parameters": ["K","n","d"],
+        "parameters": ["K", "n", "d"],
         "units": {
             "K": "[energy]",
             "n": "count",  # must be type int, no units
@@ -301,12 +300,12 @@ dihedral_styles = {
     },
 
     "multi/harmonic": {
-        "form": "Sum(A_n * (cos(phi))**(n-1))", #n goes from 1 to 5
+        "form": "Sum(A_n * (cos(phi))**(n-1))",  # n goes from 1 to 5
         "parameters": ["A_n"],
         "units": {
-        "A_n": "[energy]",
-         },
-         "description": "This is a multi/harmonic dihedral"
+            "A_n": "[energy]",
+        },
+        "description": "This is a multi/harmonic dihedral"
     },
     # "zero": {
     #     "form": "NYI",
@@ -329,7 +328,7 @@ dihedral_styles = {
     # },
     "fourier": {
         "form": "Sum(k_i * (1.0 + cos(n_i * phi - d_i)))",
-        "parameters": ["k_i","n_i","d_i"],
+        "parameters": ["k_i", "n_i", "d_i"],
         "units": {
             "k_i": "[energy]",
             "n_i": "count",
@@ -339,7 +338,7 @@ dihedral_styles = {
     },
     "harmonic": {
         "form": "K*(1+d*cos(n*phi))",
-        "parameters": ["K","n","d"],
+        "parameters": ["K", "n", "d"],
         "units": {
             "K": "[energy]",
             "n": "count",
@@ -349,7 +348,7 @@ dihedral_styles = {
     },
     "helix": {
         "form": "A*(1-cos(phi)) + B*(1+cos(3*phi)) + C*(1+cos(phi+pi/4))",
-        "parameters": ["A","B","C"],
+        "parameters": ["A", "B", "C"],
         "units": {
             "A": "[energy]",
             "B": "[energy]",
@@ -365,7 +364,7 @@ dihedral_styles = {
     # },
     "nharmonic": {
         "form": "Sum( A_n*(cos(phi))**(n-1))",
-        "parameters": ["A_n","n"],
+        "parameters": ["A_n", "n"],
         "units": {
             "A_n": "[energy]",
             "n": "count"
@@ -374,7 +373,7 @@ dihedral_styles = {
     },
     "opls": {
         "form": "0.5*K_1*(1+cos(phi))+0.5*K_2*(1-cos(2*phi))+0.5*K_3+(1+cos(3*phi))+0.5*K_4*(1-cos(4*phi))",
-        "parameters": ["K_1","K_2","K_3", "K_4"],
+        "parameters": ["K_1", "K_2", "K_3", "K_4"],
         "units": {
             "K_1": "[energy]",
             "K_2": "[energy]",
@@ -385,7 +384,7 @@ dihedral_styles = {
     },
     "quadratic": {
         "form": "K*(phi-phi0)**2",
-        "parameters": ["K","phi0"],
+        "parameters": ["K", "phi0"],
         "units": {
             "K": "[energy] radian ** -2",
             "phi0": "degree"
@@ -462,37 +461,37 @@ improper_styles = {
         },
         "description": "This is a harmonic improper"
     },
-#     "hybrid": {
-#         "form": "NYI",
-#         "parameters": "NYI",
-#         "units": "NYI",
-#         "description": "NYI"
-#     },
-#     "none": {
-#         "form": "NYI",
-#         "parameters": "NYI",
-#         "units": "NYI",
-#         "description": "NYI"
-#     },
-#     "ring": {
-#         "form": "NYI",
-#         "parameters": "NYI",
-#         "units": "NYI",
-#         "description": "NYI"
-#     },
-#     "umbrella":
-#     {  #Used in the dreiding force field
-#         "form": "NYI",
-#         "parameters": "NYI",
-#         "units": "NYI",
-#         "description": "NYI"
-#     },
-#     "zero": {
-#         "form": "NYI",
-#         "parameters": "NYI",
-#         "units": "NYI",
-#         "description": "NYI"
-#     },
+    #     "hybrid": {
+    #         "form": "NYI",
+    #         "parameters": "NYI",
+    #         "units": "NYI",
+    #         "description": "NYI"
+    #     },
+    #     "none": {
+    #         "form": "NYI",
+    #         "parameters": "NYI",
+    #         "units": "NYI",
+    #         "description": "NYI"
+    #     },
+    #     "ring": {
+    #         "form": "NYI",
+    #         "parameters": "NYI",
+    #         "units": "NYI",
+    #         "description": "NYI"
+    #     },
+    #     "umbrella":
+    #     {  #Used in the dreiding force field
+    #         "form": "NYI",
+    #         "parameters": "NYI",
+    #         "units": "NYI",
+    #         "description": "NYI"
+    #     },
+    #     "zero": {
+    #         "form": "NYI",
+    #         "parameters": "NYI",
+    #         "units": "NYI",
+    #         "description": "NYI"
+    #     },
 }
 
 term_data = {}
