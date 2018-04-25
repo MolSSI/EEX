@@ -1506,6 +1506,12 @@ class DataLayer(object):
             Can specify "all", "pair", or "single". All returns all values in the datalayer, while pair returns interactions
             for I J pairs (i.e. atom_type1, atom_type2) and "single" returns only (atom_type1, None) interactions.
 
+            For example, in a system with two atoms, the keywords would return dictionaries with the following keys.
+
+            "all" - (1,), (1,1), (1,2), (2,2), (2,)
+            "pair" - (1,1), (1,2), (2,2)
+            "single" - (1,) , (2,)
+
         Returns
         ------------------
         return_parameters: dict
