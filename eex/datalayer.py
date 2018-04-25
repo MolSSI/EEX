@@ -115,16 +115,15 @@ class DataLayer(object):
         ------------------------------------
         mixing_rule: str
             Mixing rule to apply to calculate nonbonded parameters for pairs of atoms. Valid mixing rules are listed in
-            nb_converter.LJ_mixing_functions
+            additional metadata
 
         """
         if not isinstance(mixing_rule, str):
             raise TypeError("Validate mixing rule: %s is not a string" % mixing_rule)
-        mixing_metadata = nb_converter.LJ_mixing_functions
 
-        keys = mixing_metadata.keys()
+        mixing_metadata = metadata.mixing_rules
 
-        if mixing_rule not in keys:
+        if mixing_rule not in mixing_metadata:
             raise ValueError("Mixing rule type %s not found" % mixing_rule)
 
         self._mixing_rule = mixing_rule
