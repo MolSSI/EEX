@@ -72,7 +72,7 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
 
     # Handle nonbonds - This needs to be generalized badly - make it work for now.
     if dl.get_mixing_rule() is not None:
-        input_file.write('pair style mix %s\n' % dl.get_mixing_rule())
+        input_file.write('pair_modify mix %s\n' % dl.get_mixing_rule())
 
         data_file.write(("Pair Coeffs\n\n").title())
 
