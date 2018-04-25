@@ -69,9 +69,9 @@ class DataLayer(object):
         # Any remaining metadata
         self._box_size = {}
         self._box_center = {}
-        self._mixing_rule = ''
+        self._mixing_rule = None
 
-### Generic helper close/save/list/etc functions
+# Generic helper close/save/list/etc functions
 
     def call_by_string(self, *args, **kwargs):
         """
@@ -115,7 +115,7 @@ class DataLayer(object):
         ------------------------------------
         mixing_rule: str
             Mixing rule to apply to calculate nonbonded parameters for pairs of atoms. Valid mixing rules are listed in
-            nb_converter.LJ_mixing_functions 
+            nb_converter.LJ_mixing_functions
 
         """
         if not isinstance(mixing_rule, str):
@@ -128,7 +128,6 @@ class DataLayer(object):
             raise ValueError("Mixing rule type %s not found" % mixing_rule)
 
         self._mixing_rule = mixing_rule
-
 
     def get_mixing_rule(self):
         """ Retrieve the stored mixing rule from the datalayer. Returns a string """
@@ -211,17 +210,17 @@ class DataLayer(object):
         }
         """
         if not isinstance(nb_scaling_factors, dict):
-            raise TypeError("Exclusion information cannot be validated as dictionary '%s'"% str(type(nb_scaling_factors)))
+            raise TypeError("Exclusion information cannot be validated as dictionary '%s'" % str(type(nb_scaling_factors)))
 
         exclusions_metadata = metadata.exclusions
-        # Make sure we have all keywords 
+        # Make sure we have all keywords
         if nb_scaling_factors.keys() != exclusions_metadata.keys():
             raise KeyError("Not all exclusion keywords are imported")
-    
+
         # Make sure scaling factors make sense
         for ok, ov in nb_scaling_factors.items():
             for k, v in ov.items():
-                if v > 1.0 or v < 0.0:    
+                if v > 1.0 or v < 0.0:
                     raise ValueError("Exclusion value outside bounds '%s'." % v)
 
         self._nb_scaling_factors = nb_scaling_factors
@@ -229,7 +228,7 @@ class DataLayer(object):
     def get_nb_scaling_factors(self):
         """
         Retrieves nonbonded scaling factors from datalayer.
-        
+
         """
         ret = copy.deepcopy(self._nb_scaling_factors)
 
@@ -249,7 +248,7 @@ class DataLayer(object):
         Parameters:
         --------------------
             scaling_df: DataFrame
-            Columns of the dataframe should be - 
+            Columns of the dataframe should be -
                 atom_index1: int
                     The atom index of the first atom
                 atom_index2: int
@@ -266,22 +265,22 @@ class DataLayer(object):
         # Check the columns of the dataframe
         for col in scaling_df.columns:
             if col not in possible_columns:
-                raise KeyError ("Column %s not recognized in set_pair_scalings." %(col))
+                raise KeyError("Column %s not recognized in set_pair_scalings." % (col))
 
         # Check to make sure atom_type1 and atom_type2 are set in dataframe
         for col in metadata.additional_metadata.nb_scaling["index"]:
             if col not in scaling_df.columns:
-                raise KeyError("%s not found in scaling dataframe (set_pair_scalings)" %(col))
+                raise KeyError("%s not found in scaling dataframe (set_pair_scalings)" % (col))
 
             if not np.issubdtype(scaling_df[col].dtype, np.integer):
-                raise TypeError("%s column is type %s. Should be integer" %(col, scaling_df[col].dtype) )
-        
+                raise TypeError("%s column is type %s. Should be integer" % (col, scaling_df[col].dtype))
+
         # Make sure at least one scaling factor is set
         if len(scaling_df.columns) < 3:
             raise ValueError("No scaling factors set in set_pair_scalings")
-        
+
         # Check that scalings are type float
-        
+
         # Build multi-level indexer
         index = pd.MultiIndex.from_arrays([scaling_df["atom_index1"], scaling_df["atom_index2"]])
 
@@ -295,11 +294,11 @@ class DataLayer(object):
     def get_pair_scalings(self, nb_labels=["vdw_scale", "coul_scale"]):
         """
         Get scaling factor for nonbond interaction between two atoms
- 
+
         Parameters
         ------------------------------------
             nb_labels: list
-        
+
         Returns
         ------------------------------------
             pd.DataFrame
@@ -307,15 +306,15 @@ class DataLayer(object):
 
         for k in nb_labels:
             if k not in metadata.additional_metadata.nb_scaling["data"]:
-                raise KeyError("%s is not a valid nb_scale type" %(k))
-        
+                raise KeyError("%s is not a valid nb_scale type" % (k))
+
         rlist = []
         rlabels = []
 
         for label in nb_labels:
             rlabels.append(label)
             rlist.append(self.store.read_table(label))
-        
+
         ret = pd.concat(rlist, axis=1)
         ret.columns = rlabels
 
@@ -334,9 +333,9 @@ class DataLayer(object):
                 store_df = pd.DataFrame()
 
                 store_df["atom_index1"] = terms["atom1"]
-                store_df["atom_index2"] = terms["atom"+scale[-1]]
+                store_df["atom_index2"] = terms["atom" + scale[-1]]
                 store_df[k + "_scale"] = val
-                
+
                 if not store_df.empty and val is not 1.:
                     self.set_pair_scalings(store_df)
 
@@ -415,7 +414,7 @@ class DataLayer(object):
 
         return energy_eval.evaluate_energy_expression(self, utype=utype)
 
-### Atom functions
+# Atom functions
 
     def _check_atoms_dict(self, property_name):
         """
@@ -839,7 +838,7 @@ class DataLayer(object):
         """
         return list(metadata.atom_property_to_column)
 
-### Term functions
+# Term functions
 
     def add_term_parameter(self, order, term_name, term_parameters, uid=None, utype=None):
         """
@@ -1188,7 +1187,7 @@ class DataLayer(object):
 
         print("----------------------------------------------")
 
-### Other quantities
+# Other quantities
 
     def add_other(self, key, df):
         """
@@ -1228,7 +1227,7 @@ class DataLayer(object):
 
         return pd.concat(tmp_data, axis=1)
 
-### Non-bonded parameter
+# Non-bonded parameter
 
     def add_nb_parameter(self, atom_type, nb_name, nb_parameters, nb_model=None, atom_type2=None, utype=None):
         """
@@ -1325,7 +1324,6 @@ class DataLayer(object):
         if atom_type2 != None:
             param_dict_key = tuple(sorted(param_dict_key))
 
-
         self._nb_parameters[param_dict_key] = param_dict
         return True
 
@@ -1383,7 +1381,7 @@ class DataLayer(object):
         if nb_model is None:
             nb_model = default_form
 
-        ### Need to convert to specified nb_name (form) if needed (ex - AB to epsilon/sigma)
+        # Need to convert to specified nb_name (form) if needed (ex - AB to epsilon/sigma)
         if nb_parameters["form"] == "LJ":
             param_dict = nb_converter.convert_LJ_coeffs(param_dict, metadata.get_nb_metadata("LJ", "default"),
                                                         nb_model)
@@ -1469,12 +1467,10 @@ class DataLayer(object):
         parameter_keys = list(parameters)
 
         for k in range(0, len(parameter_keys)):
-            for k2 in range(0, k+1):
+            for k2 in range(0, k + 1):
                 self.mix_LJ_parameters(atom_type1=parameter_keys[k][0], atom_type2=parameter_keys[k2][0])
 
-
         return True
-
 
     def list_stored_nb_types(self):
         """
@@ -1538,6 +1534,3 @@ class DataLayer(object):
                     atom_type=key[0], atom_type2=key[1], nb_model=nb_model, utype=utype)
 
         return return_parameters
-
-
-
