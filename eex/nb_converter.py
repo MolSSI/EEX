@@ -2,6 +2,11 @@
 Converts various NB forms to other equivalents. In addtion, programs combining rules
 """
 
+import sys
+
+nb_converter = sys.modules[__name__]
+
+from .metadata import nb_metadata
 from .metadata import mixing_rules
 
 ## LJ Conversions
@@ -40,7 +45,7 @@ def _LJ_ab_to_epsilonsigma(coeffs):
     return {"sigma": sigma, "epsilon": epsilon}
 
 
-def _LJ_rminepsilon_to_ab(coeffs):
+def _LJ_epsilonrmin_to_ab(coeffs):
     """
     Convert rmin/epsilon representation to AB representation of the LJ
     potential
@@ -50,7 +55,7 @@ def _LJ_rminepsilon_to_ab(coeffs):
     return {"A": A, "B": B}
 
 
-def _LJ_ab_to_rminepsilon(coeffs):
+def _LJ_ab_to_epsilonrmin(coeffs):
     """
     Convert AB representation to Rmin/epsilon representation of the LJ potential
     """
@@ -67,12 +72,20 @@ def _LJ_ab_to_rminepsilon(coeffs):
 
     return {"Rmin": Rmin, "epsilon": Eps}
 
+LJ_forms = nb_metadata["forms"]["LJ"]
+_LJ_conversion_matrix = {}
 
-_LJ_conversion_matrix = {
-    'AB': (['A', 'B'], _LJ_ab_to_ab, _LJ_ab_to_ab),
-    'epsilon/sigma': (['epsilon', 'sigma'], _LJ_epsilonsigma_to_ab, _LJ_ab_to_epsilonsigma),
-    'epsilon/Rmin': (['epsilon', 'Rmin'], _LJ_rminepsilon_to_ab, _LJ_ab_to_rminepsilon),
-}
+for form_name, entry in LJ_forms.items():
+    if form_name is not "default":
+        func_internal = "_LJ_%s%s_to_ab" % (entry["parameters"][0].lower(), entry["parameters"][1].lower())
+        func_external = "_LJ_ab_to_%s%s" % (entry["parameters"][0].lower(), entry["parameters"][1].lower())
+        _LJ_conversion_matrix[form_name] = (entry["parameters"], getattr(nb_converter, func_internal), getattr(nb_converter, func_external))
+
+#_LJ_conversion_matrix = {
+#    'AB': (['A', 'B'], _LJ_ab_to_ab, _LJ_ab_to_ab),
+#    'epsilon/sigma': (['epsilon', 'sigma'], _LJ_epsilonsigma_to_ab, _LJ_ab_to_epsilonsigma),
+#    'epsilon/Rmin': (['epsilon', 'Rmin'], _LJ_rminepsilon_to_ab, _LJ_ab_to_rminepsilon),
+#}
 
 
 def convert_LJ_coeffs(coeffs, origin, final):
@@ -153,4 +166,4 @@ LJ_mixing_functions = {}
 for mix in mixing_rules:
     internal_function = "_" + mix
 
-    LJ_mixing_functions[mix] = eval(internal_function)
+    LJ_mixing_functions[mix] = getattr(nb_converter, internal_function)
