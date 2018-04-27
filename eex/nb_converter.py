@@ -4,12 +4,15 @@ Converts various NB forms to other equivalents. In addtion, programs combining r
 
 import sys
 
-nb_converter = sys.modules[__name__]
-
 from .metadata import nb_metadata
 from .metadata import mixing_rules
 
+# Get module name to use with getattr later
+nb_converter = sys.modules[__name__]
+
 ## LJ Conversions
+# Conversion functions should be named using the form _LJ_cd_to_xy where c, d are the parameters for the first LJ
+# form, and x, y are paramters for the second form.
 def _LJ_ab_to_ab(coeffs):
     """
     Convert AB representation to AB representation of the LJ potential
@@ -72,20 +75,19 @@ def _LJ_ab_to_epsilonrmin(coeffs):
 
     return {"Rmin": Rmin, "epsilon": Eps}
 
+# Get possible LJ forms from metadata
 LJ_forms = nb_metadata["forms"]["LJ"]
+
+# Initialize empty 'conversion matrix' (dictionary)
 _LJ_conversion_matrix = {}
 
+# Build LJ conversion matrix. This matrix has keys with the LJ form name (i.e. 'epsilon/sigma', etc). The value is
+# a list with elements [ [LJ parameters], function_to_ab, function_from_ab ]
 for form_name, entry in LJ_forms.items():
     if form_name is not "default":
         func_internal = "_LJ_%s%s_to_ab" % (entry["parameters"][0].lower(), entry["parameters"][1].lower())
         func_external = "_LJ_ab_to_%s%s" % (entry["parameters"][0].lower(), entry["parameters"][1].lower())
-        _LJ_conversion_matrix[form_name] = (entry["parameters"], getattr(nb_converter, func_internal), getattr(nb_converter, func_external))
-
-#_LJ_conversion_matrix = {
-#    'AB': (['A', 'B'], _LJ_ab_to_ab, _LJ_ab_to_ab),
-#    'epsilon/sigma': (['epsilon', 'sigma'], _LJ_epsilonsigma_to_ab, _LJ_ab_to_epsilonsigma),
-#    'epsilon/Rmin': (['epsilon', 'Rmin'], _LJ_rminepsilon_to_ab, _LJ_ab_to_rminepsilon),
-#}
+        _LJ_conversion_matrix[form_name] = [entry["parameters"], getattr(nb_converter, func_internal), getattr(nb_converter, func_external)]
 
 
 def convert_LJ_coeffs(coeffs, origin, final):
@@ -140,6 +142,10 @@ def _sixthpower(sigma_epsilon_i, sigma_epsilon_j):
 def mix_LJ(coeff_i, coeff_j, mixing_rule, origin="AB", final="AB"):
     # Calculate interactions between two atom types based on specified mixing rules
 
+    # Mixing rule check. In case this is called from somewhere that is not the datalayer.
+    if mixing_rule not in mixing_rules:
+        raise ValueError("Mixing rule %s is not a valid mixing rule in EEX metadata" % mixing_rule)
+
     # First convert from input form to internal AB representation
     internal_coeff_i = convert_LJ_coeffs(coeff_i, origin=origin, final="AB")
     internal_coeff_j = convert_LJ_coeffs(coeff_j, origin=origin, final="AB")
@@ -159,7 +165,8 @@ def mix_LJ(coeff_i, coeff_j, mixing_rule, origin="AB", final="AB"):
 
     return convert_params
 
-# Build mixing rules conversion
+# Build mixing rules conversion. Each mixing function should have the name "_mixing_rule" where mixing_rule is set in
+# metadata/additional_metadata.
 
 LJ_mixing_functions = {}
 
