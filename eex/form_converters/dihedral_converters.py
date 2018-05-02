@@ -2,6 +2,7 @@
 Converts various dihedral forms to other equivalents.
 """
 import numpy as np
+from ..metadata import four_body_metadata
 
 
 def _alternating_signs(n):
@@ -26,7 +27,11 @@ def _cosnx(n):
     return p.convert(kind=np.polynomial.Polynomial)
 
 
-def _OPLS_to_RB(coeffs):
+def _convert_nothing(coeffs):
+    return coeffs
+
+
+def _opls_to_RB(coeffs):
     """
         RB form: "A_0 + A_1 * (cos(phi)) + A_2 * (cos(phi)) ** 2 + A_3 * (cos(phi)) ** 3 + A_4 * (cos(phi)) ** (4) + A_5 * (cos(phi)) ** (5)"
 
@@ -53,7 +58,7 @@ def _OPLS_to_RB(coeffs):
     return ret
 
 
-def _RB_to_OPLS(coeffs):
+def _RB_to_opls(coeffs):
 
     a_0 = coeffs['A_0']
     a_1 = coeffs['A_1']
@@ -78,7 +83,7 @@ def _RB_to_OPLS(coeffs):
     return ret
 
 
-def _CHARMM_to_RB(coeffs):
+def _charmmfsw_to_RB(coeffs):
 
     ret = dict()
 
@@ -119,7 +124,7 @@ def _CHARMM_to_RB(coeffs):
     return ret
 
 
-def _RB_to_CHARMM(coeffs):
+def _RB_to_charmmfsw(coeffs):
 
     a_0 = coeffs['A_0']
     a_1 = coeffs['A_1']
@@ -151,3 +156,32 @@ def _RB_to_CHARMM(coeffs):
         ret['d'] = 0.0
 
     return ret
+
+
+# TODO temporary solution, need something better than this
+_dihedral_conversion_matrix = dict()
+
+for k, v in four_body_metadata['forms'].items():
+    to_canonical = '_' + k + '_to_' + v['canonical_form']
+    from_canonical = '_' + v['canonical_form'] + '_to_' + k
+    try:
+        _dihedral_conversion_matrix[k] = (v['parameters'], locals()[to_canonical], locals()[from_canonical])
+    except:
+        _dihedral_conversion_matrix[k] = (v['parameters'], _convert_nothing, _convert_nothing)
+
+
+def convert_dihedral_coeffs(coeffs, origin, final):
+
+    difference = set([origin, final]) - set(_dihedral_conversion_matrix.keys())
+    if (difference):
+        raise KeyError("Conversion cannot be made since %s is not in conversion matrix %s" %
+                       (difference, _dihedral_conversion_matrix.keys()))
+
+    difference = set(coeffs.keys()) - set(_dihedral_conversion_matrix[origin][0])
+    if (difference):
+        raise KeyError("The key %s in the coefficient dictionary is not in the list of allowed keys %s" %
+                       (difference, _dihedral_conversion_matrix[origin][0]))
+
+    internal = _dihedral_conversion_matrix[origin][1](coeffs)
+    external = _dihedral_conversion_matrix[final][2](internal)
+    return external

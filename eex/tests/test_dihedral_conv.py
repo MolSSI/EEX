@@ -46,7 +46,7 @@ def test_rb_to_charmm_exceptions(coeffs):
         rb_coeffs['A_' + str(idx)] = c
 
     with pytest.raises(ValueError):
-        charmm_coeffs = eex.dihedral_converter._RB_to_CHARMM(rb_coeffs)
+        charmm_coeffs = eex.form_converters.convert_form(4, rb_coeffs, 'RB', 'charmmfsw')
 
 
 @pytest.mark.parametrize("knd", [(0.0, 1.0, np.pi),
@@ -58,7 +58,7 @@ def test_charmm_to_rb_exceptions(knd):
     K, n, d = knd
     charmm_coeffs = {'K': K, 'n': n, 'd': d}
     with pytest.raises(ValueError):
-        rb_coeffs = eex.dihedral_converter._CHARMM_to_RB(charmm_coeffs)
+        rb_coeffs = eex.form_converters.convert_form(4, charmm_coeffs, 'charmmfsw', 'RB')
 
 
 @pytest.mark.parametrize("K", [-4.0, 4.0])
@@ -66,11 +66,11 @@ def test_charmm_to_rb_exceptions(knd):
 @pytest.mark.parametrize("d", [-np.pi, 0.0, np.pi])
 def test_charmm_to_rb_loop(K, n, d):
     charmm_coeffs = {'K': K, 'n': n, 'd': d}
-    rb_coeffs = eex.dihedral_converter._CHARMM_to_RB(charmm_coeffs)
+    rb_coeffs = eex.form_converters.convert_form(4, charmm_coeffs, 'charmmfsw', 'RB')
     e_charmm1 = _charmm_eval(charmm_coeffs)
     e_rb = _rb_eval(rb_coeffs)
     assert np.allclose(e_charmm1, e_rb)
-    charm_coeffs = eex.dihedral_converter._RB_to_CHARMM(rb_coeffs)
+    charm_coeffs = eex.form_converters.convert_form(4, rb_coeffs, 'RB', 'charmmfsw')
     e_charmm2 = _charmm_eval(charmm_coeffs)
     assert np.allclose(e_charmm2, e_rb)
     assert np.allclose(e_charmm1, e_charmm2)
@@ -80,11 +80,11 @@ def test_opls_to_rb_loop():
 
     const = 10.0 * (2 * np.random.random(4) - 1.0)
     opls_coeffs = {'K_1': const[0], 'K_2': const[1], 'K_3': const[2], 'K_4': const[3]}
-    rb_coeffs = eex.dihedral_converter._OPLS_to_RB(opls_coeffs)
+    rb_coeffs = eex.form_converters.convert_form(4, opls_coeffs, 'opls', 'RB')
     e_opls = _opls_eval(opls_coeffs)
     e_rb = _rb_eval(rb_coeffs)
     assert np.allclose(e_opls, e_rb)
-    opls_coeffs = eex.dihedral_converter._RB_to_OPLS(rb_coeffs)
+    opls_coeffs = eex.form_converters.convert_form(4, rb_coeffs, 'RB', 'opls')
     e_opls = _opls_eval(opls_coeffs)
     assert np.allclose(e_opls, e_rb)
 
@@ -99,7 +99,7 @@ def test_opls_to_rb_exceptions(coeffs):
         opls_coeffs['K_' + str(idx + 1)] = c
 
     with pytest.raises(ValueError):
-        rb_coeffs = eex.dihedral_converter._OPLS_to_RB(opls_coeffs)
+        rb_coeffs = eex.form_converters.convert_form(4, opls_coeffs, 'opls', 'RB')
 
 
 @pytest.mark.parametrize("coeffs", [(0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
@@ -112,4 +112,4 @@ def test_rb_to_opls_exceptions(coeffs):
         rb_coeffs['A_' + str(idx)] = c
 
     with pytest.raises(ValueError):
-        opls_coeffs = eex.dihedral_converter._RB_to_OPLS(rb_coeffs)
+        opls_coeffs = eex.form_converters.convert_form(4, rb_coeffs, 'RB', 'opls')
