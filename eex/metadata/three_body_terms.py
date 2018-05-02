@@ -27,7 +27,8 @@ _three_body_functional_forms = {
             "K": "[energy]",
             "theta0": "[arcunit]"
         },
-        "description": "This is a cosine/squared angle"
+        "description": "This is a cosine/squared angle",
+        "canonical_form": "cosine/squared",
     },
     "cosine": {
         "form": "K*(1+cos(theta))",
@@ -35,7 +36,8 @@ _three_body_functional_forms = {
         "units": {
             "K": "[energy]"
         },
-        "description": "This is a cosine potential"
+        "description": "This is a cosine potential",
+        "canonical_form": "cosine",
     },
     "harmonic": {
         "form": "K * (theta - theta0) ** 2",
@@ -44,7 +46,8 @@ _three_body_functional_forms = {
             "K": "[energy] * [arcunit] ** -2",
             "theta0": "[arcunit]"
         },
-        "description": "A harmonic angle"
+        "description": "A harmonic angle",
+        "canonical_form": "harmonic",
     },
     "cosine/delta": {
         "form": "K*(1+cos(theta-theta0))",
@@ -53,7 +56,8 @@ _three_body_functional_forms = {
             "K": "[energy]",
             "theta0": "[arcunit]"
         },
-        "description": "This is a cosine/delta potential"
+        "description": "This is a cosine/delta potential",
+        "canonical_form": "cosine/delta",
     },
     "charmm": {
         "form": "K*(theta-theta0)**2 + K_ub*(r13-R_ub)**2",
@@ -64,17 +68,19 @@ _three_body_functional_forms = {
             "K_ub": "[energy] * [length] ** -2",
             "R_ub": "[length]",
         },
-        "description": "A CHARMM angle term?"
+        "description": "A CHARMM angle term?",
+        "canonical_form": "charmm",
     },
     "cosine/periodic": {
         "form": "C * (1-B*((-1)**n) * cos(n*theta))",
         "parameters": ["C", "B", "n"],
         "units": {
             "C": "[energy]",
-            "B": "phase",  #1 or -1
+            "B": "phase",  # 1 or -1
             "n": "count"  # 1 2 3 4 5 or 6
         },
-        "description": "This is a cosine/periodic potential"
+        "description": "This is a cosine/periodic potential",
+        "canonical_form": "cosine/periodic",
     },
     "fourier": {
         "form": "K*(c0+c1*cos(theta)+c2*cos(2*theta))",
@@ -85,18 +91,20 @@ _three_body_functional_forms = {
             "c1": "dimensionless",
             "c2": "dimensionless"
         },
-        "description": "This is a fourier potential"
+        "description": "This is a fourier potential",
+        "canonical_form": "fourier",
     },
     "quartic": {
         "form": "K2*(theta-theta0)**2+K3*(theta-theta0)**3+K4*(theta-theta0)**4",
         "parameters": ["K2", "K3", "K4", "theta0"],
         "units": {
-            "K2": "[energy] * [arcunit]**-2",  #Lammps uses radians
+            "K2": "[energy] * [arcunit]**-2",  # Lammps uses radians
             "K3": "[energy] * [arcunit]**-3",
             "K4": "[energy] * [arcunit]**-4",
-            "theta0": "[arcunit]"  #Lammps converts this to radians
+            "theta0": "[arcunit]"  # Lammps converts this to radians
         },
-        "description": "This is a quartic angle"
+        "description": "This is a quartic angle",
+        "canonical_form": "quartic",
     },
     "cosine/shift": {
         "form": "-U_min / 2 * (1 + cos(theta - theta0))",
@@ -105,7 +113,8 @@ _three_body_functional_forms = {
             "U_min": "[energy]",
             "theta0": "[arcunit]"
         },
-        "description": "This is a cosine/shift angle"
+        "description": "This is a cosine/shift angle",
+        "canonical_form": "cosine/shift",
     },
     "fourier/simple": {
         "form": "K*(1 + c*cos(n*theta))",
@@ -115,7 +124,8 @@ _three_body_functional_forms = {
             "c": "dimensionless",
             "n": "phase",
         },
-        "description": "This is a fourier/simple angle"
+        "description": "This is a fourier/simple angle",
+        "canonical_form": "fourier/simple",
     },
     "restricted": {
         "form": "0.5*K*(cos(theta)-cos(theta0))**2/(sin(theta)**2)",
@@ -124,7 +134,8 @@ _three_body_functional_forms = {
             "K": "[energy]",
             "theta0": "radian",
         },
-        "description": "This is a restricted bending angle found in Gromacs"
+        "description": "This is a restricted bending angle found in Gromacs",
+        "canonical_form": "restricted",
     },
     "quartic_gmx": {
         "form": "K0 + K1*(theta-theta0) + K2*(theta-theta0)**2+K3*(theta-theta0)**3+K4*(theta-theta0)**4",
@@ -135,9 +146,10 @@ _three_body_functional_forms = {
             "K2": "[energy] * [arcunit]**-2",
             "K3": "[energy] * [arcunit]**-3",
             "K4": "[energy] * [arcunit]**-4",
-            "theta0": "[arcunit]", 
+            "theta0": "[arcunit]",
         },
-        "description": "This is a quartic angle found in gmx"
+        "description": "This is a quartic angle found in gmx",
+        "canonical_form": "quartic_gmx",
     },
 
     #"class2": {
@@ -181,7 +193,7 @@ _three_body_functional_forms = {
     # },
 }
 
-### Do NOT edit below this line
+# Do NOT edit below this line
 
 three_body_metadata = {}
 
@@ -205,6 +217,13 @@ three_body_metadata["variables"] = {
     },
 }
 
+_inverted_three_body_conversion = dict()
+for k, v in _three_body_functional_forms.items():
+    if v['canonical_form'] in _inverted_three_body_conversion.keys():
+        _inverted_three_body_conversion[v['canonical_form']].append(k)
+    else:
+        _inverted_three_body_conversion[v['canonical_form']] = [k]
+
 # Add store data
 three_body_metadata["store_name"] = "3body"
 three_body_metadata["store_indices"] = {
@@ -216,3 +235,4 @@ three_body_metadata["store_indices"] = {
 
 three_body_metadata["index_columns"] = ["atom1", "atom2", "atom3"]
 three_body_metadata["forms"] = _three_body_functional_forms
+three_body_metadata["group"] = _inverted_three_body_conversion

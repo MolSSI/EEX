@@ -27,9 +27,9 @@ _four_body_functional_forms = {
             "d": "[arcunit]",
         },
         "description": "This is a charmm dihedral",
-        "canonical_form": "ryckaert_bellemans",
+        "canonical_form": "RB",
     },
-    "multi/harmonic": {
+    "multiharmonic": {
         "form": "A_1 + A_2 * (cos(phi)) + A_3 * (cos(phi)) ** 2 + A_4 * (cos(phi)) ** 3 + A_5 * (cos(phi)) ** (4)",
         "parameters": ["A_1", "A_2", "A_3", "A_4", "A_5"],
         "units": {
@@ -40,9 +40,9 @@ _four_body_functional_forms = {
             "A_5": "[energy]",
         },
         "description": "This is a multi/harmonic dihedral",
-        "canonical_form": "ryckaert_bellemans",
+        "canonical_form": "RB",
     },
-    "ryckaert_bellemans": {
+    "RB": {
         "form": "A_0 + A_1 * (cos(phi)) + A_2 * (cos(phi)) ** 2 + A_3 * (cos(phi)) ** 3 + A_4 * (cos(phi)) ** (4) + A_5 * (cos(phi)) ** (5)",
         "parameters": ["A_0", "A_1", "A_2", "A_3", "A_4", "A_5"],
         "units": {
@@ -55,7 +55,7 @@ _four_body_functional_forms = {
 
         },
         "description": "This is a ryckaert_bellemans",
-        "canonical_form": "ryckaert_bellemans",
+        "canonical_form": "RB",
     },
     # "fourier": {
     #     "form": "Sum(k_i * (1.0 + cos(n_i * phi - d_i)))",
@@ -76,7 +76,7 @@ _four_body_functional_forms = {
             "d": "count"
         },
         "description": "A harmonic dihedral",
-        "canonical_form": "ryckaert_bellemans",
+        "canonical_form": "RB",
     },
     "helix": {
         "form": "A*(1-cos(phi)) + B*(1+cos(3*phi)) + C*(1+cos(phi+PI/4))",
@@ -108,7 +108,7 @@ _four_body_functional_forms = {
             "K_4": "[energy]",
         },
         "description": "This is a opls dihedral",
-        "canonical_form": "ryckaert_bellemans",
+        "canonical_form": "RB",
     },
     "quadratic": {
         "form": "K*(phi-phi0)**2",
@@ -159,7 +159,7 @@ _four_body_functional_forms = {
             "n": "count"
         },
         "description": "This is a cvff improper",
-        "canonical_form": "ryckaert_bellemans",
+        "canonical_form": "RB",
     },
     "distance_improper": {
         "form": "K_2*r**2+K_4*r**4",
@@ -169,7 +169,7 @@ _four_body_functional_forms = {
             "K_4": "[energy] * [length]**4",
         },
         "description": "This is a distance improper",
-        "canonical_form": "ryckaert_bellemans",
+        "canonical_form": "distance_improper",
     },
     "fourier_improper": {
         "form": "K*(C0+C1*cos(omega)+C2*cos(2*omega))",
@@ -181,7 +181,7 @@ _four_body_functional_forms = {
             "C2": "dimensionless",
         },
         "description": "This is a fourier improper",
-        "canonical_form": "ryckaert_bellemans",
+        "canonical_form": "RB",
     },
     "harmonic_improper": {
         "form": "K*(chi-chi0)**2",
@@ -244,4 +244,4 @@ four_body_metadata["store_indices"] = {
 
 four_body_metadata["index_columns"] = ["atom1", "atom2", "atom3", "atom4"]
 four_body_metadata["forms"] = _four_body_functional_forms
-four_body_metadata["canonical_form"] = _inverted_four_body_conversion
+four_body_metadata["group"] = _inverted_four_body_conversion

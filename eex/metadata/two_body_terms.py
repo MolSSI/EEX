@@ -24,7 +24,8 @@ _two_body_functional_forms = {
             "K3": "[energy] * [length] ** -3",
             "K4": "[energy] * [length] ** -4"
         },
-        "description": "This is a class2 bond"
+        "description": "This is a class2 bond",
+        "canonical_form": "class2",
     },
     "fene": {
         "form": "-0.5*K*R0 ** 2 * log(1-(r/R0) ** 2) + 4*epsilon*((sigma/r) ** 12 - (sigma/r) ** 6) + epsilon",
@@ -35,7 +36,8 @@ _two_body_functional_forms = {
             "epsilon": "[energy]",
             "sigma": "[length]"
         },
-        "description": "This is a fene bond!"
+        "description": "This is a fene bond!",
+        "canonical_form": "fene",
     },
     "fene/expand": {
         "form":
@@ -48,8 +50,8 @@ _two_body_functional_forms = {
             "sigma": "[length]",
             "delta": "[length]"
         },
-        "description":
-        "This is fene/expand bond"
+        "description": "This is fene/expand bond",
+        "canonical_form": "fene/expand",
     },
     "harmonic": {
         "form": "K*(r-R0) ** 2",
@@ -58,7 +60,8 @@ _two_body_functional_forms = {
             "K": "[energy] * [length] ** -2",
             "R0": "[length]"
         },
-        "description": "This is a harmonic bond"
+        "description": "This is a harmonic bond",
+        "canonical_form": "harmonic",
     },
     "morse": {
         "form": "D * (1 - exp(-alpha * (r-R0))) ** 2",
@@ -68,7 +71,8 @@ _two_body_functional_forms = {
             "alpha": "[length] ** -1",
             "R0": "[length]"
         },
-        "description": "This is a class2 bond"
+        "description": "This is a class2 bond",
+        "canonical_form": "morse",
     },
     "nonlinear": {
         "form": "(epsilon * (r - R0) ** 2) / ((lam ** 2) - ((r - R0) ** 2))",
@@ -78,7 +82,8 @@ _two_body_functional_forms = {
             "R0": "[length]",
             "lam": "[length]"
         },
-        "description": "This is a nonlinear bond"
+        "description": "This is a nonlinear bond",
+        "canonical_form": "nonlinear",
     },
     "quartic": {
         "form": "K*(r-Rc) ** 2 * (r-Rc-B1)*(r-Rc-B2) + U0 + 4*epsilon*((sigma/r) ** 12 - (sigma/r) ** 6) + epsilon",
@@ -92,7 +97,8 @@ _two_body_functional_forms = {
             "epsilon": "[energy]",
             "sigma": "[energy]"
         },
-        "description": "This is a quartic bond"
+        "description": "This is a quartic bond",
+        "canonical_form": "quartic",
     },
     "harmonic/shift": {
         "form": "U_min/(R0 - R_c)**2 * ((r - R0) ** 2 - (R_c - R0) ** 2)",
@@ -102,7 +108,8 @@ _two_body_functional_forms = {
             "R0": "[length]",
             "R_c": "[length]"
         },
-        "description": "This is a harmonic/shift bond"
+        "description": "This is a harmonic/shift bond",
+        "canonical_form": "harmonic/shift",
     },
     "oxdna/fene": {
         "form": "-epsilon / 2 * log(1 - ((r - R0) / delta)**2 ) ",
@@ -112,18 +119,20 @@ _two_body_functional_forms = {
             "delta": "[length]",
             "R0": "[length]"
         },
-        "description": "This is a oxdna/fene bond"
+        "description": "This is a oxdna/fene bond",
+        "canonical_form": "oxdna/fene",
     },
-    "fourth_power": {       #Only found in gromacs
+    "fourth_power": {  # Only found in gromacs
         "form": "0.25*K*(r**2 - R0**2)**2",
         "parameters": ["K", "R0"],
         "units": {
             "K": "[energy] [length] ** -4",
             "R0": "[length]"
         },
-        "description": "This is a fourth_power bond. Used in GROMOS force field"
+        "description": "This is a fourth_power bond. Used in GROMOS force field",
+        "canonical_form": "fourth_power",
     },
-    "cubic_bond": {       #Only found in gromacs
+    "cubic_bond": {  # Only found in gromacs
         "form": "K*(r - R0)**2 + K * K_cub * (r-R0)**3",
         "parameters": ["K", "K_cub", "R0"],
         "units": {
@@ -131,17 +140,25 @@ _two_body_functional_forms = {
             "K_cub": "[length] ** -1",
             "R0": "[length]"
         },
-        "description": "This is a cubic_bond potential. Found in GROMACS"
+        "description": "This is a cubic_bond potential. Found in GROMACS",
+        "canonical_form": "cubic_bond",
     },
 }
 
-### Please do not edit below this line
+# Please do not edit below this line
 
 # Internal store name
 two_body_metadata = {}
 
 # Valid variables used in all two-body terms
 two_body_metadata["variables"] = {"r": {"units": "[length]", "description": "Distance between the two indexed atoms."}}
+
+_inverted_two_body_conversion = dict()
+for k, v in _two_body_functional_forms.items():
+    if v['canonical_form'] in _inverted_two_body_conversion.keys():
+        _inverted_two_body_conversion[v['canonical_form']].append(k)
+    else:
+        _inverted_two_body_conversion[v['canonical_form']] = [k]
 
 # Add store data
 two_body_metadata["store_name"] = "2body"
@@ -152,3 +169,4 @@ two_body_metadata["store_indices"] = {
 }
 two_body_metadata["index_columns"] = ["atom1", "atom2"]
 two_body_metadata["forms"] = _two_body_functional_forms
+two_body_metadata["group"] = _inverted_two_body_conversion
