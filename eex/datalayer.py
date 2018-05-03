@@ -264,7 +264,7 @@ class DataLayer(object):
         # Check the columns of the dataframe
         for col in scaling_df.columns:
             if col not in possible_columns:
-                raise KeyError("Column %s not recognized in set_pair_scalings." % (col))
+                raise KeyError ("Column '%s' not recognized in set_pair_scalings." %(col))
 
         # Check to make sure atom_type1 and atom_type2 are set in dataframe
         for col in metadata.additional_metadata.nb_scaling["index"]:
@@ -280,10 +280,12 @@ class DataLayer(object):
 
         # Check that scalings are type float
 
+        # Determine 'order' of each interaction (if it is bonded will be 2, angle 3, dihedral 4)
+
         # Build multi-level indexer
         index = pd.MultiIndex.from_arrays([scaling_df["atom_index1"], scaling_df["atom_index2"]])
 
-        for l in ["vdw_scale", "coul_scale"]:
+        for l in metadata.additional_metadata.nb_scaling["data"]:
             if l in scaling_df.columns:
                 df = pd.Series(scaling_df[l].tolist(), index=index)
                 self.store.add_table(l, df)
@@ -301,6 +303,7 @@ class DataLayer(object):
         Returns
         ------------------------------------
             pd.DataFrame
+                Columns: [ atom_index1, atom_index2, vdw_scale, coul_scale ]
         """
 
         for k in nb_labels:
@@ -329,6 +332,7 @@ class DataLayer(object):
             for scale, val in v.items():
                 order = int(scale[-1])
                 terms = self.get_terms(order)
+
                 store_df = pd.DataFrame()
 
                 store_df["atom_index1"] = terms["atom1"]
@@ -1165,6 +1169,44 @@ class DataLayer(object):
         form = metadata.get_term_metadata(order, "forms", data[0])["form"]
 
         return (data[0], form)
+
+    def query_atom_pair(self, atom1_index, atom2_index):
+        """
+        Checks whether atoms are connected through a bond, angle, or dihedral.
+
+        Parameters
+        --------------------
+        atom_index1: int
+        atom_index2: int
+
+        Returns
+        --------------------
+            orders: list
+                Order of atom interaction. None is returned if atom pair is not involved in bond, angle, or dihedral
+        """
+
+        # Sanitize order of atom indices
+        if atom2_index < atom1_index:
+            tmp = atom1_index
+            atom_index1 = atom2_index
+            atom_index2 = tmp
+
+        orders = []
+
+        for o in [2, 3, 4]:
+            terms = self.get_terms(o)
+
+            v_col_name = [terms.columns[-2]]
+
+            #if not terms.query("atom1 == @atom1_index and @v_col_name == @atom2_index").empty():
+            #    orders.append(o)
+
+        if orders == []:
+            orders = None
+
+        return orders
+
+
 
     def summary(self):
         print("EEX DataLayer Object\n")
