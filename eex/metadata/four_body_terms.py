@@ -26,11 +26,12 @@ _four_body_functional_forms = {
             "n": "count",
             "d": "[arcunit]",
         },
-        "description": "This is a charmm dihedral"
+        "description": "This is a charmm dihedral",
+        "canonical_form": "RB",
     },
-    "multi/harmonic": {
+    "multiharmonic": {
         "form": "A_1 + A_2 * (cos(phi)) + A_3 * (cos(phi)) ** 2 + A_4 * (cos(phi)) ** 3 + A_5 * (cos(phi)) ** (4)",
-        "parameters": ["A_1","A_2","A_3", "A_4", "A_5"],
+        "parameters": ["A_1", "A_2", "A_3", "A_4", "A_5"],
         "units": {
             "A_1": "[energy]",
             "A_2": "[energy]",
@@ -38,11 +39,12 @@ _four_body_functional_forms = {
             "A_4": "[energy]",
             "A_5": "[energy]",
         },
-        "description": "This is a multi/harmonic dihedral"
+        "description": "This is a multi/harmonic dihedral",
+        "canonical_form": "RB",
     },
-    "ryckaert_bellemans": {
+    "RB": {
         "form": "A_0 + A_1 * (cos(phi)) + A_2 * (cos(phi)) ** 2 + A_3 * (cos(phi)) ** 3 + A_4 * (cos(phi)) ** (4) + A_5 * (cos(phi)) ** (5)",
-        "parameters": ["A_0", "A_1","A_2","A_3", "A_4", "A_5"],
+        "parameters": ["A_0", "A_1", "A_2", "A_3", "A_4", "A_5"],
         "units": {
             "A_0": "[energy]",
             "A_1": "[energy]",
@@ -52,7 +54,8 @@ _four_body_functional_forms = {
             "A_5": "[energy]",
 
         },
-        "description": "This is a ryckaert_bellemans"
+        "description": "This is a ryckaert_bellemans",
+        "canonical_form": "RB",
     },
     # "fourier": {
     #     "form": "Sum(k_i * (1.0 + cos(n_i * phi - d_i)))",
@@ -72,7 +75,8 @@ _four_body_functional_forms = {
             "n": "phase",  # + / 1
             "d": "count"
         },
-        "description": "A harmonic dihedral"
+        "description": "A harmonic dihedral",
+        "canonical_form": "RB",
     },
     "helix": {
         "form": "A*(1-cos(phi)) + B*(1+cos(3*phi)) + C*(1+cos(phi+PI/4))",
@@ -82,7 +86,8 @@ _four_body_functional_forms = {
             "B": "[energy]",
             "C": "[energy]"
         },
-        "description": "This is a helix dihedral"
+        "description": "This is a helix dihedral",
+        "canonical_form": "helix",
     },
     # "nharmonic": {
     #     "form": "Sum( A_n*(cos(phi))**(n-1))",
@@ -102,7 +107,8 @@ _four_body_functional_forms = {
             "K_3": "[energy]",
             "K_4": "[energy]",
         },
-        "description": "This is a opls dihedral"
+        "description": "This is a opls dihedral",
+        "canonical_form": "RB",
     },
     "quadratic": {
         "form": "K*(phi-phi0)**2",
@@ -111,7 +117,8 @@ _four_body_functional_forms = {
             "K": "[energy]",
             "phi0": "[arcunit]"
         },
-        "description": "This is a quadratic dihedral"
+        "description": "This is a quadratic dihedral",
+        "canonical_form": "quadratic",
     },
     "restricted": {
         "form": "0.5*K*(cos(phi)-cos(phi0))**2/(sin(phi)**2)",
@@ -119,13 +126,14 @@ _four_body_functional_forms = {
         "units": {
             "K": "[energy]",
             "phi0": "[arcunit]",
-        },  
-        "description": "This is a restricted bending angle found in Gromacs"
-    },  
+        },
+        "description": "This is a restricted bending angle found in Gromacs",
+        "canonical_form": "restricted",
+    },
 
 
 
-    #######IMPROPERS START HERE
+    # IMPROPERS START HERE
     #"class2_improper": {},
     #"hybrid_improper": {},
     #"none_improper": {},
@@ -139,7 +147,8 @@ _four_body_functional_forms = {
             "K": "[energy]",
             "chi0": "[arcunit]"
         },
-        "description": "This is a cossq improper"
+        "description": "This is a cossq improper",
+        "canonical_form": "cossq_improper",
     },
     "cvff_improper": {
         "form": "K*(1+d*cos(n*chi))",
@@ -149,7 +158,8 @@ _four_body_functional_forms = {
             "d": "phase",
             "n": "count"
         },
-        "description": "This is a cvff improper"
+        "description": "This is a cvff improper",
+        "canonical_form": "RB",
     },
     "distance_improper": {
         "form": "K_2*r**2+K_4*r**4",
@@ -158,7 +168,8 @@ _four_body_functional_forms = {
             "K_2": "[energy] * [length]**2",
             "K_4": "[energy] * [length]**4",
         },
-        "description": "This is a distance improper"
+        "description": "This is a distance improper",
+        "canonical_form": "distance_improper",
     },
     "fourier_improper": {
         "form": "K*(C0+C1*cos(omega)+C2*cos(2*omega))",
@@ -169,7 +180,8 @@ _four_body_functional_forms = {
             "C1": "dimensionless",
             "C2": "dimensionless",
         },
-        "description": "This is a fourier improper"
+        "description": "This is a fourier improper",
+        "canonical_form": "RB",
     },
     "harmonic_improper": {
         "form": "K*(chi-chi0)**2",
@@ -178,11 +190,12 @@ _four_body_functional_forms = {
             "K": "[energy]",
             "chi0": "[arcunit]",
         },
-        "description": "This is a harmonic improper"
+        "description": "This is a harmonic improper",
+        "canonical_form": "harmonic_improper",
     },
 }
 
-### Do NOT edit below this line
+# Do NOT edit below this line
 
 four_body_metadata = {}
 
@@ -212,6 +225,13 @@ four_body_metadata["variables"] = {
     }
 }
 
+_inverted_four_body_conversion = dict()
+for k, v in _four_body_functional_forms.items():
+    if v['canonical_form'] in _inverted_four_body_conversion.keys():
+        _inverted_four_body_conversion[v['canonical_form']].append(k)
+    else:
+        _inverted_four_body_conversion[v['canonical_form']] = [k]
+
 # Add store data
 four_body_metadata["store_name"] = "4body"
 four_body_metadata["store_indices"] = {
@@ -224,3 +244,4 @@ four_body_metadata["store_indices"] = {
 
 four_body_metadata["index_columns"] = ["atom1", "atom2", "atom3", "atom4"]
 four_body_metadata["forms"] = _four_body_functional_forms
+four_body_metadata["group"] = _inverted_four_body_conversion

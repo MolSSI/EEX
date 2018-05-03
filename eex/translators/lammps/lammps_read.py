@@ -18,9 +18,9 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
     if not isinstance(extra_simulation_data, dict):
         raise TypeError("Validate term dict: Extra simulation data type '%s' not understood" % str(type(extra_simulation_data)))
 
-    # This is a list of keywords needed from the input file. 
+    # This is a list of keywords needed from the input file.
     # This list depends on the molecule topology (for instance, ethane does
-    # not require 'dihedral_style' information, but butane does. 
+    # not require 'dihedral_style' information, but butane does.
     # More keywords will be appended as required when reader the header
     # section
     # At the very least we need 'units' in the extra_simulation_data dict
@@ -38,8 +38,7 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
     startline = None
     current_data_category = None
 
-
-    # Category_list contains keywords of data file e.g. Atoms, Masses, 
+    # Category_list contains keywords of data file e.g. Atoms, Masses,
     # Bond Coeffs, etc.
     category_list = lmd.build_valid_category_list()
 
@@ -55,9 +54,9 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
             continue
 
         # Evaluate if line contains any keyword contained in category list. If
-        # True, it means we have read all the required information in the 
+        # True, it means we have read all the required information in the
         # header section. The variable start line is where the header ends
-        # and data begins. At this point, the variable current_data_category 
+        # and data begins. At this point, the variable current_data_category
         # holds the first data section in the data file
         elif eex.utility.fuzzy_list_match(line, category_list)[0]:
             startline = num + 3  # Skips first row and two blank lines
@@ -76,7 +75,7 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
             dline = line.split()
             if dline[-1] == "xhi":
                 box_size["x"] = float(dline[1]) - float(dline[0])
-                box_center["x"] = box_size["x"]/2. + float(dline[0])
+                box_center["x"] = box_size["x"] / 2. + float(dline[0])
             elif dline[-1] == "yhi":
                 box_size["y"] = float(dline[1]) - float(dline[0])
                 box_center["y"] = box_size["y"] / 2. + float(dline[0])
@@ -106,9 +105,9 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
 
             # If we found keywords such as 'Angle types' that means we need
             # to provide 'Angle style' in the input file (and in the extra
-            # simulation data dictionary). This is important for smaller 
+            # simulation data dictionary). This is important for smaller
             # molecules such as ethane or propane that do not have Angles or
-            # Dihedrals. 
+            # Dihedrals.
 
             if 'types' in size_name and size > 0:
                 needed_keywords.append(size_name.replace('types', 'style').replace(" ", "_"))
@@ -116,8 +115,7 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
         else:
             raise IOError("LAMMPS Read: Line not understood!\n%s" % line)
 
-
-    # We have now a list of the needed keywords based on the topology. 
+    # We have now a list of the needed keywords based on the topology.
     # Needed_keywords contains at least ["units"], but can also contain
     # ["units", "bond_style", "angle_style", ...]
     for keyword in needed_keywords:
@@ -142,7 +140,7 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
                     raise KeyError("Could not find dihedral style '%s'." % dihedral_style)
             elif keyword == 'atom_style':
                 atom_style = extra_simulation_data['atom_style']
-                if atom_style not in lmd.atom_style: 
+                if atom_style not in lmd.atom_style:
                     raise KeyError("Could not find atom style '%s'." % atom_style)
             else:
                 raise KeyError("Key %s not understood. " % keyword)
@@ -161,16 +159,16 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
     if ("atoms" not in list(sizes_dict)) or ("atom types" not in list(sizes_dict)):
         raise IOError("LAMMPS Read: Did not find size data on 'atoms' or 'atom types' in %d header lines." % max_rows)
 
-    # sizes_dict["Pair types"] is relevant if we need to specify 
+    # sizes_dict["Pair types"] is relevant if we need to specify
     # cross interactions explicitly
     sizes_dict["pair types"] = sizes_dict["atom types"] * (sizes_dict["atom types"] + 1) / 2
 
-    # Create temporaries (op_table, term_table), specific to the current unit 
+    # Create temporaries (op_table, term_table), specific to the current unit
     # specification
     # op_table is a dictionary of dictionaries. Its keys are the keywords
     # of the Lammps data file i.e. 'Atoms', 'Bonds', 'Dihedral coeffs', etc.
     # Each key, i.e. Atoms, has a value that is a dictionary. The keys for
-    # these nested dictionaries are 
+    # these nested dictionaries are
     # ['size', 'dl_func', 'df_cols', 'kwargs', 'call_type']
     op_table = lmd.build_operation_table(extra_simulation_data, sizes_dict)
 
@@ -185,11 +183,7 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
     # with the desired units
     nb_term_table = lmd.build_nb_table(unit_style)
 
-
-
-
-
-    ### Iterate over the primary data portion of the object
+    # Iterate over the primary data portion of the object
 
     reader = pd.read_table(
         filename,
@@ -261,9 +255,9 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
                 for idx, row in data.iterrows():
 
                     op["kwargs"]["nb_parameters"] = row[['epsilon', 'sigma']].to_dict()
-                    if len(uid_list)==1:
+                    if len(uid_list) == 1:
                         op["kwargs"]["atom_type"] = int(row['uid0'])
-                    elif len(uid_list)==2:
+                    elif len(uid_list) == 2:
                         op["kwargs"]["atom_type"] = int(row['uid0'])
                         op["kwargs"]["atom_type2"] = int(row['uid1'])
                     dl.call_by_string(op["dl_func"], **op["kwargs"])
@@ -289,24 +283,40 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
     #data["sizes"] = sizes_dict
     #data["header"] = header
 
-    #return data
+    # return data
+
 
 def get_bond_coeff():
     pass
+
+
 def get_angle_coeff():
     pass
+
+
 def get_diherdal_coeff():
     pass
+
+
 def get_include():
     pass
+
+
 def get_variable():
     pass
+
+
 def get_pair_style():
     pass
+
+
 def kspace_style():
     pass
+
+
 def pair_modify():
     pass
+
 
 def read_lammps_input_file(dl, fname, blocksize=110):
     """
@@ -321,7 +331,8 @@ def read_lammps_input_file(dl, fname, blocksize=110):
     input_file = eex.utility.read_lines(fname)
 
     for lnum, line in enumerate(input_file):
-        if len(line) == 0: continue
+        if len(line) == 0:
+            continue
 
         # Handle variables
         if "$" in line:
@@ -331,7 +342,7 @@ def read_lammps_input_file(dl, fname, blocksize=110):
                 variable_values = variable_list[variable_name]["values"]
                 # Need to fix this
                 line = re.sub('\$\{(.*?)\}', variable_values[0], line)
-                
+
             except KeyError:
                 raise KeyError("The variable %s has not been defined" % variable_name)
 
@@ -381,38 +392,38 @@ def read_lammps_input_file(dl, fname, blocksize=110):
 
 def get_special_bonds():
     exclusions = {}
-    special_bonds_keywords = re.findall("[a-zA-Za-z\/]+", " ".join(keyword_opts)) 
+    special_bonds_keywords = re.findall("[a-zA-Za-z\/]+", " ".join(keyword_opts))
     for idx, exclusions_keyword in enumerate(special_bonds_keywords):
         if exclusions_keyword in lmd.exclusions.keys():
             if (exclusions_keyword == 'lj'):
                 exclusions["lj"] = {}
-                exclusions["lj"]["scale12"] = float(keyword_opts[idx+1])
-                exclusions["lj"]["scale13"] = float(keyword_opts[idx+2])
-                exclusions["lj"]["scale14"] = float(keyword_opts[idx+3])
+                exclusions["lj"]["scale12"] = float(keyword_opts[idx + 1])
+                exclusions["lj"]["scale13"] = float(keyword_opts[idx + 2])
+                exclusions["lj"]["scale14"] = float(keyword_opts[idx + 3])
             elif (exclusions_keyword == 'coul'):
                 exclusions["coul"] = {}
-                exclusions["coul"]["scale12"] = float(keyword_opts[idx+1])
-                exclusions["coul"]["scale13"] = float(keyword_opts[idx+2])
-                exclusions["coul"]["scale14"] = float(keyword_opts[idx+3])
+                exclusions["coul"]["scale12"] = float(keyword_opts[idx + 1])
+                exclusions["coul"]["scale13"] = float(keyword_opts[idx + 2])
+                exclusions["coul"]["scale14"] = float(keyword_opts[idx + 3])
             elif (exclusions_keyword == 'lj/coul'):
                 exclusions["lj"] = {}
-                exclusions["lj"]["scale12"] = float(keyword_opts[idx+1])
-                exclusions["lj"]["scale13"] = float(keyword_opts[idx+2])
-                exclusions["lj"]["scale14"] = float(keyword_opts[idx+3])
+                exclusions["lj"]["scale12"] = float(keyword_opts[idx + 1])
+                exclusions["lj"]["scale13"] = float(keyword_opts[idx + 2])
+                exclusions["lj"]["scale14"] = float(keyword_opts[idx + 3])
                 exclusions["coul"] = {}
                 exclusions["coul"]["scale12"] = exclusions["lj"]["scale12"]
                 exclusions["coul"]["scale13"] = exclusions["lj"]["scale13"]
                 exclusions["coul"]["scale14"] = exclusions["lj"]["scale14"]
-            else: 
+            else:
                 exclusions["coul"] = lmd.exclusions[exclusion_keyword]["coul"]
                 exclusions["lj"] = lmd.exclusions[exclusion_keyword]["lj"]
         elif exclusions_keyword in lmd.exclusions["additional_keywords"]:
             raise Exception("Keyword %s is not currently supported", exclusion_keyword)
-    
+
     if "coul" not in exclusions:
         exclusions["coul"] = lmd.exclusions["default"]["coul"]
     if "lj" not in exclusions:
         exclusions["lj"] = lmd.exclusions["default"]["lj"]
-       
+
     return exclusions
     # dl.set_exclusions(exclusions)
