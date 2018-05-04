@@ -1189,13 +1189,11 @@ class DataLayer(object):
 
             if not terms.empty:
                 v_col_name = terms.columns.tolist()[-2]
-
                 a1 = terms['atom1'] == atom1_index
-
                 a2 = terms[v_col_name] == atom2_index
 
-            if not terms[a1 & a2].empty:
-                orders = ord
+                if not terms[a1 & a2].empty:
+                    orders = ord
 
         return orders
 
