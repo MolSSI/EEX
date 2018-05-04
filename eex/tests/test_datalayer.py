@@ -698,6 +698,9 @@ def test_set_nb_scaling_factors():
 
     dl.add_bonds(bond_df)
 
+    # Check dl.query_atom_pair
+    assert dl.query_atom_pair(1, 2) == 2
+
     # Add an angle
     angle_df = pd.DataFrame()
     angle_data = np.array([[0,1,2,0]])
@@ -707,6 +710,9 @@ def test_set_nb_scaling_factors():
         angle_df[name] = angle_data[:,num]
     
     dl.add_angles(angle_df)
+
+    # Check dl.query_atom_pair
+    assert dl.query_atom_pair(0, 2) == 3
 
     scaling_factors = {
         "coul": {

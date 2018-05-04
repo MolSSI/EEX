@@ -279,9 +279,6 @@ class DataLayer(object):
             raise ValueError("No scaling factors set in set_pair_scalings")
 
         # Check that scalings are type float
-
-        # Determine 'order' of each interaction (if it is bonded will be 2, angle 3, dihedral 4)
-
         # Build multi-level indexer
         index = pd.MultiIndex.from_arrays([scaling_df["atom_index1"], scaling_df["atom_index2"]])
 
@@ -1181,28 +1178,24 @@ class DataLayer(object):
 
         Returns
         --------------------
-            orders: list
+            orders: int
                 Order of atom interaction. None is returned if atom pair is not involved in bond, angle, or dihedral
         """
 
-        # Sanitize order of atom indices
-        if atom2_index < atom1_index:
-            tmp = atom1_index
-            atom_index1 = atom2_index
-            atom_index2 = tmp
+        orders = None
 
-        orders = []
+        for ord in [2, 3, 4]:
+            terms = self.get_terms(ord)
 
-        for o in [2, 3, 4]:
-            terms = self.get_terms(o)
+            if not terms.empty:
+                v_col_name = terms.columns.tolist()[-2]
 
-            v_col_name = [terms.columns[-2]]
+                a1 = terms['atom1'] == atom1_index
 
-            #if not terms.query("atom1 == @atom1_index and @v_col_name == @atom2_index").empty():
-            #    orders.append(o)
+                a2 = terms[v_col_name] == atom2_index
 
-        if orders == []:
-            orders = None
+            if not terms[a1 & a2].empty:
+                orders = ord
 
         return orders
 
