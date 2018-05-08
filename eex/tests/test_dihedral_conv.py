@@ -10,13 +10,16 @@ import pytest
 
 def _rb_eval(rb_coeffs):
     phi = np.linspace(-10, 10, 100)
-    A_0 = rb_coeffs['A_0']
-    A_1 = rb_coeffs['A_1']
-    A_2 = rb_coeffs['A_2']
-    A_3 = rb_coeffs['A_3']
-    A_4 = rb_coeffs['A_4']
-    A_5 = rb_coeffs['A_5']
-    e_rb = A_0 + A_1 * (np.cos(phi)) + A_2 * (np.cos(phi)) ** 2 + A_3 * (np.cos(phi)) ** 3 + A_4 * (np.cos(phi)) ** (4) + A_5 * (np.cos(phi)) ** (5)
+    e_charmm = np.zeros(len(phi))
+
+    for k, v in rb_coeffs.items():
+        A_0 = rb_coeffs['A_0']
+        A_1 = rb_coeffs['A_1']
+        A_2 = rb_coeffs['A_2']
+        A_3 = rb_coeffs['A_3']
+        A_4 = rb_coeffs['A_4']
+        A_5 = rb_coeffs['A_5']
+        e_rb = A_0 + A_1 * (np.cos(phi)) + A_2 * (np.cos(phi)) ** 2 + A_3 * (np.cos(phi)) ** 3 + A_4 * (np.cos(phi)) ** (4) + A_5 * (np.cos(phi)) ** (5)
     return e_rb
 
 
@@ -32,7 +35,9 @@ def _opls_eval(opls_coeffs):
 def _charmm_eval(charmm_coeffs):
     x = np.linspace(-10, 10, 100)
     e_charmm = np.zeros(len(x))
-    e_charmm += charmm_coeffs["K"] * (1 + np.cos(charmm_coeffs["n"] * x - charmm_coeffs["d"]))
+
+    for k, v in charmm_coeffs.items():
+        e_charmm += v["K"] * (1 + np.cos(v["n"] * x - v["d"]))
     return e_charmm
 
 
@@ -49,14 +54,15 @@ def test_rb_to_charmm_exceptions(coeffs):
         charmm_coeffs = eex.form_converters.convert_form(4, rb_coeffs, 'RB', 'charmmfsw')
 
 
-@pytest.mark.parametrize("knd", [(0.0, 1.0, np.pi),
-                                 (4.0, 0.0, np.pi),
-                                 (4.0, 0.0, -np.pi),
-                                 (4.0, 6.0, 0.0)])
+@pytest.mark.parametrize("knd", [(0.0, 1, np.pi),
+                                 (4.0, 0, np.pi),
+                                 (4.0, 0, -np.pi),
+                                 (4.0, 6, 0.0)])
 def test_charmm_to_rb_exceptions(knd):
 
     K, n, d = knd
-    charmm_coeffs = {'K': K, 'n': n, 'd': d}
+    charmm_coeffs = dict()
+    charmm_coeffs[n] = {'K': K, 'n': n, 'd': d}
     with pytest.raises(ValueError):
         rb_coeffs = eex.form_converters.convert_form(4, charmm_coeffs, 'charmmfsw', 'RB')
 
@@ -65,7 +71,8 @@ def test_charmm_to_rb_exceptions(knd):
 @pytest.mark.parametrize("n", [1, 2, 3, 4])
 @pytest.mark.parametrize("d", [-np.pi, 0.0, np.pi])
 def test_charmm_to_rb_loop(K, n, d):
-    charmm_coeffs = {'K': K, 'n': n, 'd': d}
+    charmm_coeffs = dict()
+    charmm_coeffs[1] = {'K': K, 'n': n, 'd': d}
     rb_coeffs = eex.form_converters.convert_form(4, charmm_coeffs, 'charmmfsw', 'RB')
     e_charmm1 = _charmm_eval(charmm_coeffs)
     e_rb = _rb_eval(rb_coeffs)
@@ -87,6 +94,44 @@ def test_opls_to_rb_loop():
     opls_coeffs = eex.form_converters.convert_form(4, rb_coeffs, 'RB', 'opls')
     e_opls = _opls_eval(opls_coeffs)
     assert np.allclose(e_opls, e_rb)
+
+
+# def _generate_params(form_type):
+#     if form_type == 'opls':
+#         const = 10.0 * (2 * np.random.random(4) - 1.0)
+#         coeffs = {'K_1': const[0], 'K_2': const[1], 'K_3': const[2], 'K_4': const[3]}
+#     if form_type == 'charmmfsw':
+#         n_orders = np.random.randint(5)
+#         coeffs = dict()
+#         for k in range(1, n_orders):
+#             coeffs[k] = dict()
+#             coeffs[k]['n'] = k
+#             coeffs[k]['K'] = 10 * (2 * np.random.random() - 1.0)
+#             coeffs[k]['d'] = np.round(np.random.random()) * np.pi
+#     if form_type == 'RB':
+#         coeffs = dict()
+#         for idx in range(0, 6):
+#             coeffs['A_' + str(idx)] = 10.0 * (2 * np.random.random() - 1.0)
+#         coeffs['A_5'] = 0.0
+#     return coeffs
+
+
+# @pytest.mark.parametrize("type_1", ['opls', 'charmmfsw', 'RB'])
+# @pytest.mark.parametrize("type_2", ['opls', 'charmmfsw', 'RB'])
+# def test_quick(type_1, type_2):
+
+#     type_1_coeffs = _generate_params(type_1)
+#     type_2_coeffs = eex.form_converters.convert_form(4, type_1_coeffs, type_1, type_2)
+
+
+# opls_coeffs = {'K_1': 5.9037668417599996, 'K_2': -1.1339262997600001, 'K_3': 13.15880003896, 'K_4': 0.0}
+# rb_coeffs = eex.form_converters.convert_form(4, opls_coeffs, 'opls', 'RB')
+# e_opls = _opls_eval(opls_coeffs)
+# e_rb = _rb_eval(rb_coeffs)
+# assert np.allclose(e_opls, e_rb)
+# charmm_coeffs = eex.form_converters.convert_form(4, rb_coeffs, 'RB', 'charmmfsw')
+# e_charmm = _charmm_eval(charmm_coeffs)
+# assert np.allclose(e_rb, e_charmm)
 
 
 @pytest.mark.parametrize("coeffs", [(0.0, 0.0, 0.0, 0.0),
