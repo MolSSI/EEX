@@ -3,6 +3,7 @@ Converts various dihedral forms to other equivalents.
 """
 import numpy as np
 from .converter_registry import register_converter
+from scipy.special import comb
 
 
 def _alternating_signs(n):
@@ -23,12 +24,34 @@ def _cosnx(n):
         Converts Cos(n*x) to a polynomial of cosines whose coefficients are given by a
         Chebyshev polynomial
     """
+
     p = np.polynomial.chebyshev.Chebyshev.basis(n)
     return p.convert(kind=np.polynomial.Polynomial)
 
 
+def _cosx_n(n):
+    ret = np.zeros(n + 1)
+    if (n % 2 == 0):
+        for k in range(0, n // 2):
+            idx = n - 2 * k
+            ret[idx] = comb(n, k)
+        ret = ret * 2 / (2**n)
+        ret[0] += 1 / (2**n) * comb(n, n // 2)
+    else:
+
+        for k in range(0, (n - 1) // 2 + 1):
+            idx = n - 2 * k
+            ret[idx] = comb(n, k)
+        ret = ret * 2 / (2**n)
+
+    return ret
+
+
 @register_converter(order=4)
 def _RB_to_RB(coeffs):
+    if not isinstance(coeffs, dict):
+        raise TypeError("RB to RB dihedral conversion requires an input dictionary")
+
     return coeffs
 
 
@@ -39,6 +62,9 @@ def _opls_to_RB(coeffs):
 
         opls form:"0.5*K_1*(1+cos(phi)) + 0.5 * K_2 * (1-cos(2*phi)) + 0.5 * K_3 * (1+cos(3*phi)) + 0.5 * K_4 * (1-cos(4*phi))"
     """
+
+    if not isinstance(coeffs, dict):
+        raise TypeError("OPLS to RB dihedral conversion requires an input dictionary")
 
     k_1 = coeffs['K_1']
     k_2 = coeffs['K_2']
@@ -62,6 +88,9 @@ def _opls_to_RB(coeffs):
 
 @register_converter(order=4)
 def _RB_to_opls(coeffs):
+
+    if not isinstance(coeffs, dict):
+        raise TypeError("RB to OPLS dihedral conversion requires an input dictionary")
 
     a_0 = coeffs['A_0']
     a_1 = coeffs['A_1']
@@ -89,47 +118,52 @@ def _RB_to_opls(coeffs):
 @register_converter(order=4)
 def _charmmfsw_to_RB(coeffs):
 
+    if not isinstance(coeffs, dict):
+        raise TypeError("CHARMM to RB dihedral conversion requires an input dictionary")
+
+    tmp = np.zeros(6)
+    for k, v in coeffs.items():
+
+        n = coeffs[k]['n']
+        d = coeffs[k]['d']
+        k = coeffs[k]['K']
+
+        if n > 5:
+            raise ValueError("CHARMM to RB dihedral conversion not possible. The multiplicity value n in the CHARMM dihedral must be less than 5")
+
+        if n < 0:
+            raise ValueError("CHARMM to RB dihedral conversion not possible. The multiplicity must be a positive integer.")
+        # Make sure d is either 0.0, pi, 2pi, 3pi, 4pi.
+        # TODO: Need to generalize for other values of d.
+
+        if n == 0 and d % np.pi == 0:
+            raise ValueError("CHARMM to RB dihedral conversion not possible. The CHARMM dihedral energy is zero.")
+
+        if k == 0:
+            raise ValueError("CHARMM to RB dihedral conversion not possible. The CHARMM dihedral energy is zero.")
+
+        if not np.isclose(d % np.pi, 0.0):
+            raise ValueError("CHARMM to RB dihedral conversion not possible. The CHARMM phase shift d is not a multiple of PI.")
+
+        div = np.abs(d / np.pi)
+        p = list(_alternating_signs(div) * _cosnx(n))
+
+        for i in range(0, len(p)):
+            tmp[i] = p[i] * k
+        tmp[0] += k
+
     ret = dict()
 
-    n = coeffs['n']
-    d = coeffs['d']
-    k = coeffs['K']
-
-    if n > 5:
-        raise ValueError("CHARMM to RB dihedral conversion not possible. The multiplicity value n in the CHARMM dihedral must be less than 5")
-
-    if n < 0:
-        raise ValueError("CHARMM to RB dihedral conversion not possible. The multiplicity must be a positive integer.")
-    # Make sure d is either 0.0, pi, 2pi, 3pi, 4pi.
-    # TODO: Need to generalize for other values of d.
-
-    if n == 0 and d % np.pi == 0:
-        raise ValueError("CHARMM to RB dihedral conversion not possible. The CHARMM dihedral energy is zero.")
-
-    if k == 0:
-        raise ValueError("CHARMM to RB dihedral conversion not possible. The CHARMM dihedral energy is zero.")
-
-    if not np.isclose(d % np.pi, 0.0):
-        raise ValueError("CHARMM to RB dihedral conversion not possible. The CHARMM phase shift d is not a multiple of PI.")
-
-    div = np.abs(d / np.pi)
-    p = list(_alternating_signs(div) * _cosnx(n))
-    ret = dict()
-    ret["A_0"] = 0.0
-    ret["A_1"] = 0.0
-    ret["A_2"] = 0.0
-    ret["A_3"] = 0.0
-    ret["A_4"] = 0.0
-    ret["A_5"] = 0.0
-
-    for i in range(0, len(p)):
-        ret['A_' + str(i)] = p[i] * k
-    ret["A_0"] = ret["A_0"] + k
+    for idx in range(0, len(tmp)):
+        ret['A_' + str(idx)] = tmp[idx]
     return ret
 
 
 @register_converter(order=4)
 def _RB_to_charmmfsw(coeffs):
+
+    if not isinstance(coeffs, dict):
+        raise TypeError("RB to CHARMM dihedral conversion requires an input dictionary")
 
     a_0 = coeffs['A_0']
     a_1 = coeffs['A_1']
@@ -138,26 +172,32 @@ def _RB_to_charmmfsw(coeffs):
     a_4 = coeffs['A_4']
     a_5 = coeffs['A_5']
 
-    # TODO probably we need a more robust way of doing this
+    # TODO probably we need a more efficient way of doing this
     rb_coeffs = np.array([a_0, a_1, a_2, a_3, a_4, a_5])
 
     if(np.all(rb_coeffs == 0)):
         raise ValueError('All the coefficients of this dihedral are zero.')
 
-    nz = np.nonzero(rb_coeffs)[0]
-    n = np.max(nz)
-    p = list(_cosnx(n))
-    idx = np.nonzero(rb_coeffs)[0][-1]
-    if idx == 0:
-        k = rb_coeffs[idx] / (p[idx] + 1)
-    else:
-        k = rb_coeffs[idx] / p[idx]
+    nz = np.nonzero(rb_coeffs)
+    charmm_coeffs = np.zeros(np.size(rb_coeffs))
+    for order in nz[0]:
+        tmp = rb_coeffs[order] * _cosx_n(order)
+        tmp.resize(charmm_coeffs.shape)
+        charmm_coeffs += tmp
+
     ret = dict()
-    ret['n'] = n
-    ret['K'] = np.abs(k)
-    if k < 0.0:
-        ret['d'] = np.pi
-    else:
-        ret['d'] = 0.0
+    for order, coeff in enumerate(charmm_coeffs):
+        if order is 0:
+            continue
+        if np.isclose(coeff, 0.0):
+            continue
+        ret[order] = dict()
+        ret[order]['n'] = order
+        if order % 2 == 0:
+            ret[order]['d'] = np.pi
+            ret[order]['K'] = -coeff
+        else:
+            ret[order]['d'] = 0.0
+            ret[order]['K'] = coeff
 
     return ret
