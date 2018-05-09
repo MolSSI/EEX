@@ -161,6 +161,7 @@ def _charmmfsw_to_RB(coeffs):
 
 @register_converter(order=4)
 def _RB_to_charmmfsw(coeffs):
+    # TODO Need more efficient way to do this conversion
 
     if not isinstance(coeffs, dict):
         raise TypeError("RB to CHARMM dihedral conversion requires an input dictionary")
@@ -185,19 +186,42 @@ def _RB_to_charmmfsw(coeffs):
         tmp.resize(charmm_coeffs.shape)
         charmm_coeffs += tmp
 
+    nz_max = np.max(nz)
     ret = dict()
+    ret['K'] = np.zeros(nz_max + 1)
+    ret['n'] = np.zeros(nz_max + 1)
+    ret['d'] = np.zeros(nz_max + 1)
+
+    flag = False
+    if charmm_coeffs[0] < 0:
+        flag = True
+        charmm_coeffs = -charmm_coeffs
+        ret['K'][0] = -charmm_coeffs[0] + np.sum(np.abs(charmm_coeffs[1:]))
+
+    else:
+        ret['K'][0] = charmm_coeffs[0] - np.sum(np.abs(charmm_coeffs[1:]))
+
+    ret['K'][0] = 0.5 * ret['K'][0]
+
     for order, coeff in enumerate(charmm_coeffs):
         if order is 0:
             continue
+
         if np.isclose(coeff, 0.0):
             continue
-        ret[order] = dict()
-        ret[order]['n'] = order
-        if order % 2 == 0:
-            ret[order]['d'] = np.pi
-            ret[order]['K'] = -coeff
-        else:
-            ret[order]['d'] = 0.0
-            ret[order]['K'] = coeff
+        ret['n'][order] = order
 
+        if flag is True:
+            ret['K'][order] = -charmm_coeffs[order]
+        else:
+            ret['K'][order] = charmm_coeffs[order]
+
+        if coeff < 0:
+            if flag is True:
+                ret['K'][order] = charmm_coeffs[order]
+            else:
+                ret['K'][order] = np.abs(charmm_coeffs[order])
+            ret['d'][order] = np.pi
+        else:
+            ret['d'][order] = 0.0
     return ret
