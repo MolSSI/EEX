@@ -24,7 +24,7 @@ before_install:
 
 install:
     # Create test environment for package
-  - conda create -q -n dqm_env python=$PYTHON_VER numpy nomkl pandas pytables numexpr
+  - conda create -q -n dqm_env python=$PYTHON_VER numpy nomkl pandas pytables numexpr scipy
   - source activate dqm_env
 
     # Install anything not in conda
