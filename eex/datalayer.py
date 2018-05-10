@@ -16,6 +16,7 @@ from . import units
 from . import utility
 from . import testing
 from . import nb_converter
+from . import form_converters
 
 APC_DICT = metadata.atom_property_to_column
 
@@ -940,7 +941,7 @@ class DataLayer(object):
 
                 return uid
 
-    def get_term_parameter(self, order, uid=None, utype=None):
+    def get_term_parameter(self, order, uid=None, utype=None, ftype=None):
 
         order = metadata.sanitize_term_order_name(order)
 
@@ -954,24 +955,31 @@ class DataLayer(object):
 
         # Zip up the parameters
         parameters = {k: v for k, v in zip(term_md["parameters"], data[1:])}
-
         # Were done
-        if utype is None:
+        if utype is None and ftype is None:
             return data[0], parameters
 
+        # Make sure the requested utype and the DL stored ftype are consistent
+
+        if not isinstance(ftype, str):
+            raise TypeError("DataLayer:get_parameters: Input ftype '%s' is not understood." % str(type(ftype)))
+
+        parameters = form_converters.convert_form(order, parameters, data[0], ftype)
+
+        term_md_ftype = metadata.get_term_metadata(order, "forms", ftype)
         # Need to convert
         if isinstance(utype, (list, tuple)):
-            if len(utype) != len(term_md["parameters"]):
+            if len(utype) != len(term_md_ftype["parameters"]):
                 raise KeyError("DataLayer:get_parameters: length of utype should match the length of parameters.")
-            utype = {k: v for k, v in zip(term_md["parameters"], utype)}
+            utype = {k: v for k, v in zip(term_md_ftype["parameters"], utype)}
 
         if not isinstance(utype, dict):
             raise TypeError("DataLayer:get_parameters: Input utype '%s' is not understood." % str(type(utype)))
 
-        for key in term_md["parameters"]:
-            parameters[key] *= units.conversion_factor(term_md["utype"][key], utype[key])
+        for key in term_md_ftype["parameters"]:
+            parameters[key] *= units.conversion_factor(term_md_ftype["utype"][key], utype[key])
 
-        return data[0], parameters
+        return ftype, parameters
 
     def list_term_parameters(self, order):
         """
