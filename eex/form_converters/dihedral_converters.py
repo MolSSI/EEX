@@ -122,35 +122,33 @@ def _charmmfsw_to_RB(coeffs):
         raise TypeError("CHARMM to RB dihedral conversion requires an input dictionary")
 
     tmp = np.zeros(6)
-    for k, v in coeffs.items():
+    n = coeffs['n']
+    d = coeffs['d']
+    k = coeffs['K']
 
-        n = coeffs[k]['n']
-        d = coeffs[k]['d']
-        k = coeffs[k]['K']
+    if n > 5:
+        raise ValueError("CHARMM to RB dihedral conversion not possible. The multiplicity value n in the CHARMM dihedral must be less than 5")
 
-        if n > 5:
-            raise ValueError("CHARMM to RB dihedral conversion not possible. The multiplicity value n in the CHARMM dihedral must be less than 5")
+    if n < 0:
+        raise ValueError("CHARMM to RB dihedral conversion not possible. The multiplicity must be a positive integer.")
+    # Make sure d is either 0.0, pi, 2pi, 3pi, 4pi.
+    # TODO: Need to generalize for other values of d.
 
-        if n < 0:
-            raise ValueError("CHARMM to RB dihedral conversion not possible. The multiplicity must be a positive integer.")
-        # Make sure d is either 0.0, pi, 2pi, 3pi, 4pi.
-        # TODO: Need to generalize for other values of d.
+    if n == 0 and d % np.pi == 0:
+        raise ValueError("CHARMM to RB dihedral conversion not possible. The CHARMM dihedral energy is zero.")
 
-        if n == 0 and d % np.pi == 0:
-            raise ValueError("CHARMM to RB dihedral conversion not possible. The CHARMM dihedral energy is zero.")
+    if k == 0:
+        raise ValueError("CHARMM to RB dihedral conversion not possible. The CHARMM dihedral energy is zero.")
 
-        if k == 0:
-            raise ValueError("CHARMM to RB dihedral conversion not possible. The CHARMM dihedral energy is zero.")
+    if not np.isclose(d % np.pi, 0.0):
+        raise ValueError("CHARMM to RB dihedral conversion not possible. The CHARMM phase shift d is not a multiple of PI.")
 
-        if not np.isclose(d % np.pi, 0.0):
-            raise ValueError("CHARMM to RB dihedral conversion not possible. The CHARMM phase shift d is not a multiple of PI.")
+    div = np.abs(d / np.pi)
+    p = list(_alternating_signs(div) * _cosnx(n))
 
-        div = np.abs(d / np.pi)
-        p = list(_alternating_signs(div) * _cosnx(n))
-
-        for i in range(0, len(p)):
-            tmp[i] = p[i] * k
-        tmp[0] += k
+    for i in range(0, len(p)):
+        tmp[i] = p[i] * k
+    tmp[0] += k
 
     ret = dict()
 
