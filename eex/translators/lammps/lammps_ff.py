@@ -299,7 +299,7 @@ dihedral_styles = {
         "description": "This is a charmm dihedral"
     },
 
-    "multi/harmonic": {
+    "multiharmonic": {
         "form": "Sum(A_n * (cos(phi))**(n-1))",  # n goes from 1 to 5
         "parameters": ["A_n"],
         "units": {
