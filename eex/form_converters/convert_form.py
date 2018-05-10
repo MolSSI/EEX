@@ -7,11 +7,10 @@ from .. import metadata
 from . import dihedral_converters
 from . import angle_converters
 from . import bond_converters
-from .convert_helper import sanitize_term_order_name
 
 
 def convert_form(order, coeffs, origin, final):
-    order = sanitize_term_order_name(order)
+    order = metadata.md_helper.sanitize_term_order_name(order)
 
     if order not in (2, 3, 4):
         raise KeyError("EEX: Term order %s not recognized." % str(order))
