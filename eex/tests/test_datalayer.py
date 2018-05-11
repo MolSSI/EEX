@@ -673,7 +673,7 @@ def test_nb_scaling():
     with pytest.raises(KeyError):
         dl.get_pair_scalings(nb_labels=["not_a_label"])
 
-    stored_scalings = dl.get_pair_scalings()
+    stored_scalings = dl.get_pair_scalings(order=False)
 
     for col in stored_scalings.columns:
         assert set(scale_df[col].values) == set(stored_scalings[col].values)
@@ -744,8 +744,10 @@ def test_set_nb_scaling_factors():
     dl.build_scaling_list()
 
     # Retrieve from datalayer
-    scaling = dl.get_pair_scalings()
+    scaling = dl.get_pair_scalings(nb_labels=["vdw_scale", "coul_scale"], order=True)
 
     assert(set(scaling['vdw_scale'].values) == set([0, 0.5]))
 
     assert(set(scaling['coul_scale'].values) == set([0, 0.25]))
+
+    assert(set(scaling['order'].values) == set([2,3]))

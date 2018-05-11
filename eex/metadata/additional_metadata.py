@@ -172,7 +172,8 @@ _torsion_convention = ["180_is_trans", "0_is_trans"]
 
 nb_scaling = {
             "index": ["atom_index1", "atom_index2"],
-            "data" : ["vdw_scale", "coul_scale"],
+            "scaling_type" : ["vdw_scale", "coul_scale"],
+            "data" : ["order"]
             }
 
 #_groups = {

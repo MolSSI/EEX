@@ -282,16 +282,17 @@ class DataLayer(object):
         # Build multi-level indexer
         index = pd.MultiIndex.from_arrays([scaling_df["atom_index1"], scaling_df["atom_index2"]])
 
-        for l in metadata.additional_metadata.nb_scaling["data"]:
+        for l in metadata.additional_metadata.nb_scaling["scaling_type"]:
             if l in scaling_df.columns:
                 df = pd.Series(scaling_df[l].tolist(), index=index)
                 self.store.add_table(l, df)
 
         return True
 
-    def get_pair_scalings(self, nb_labels=["vdw_scale", "coul_scale"]):
+    def get_pair_scalings(self, nb_labels=["vdw_scale", "coul_scale"], order=True):
         """
-        Get scaling factor for nonbond interaction between two atoms
+        Get scaling factor for nonbond interaction between two atoms. If order is True, the term order between the two
+        atoms is returned. i.e. - bonded atoms have order 2, atoms in angle (atom 1 & atom 3) have order 3.
 
         Parameters
         ------------------------------------
@@ -304,7 +305,7 @@ class DataLayer(object):
         """
 
         for k in nb_labels:
-            if k not in metadata.additional_metadata.nb_scaling["data"]:
+            if k not in metadata.additional_metadata.nb_scaling["scaling_type"]:
                 raise KeyError("%s is not a valid nb_scale type" % (k))
 
         rlist = []
@@ -316,6 +317,15 @@ class DataLayer(object):
 
         ret = pd.concat(rlist, axis=1)
         ret.columns = rlabels
+
+        if order is True:
+            # Get atom indices from multi-level indexing
+            atom_pairs = ret.index.values
+            pair_order = []
+
+            pair_order.append([self.query_atom_pair(x[0], x[1]) for x in atom_pairs])
+
+            ret['order'] = pair_order[0]
 
         return ret
 
