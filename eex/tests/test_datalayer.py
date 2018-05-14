@@ -272,6 +272,13 @@ def test_get_term_parameters_units():
     with pytest.raises(TypeError):
         dl.get_term_parameter(2, 0, utype={5, 6}, ftype="harmonic")
 
+    with pytest.raises(KeyError):
+        utype = {"K": "(kJ / mol) * angstrom ** -2"}
+        dl.get_term_parameter(2, 0, utype=utype, ftype="harmonic")
+
+    with pytest.raises(KeyError):
+        dl.get_term_parameter(2, 0, utype=utype_2b, ftype="harmic")
+
 
 def test_list_parameters():
     """

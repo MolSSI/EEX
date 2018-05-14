@@ -968,9 +968,10 @@ class DataLayer(object):
         if not isinstance(ftype, str):
             raise TypeError("DataLayer:get_parameters: Input ftype '%s' is not understood." % str(type(ftype)))
 
+        term_md_ftype = metadata.get_term_metadata(order, "forms", ftype)
+
         parameters = form_converters.convert_form(order, parameters, data[0], ftype)
 
-        term_md_ftype = metadata.get_term_metadata(order, "forms", ftype)
         # Need to convert
         if isinstance(utype, (list, tuple)):
             if len(utype) != len(term_md_ftype["parameters"]):
@@ -979,6 +980,9 @@ class DataLayer(object):
 
         if not isinstance(utype, dict):
             raise TypeError("DataLayer:get_parameters: Input utype '%s' is not understood." % str(type(utype)))
+
+        if (set(term_md_ftype["parameters"]) != set(utype.keys())):
+            raise KeyError("DataLayer:get_parameters: Utype and ftype keys are not consistent")
 
         for key in term_md_ftype["parameters"]:
             parameters[key] *= units.conversion_factor(term_md_ftype["utype"][key], utype[key])
