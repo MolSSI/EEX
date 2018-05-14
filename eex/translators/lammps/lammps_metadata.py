@@ -8,267 +8,267 @@ import eex
 
 # Keywords for different outputs in log file
 output_keywords = {
-            'Step':{
-                'units': 'count', 
-                'canonical': ['step'],
-            },
-            'Elapsed':{
-                'units': '[time]',
-                'canonical': ['elapsed_time'],
-            },
-            'Elaplong':{
-                'units': '[time]',
-                'canonical': ['elapsed_long'],
-            },
-            'Dt':{
-                'units': '[time]',
-                'canonical': ['timestep'],
-            },
-            'Time':{
-                'units': '[time]',
-                'canonical': ['simulation_time'],
-            },
-            'CPU':{
-                'units': '[time]',
-                'canonical': ['cpu_time'],
-            },
-            'T/CPU':{
-                'units': '[time]',
-                'canonical': ['time_per_cpu'],
-            },
-            'S/CPU':{
-                'units': 'count', 
-                'canonical': ['timestep_per_cpu'],
-            },
-            'CPULeft':{
-                'units': '[time]',
-                'canonical': ['cpu_left'],
-            },
-            'Part':{
-                'units': 'count',
-                'canonical': ['part'],
-            },
-            'TimeoutLeft':{
-                'units': '[time]',
-                'canonical': ['time_remain'],
-            },
-            'Atoms':{
-                'units': 'count',
-                'canonical': ['num_atoms'],
-            },
-            'Temp':{
-                'units': '[temperature]',
-                'canonical': ['temperature'],
-            },
-            'Press':{
-                'units': '[pressure]',
-                'canonical': ['pressure'],
-            },
-            'PotEng':{
-                'units': '[energy]',
-                'canonical': ['potential'],
-            },
-            'KinEng':{
-                'units': '[energy]',
-                'canonical': ['kinetic'],
-            },
-            'TotEng':{
-                'units': '[energy]',
-                'canonical': ['total'],
-            },
-            'Enthalpy':{
-                'units': '[energy]',
-                'canonical': ['enthalpy'],
-            },
-            'E_vdwl':{
-                'units': '[energy]',
-                'canonical': ['vdw_total'],
-            },
-            'E_coul':{
-                'units': '[energy]',
-                'canonical': ['coulomb_total'],
-            },
-            'E_pair':{
-                'units': '[energy]',
-                'canonical': ['pairwise'],
-            },
-            'E_bond':{
-                'units': '[energy]',
-                'canonical': ['bond'],
-            },
-            'E_angle':{
-                'units': '[energy]',
-                'canonical': ['angle'],
-            },
-            'E_dihed':{
-                'units': '[energy]',
-                'canonical': ['proper'],
-            },
-            'E_impro':{
-                'units': '[energy]', 
-                'canonical': ['improper'],
-            },
-            'E_mol':{
-                'units': '[energy]',
-                'canonical': ['molecular'],
-            },
-            'E_long':{
-                'units': '[energy]',
-                'canonical': ['kspace'],
-            },
-            'E_tail':{
-                'units': '[energy]',
-                'canonical': ['tail'],
-            },
-            'Volume':{
-                'units': '[length] ** 3',
-                'canonical': ['volume'],
-            },
-            'Density':{
-                'units': '[mass] * [length] ** -3',
-                'canonical': ['density'],
-            },
-            'Lx':{
-                'units': '[length]',
-                'canonical': ['lx'],
-            },
-            'Ly':{
-                'units': '[length]',
-                'canonical': ['ly'],
-            },
-            'Lz':{
-                'units': '[length]',
-                'canonical': ['lz'],
-            },
-            'Xlo':{
-                'units': '[length]',
-                'canonical': ['xlo'],
-            },
-            'Xhi':{
-                'units': '[length]',
-                'canonical': ['xhi'],
-            },
-            'Ylo':{
-                'units': '[length]',
-                'canonical': ['ylo'],
-            },
-            'Yhi':{
-                'units': '[length]',
-                'canonical': ['yhi'],
-            },
-            'Zlo':{
-                'units': '[length]',
-                'canonical': ['zlo'],
-            },
-            'Zhi':{
-                'units': '[length]',
-                'canonical': ['zhi'],
-            },
-            'Xy':{
-                'units': '[length]',
-                'canonical': ['xy'],
-            },
-            'Xz':{
-                'units': '[length]',
-                'canonical': ['xz'],
-            },
-            'Yz':{
-                'units': '[length]',
-                'canonical': ['yz'],
-            },
-            'Xlat':{
-                'units': '[length]',
-                'canonical': ['xlat'],
-            },
-            'Ylat':{
-                'units': '[length]',
-                'canonical': ['ylat'],
-            },
-            'Zlat':{
-                'units': '[length]',
-                'canonical': ['zlat'],
-            },
-            'Bonds':{
-                'units': 'count',
-                'canonical': ['num_bonds'],
-            },
-            'Angles':{
-                'units': 'count',
-                'canonical': ['num_angles'],
-            },
-            'Dihedrals':{
-                'units': 'count',
-                'canonical': ['num_proper'],
-            },
-            'Impros':{
-                'units': 'count',
-                'canonical': ['num_improper'],
-            },
-            'Pxx':{
-                'units': '[pressure]',
-                'canonical': ['num_pxx'],
-            },
-            'Pyy':{
-                'units': '[pressure]',
-                'canonical': ['num_pyy'],
-            },
-            'Pzz':{
-                'units': '[pressure]',
-                'canonical': ['num_pzz'],
-            },
-            'Pxy':{
-                'units': '[pressure]',
-                'canonical': ['num_pxy'],
-            },
-            'Pxz':{
-                'units': '[pressure]',
-                'canonical': ['num_pxz'],
-            },
-            'Pyz':{
-                'units': '[pressure]',
-                'canonical': ['num_pyz'],
-            },
-            'Fmax':{
-                'units': '[force]',
-                'canonical': ['fmax'],
-            },
-            'Fnorm':{
-                'units': '[force]',
-                'canonical': ['fnorm'],
-            },
-            'Nbuild':{
-                'units': 'count',
-                'canonical': ['nbuild'],
-            },
-            'Ndanger':{
-                'units': 'count',
-                'canonical': ['ndanger'],
-            },
-            'Cella':{
-                'units': '[length]',
-                'canonical': ['cella'],
-            },
-            'Cellb':{
-                'units': '[length]',
-                'canonical': ['cellb'],
-            },
-            'Cellc':{
-                'units': '[length]',
-                'canonical': ['cellc'],
-            },
-            'CellAlpha':{
-                'units': 'radian',
-                'canonical': ['cellalpha'],
-            },
-            'CellBeta':{
-                'units': 'radian',
-                'canonical': ['cellbeta'],
-            },
-            'CellGamma':{
-                'units': 'radian',
-                'canonical': ['cellgamma'],
-            },
-        }
+    'Step': {
+        'units': 'count',
+        'canonical': ['step'],
+    },
+    'Elapsed': {
+        'units': '[time]',
+        'canonical': ['elapsed_time'],
+    },
+    'Elaplong': {
+        'units': '[time]',
+        'canonical': ['elapsed_long'],
+    },
+    'Dt': {
+        'units': '[time]',
+        'canonical': ['timestep'],
+    },
+    'Time': {
+        'units': '[time]',
+        'canonical': ['simulation_time'],
+    },
+    'CPU': {
+        'units': '[time]',
+        'canonical': ['cpu_time'],
+    },
+    'T/CPU': {
+        'units': '[time]',
+        'canonical': ['time_per_cpu'],
+    },
+    'S/CPU': {
+        'units': 'count',
+        'canonical': ['timestep_per_cpu'],
+    },
+    'CPULeft': {
+        'units': '[time]',
+        'canonical': ['cpu_left'],
+    },
+    'Part': {
+        'units': 'count',
+        'canonical': ['part'],
+    },
+    'TimeoutLeft': {
+        'units': '[time]',
+        'canonical': ['time_remain'],
+    },
+    'Atoms': {
+        'units': 'count',
+        'canonical': ['num_atoms'],
+    },
+    'Temp': {
+        'units': '[temperature]',
+        'canonical': ['temperature'],
+    },
+    'Press': {
+        'units': '[pressure]',
+        'canonical': ['pressure'],
+    },
+    'PotEng': {
+        'units': '[energy]',
+        'canonical': ['potential'],
+    },
+    'KinEng': {
+        'units': '[energy]',
+        'canonical': ['kinetic'],
+    },
+    'TotEng': {
+        'units': '[energy]',
+        'canonical': ['total'],
+    },
+    'Enthalpy': {
+        'units': '[energy]',
+        'canonical': ['enthalpy'],
+    },
+    'E_vdwl': {
+        'units': '[energy]',
+        'canonical': ['vdw_total'],
+    },
+    'E_coul': {
+        'units': '[energy]',
+        'canonical': ['coulomb_total'],
+    },
+    'E_pair': {
+        'units': '[energy]',
+        'canonical': ['pairwise'],
+    },
+    'E_bond': {
+        'units': '[energy]',
+        'canonical': ['bond'],
+    },
+    'E_angle': {
+        'units': '[energy]',
+        'canonical': ['angle'],
+    },
+    'E_dihed': {
+        'units': '[energy]',
+        'canonical': ['proper'],
+    },
+    'E_impro': {
+        'units': '[energy]',
+        'canonical': ['improper'],
+    },
+    'E_mol': {
+        'units': '[energy]',
+        'canonical': ['molecular'],
+    },
+    'E_long': {
+        'units': '[energy]',
+        'canonical': ['kspace'],
+    },
+    'E_tail': {
+        'units': '[energy]',
+        'canonical': ['tail'],
+    },
+    'Volume': {
+        'units': '[length] ** 3',
+        'canonical': ['volume'],
+    },
+    'Density': {
+        'units': '[mass] * [length] ** -3',
+        'canonical': ['density'],
+    },
+    'Lx': {
+        'units': '[length]',
+        'canonical': ['lx'],
+    },
+    'Ly': {
+        'units': '[length]',
+        'canonical': ['ly'],
+    },
+    'Lz': {
+        'units': '[length]',
+        'canonical': ['lz'],
+    },
+    'Xlo': {
+        'units': '[length]',
+        'canonical': ['xlo'],
+    },
+    'Xhi': {
+        'units': '[length]',
+        'canonical': ['xhi'],
+    },
+    'Ylo': {
+        'units': '[length]',
+        'canonical': ['ylo'],
+    },
+    'Yhi': {
+        'units': '[length]',
+        'canonical': ['yhi'],
+    },
+    'Zlo': {
+        'units': '[length]',
+        'canonical': ['zlo'],
+    },
+    'Zhi': {
+        'units': '[length]',
+        'canonical': ['zhi'],
+    },
+    'Xy': {
+        'units': '[length]',
+        'canonical': ['xy'],
+    },
+    'Xz': {
+        'units': '[length]',
+        'canonical': ['xz'],
+    },
+    'Yz': {
+        'units': '[length]',
+        'canonical': ['yz'],
+    },
+    'Xlat': {
+        'units': '[length]',
+        'canonical': ['xlat'],
+    },
+    'Ylat': {
+        'units': '[length]',
+        'canonical': ['ylat'],
+    },
+    'Zlat': {
+        'units': '[length]',
+        'canonical': ['zlat'],
+    },
+    'Bonds': {
+        'units': 'count',
+        'canonical': ['num_bonds'],
+    },
+    'Angles': {
+        'units': 'count',
+        'canonical': ['num_angles'],
+    },
+    'Dihedrals': {
+        'units': 'count',
+        'canonical': ['num_proper'],
+    },
+    'Impros': {
+        'units': 'count',
+        'canonical': ['num_improper'],
+    },
+    'Pxx': {
+        'units': '[pressure]',
+        'canonical': ['num_pxx'],
+    },
+    'Pyy': {
+        'units': '[pressure]',
+        'canonical': ['num_pyy'],
+    },
+    'Pzz': {
+        'units': '[pressure]',
+        'canonical': ['num_pzz'],
+    },
+    'Pxy': {
+        'units': '[pressure]',
+        'canonical': ['num_pxy'],
+    },
+    'Pxz': {
+        'units': '[pressure]',
+        'canonical': ['num_pxz'],
+    },
+    'Pyz': {
+        'units': '[pressure]',
+        'canonical': ['num_pyz'],
+    },
+    'Fmax': {
+        'units': '[force]',
+        'canonical': ['fmax'],
+    },
+    'Fnorm': {
+        'units': '[force]',
+        'canonical': ['fnorm'],
+    },
+    'Nbuild': {
+        'units': 'count',
+        'canonical': ['nbuild'],
+    },
+    'Ndanger': {
+        'units': 'count',
+        'canonical': ['ndanger'],
+    },
+    'Cella': {
+        'units': '[length]',
+        'canonical': ['cella'],
+    },
+    'Cellb': {
+        'units': '[length]',
+        'canonical': ['cellb'],
+    },
+    'Cellc': {
+        'units': '[length]',
+        'canonical': ['cellc'],
+    },
+    'CellAlpha': {
+        'units': 'radian',
+        'canonical': ['cellalpha'],
+    },
+    'CellBeta': {
+        'units': 'radian',
+        'canonical': ['cellbeta'],
+    },
+    'CellGamma': {
+        'units': 'radian',
+        'canonical': ['cellgamma'],
+    },
+}
 
 
 # Possible types of the keyword 'variable' found in the input file
@@ -278,88 +278,88 @@ mixing_rules = ["geometric", "arithmetic", "sixthpower"]
 
 exclusions = {
     "default": {
-        "coul":{
+        "coul": {
             "scale12": 0.0,
-            "scale13": 0.0, 
+            "scale13": 0.0,
             "scale14": 0.0,
         },
-        "lj":{
+        "lj": {
             "scale12": 0.0,
-            "scale13": 0.0, 
+            "scale13": 0.0,
             "scale14": 0.0,
         },
     },
     "amber": {
-        "coul":{
+        "coul": {
             "scale12": 0.0,
-            "scale13": 0.0, 
+            "scale13": 0.0,
             "scale14": 0.8333,
         },
-        "lj":{
+        "lj": {
             "scale12": 0.0,
-            "scale13": 0.0, 
+            "scale13": 0.0,
             "scale14": 0.5,
         },
     },
     "charmm": {
-        "coul":{
+        "coul": {
             "scale12": 0.0,
-            "scale13": 0.0, 
+            "scale13": 0.0,
             "scale14": 0.0,
         },
-        "lj":{
+        "lj": {
             "scale12": 0.0,
-            "scale13": 0.0, 
+            "scale13": 0.0,
             "scale14": 0.0,
         },
     },
     "dreiding": {
-        "coul":{
+        "coul": {
             "scale12": 0.0,
-            "scale13": 0.0, 
+            "scale13": 0.0,
             "scale14": 1.0,
         },
-        "lj":{
+        "lj": {
             "scale12": 0.0,
-            "scale13": 0.0, 
+            "scale13": 0.0,
             "scale14": 1.0,
         },
     },
     "fene": {
-        "coul":{
+        "coul": {
             "scale12": 0.0,
-            "scale13": 1.0, 
+            "scale13": 1.0,
             "scale14": 1.0,
         },
-        "lj":{
+        "lj": {
             "scale12": 0.0,
-            "scale13": 1.0, 
+            "scale13": 1.0,
             "scale14": 1.0,
         },
     },
     "lj/coul": {
-        "coul":{
+        "coul": {
             "scale12": "dimensionless",
-            "scale13": "dimensionless", 
+            "scale13": "dimensionless",
             "scale14": "dimensionless",
         },
-        "lj":{
+        "lj": {
             "scale12": "dimensionless",
-            "scale13": "dimensionless", 
+            "scale13": "dimensionless",
             "scale14": "dimensionless",
         }
     },
     "lj": {
-        "lj":{
+        "lj": {
             "scale12": "dimensionless",
-            "scale13": "dimensionless", 
+            "scale13": "dimensionless",
             "scale14": "dimensionless",
         },
     },
     "coul": {
-        "coul":{
+        "coul": {
             "scale12": "dimensionless",
-            "scale13": "dimensionless", 
+            "scale13": "dimensionless",
             "scale14": "dimensionless",
         },
     },
@@ -583,7 +583,7 @@ _operation_table = {
             "nb_name": "LJ",
             "nb_model": "epsilon/sigma",
             "utype": None
-            }
+        }
     },
 
     "PairIJ Coeffs": {
@@ -598,7 +598,7 @@ _operation_table = {
             "nb_name": "LJ",
             "nb_model": "epsilon/sigma",
             "utype": None
-            }
+        }
     },
 
     # Add term parameters
@@ -639,6 +639,7 @@ _operation_table = {
 
 # Define a few temporaries
 
+
 def get_context(utype, context):
     return units_style[utype][context]
 
@@ -667,7 +668,7 @@ def build_operation_table(extra_simulation_data, size_dict):
         # Supply the Atom unit types
         if v["dl_func"] in ["add_atom_parameters", "add_atoms"]:
             v["kwargs"]["utype"] = aunits
- 
+
         # Supply bond types, angle types, dihedral types
         if ("args" in v) and ("style_keyword" in v["args"]) and (v["args"]["style_keyword"] in ["bond_style", "angle_style", "dihedral_style"]):
             if (v["args"]["style_keyword"] in extra_simulation_data.keys()):
@@ -676,7 +677,6 @@ def build_operation_table(extra_simulation_data, size_dict):
         # Supply atom style
         if "df_cols" in v and "atom_style" in v["df_cols"]:
             v["df_cols"] = atom_style[extra_simulation_data["atom_style"]]
-
 
         # Build sizes dict
         try:

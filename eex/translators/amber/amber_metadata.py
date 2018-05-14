@@ -4,7 +4,7 @@ to_canonical = {
     'BOND': ['bond'],
 
     'ANGLE': ['angle'],
-    'UB': ['angle','urey_bradley'],
+    'UB': ['angle', 'urey_bradley'],
 
     'DIHED': ['proper'],
     'IMP': ['improper'],
@@ -30,10 +30,10 @@ size_keys = [
 ]
 
 data_labels = {
-    "POINTERS" : [31, "%FORMAT(10I8)"],
+    "POINTERS": [31, "%FORMAT(10I8)"],
     "ATOM_NAME": ["NATOM", "%FORMAT(20a4)"],
     "CHARGE": ["NATOM", "%FORMAT(5E16.8)"],
-    "ATOMIC_NUMBER": ["NATOM", "%FORMAT(10I8)" ],
+    "ATOMIC_NUMBER": ["NATOM", "%FORMAT(10I8)"],
     "MASS": ["NATOM", "%FORMAT(5E16.8)"],
     "ATOM_TYPE_INDEX": ["NATOM", "%FORMAT(10I8)"],
     "NUMBER_EXCLUDED_ATOMS": ["NATOM", "%FORMAT(10I8)"],
@@ -83,13 +83,13 @@ data_labels = {
 atom_data_units = {
     "charge": "e / 18.2223",  # Internal units
     "mass": "g * mol ** -1",
-    "length" : "angstrom",
+    "length": "angstrom",
 }
 
 box_units = {
-    "length" : "angstrom",
+    "length": "angstrom",
     "angle": "degree",
-    "center":  [ "a/2", "b/2", "c/2" ] ,
+    "center": ["a/2", "b/2", "c/2"],
 }
 
 # Box boundaries are always periodic if there is a box (i.e. IFBOX > 0).
@@ -97,9 +97,9 @@ box_units = {
 # is most similar to the 'shrink-wrapped' option in lammps and the EEX
 # data layer
 box_boundaries = {
-    "x" : ["'periodic' if IFBOX>0, else 'shrink-wrapped'"],
-    "y" : ["'periodic' if IFBOX>0, else 'shrink-wrapped'"],
-    "z" : ["'periodic' if IFBOX>0, else 'shrink-wrapped'"],
+    "x": ["'periodic' if IFBOX>0, else 'shrink-wrapped'"],
+    "y": ["'periodic' if IFBOX>0, else 'shrink-wrapped'"],
+    "z": ["'periodic' if IFBOX>0, else 'shrink-wrapped'"],
 }
 
 atom_property_names = {
@@ -160,14 +160,14 @@ forcefield_parameters = {
         }
     },
 
-    "nonbond" : {
-        "order" : None,
-        "form" : {"name": "LJ", "form": "AB"},
-        "units" : {
-            "A" : "kcal * mol ** -1 * angstrom ** 12",
-            "B" : "kcal * mol ** -1 * angstrom ** 6",
+    "nonbond": {
+        "order": None,
+        "form": {"name": "LJ", "form": "AB"},
+        "units": {
+            "A": "kcal * mol ** -1 * angstrom ** 12",
+            "B": "kcal * mol ** -1 * angstrom ** 6",
         },
-        "column_names" : {
+        "column_names": {
             "LENNARD_JONES_ACOEF": "A",
             "LENNARD_JONES_BCOEF": "B",
             "NONBONDED_PARM_INDEX": ""
@@ -189,7 +189,7 @@ mixing_rule = ["lorentz_berthelot", "arithmetic"]
 exclusion_sections = ["NUMBER_EXCLUDED_ATOMS", "EXCLUDED_ATOMS_LIST"]
 
 # "canonical" amber simulations will have values of 2 (SCNB) or 1.2 (SCEE), which should allow us to use the
-# dl.set_nb_scaling_factor function. If not, 
+# dl.set_nb_scaling_factor function. If not,
 scaling_sections = ["SCEE_SCALE_FACTOR", "SCNB_SCALE_FACTOR"]
 
 #----------------------------------------------------------------------------
@@ -200,7 +200,6 @@ for k, v in forcefield_parameters.items():
 store_other.extend(residue_store_names)
 store_other.extend(molecule_store_names)
 store_other.extend(exclusion_sections)
-
 
 
 def parse_format(string):
@@ -242,6 +241,7 @@ def parse_format(string):
         raise ValueError("AMBER: Type symbol '%s' not understood from line '%s'." % (ret[1], string))
 
     return ret
+
 
 def build_format(fmt):
     if fmt[1] == str:

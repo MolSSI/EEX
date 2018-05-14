@@ -50,7 +50,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
 
     """
-    ### First we need to figure out system dimensions
+    # First we need to figure out system dimensions
     max_rows = 100  # How many lines do we attempt to search?
     header_data = eex.utility.read_lines(filename, max_rows)
 
@@ -98,7 +98,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     if not found_version:
         raise KeyError("AMBER Read: Did not find VERSION_STAMP data.")
 
-    ### Iterate over the primary data portion of the object
+    # Iterate over the primary data portion of the object
 
     # Figure out the size of each label
     label_sizes = {}
@@ -113,7 +113,6 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         else:
             # print("%30s %40s %d" % (k, v[0], int(eval(v[0], sizes_dict))))
             label_sizes[k] = int(eval(v[0], sizes_dict))
-
 
     # Find the start
     current_data_category = None
@@ -171,20 +170,16 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
             # Read in the data
             data = pd.read_fwf(tmp_handle, nrows=read_size, widths=widths, dtypes=dtypes, header=None)
-
             # 1D atom properties
             if current_data_category in list(amd.atom_property_names):
-
                 df = _data_flatten(data, amd.atom_property_names[current_data_category], category_index, "atom_index")
                 category_index += df.shape[0]
 
                 # Add the data to DL
                 dl.add_atoms(df, by_value=True, utype=amd.atom_data_units)
-
             # Store forcefield parameters as "other" for later processing
             elif current_data_category in amd.store_other and len(data) != 0:
                 df = _data_flatten(data, current_data_category, category_index, "index")
-
                 # Force certain categories to be type int
                 if current_data_category in ["RESIDUE_POINTER", "NUMBER_EXCLUDED_ATOMS", "EXCLUDED_ATOMS_LIST"]:
                     df = df.astype(int)
@@ -253,7 +248,6 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                 box_size["beta"] = data[0].values[0]
                 box_size["gamma"] = data[0].values[0]
 
-
                 for v in amd.box_units["center"]:
                     box_center.append(eval(v))
 
@@ -264,11 +258,11 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                 box_size["c"] = c
 
                 dl.set_box_size(box_size, utype={"a": amd.box_units["length"], "b": amd.box_units["length"],
-                                                 "c" : amd.box_units["length"], "alpha": amd.box_units["angle"],
-                                                 "beta": amd.box_units["angle"], "gamma": amd.box_units["angle"],})
+                                                 "c": amd.box_units["length"], "alpha": amd.box_units["angle"],
+                                                 "beta": amd.box_units["angle"], "gamma": amd.box_units["angle"], })
 
                 dl.set_box_center(box_center, utype={"x": amd.box_units["length"], "y": amd.box_units["length"],
-                                                 "z" : amd.box_units["length"]})
+                                                     "z": amd.box_units["length"]})
 
             else:
                 # logger.debug("Did not understand data category.. passing")
@@ -309,7 +303,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     # Close out the file handle
     file_handle.close()
 
-    ### Handle any data we added to the other columns
+    # Handle any data we added to the other columns
 
     # Expand residue values
     res_df = dl.get_other(amd.residue_store_names)
@@ -336,7 +330,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         # This is only set if SOLVENT_POINTERS is present in the prmtop (ie - a periodic simulation)
         number_of_molecules = label_sizes["ATOMS_PER_MOLECULE"]
 
-        molecule_range = np.arange(1, number_of_molecules+1)
+        molecule_range = np.arange(1, number_of_molecules + 1)
 
         # Next, we need to create a dataframe with the column header "molecule_index". The variable
         # molecule_df contains a list of the number of atoms in each molecule, while the variable number_of_molecules
@@ -346,7 +340,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
             "molecule_index": np.repeat(molecule_range, [int(x) for x in molecule_df["ATOMS_PER_MOLECULE"].values], axis=0)
         })
 
-        molecule_df.index = np.arange(1, molecule_df.shape[0] +1)
+        molecule_df.index = np.arange(1, molecule_df.shape[0] + 1)
         molecule_df.index.name = "atom_index"
 
     else:
@@ -354,12 +348,10 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
             "molecule_index": np.ones(sizes_dict["NATOM"])
         })
 
-        molecule_df.index = np.arange(1, molecule_df.shape[0] +1)
+        molecule_df.index = np.arange(1, molecule_df.shape[0] + 1)
         molecule_df.index.name = "atom_index"
 
     dl.add_atoms(molecule_df, by_value=True)
-
-
 
     # Handle forcefield parameters
     other_tables = set(dl.list_other_tables())
@@ -433,7 +425,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     for index, row in number_excluded_atoms.iterrows():
         num_excluded = row.values[0]
 
-        excluded_atoms = excluded_atoms_list.iloc[start_index : start_index + num_excluded].values.flatten()
+        excluded_atoms = excluded_atoms_list.iloc[start_index: start_index + num_excluded].values.flatten()
 
         # A value of 0 is a "nonexistent atom 0" - means no exclusions
         excluded_atoms = [value for value in excluded_atoms if value != 0]
@@ -456,7 +448,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     if not all_excluded_df.empty:
         dl.set_pair_scalings(all_excluded_df)
 
-    ### Try to pull in an inpcrd file for XYZ coordinates and box information
+    # Try to pull in an inpcrd file for XYZ coordinates and box information
     inpcrd_file = filename.replace('.prmtop', '.inpcrd')
     try:
         header_data = eex.utility.read_lines(inpcrd_file, 2)
@@ -470,13 +462,12 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
         read_size = math.ceil(float(inpcrd_size[0]) / 2)
 
-
         file_handle = open(inpcrd_file, "r")
         # Read in all information in inpcrd
         data = pd.read_fwf(
             file_handle, widths=([12] * 6), dtypes=([float] * 6), header=None, skiprows=2)
 
-        if data.shape[0]  == read_size + 1 and sizes_dict["IFBOX"] > 0:
+        if data.shape[0] == read_size + 1 and sizes_dict["IFBOX"] > 0:
             box_information = data.tail(1).values[0]
 
             a = box_information[0]
@@ -506,7 +497,6 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
         elif data.shape[0] == read_size and sizes_dict["IFBOX"] > 0:
             raise Warning("Periodic prmtop used with non-periodic inpcrd. Using prmtop data")
-
 
         df = pd.DataFrame(data.values.reshape(-1, 3), columns=["X", "Y", "Z"])
         df.dropna(axis=0, how="any", inplace=True)
