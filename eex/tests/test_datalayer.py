@@ -237,8 +237,22 @@ def test_get_term_parameter():
     assert parm2[0] == "harmonic"
     assert dict_compare(parm2[1], {"K": 6.0, "R0": 7.0})
 
+    parm1 = dl.get_term_parameter(2, 0, ftype='harmonic')
+    assert parm1[0] == "harmonic"
+    assert dict_compare(parm1[1], {"K": 4.0, "R0": 5.0})
+    assert dict_compare(parm1[1], {"K": 4.0, "R0": 5.0 + 1.e-12})
+
+    utype = {"K": "(kJ / mol) * angstrom ** -2", "R0": "angstrom"}
+    parm1 = dl.get_term_parameter(2, 0, utype=utype)
+    assert parm1[0] == "harmonic"
+    assert dict_compare(parm1[1], {"K": 4.0, "R0": 5.0})
+    assert dict_compare(parm1[1], {"K": 4.0, "R0": 5.0 + 1.e-12})
+
     with pytest.raises(KeyError):
         dl.get_term_parameter(2, 1231234123)
+
+    with pytest.raises(KeyError):
+        dl.get_term_parameter(2, 0, utype=utype, ftype="harmic")
 
 
 def test_get_term_parameters_units():
@@ -261,23 +275,12 @@ def test_get_term_parameters_units():
     assert parm2[0] == "harmonic"
     assert dict_compare(parm2[1], {"K": 2.0, "R0": 2.5})
 
-    with pytest.raises(ValueError):
-        # If units are specified, request also form type
-        dl.get_term_parameter(2, 0, utype=utype_2b)
-
-    with pytest.raises(ValueError):
-        # If units are specified, request also form type
-        dl.get_term_parameter(2, 0, ftype="harmonic")
-
     with pytest.raises(TypeError):
         dl.get_term_parameter(2, 0, utype={5, 6}, ftype="harmonic")
 
     with pytest.raises(KeyError):
         utype = {"K": "(kJ / mol) * angstrom ** -2"}
         dl.get_term_parameter(2, 0, utype=utype, ftype="harmonic")
-
-    with pytest.raises(KeyError):
-        dl.get_term_parameter(2, 0, utype=utype_2b, ftype="harmic")
 
 
 def test_list_parameters():

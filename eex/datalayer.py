@@ -956,36 +956,53 @@ class DataLayer(object):
         # Zip up the parameters
         parameters = {k: v for k, v in zip(term_md["parameters"], data[1:])}
         # Were done
+
         if utype is None and ftype is None:
-            return data[0], parameters
+            ftype = data[0]
 
-        if utype is not None and ftype is None:
-            raise ValueError("DataLayer:get_parameters: Paramter missing. Both utype and ftype must be specified")
+        elif utype is None and ftype is not None:
+            if not isinstance(ftype, str):
+                raise TypeError("DataLayer:get_parameters: Input ftype '%s' is not understood." % str(type(ftype)))
 
-        if utype is None and ftype is not None:
-            raise ValueError("DataLayer:get_parameters: Paramter missing. Both utype and ftype must be specified")
+            term_md_ftype = metadata.get_term_metadata(order, "forms", ftype)
+            parameters = form_converters.convert_form(order, parameters, data[0], ftype)
 
-        if not isinstance(ftype, str):
-            raise TypeError("DataLayer:get_parameters: Input ftype '%s' is not understood." % str(type(ftype)))
+        elif utype is not None and ftype is None:
 
-        term_md_ftype = metadata.get_term_metadata(order, "forms", ftype)
+            if isinstance(utype, (list, tuple)):
+                if len(utype) != len(term_md["parameters"]):
+                    raise KeyError("DataLayer:get_parameters: length of utype should match the length of parameters.")
+                utype = {k: v for k, v in zip(term_md["parameters"], utype)}
 
-        parameters = form_converters.convert_form(order, parameters, data[0], ftype)
+            if not isinstance(utype, dict):
+                raise TypeError("DataLayer:get_parameters: Input utype '%s' is not understood." % str(type(utype)))
 
-        # Need to convert
-        if isinstance(utype, (list, tuple)):
-            if len(utype) != len(term_md_ftype["parameters"]):
-                raise KeyError("DataLayer:get_parameters: length of utype should match the length of parameters.")
-            utype = {k: v for k, v in zip(term_md_ftype["parameters"], utype)}
+            if (set(term_md["parameters"]) != set(utype.keys())):
+                raise KeyError("DataLayer:get_parameters: Utype and ftype keys are not consistent")
 
-        if not isinstance(utype, dict):
-            raise TypeError("DataLayer:get_parameters: Input utype '%s' is not understood." % str(type(utype)))
+            for key in term_md["parameters"]:
+                parameters[key] *= units.conversion_factor(term_md["utype"][key], utype[key])
 
-        if (set(term_md_ftype["parameters"]) != set(utype.keys())):
-            raise KeyError("DataLayer:get_parameters: Utype and ftype keys are not consistent")
+            ftype = data[0]
+        else:
+            if not isinstance(ftype, str):
+                raise TypeError("DataLayer:get_parameters: Input ftype '%s' is not understood." % str(type(ftype)))
 
-        for key in term_md_ftype["parameters"]:
-            parameters[key] *= units.conversion_factor(term_md_ftype["utype"][key], utype[key])
+            term_md_ftype = metadata.get_term_metadata(order, "forms", ftype)
+            parameters = form_converters.convert_form(order, parameters, data[0], ftype)
+            if isinstance(utype, (list, tuple)):
+                if len(utype) != len(term_md_ftype["parameters"]):
+                    raise KeyError("DataLayer:get_parameters: length of utype should match the length of parameters.")
+                utype = {k: v for k, v in zip(term_md_ftype["parameters"], utype)}
+
+            if not isinstance(utype, dict):
+                raise TypeError("DataLayer:get_parameters: Input utype '%s' is not understood." % str(type(utype)))
+
+            if (set(term_md_ftype["parameters"]) != set(utype.keys())):
+                raise KeyError("DataLayer:get_parameters: Utype and ftype keys are not consistent")
+
+            for key in term_md_ftype["parameters"]:
+                parameters[key] *= units.conversion_factor(term_md_ftype["utype"][key], utype[key])
 
         return ftype, parameters
 
