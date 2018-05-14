@@ -265,7 +265,7 @@ class DataLayer(object):
         # Check the columns of the dataframe
         for col in scaling_df.columns:
             if col not in possible_columns:
-                raise KeyError ("Column '%s' not recognized in set_pair_scalings." %(col))
+                raise KeyError("Column '%s' not recognized in set_pair_scalings." % (col))
 
         # Check to make sure atom_type1 and atom_type2 are set in dataframe
         for col in metadata.additional_metadata.nb_scaling["index"]:
@@ -959,7 +959,11 @@ class DataLayer(object):
         if utype is None and ftype is None:
             return data[0], parameters
 
-        # Make sure the requested utype and the DL stored ftype are consistent
+        if utype is not None and ftype is None:
+            raise ValueError("DataLayer:get_parameters: Paramter missing. Both utype and ftype must be specified")
+
+        if utype is None and ftype is not None:
+            raise ValueError("DataLayer:get_parameters: Paramter missing. Both utype and ftype must be specified")
 
         if not isinstance(ftype, str):
             raise TypeError("DataLayer:get_parameters: Input ftype '%s' is not understood." % str(type(ftype)))
@@ -1214,8 +1218,6 @@ class DataLayer(object):
                     orders = ord
 
         return orders
-
-
 
     def summary(self):
         print("EEX DataLayer Object\n")
