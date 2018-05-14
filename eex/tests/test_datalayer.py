@@ -673,7 +673,7 @@ def test_nb_scaling():
     with pytest.raises(KeyError):
         dl.get_pair_scalings(nb_labels=["not_a_label"])
 
-    stored_scalings = dl.get_pair_scalings()
+    stored_scalings = dl.get_pair_scalings(order=False)
 
     for col in stored_scalings.columns:
         assert set(scale_df[col].values) == set(stored_scalings[col].values)
@@ -698,6 +698,9 @@ def test_set_nb_scaling_factors():
 
     dl.add_bonds(bond_df)
 
+    # Check dl.query_atom_pair
+    assert dl.query_atom_pair(1, 2) == 2
+
     # Add an angle
     angle_df = pd.DataFrame()
     angle_data = np.array([[0,1,2,0]])
@@ -707,6 +710,9 @@ def test_set_nb_scaling_factors():
         angle_df[name] = angle_data[:,num]
     
     dl.add_angles(angle_df)
+
+    # Check dl.query_atom_pair
+    assert dl.query_atom_pair(0, 2) == 3
 
     scaling_factors = {
         "coul": {
@@ -738,8 +744,10 @@ def test_set_nb_scaling_factors():
     dl.build_scaling_list()
 
     # Retrieve from datalayer
-    scaling = dl.get_pair_scalings()
+    scaling = dl.get_pair_scalings(nb_labels=["vdw_scale", "coul_scale"], order=True)
 
     assert(set(scaling['vdw_scale'].values) == set([0, 0.5]))
 
     assert(set(scaling['coul_scale'].values) == set([0, 0.25]))
+
+    assert(set(scaling['order'].values) == set([2,3]))

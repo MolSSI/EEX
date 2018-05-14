@@ -264,7 +264,7 @@ class DataLayer(object):
         # Check the columns of the dataframe
         for col in scaling_df.columns:
             if col not in possible_columns:
-                raise KeyError("Column %s not recognized in set_pair_scalings." % (col))
+                raise KeyError ("Column '%s' not recognized in set_pair_scalings." %(col))
 
         # Check to make sure atom_type1 and atom_type2 are set in dataframe
         for col in metadata.additional_metadata.nb_scaling["index"]:
@@ -279,20 +279,20 @@ class DataLayer(object):
             raise ValueError("No scaling factors set in set_pair_scalings")
 
         # Check that scalings are type float
-
         # Build multi-level indexer
         index = pd.MultiIndex.from_arrays([scaling_df["atom_index1"], scaling_df["atom_index2"]])
 
-        for l in ["vdw_scale", "coul_scale"]:
+        for l in metadata.additional_metadata.nb_scaling["scaling_type"]:
             if l in scaling_df.columns:
                 df = pd.Series(scaling_df[l].tolist(), index=index)
                 self.store.add_table(l, df)
 
         return True
 
-    def get_pair_scalings(self, nb_labels=["vdw_scale", "coul_scale"]):
+    def get_pair_scalings(self, nb_labels=["vdw_scale", "coul_scale"], order=True):
         """
-        Get scaling factor for nonbond interaction between two atoms
+        Get scaling factor for nonbond interaction between two atoms. If order is True, the term order between the two
+        atoms is returned. i.e. - bonded atoms have order 2, atoms in angle (atom 1 & atom 3) have order 3.
 
         Parameters
         ------------------------------------
@@ -301,10 +301,11 @@ class DataLayer(object):
         Returns
         ------------------------------------
             pd.DataFrame
+                Columns: [ atom_index1, atom_index2, vdw_scale, coul_scale ]
         """
 
         for k in nb_labels:
-            if k not in metadata.additional_metadata.nb_scaling["data"]:
+            if k not in metadata.additional_metadata.nb_scaling["scaling_type"]:
                 raise KeyError("%s is not a valid nb_scale type" % (k))
 
         rlist = []
@@ -316,6 +317,15 @@ class DataLayer(object):
 
         ret = pd.concat(rlist, axis=1)
         ret.columns = rlabels
+
+        if order is True:
+            # Get atom indices from multi-level indexing
+            atom_pairs = ret.index.values
+            pair_order = []
+
+            pair_order.append([self.query_atom_pair(x[0], x[1]) for x in atom_pairs])
+
+            ret['order'] = pair_order[0]
 
         return ret
 
@@ -329,6 +339,7 @@ class DataLayer(object):
             for scale, val in v.items():
                 order = int(scale[-1])
                 terms = self.get_terms(order)
+
                 store_df = pd.DataFrame()
 
                 store_df["atom_index1"] = terms["atom1"]
@@ -1165,6 +1176,38 @@ class DataLayer(object):
         form = metadata.get_term_metadata(order, "forms", data[0])["form"]
 
         return (data[0], form)
+
+    def query_atom_pair(self, atom1_index, atom2_index):
+        """
+        Checks whether atoms are connected through a bond, angle, or dihedral.
+
+        Parameters
+        --------------------
+        atom_index1: int
+        atom_index2: int
+
+        Returns
+        --------------------
+            orders: int
+                Order of atom interaction. None is returned if atom pair is not involved in bond, angle, or dihedral
+        """
+
+        orders = None
+
+        for ord in [2, 3, 4]:
+            terms = self.get_terms(ord)
+
+            if not terms.empty:
+                v_col_name = terms.columns.tolist()[-2]
+                a1 = terms['atom1'] == atom1_index
+                a2 = terms[v_col_name] == atom2_index
+
+                if not terms[a1 & a2].empty:
+                    orders = ord
+
+        return orders
+
+
 
     def summary(self):
         print("EEX DataLayer Object\n")
