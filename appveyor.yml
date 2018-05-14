@@ -18,7 +18,7 @@ install:
   - conda update --yes --all
   - conda install --yes conda-build
 
-  - conda create --yes -n eex_env numpy pandas pytables numexpr
+  - conda create --yes -n eex_env numpy pandas pytables numexpr scipy
   - activate eex_env
 
     # Install anything not in conda

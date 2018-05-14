@@ -1,4 +1,4 @@
-from .convert_helper import sanitize_term_order_name
+from .. import metadata
 
 REGISTERED_CONVERTERS = {}
 
@@ -7,7 +7,7 @@ for order in (2, 3, 4):
 
 
 def register_converter(order=None):
-    order = sanitize_term_order_name(order)
+    order = metadata.md_helper.sanitize_term_order_name(order)
 
     def decorator_function(fn):
         REGISTERED_CONVERTERS[order][fn.__name__] = fn
