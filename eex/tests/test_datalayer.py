@@ -68,6 +68,7 @@ def test_df_atoms(backend):
     dl_rand_df = dl.get_other("atoms")
     assert df_compare(rand_df, dl_rand_df)
 
+
 @pytest.mark.parametrize("backend", _backend_list)
 def test_misc(backend):
     dl = eex.datalayer.DataLayer("test_misc_functions", backend=backend)
@@ -236,8 +237,22 @@ def test_get_term_parameter():
     assert parm2[0] == "harmonic"
     assert dict_compare(parm2[1], {"K": 6.0, "R0": 7.0})
 
+    parm1 = dl.get_term_parameter(2, 0, ftype='harmonic')
+    assert parm1[0] == "harmonic"
+    assert dict_compare(parm1[1], {"K": 4.0, "R0": 5.0})
+    assert dict_compare(parm1[1], {"K": 4.0, "R0": 5.0 + 1.e-12})
+
+    utype = {"K": "(kJ / mol) * angstrom ** -2", "R0": "angstrom"}
+    parm1 = dl.get_term_parameter(2, 0, utype=utype)
+    assert parm1[0] == "harmonic"
+    assert dict_compare(parm1[1], {"K": 4.0, "R0": 5.0})
+    assert dict_compare(parm1[1], {"K": 4.0, "R0": 5.0 + 1.e-12})
+
     with pytest.raises(KeyError):
         dl.get_term_parameter(2, 1231234123)
+
+    with pytest.raises(KeyError):
+        dl.get_term_parameter(2, 0, utype=utype, ftype="harmic")
 
 
 def test_get_term_parameters_units():
@@ -252,16 +267,20 @@ def test_get_term_parameters_units():
     assert 1 == dl.add_term_parameter(2, "harmonic", {"K": 6.0, "R0": 7.0}, utype=utype_2b)
 
     utype_2scale = {"K": "2.0 * (kJ / mol) * angstrom ** -2", "R0": "2.0 * angstrom"}
-    parm1 = dl.get_term_parameter(2, 0, utype=utype_2scale)
+    parm1 = dl.get_term_parameter(2, 0, utype=utype_2scale, ftype="harmonic")
     assert parm1[0] == "harmonic"
     assert dict_compare(parm1[1], {"K": 2.0, "R0": 2.5})
 
-    parm2 = dl.get_term_parameter(2, 0, utype=[utype_2scale["K"], utype_2scale["R0"]])
+    parm2 = dl.get_term_parameter(2, 0, utype=[utype_2scale["K"], utype_2scale["R0"]], ftype="harmonic")
     assert parm2[0] == "harmonic"
     assert dict_compare(parm2[1], {"K": 2.0, "R0": 2.5})
 
     with pytest.raises(TypeError):
-        dl.get_term_parameter(2, 0, utype={5, 6})
+        dl.get_term_parameter(2, 0, utype={5, 6}, ftype="harmonic")
+
+    with pytest.raises(KeyError):
+        utype = {"K": "(kJ / mol) * angstrom ** -2"}
+        dl.get_term_parameter(2, 0, utype=utype, ftype="harmonic")
 
 
 def test_list_parameters():
@@ -324,7 +343,7 @@ def test_atom_units():
 def test_box_size():
     dl = eex.datalayer.DataLayer("test_box_size", backend="memory")
 
-    tmp = {"a": 5, "b": 6, "c": 7, "alpha": np.pi/3, "beta": 0.0, "gamma": 0.0}
+    tmp = {"a": 5, "b": 6, "c": 7, "alpha": np.pi / 3, "beta": 0.0, "gamma": 0.0}
 
     # Normal set/get
     dl.set_box_size(tmp)
@@ -332,7 +351,7 @@ def test_box_size():
     assert dict_compare(tmp, comp)
 
     # Set/get with units
-    utype = {"a": "nanometers", "b": "nanometers", "c": "nanometers", "alpha": "radian", "beta": "radian", "gamma": "radian"} 
+    utype = {"a": "nanometers", "b": "nanometers", "c": "nanometers", "alpha": "radian", "beta": "radian", "gamma": "radian"}
     dl.set_box_size(tmp, utype=utype)
     comp = dl.get_box_size(utype=utype)
     assert np.isclose(comp["a"], tmp["a"])
@@ -343,7 +362,7 @@ def test_box_size():
     assert np.isclose(comp["gamma"], tmp["gamma"])
 
     # Set/get with units
-    utype_1 = {"a": "angstroms", "b": "angstroms", "c": "angstroms", "alpha": "degree", "beta": "degree", "gamma": "degree"} 
+    utype_1 = {"a": "angstroms", "b": "angstroms", "c": "angstroms", "alpha": "degree", "beta": "degree", "gamma": "degree"}
     dl.set_box_size(tmp, utype=utype)
     comp = dl.get_box_size(utype=utype_1)
     assert np.isclose(comp["a"], tmp["a"] * 10)
@@ -353,11 +372,12 @@ def test_box_size():
     assert np.isclose(comp["beta"], tmp["beta"] * 180.0 / np.pi)
     assert np.isclose(comp["gamma"], tmp["gamma"] * 180.0 / np.pi)
 
-    utype_2 = {"a": "miles", "b": "miles", "c": "miles", "alpha": "radians", "beta": "radians", "gamma": "radians"} 
+    utype_2 = {"a": "miles", "b": "miles", "c": "miles", "alpha": "radians", "beta": "radians", "gamma": "radians"}
     with pytest.raises(AssertionError):
         dl.set_box_size(tmp, utype=utype_2)
         comp = dl.get_box_size()
         assert dict_compare(tmp, comp)
+
 
 def test_box_center():
     dl = eex.datalayer.DataLayer("test_box_center", backend="memory")
@@ -394,7 +414,6 @@ def test_box_center():
         dl.set_box_center(tmp, utype=utype_2)
         comp = dl.get_box_center()
         assert dict_compare(tmp, comp)
-
 
 
 def test_add_nb_parameter():
@@ -479,8 +498,7 @@ def test_add_nb_parameter_units():
     assert(list(test_parameters2) == [(1, None)])
 
     test_parameters3 = dl.list_nb_parameters(nb_name="LJ", itype="pair")
-    assert (list(test_parameters3) == [(1, 2), (1,3)])
-
+    assert (list(test_parameters3) == [(1, 2), (1, 3)])
 
 
 def test_get_nb_parameter():
@@ -536,6 +554,7 @@ def test_get_nb_parameter():
                                                       'sigma': 'angstrom'})
     assert dict_compare(result, comp)
 
+
 def test_mixing_rule():
     dl = eex.datalayer.DataLayer("test_add_nb_parameters", backend="memory")
 
@@ -560,7 +579,7 @@ def test_mixing_rule():
 
     # Add Buckingham parameter to datalayer
     dl.add_nb_parameter(atom_type=2, nb_name="Buckingham", nb_parameters={"A": 1.0, "C": 1.0, "rho": 1.0})
-    
+
     # This should fail because we can not combine LJ and Buckingham parameters.
     with pytest.raises(ValueError):
         dl.mix_LJ_parameters(atom_type1=1, atom_type2=2)
@@ -575,11 +594,12 @@ def test_mixing_rule():
     dl.mix_LJ_parameters(atom_type1=1, atom_type2=2)
 
     # Get values from datalayer and check
-    params = dl.get_nb_parameter(atom_type=1,atom_type2=2, nb_model="epsilon/sigma")
+    params = dl.get_nb_parameter(atom_type=1, atom_type2=2, nb_model="epsilon/sigma")
 
-    ans = {'sigma': 2 ** (1./2.), 'epsilon': 1.}
+    ans = {'sigma': 2 ** (1. / 2.), 'epsilon': 1.}
 
     assert dict_compare(params, ans)
+
 
 def test_mixing_table():
     dl = eex.datalayer.DataLayer("test_add_nb_parameters", backend="memory")
@@ -606,14 +626,14 @@ def test_mixing_table():
     pairIJ = dl.list_nb_parameters(nb_name="LJ", itype="pair", nb_model="epsilon/sigma")
 
     ans = {
-        (1,1): {
+        (1, 1): {
             'sigma': 2.,
             'epsilon': 1,
         },
 
         (1, 2): {
-        'sigma': 1.5,
-        'epsilon': (2.) ** (1./2.)
+            'sigma': 1.5,
+            'epsilon': (2.) ** (1. / 2.)
         },
 
         (2, 2): {
@@ -624,7 +644,8 @@ def test_mixing_table():
 
     assert(dict_compare(pairIJ, ans))
 
-def test_nb_scaling(): 
+
+def test_nb_scaling():
     dl = eex.datalayer.DataLayer("test_add_nb_parameters", backend="memory")
 
     # Create system with three molecules
@@ -648,27 +669,27 @@ def test_nb_scaling():
     # Build scaling dataframe
     scale_df = pd.DataFrame()
     scale_df["coul_scale"] = [0.0, 0.0, 0.0]
-    scale_df["atom_index1"] = [1,1,2]
-    scale_df["atom_index2"] = [2,3,3]
+    scale_df["atom_index1"] = [1, 1, 2]
+    scale_df["atom_index2"] = [2, 3, 3]
     scale_df["vdw_scale"] = [0.5, 0.5, 0.5]
-    
+
     # Check adding data
     dl.set_pair_scalings(scale_df)
 
     # Check function failures
     new_df = scale_df.copy()
-    new_df["test"] = [0,0,0]
+    new_df["test"] = [0, 0, 0]
 
     with pytest.raises(KeyError):
         dl.set_pair_scalings(new_df)
 
     with pytest.raises(ValueError):
         dl.set_pair_scalings(scale_df[["atom_index1", "atom_index2"]])
-    
+
     scale_df.drop(['atom_index1'], axis=1, inplace=True)
     with pytest.raises(KeyError):
         dl.set_pair_scalings(scale_df)
-    
+
     # Retrieve information from dl
     with pytest.raises(KeyError):
         dl.get_pair_scalings(nb_labels=["not_a_label"])
@@ -690,7 +711,7 @@ def test_set_nb_scaling_factors():
 
     # Add bonds to system
     bond_df = pd.DataFrame()
-    bond_data = np.array([[0,1,0], [1,2,0]])
+    bond_data = np.array([[0, 1, 0], [1, 2, 0]])
     bond_columns = ["atom1", "atom2", "term_index"]
 
     for num, name in enumerate(bond_columns):
@@ -703,12 +724,12 @@ def test_set_nb_scaling_factors():
 
     # Add an angle
     angle_df = pd.DataFrame()
-    angle_data = np.array([[0,1,2,0]])
+    angle_data = np.array([[0, 1, 2, 0]])
     angle_columns = ["atom1", "atom2", "atom3", "term_index"]
 
     for num, name in enumerate(angle_columns):
-        angle_df[name] = angle_data[:,num]
-    
+        angle_df[name] = angle_data[:, num]
+
     dl.add_angles(angle_df)
 
     # Check dl.query_atom_pair
@@ -750,4 +771,4 @@ def test_set_nb_scaling_factors():
 
     assert(set(scaling['coul_scale'].values) == set([0, 0.25]))
 
-    assert(set(scaling['order'].values) == set([2,3]))
+    assert(set(scaling['order'].values) == set([2, 3]))

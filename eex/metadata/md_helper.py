@@ -52,6 +52,8 @@ def get_term_metadata(order, name=None, field=None):
 
     # Do we have a field
     if field:
+        if field not in tmpdata.keys():
+            raise KeyError("Md_helper: get_term_metadata: functional form '%s' not found." % field)
         return tmpdata[field]
     else:
         return tmpdata

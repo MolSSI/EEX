@@ -13,6 +13,66 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def _check_dl_forms_compatibility(dl, term_table, nb_term_table):
+    # """
+    # This function examines a datalayer to determine if it is compatible with Lammps.
+    # """
+
+    # Loop over force field information - check functional form compatibility
+    valid_forms = dict()
+    for order in (2, 3, 4):
+        terms = dl.list_term_parameters(order)
+        for j in terms.values():
+            canonical_form = eex.metadata.get_term_metadata(order, 'forms', j[0])['canonical_form']
+            compatible_forms = eex.metadata.get_term_metadata(order, "group")[canonical_form]
+            dl_lammps_intersection = set(compatible_forms) & set(term_table[order].keys())
+            if len(dl_lammps_intersection) is 0:
+                raise TypeError("Functional form %s stored in datalayer is not compatible with Lammps.\n" % (j[0]))
+            valid_forms[order] = dl_lammps_intersection
+    return valid_forms
+
+    # # Now, check nonbonded interactions
+    # # Grab all pair interactions stored in datalayer
+    # nb = dl.list_nb_parameters(nb_name="LJ", nb_model="AB", itype="pair")
+
+    # # Get the number of atom types. The number of pair interactions should be equal to num_atom_types * (num_atom_types + 1)) / 2
+    # num_atom_types = len(dl.get_unique_atom_types())
+
+    # # This will occur if there are no interactions stored in the dl.
+    # if len(nb.keys()) == 0:
+
+    #     if dl.get_mixing_rule() not in lmd.mixing_rule:
+    #         raise TypeError(
+    #             "Mixing rule %s not compatible with Lammps" % dl.get_mixing_rule())
+
+    #         # Calculate pair interactions according to Lammps.
+    #         dl.build_LJ_mixing_table()
+
+    #     # This condition will be met if some pair interactions are stored, but not the correct number.
+    # elif len(nb.keys()) != (num_atom_types * (num_atom_types + 1)) / 2:
+    #     raise ValueError("Lammps compatibility check : Incorrect number of pair interactions\n")
+
+    # stored_properties = dl.list_atom_properties()
+    # # TODO probably the style must be an input for the writer?
+    # required_properties = lmd.atom_style['full']
+
+    # diff = np.setdiff1d(required_properties, stored_properties)
+
+    # natoms = dl.get_atom_count()
+
+    # index = np.arange(1, natoms + 1)
+
+    # # # Build and curate the data
+    # df = pd.DataFrame({'atom_index': index})
+    # df.dropna(axis=0, how="any", inplace=True)
+    # df.set_index('atom_index', inplace=True)
+
+    # for req in diff:
+    #     if req not in ['X', 'Y', 'Z']:
+    #         # TODO probably we need something here?
+    #         pass
+
+
 def write_lammps_file(dl, data_filename, input_filename, unit_style="real", blocksize=110):
 
     # handle units
@@ -21,6 +81,8 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
     term_table = lmd.build_term_table(unit_style)
 
     nb_term_table = lmd.build_nb_table("real")
+
+    valid_forms = _check_dl_forms_compatibility(dl, term_table, nb_term_table)
 
     data_file = open(data_filename, 'w')
     input_file = open(input_filename, 'w')
@@ -100,10 +162,16 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
 
         data_file.write(("%s Coeffs\n\n" % param_type).title())
         for uid in param_uids:
+
             param_coeffs = dl.get_term_parameter(param_order, uid)
 
-            term_data = term_table[param_order][param_coeffs[0]]
-            param_coeffs = dl.get_term_parameter(param_order, uid, utype=term_data["utype"])
+            if param_coeffs[0] in valid_forms[param_order]:
+                term_data = term_table[param_order][param_coeffs[0]]
+                param_coeffs = dl.get_term_parameter(param_order, uid, utype=term_data["utype"], ftype=param_coeffs[0])
+            else:
+                # Arbitrarily pick the first
+                term_data = term_table[param_order][valid_forms[param_order][0]]
+                param_coeffs = dl.get_term_parameter(param_order, uid, utype=term_data["utype"], ftype=valid_forms[param_order][0])
 
             # Order the data like lammps wants it
             parameters = [param_coeffs[1][k] for k in term_data["parameters"]]
