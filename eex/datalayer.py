@@ -336,6 +336,9 @@ class DataLayer(object):
         """
         scaling_factors = self.get_nb_scaling_factors()
 
+        if not scaling_factors:
+            raise ValueError("Can not build scaling list, nb_scale_factors not set")
+
         for k, v in scaling_factors.items():
             for scale, val in v.items():
                 order = int(scale[-1])

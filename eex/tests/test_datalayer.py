@@ -732,6 +732,10 @@ def test_set_nb_scaling_factors():
 
     dl.add_angles(angle_df)
 
+    # Check that build_scaling_list fails now
+    with pytest.raises(ValueError):
+        dl.build_scaling_list()
+
     # Check dl.query_atom_pair
     assert dl.query_atom_pair(0, 2) == 3
 
