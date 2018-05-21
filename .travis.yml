@@ -45,7 +45,7 @@ before_script:
   - conda list
 
 script:
-  - py.test -v --cov=eex/ --durations=5
+  - py.test -v --cov=eex/ --durations=5 --nbval-lax
 
 notifications:
   email: false
