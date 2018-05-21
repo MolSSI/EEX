@@ -59,6 +59,22 @@ def _write_amber_data(file_handle, data, category):
     _write_1d(file_handle, np.array(data), ncols, fmt)
 
 
+def _get_charmm_dihedral_count(dl):
+    # TODO this a temporary solution to get the number of dihedrals stored in the datalayer.
+    order = 4
+    ret = 0
+    charmm = amd.forcefield_parameters['dihedral']['form']
+    terms = dl.list_term_parameters(order)
+    for j in terms.values():
+        term_md = eex.metadata.get_term_metadata(order, "forms", j[0])
+        # Zip up the parameters
+        parameters = {k: v for k, v in zip(term_md["parameters"], j[1:])}
+        parameters = eex.form_converters.convert_form(order, parameters, j[0], charmm)
+        ret += len(parameters['K'])
+
+    return ret
+
+
 def _check_dl_compatibility(dl):
     """
     This function examines a datalayer to determine if it is compatible with Amber.
@@ -71,7 +87,8 @@ def _check_dl_compatibility(dl):
         if k is not "nonbond":
             terms = dl.list_term_parameters(v["order"])
             for j in terms.values():
-                canonical_form = eex.metadata.get_term_metadata(v["order"], "forms", j[0])['canonical_form']
+                term_md = eex.metadata.get_term_metadata(v["order"], "forms", j[0])
+                canonical_form = term_md['canonical_form']
                 compatible_forms = eex.metadata.get_term_metadata(v["order"], "group")[canonical_form]
                 if v['form'] not in compatible_forms:
                     # Will need to insert check to see if these can be easily converted (ex OPLS dihedral <-> charmmfsw)
@@ -177,12 +194,14 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     _check_dl_compatibility(dl)
 
+    dihedral_count = _get_charmm_dihedral_count(dl)
+
     # Figure out what is hydrogen for the header
     num_H_list = []
     inc_hydrogen = {}
     without_hydrogen = {}
-    hidx = (dl.get_atoms("atomic_number") == 1).values.ravel()
-
+    hidx = (dl.get_atoms("atomic_number") == 1)['atomic_number']
+    hidx = hidx[hidx].index
     for term_type, term_name in zip([2, 3, 4], ["bonds", "angles", "dihedrals"]):
         term = dl.get_terms(term_type)
         if term.shape[0] == 0:
@@ -191,6 +210,7 @@ def write_amber_file(dl, filename, inpcrd=None):
 
         # Build up an index of what is in hydrogen or not
         inc_hydrogen_mask = term["atom1"].isin(hidx)
+
         for n in range(term_type - 1):
             name = "atom" + str(n + 2)
             inc_hydrogen_mask |= term[name].isin(hidx)
@@ -209,11 +229,11 @@ def write_amber_file(dl, filename, inpcrd=None):
     output_sizes["MTHETA"] = dl.get_term_count(3, "total") - output_sizes["NTHETH"]  # Number of angles not containing hydrogen
     output_sizes['NTHETA'] = output_sizes["MTHETA"]  # MTHETA + number of constraint angles (NTHETA = MTHETA always)
     output_sizes["NPHIH"] = num_H_list[2]  # Number of torsions containing hydrogen
-    output_sizes["MPHIA"] = dl.get_term_count(4, "total") - output_sizes["NPHIH"]  # Number of torsions not containing hydrogen
+    output_sizes["MPHIA"] = dihedral_count - output_sizes["NPHIH"]  # Number of torsions not containing hydrogen
     output_sizes["NPHIA"] = output_sizes["MPHIA"]
     output_sizes["NUMBND"] = len(dl.list_term_uids(2))  # Number of unique bond types
     output_sizes["NUMANG"] = len(dl.list_term_uids(3))  # Number of unique angle types
-    output_sizes["NPTRA"] = len(dl.list_term_uids(4))  # Number of unique torsion types
+    output_sizes["NPTRA"] = dihedral_count  # Number of unique torsion types
 
     output_sizes["NRES"] = len(dl.list_atom_uids("residue_name"))  # Number of residues (not stable)
     output_sizes["NTYPES"] = len(np.unique(dl.get_atoms("atom_type")))  # Number of distinct LJ atom types
