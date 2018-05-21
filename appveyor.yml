@@ -24,6 +24,7 @@ install:
     # Install anything not in conda
   - pip install pint
   - pip install pytest pytest-cov codecov
+  - pip install nbval
   - conda list
 
     # Install the package locally
@@ -32,4 +33,4 @@ install:
 build: false
 
 test_script:
-  - py.test -v --cov=eex/ --durations=5
+  - py.test -v --cov=eex/ --durations=5 --nbval-lax
