@@ -30,6 +30,7 @@ install:
     # Install anything not in conda
   - pip install pint
   - pip install pytest pytest-cov codecov
+  - pip install nbval
 
     # Build and install package
   - pip install -e .
