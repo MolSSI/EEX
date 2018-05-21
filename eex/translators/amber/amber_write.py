@@ -70,7 +70,10 @@ def _get_charmm_dihedral_count(dl):
         # Zip up the parameters
         parameters = {k: v for k, v in zip(term_md["parameters"], j[1:])}
         parameters = eex.form_converters.convert_form(order, parameters, j[0], charmm)
-        ret += len(parameters['K'])
+        if isinstance(parameters['K'], float):
+            ret += 1
+        elif isinstance(parameters['K'], np.ndarray):
+            ret += len(parameters['K'])
 
     return ret
 
