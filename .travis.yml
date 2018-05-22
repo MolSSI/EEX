@@ -30,6 +30,7 @@ install:
     # Install anything not in conda
   - pip install pint
   - pip install pytest pytest-cov codecov
+  - pip install nbval
 
     # Build and install package
   - pip install -e .
@@ -44,7 +45,7 @@ before_script:
   - conda list
 
 script:
-  - py.test -v --cov=eex/ --durations=5
+  - py.test -v --cov=eex/ --durations=5 --nbval-lax --current-env
 
 notifications:
   email: false
