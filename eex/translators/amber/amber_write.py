@@ -122,6 +122,15 @@ def _check_dl_compatibility(dl):
             elif len(nb.keys()) != (num_atom_types * (num_atom_types + 1)) / 2:
                 raise ValueError("Amber compatibility check : Incorrect number of pair interactions\n")
 
+            # Check NB scaling factors are compatible with amber
+            if "vdw_scale" not in dl.store.list_tables() or "coul_scale" not in dl.store.list_tables():
+
+                if not dl.get_nb_scaling_factors():
+                    raise ValueError("No nonbond scaling information is set in datalayer")
+                else:
+                    dl.build_scaling_list()
+            #nb_scaling = dl.get_pair_scalings()
+
     stored_properties = dl.list_atom_properties()
     required_properties = list(amd.atom_property_names.values())
 
