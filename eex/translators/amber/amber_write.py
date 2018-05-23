@@ -159,6 +159,8 @@ def _check_dl_compatibility(dl):
                     raise ValueError("Nonbond scaling (order=3, %s) is not consistent with Amber. In Amber, 1-3 nonbond "
                                      "interactions are excluded" %(scale_type))
 
+                ## TODO - need check scaling 0 is set for all order 2 and order 3
+
 
     stored_properties = dl.list_atom_properties()
     required_properties = list(amd.atom_property_names.values())
@@ -467,6 +469,41 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     for category in amd.forcefield_parameters["nonbond"]["column_names"]:
         written_categories.append(category)
+
+    # Handle exclusions and scaling
+    exclusion_categories = {}
+
+    for excl in amd.exclusion_sections:
+        exclusion_categories[excl] = []
+
+    exclusions_scaling = dl.get_pair_scalings(order=True)
+
+    print(exclusions_scaling)
+
+    order_2_3 = exclusions_scaling[(exclusions_scaling["order"] == 2) | (exclusions_scaling["order"] == 3)]
+
+    atom_inds = order_2_3.index.get_level_values('atom_index1').unique()
+
+    # Build NUMBER_EXCLUDED_ATOMS and EXCLUDED_ATOMS_LIST.
+    for ind in atom_inds:
+        excluded_atoms_df = order_2_3.loc[ind]
+
+        print(excluded_atoms_df)
+
+        excluded_atoms = excluded_atoms_df.index.values
+
+        print(ind, excluded_atoms)
+
+        exclusion_categories["EXCLUDED_ATOMS_LIST"].append(x for x in excluded_atoms)
+
+        exclusion_categories["NUMBER_EXCLUDED_ATOMS"].append(len(excluded_atoms))
+
+    print(exclusion_categories)
+
+    for excl in amd.exclusion_sections:
+        _write_amber_data(file_handle, exclusion_categories[excl], excl)
+        written_categories.append(excl)
+
 
     # Write headers for other sections (file will not work in AMBER without these)
     for k in amd.data_labels:
