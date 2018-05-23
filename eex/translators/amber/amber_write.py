@@ -65,11 +65,13 @@ def _get_charmm_dihedral_count(dl):
     ret = 0
     charmm = amd.forcefield_parameters['dihedral']['form']
     terms = dl.list_term_parameters(order)
+
     for j in terms.values():
         term_md = eex.metadata.get_term_metadata(order, "forms", j[0])
         # Zip up the parameters
         parameters = {k: v for k, v in zip(term_md["parameters"], j[1:])}
         parameters = eex.form_converters.convert_form(order, parameters, j[0], charmm)
+
         if isinstance(parameters['K'], float):
             ret += 1
         elif isinstance(parameters['K'], np.ndarray):
@@ -89,10 +91,12 @@ def _check_dl_compatibility(dl):
     for k, v in amd.forcefield_parameters.items():
         if k is not "nonbond":
             terms = dl.list_term_parameters(v["order"])
+
             for j in terms.values():
                 term_md = eex.metadata.get_term_metadata(v["order"], "forms", j[0])
                 canonical_form = term_md['canonical_form']
                 compatible_forms = eex.metadata.get_term_metadata(v["order"], "group")[canonical_form]
+
                 if v['form'] not in compatible_forms:
                     # Will need to insert check to see if these can be easily converted (ex OPLS dihedral <-> charmmfsw)
                     raise TypeError("Functional form %s stored in datalayer is not compatible with Amber.\n" % (j[0]))
@@ -141,9 +145,15 @@ def _check_dl_compatibility(dl):
 
                 p12 = pair_scalings[pair_scalings["order"] == 2][scale_type]
 
+                p13 = pair_scalings[pair_scalings["order"] == 3][scale_type]
+
                 if p12.nonzero()[0]:
-                    raise ValueError("Nonbond scaling (order=%s is not consistent with Amber. In Amber, 1-2 nonbond "
-                                     "interactions are excluded" %(order) )
+                    raise ValueError("Nonbond scaling (order=2, %s) is not consistent with Amber. In Amber, 1-2 nonbond "
+                                     "interactions are excluded" %(scale_type))
+
+                if p13.nonzero()[0]:
+                    raise ValueError("Nonbond scaling (order=3, %s) is not consistent with Amber. In Amber, 1-3 nonbond "
+                                     "interactions are excluded" %(scale_type))
 
 
     stored_properties = dl.list_atom_properties()
