@@ -242,6 +242,17 @@ def test_amber_compatibility_NB_number(butane_dl):
     with pytest.raises(ValueError):
         eex.translators.amber.write_amber_file(dl, oname)
 
+def test_amber_compatibility_NB_type(butane_dl):
+
+    dl = butane_dl(nb=False)
+
+    dl.add_nb_parameter(atom_type=1, nb_name="Buckingham", nb_model=None, nb_parameters=[1.0, 1.0, 1.0])
+
+    oname = eex_find_files.get_scratch_directory("dl_compatibility.prmtop")
+
+    with pytest.raises(KeyError):
+        eex.translators.amber.write_amber_file(dl, oname)
+
 def test_amber_compatibility_check_mixing_rule(butane_dl):
 
     # Get butane topology
@@ -302,6 +313,8 @@ def test_amber_compatibility_no_scaling(butane_dl):
 
     with pytest.raises(ValueError):
         eex.translators.amber.write_amber_file(dl, oname)
+
+
 
 
 

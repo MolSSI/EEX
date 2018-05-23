@@ -101,9 +101,13 @@ def _check_dl_compatibility(dl):
                     # Will need to insert check to see if these can be easily converted (ex OPLS dihedral <-> charmmfsw)
                     raise TypeError("Functional form %s stored in datalayer is not compatible with Amber.\n" % (j[0]))
         else:
-            # Handle nonbonds. Amber must have pair interactions.
+            # Handle nonbonds. Make sure only LJ types are stored in datalayer.
+            nb_forms = dl.list_stored_nb_types()
 
-            # Grab all pair interactions stored in datalayer
+            if set(nb_forms) != set(["LJ"]):
+                raise KeyError("Nonbond forms must be type LJ. Forms stored in datalayer are not compatible with Amber - %s" % nb_forms)
+
+            # Grab all pair interactions stored in datalayer. Amber must have pair interactions.
             nb = dl.list_nb_parameters(nb_name="LJ", nb_model="AB", itype="pair")
 
             # Get the number of atom types. The number of pair interactions should be equal to num_atom_types * (num_atom_types + 1)) / 2
@@ -147,11 +151,11 @@ def _check_dl_compatibility(dl):
 
                 p13 = pair_scalings[pair_scalings["order"] == 3][scale_type]
 
-                if p12.nonzero()[0]:
+                if p12.nonzero()[0].any():
                     raise ValueError("Nonbond scaling (order=2, %s) is not consistent with Amber. In Amber, 1-2 nonbond "
                                      "interactions are excluded" %(scale_type))
 
-                if p13.nonzero()[0]:
+                if p13.nonzero()[0].any():
                     raise ValueError("Nonbond scaling (order=3, %s) is not consistent with Amber. In Amber, 1-3 nonbond "
                                      "interactions are excluded" %(scale_type))
 
@@ -440,13 +444,6 @@ def write_amber_file(dl, filename, inpcrd=None):
     # Relevant headers = NONBOND_PARM_INDEX, LENNARD_JONES_ACOEF, LENNARD_JONES_BCOEF
     stored_atom_types = dl.get_unique_atom_types()
     ntypes = len(stored_atom_types)
-
-    nb_forms = dl.list_stored_nb_types()
-
-    # This can be removed if compatibility check inserted at beginning
-    if set(nb_forms) != set(["LJ"]):
-        # Write better message here
-        raise KeyError("Nonbond forms stored in datalayer are not compatible with Amber - %s" % nb_forms)
 
     # Get parameters from datalayer using correct amber units
     stored_nb_parameters = dl.list_nb_parameters(
