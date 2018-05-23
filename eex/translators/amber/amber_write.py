@@ -123,13 +123,28 @@ def _check_dl_compatibility(dl):
                 raise ValueError("Amber compatibility check : Incorrect number of pair interactions\n")
 
             # Check NB scaling factors are compatible with amber
-            if "vdw_scale" not in dl.store.list_tables() or "coul_scale" not in dl.store.list_tables():
 
-                if not dl.get_nb_scaling_factors():
-                    raise ValueError("No nonbond scaling information is set in datalayer")
-                else:
-                    dl.build_scaling_list()
-            #nb_scaling = dl.get_pair_scalings()
+            scaling_types = eex.metadata.additional_metadata.nb_scaling["scaling_type"]
+
+            for scale_type in scaling_types:
+
+                if scale_type not in dl.store.list_tables():
+
+                    if not dl.get_nb_scaling_factors():
+                        raise ValueError("No nonbond scaling (%s) information is set in datalayer" %(scale_type))
+                    else:
+                        # Build atom-wise scaling list
+                        dl.build_scaling_list()
+
+                # Check that NB scaling factors are compatible with amber (ie 1,2 and 1,3 must be 0 (excluded))
+                pair_scalings = dl.get_pair_scalings(nb_labels=[scale_type], order=True)
+
+                p12 = pair_scalings[pair_scalings["order"] == 2][scale_type]
+
+                if p12.nonzero()[0]:
+                    raise ValueError("Nonbond scaling (order=%s is not consistent with Amber. In Amber, 1-2 nonbond "
+                                     "interactions are excluded" %(order) )
+
 
     stored_properties = dl.list_atom_properties()
     required_properties = list(amd.atom_property_names.values())
