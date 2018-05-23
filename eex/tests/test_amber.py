@@ -268,6 +268,41 @@ def test_amber_compatibility_functional_form(butane_dl):
         dl.add_term_parameter(2, "fene", {"K": 1, "R0": 1, "epsilon": 1, "sigma": 1,})
         eex.translators.amber.write_amber_file(dl, oname)
 
+def test_amber_compatibility_scaling(butane_dl):
+
+    dl = butane_dl(scale=False)
+
+    oname = eex_find_files.get_scratch_directory("dl_compatibility.prmtop")
+
+    # Set with noncompatible scale13
+    scaling_factors = {
+        "coul": {
+            "scale12": 0.0,
+            "scale13": 0.50,
+            "scale14": 0.75,
+        },
+
+        "vdw": {
+            "scale12": 0.0,
+            "scale13": 0.0,
+            "scale14": 0.75,
+        }
+    }
+
+    dl.set_nb_scaling_factors(scaling_factors)
+
+    with pytest.raises(ValueError):
+        eex.translators.amber.write_amber_file(dl, oname)
+
+def test_amber_compatibility_no_scaling(butane_dl):
+
+    dl = butane_dl(scale=False)
+
+    oname = eex_find_files.get_scratch_directory("dl_compatibility.prmtop")
+
+    with pytest.raises(ValueError):
+        eex.translators.amber.write_amber_file(dl, oname)
+
 
 
 
