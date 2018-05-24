@@ -478,27 +478,23 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     exclusions_scaling = dl.get_pair_scalings(order=True)
 
-    print(exclusions_scaling)
+    order_2_3_4 = exclusions_scaling[(exclusions_scaling["order"].notnull())]
 
-    order_2_3 = exclusions_scaling[(exclusions_scaling["order"] == 2) | (exclusions_scaling["order"] == 3)]
-
-    atom_inds = order_2_3.index.get_level_values('atom_index1').unique()
+    atom_inds = order_2_3_4.index.get_level_values('atom_index1').unique()
 
     # Build NUMBER_EXCLUDED_ATOMS and EXCLUDED_ATOMS_LIST.
-    for ind in atom_inds:
-        excluded_atoms_df = order_2_3.loc[ind]
+    for ind in sorted(dl.get_atoms("atomic_number").index.values):
 
-        print(excluded_atoms_df)
+        if ind in order_2_3_4.index:
 
-        excluded_atoms = excluded_atoms_df.index.values
+            excluded_atoms_df = order_2_3_4.loc[ind]
+            excluded_atoms = excluded_atoms_df.index.values
+            exclusion_categories["EXCLUDED_ATOMS_LIST"].extend(excluded_atoms)
+            exclusion_categories["NUMBER_EXCLUDED_ATOMS"].append(len(excluded_atoms))
 
-        print(ind, excluded_atoms)
-
-        exclusion_categories["EXCLUDED_ATOMS_LIST"].append(x for x in excluded_atoms)
-
-        exclusion_categories["NUMBER_EXCLUDED_ATOMS"].append(len(excluded_atoms))
-
-    print(exclusion_categories)
+        else:
+            exclusion_categories["NUMBER_EXCLUDED_ATOMS"].append(1)
+            exclusion_categories["EXCLUDED_ATOMS_LIST"].append(0)
 
     for excl in amd.exclusion_sections:
         _write_amber_data(file_handle, exclusion_categories[excl], excl)
