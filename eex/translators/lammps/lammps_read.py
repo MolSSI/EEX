@@ -421,7 +421,5 @@ def read_lammps_input_file(dl, fname, blocksize=110):
             if "vdw" not in exclusions:
                 exclusions["lj"] = lmd.exclusions["default"]["lj"]
 
-            print(exclusions)
-
             dl.set_nb_scaling_factors(exclusions)
 
