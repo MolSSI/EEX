@@ -277,9 +277,9 @@ class DataLayer(object):
 
                 elif len(scale_values) == 0:
                     # This corresponds to the case where there are no interactions of this order (for example, water would have
-                    # no dihedrals. Pass in this case (scale14 will just be set to 1 - shouldn't matter if there are no
-                    # 1-4 interactions
-                    pass
+                    # no dihedrals. Set to 0  in this case (eg scale14 will just be set to 0 - shouldn't matter if there are no
+                    # 1-4 interactions )
+                    scale_template[scaling_type][scale_kw] = 0
 
                 else:
                     raise ValueError("Nonbond scaling factors cannot be set because there is more than one value for"

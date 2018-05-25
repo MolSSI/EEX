@@ -776,3 +776,71 @@ def test_set_nb_scaling_factors():
     assert(set(scaling['coul_scale'].values) == set([0, 0.25]))
 
     assert(set(scaling['order'].values) == set([2, 3]))
+
+def test_calculate_nb_scaling_factors(butane_dl):
+
+    dl = butane_dl(scale=False)
+
+    scaling_df = pd.DataFrame()
+
+    scaling_df['atom_index1'] = [0, 0, 0, 1, 1, 2]
+    scaling_df['atom_index2'] = [1, 2, 3, 2, 3, 3]
+    scaling_df["vdw_scale"] = [0, 0.5, 0.75, 0, 0.5, 0]
+    scaling_df["coul_scale"] = [0.1, 0.25, 0.5, 0.1, 0.25, 0.1]
+
+    dl.set_pair_scalings(scaling_df)
+
+    dl.calculate_nb_scaling_factors()
+
+    scaling_factors_answer = {
+        "vdw" :
+            {
+                "scale12": 0,
+                "scale13": 0.5,
+                "scale14": 0.75,
+            },
+        "coul" :
+            {
+                "scale12": 0.1,
+                "scale13": 0.25,
+                "scale14": 0.5,
+            }
+    }
+
+    scaling_factors_calculated = dl.get_nb_scaling_factors()
+
+    eex.testing.dict_compare(scaling_factors_answer, scaling_factors_calculated)
+
+def test_calculate_nb_scaling_factors2(butane_dl):
+
+    dl = butane_dl(scale=False)
+
+    scaling_df = pd.DataFrame()
+
+    # Set some values so they are not compatible (ie all 1-2 interactions aren't the same scaling factor)
+    scaling_df['atom_index1'] = [0, 0, 0, 1, 1, 2]
+    scaling_df['atom_index2'] = [1, 2, 3, 2, 3, 3]
+    scaling_df["vdw_scale"] = [0, 0.5, 0.75, 0, 0.55, 0]
+    scaling_df["coul_scale"] = [0.1, 0.25, 0.5, 0.1, 0.25, 0.1]
+
+    dl.set_pair_scalings(scaling_df)
+
+    with pytest.raises(ValueError):
+        dl.calculate_nb_scaling_factors()
+
+def test_calculate_nb_scaling_factors3(butane_dl):
+
+    dl = butane_dl(scale=True)
+
+    scaling_df = pd.DataFrame()
+    # Add pair scalings that are inconsistent with what is used already
+    scaling_df['atom_index1'] = [0, 0, 0, 1, 1, 2]
+    scaling_df['atom_index2'] = [1, 2, 3, 2, 3, 3]
+    scaling_df["vdw_scale"] = [0, 0.5, 0.75, 0, 0.5, 0]
+    scaling_df["coul_scale"] = [0.1, 0.25, 0.5, 0.1, 0.25, 0.1]
+
+    dl.set_pair_scalings(scaling_df)
+
+    with pytest.raises(ValueError):
+        dl.calculate_nb_scaling_factors()
+
