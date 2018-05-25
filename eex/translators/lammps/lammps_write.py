@@ -93,6 +93,29 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
     input_file.write("units\t%s\n" % (unit_style))
     input_file.write("atom_style\tfull\n")
 
+    if not dl.get_nb_scaling_factors():
+        dl.calculate_nb_scaling_factors()
+
+    scaling_factors = dl.get_nb_scaling_factors()
+
+    scaling_string = "\nspecial_bonds "
+
+    for scaling_type, scalings in scaling_factors.items():
+
+        if scaling_type == "vdw":
+            scaling_string += " lj "
+        else:
+            scaling_string += scaling_type + ' '
+
+        for scaling_order, values in scalings.items():
+            scaling_string += str(values) +' '
+
+    scaling_string += '\n'
+
+    input_file.write(scaling_string)
+
+
+
     sizes = {}
     sizes["atoms"] = dl.get_atom_count()
     sizes["bonds"] = dl.get_term_count(2, "total")
