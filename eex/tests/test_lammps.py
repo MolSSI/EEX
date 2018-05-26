@@ -86,13 +86,34 @@ def test_lammps_read_angles(spce_dl):
 
 
 
-@pytest.mark.parametrize("molecule", [
-    "data.trappe_butane_single_molecule",
-    "data.trappe_propane_single_molecule",
-    "data.trappe_ethane_single_molecule",
-])
+@pytest.mark.parametrize("molecule", ["butane","propane","ethane"])
 def test_lammps_reader(molecule):
-    # TODO
+
+    infile_name = "in.%s" %(molecule)
+
+    in_fname = eex_find_files.get_example_filename("lammps", "alkanes", infile_name)
+
+    # Read in the data
+    dl = eex.datalayer.DataLayer(molecule)
+    eex.translators.lammps.read_lammps_input_file(dl, in_fname)
+
+    stored_scaling_factors = dl.get_nb_scaling_factors()
+
+    # Check that some things were read correctly
+    scaling_factors = {
+        "vdw": {
+            "scale12": 0,
+            "scale13": 0,
+            "scale14": 0,
+        },
+        "coul": {
+            "scale12": 0,
+            "scale13": 0,
+            "scale14": 0,
+        },
+    }
+
+    eex.testing.dict_compare(stored_scaling_factors, scaling_factors)
     return True
 
 def test_lammps_writer(butane_dl):
