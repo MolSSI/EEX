@@ -103,7 +103,7 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
     for scaling_type, scalings in scaling_factors.items():
 
         if scaling_type == "vdw":
-            scaling_string += " lj "
+            scaling_string += "lj "
         else:
             scaling_string += scaling_type + ' '
 

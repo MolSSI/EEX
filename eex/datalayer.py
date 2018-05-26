@@ -251,10 +251,10 @@ class DataLayer(object):
 
         scale_template = metadata.additional_metadata.exclusions.copy()
 
-        # Make all values in this template 1 (in case not overwritten)
+        # Make all values in this template 0 (in case not overwritten)
         for k,v in scale_template.items():
             for scale_type, value in v.items():
-                scale_template[k][scale_type] = 1
+                scale_template[k][scale_type] = 0
 
         for scaling_type in scale_template.keys():
 
