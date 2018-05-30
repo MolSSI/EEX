@@ -16,7 +16,6 @@ _test_directories = ["alkanes", "alcohols", "cyclic"]
 _test_systems = []
 
 for test_dir in _test_directories:
-    print(test_dir)
     test_dir = eex_find_files.get_example_filename("amber", test_dir)
     systems = glob.glob(test_dir + "/*.prmtop")
     for s in systems:

@@ -65,11 +65,13 @@ def _get_charmm_dihedral_count(dl):
     ret = 0
     charmm = amd.forcefield_parameters['dihedral']['form']
     terms = dl.list_term_parameters(order)
+
     for j in terms.values():
         term_md = eex.metadata.get_term_metadata(order, "forms", j[0])
         # Zip up the parameters
         parameters = {k: v for k, v in zip(term_md["parameters"], j[1:])}
         parameters = eex.form_converters.convert_form(order, parameters, j[0], charmm)
+
         if isinstance(parameters['K'], float):
             ret += 1
         elif isinstance(parameters['K'], np.ndarray):
@@ -89,17 +91,23 @@ def _check_dl_compatibility(dl):
     for k, v in amd.forcefield_parameters.items():
         if k is not "nonbond":
             terms = dl.list_term_parameters(v["order"])
+
             for j in terms.values():
                 term_md = eex.metadata.get_term_metadata(v["order"], "forms", j[0])
                 canonical_form = term_md['canonical_form']
                 compatible_forms = eex.metadata.get_term_metadata(v["order"], "group")[canonical_form]
+
                 if v['form'] not in compatible_forms:
                     # Will need to insert check to see if these can be easily converted (ex OPLS dihedral <-> charmmfsw)
                     raise TypeError("Functional form %s stored in datalayer is not compatible with Amber.\n" % (j[0]))
         else:
-            # Handle nonbonds. Amber must have pair interactions.
+            # Handle nonbonds. Make sure only LJ types are stored in datalayer.
+            nb_forms = dl.list_stored_nb_types()
 
-            # Grab all pair interactions stored in datalayer
+            if set(nb_forms) != set(["LJ"]):
+                raise KeyError("Nonbond forms must be type LJ. Forms stored in datalayer are not compatible with Amber - %s" % nb_forms)
+
+            # Grab all pair interactions stored in datalayer. Amber must have pair interactions.
             nb = dl.list_nb_parameters(nb_name="LJ", nb_model="AB", itype="pair")
 
             # Get the number of atom types. The number of pair interactions should be equal to num_atom_types * (num_atom_types + 1)) / 2
@@ -121,6 +129,38 @@ def _check_dl_compatibility(dl):
             # This condition will be met if some pair interactions are stored, but not the correct number.
             elif len(nb.keys()) != (num_atom_types * (num_atom_types + 1)) / 2:
                 raise ValueError("Amber compatibility check : Incorrect number of pair interactions\n")
+
+            # Check NB scaling factors are compatible with amber
+
+            scaling_types = eex.metadata.additional_metadata.nb_scaling["scaling_type"]
+
+            for scale_type in scaling_types:
+
+                if scale_type not in dl.store.list_tables():
+
+                    if not dl.get_nb_scaling_factors():
+                        raise ValueError("No nonbond scaling (%s) information is set in datalayer" %(scale_type))
+                    else:
+                        # Build atom-wise scaling list
+                        dl.build_scaling_list()
+
+                # Check that NB scaling factors are compatible with amber (ie 1,2 and 1,3 must be 0 (excluded))
+                pair_scalings = dl.get_pair_scalings(nb_labels=[scale_type], order=True)
+
+                p12 = pair_scalings[pair_scalings["order"] == 2][scale_type]
+
+                p13 = pair_scalings[pair_scalings["order"] == 3][scale_type]
+
+                if p12.nonzero()[0].any():
+                    raise ValueError("Nonbond scaling (order=2, %s) is not consistent with Amber. In Amber, 1-2 nonbond "
+                                     "interactions are excluded" %(scale_type))
+
+                if p13.nonzero()[0].any():
+                    raise ValueError("Nonbond scaling (order=3, %s) is not consistent with Amber. In Amber, 1-3 nonbond "
+                                     "interactions are excluded" %(scale_type))
+
+                ## TODO - need check scaling 0 is set for all order 2 and order 3
+
 
     stored_properties = dl.list_atom_properties()
     required_properties = list(amd.atom_property_names.values())
@@ -407,13 +447,6 @@ def write_amber_file(dl, filename, inpcrd=None):
     stored_atom_types = dl.get_unique_atom_types()
     ntypes = len(stored_atom_types)
 
-    nb_forms = dl.list_stored_nb_types()
-
-    # This can be removed if compatibility check inserted at beginning
-    if set(nb_forms) != set(["LJ"]):
-        # Write better message here
-        raise KeyError("Nonbond forms stored in datalayer are not compatible with Amber - %s" % nb_forms)
-
     # Get parameters from datalayer using correct amber units
     stored_nb_parameters = dl.list_nb_parameters(
         nb_name="LJ", nb_model="AB", utype=amd.forcefield_parameters["nonbond"]["units"], itype="pair")
@@ -436,6 +469,37 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     for category in amd.forcefield_parameters["nonbond"]["column_names"]:
         written_categories.append(category)
+
+    # Handle exclusions and scaling
+    exclusion_categories = {}
+
+    for excl in amd.exclusion_sections:
+        exclusion_categories[excl] = []
+
+    exclusions_scaling = dl.get_pair_scalings(order=True)
+
+    order_2_3_4 = exclusions_scaling[(exclusions_scaling["order"].notnull())]
+
+    atom_inds = order_2_3_4.index.get_level_values('atom_index1').unique()
+
+    # Build NUMBER_EXCLUDED_ATOMS and EXCLUDED_ATOMS_LIST.
+    for ind in sorted(dl.get_atoms("atomic_number").index.values):
+
+        if ind in order_2_3_4.index:
+
+            excluded_atoms_df = order_2_3_4.loc[ind]
+            excluded_atoms = excluded_atoms_df.index.values
+            exclusion_categories["EXCLUDED_ATOMS_LIST"].extend(excluded_atoms)
+            exclusion_categories["NUMBER_EXCLUDED_ATOMS"].append(len(excluded_atoms))
+
+        else:
+            exclusion_categories["NUMBER_EXCLUDED_ATOMS"].append(1)
+            exclusion_categories["EXCLUDED_ATOMS_LIST"].append(0)
+
+    for excl in amd.exclusion_sections:
+        _write_amber_data(file_handle, exclusion_categories[excl], excl)
+        written_categories.append(excl)
+
 
     # Write headers for other sections (file will not work in AMBER without these)
     for k in amd.data_labels:

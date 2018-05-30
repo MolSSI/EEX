@@ -425,7 +425,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     for index, row in number_excluded_atoms.iterrows():
         num_excluded = row.values[0]
 
-        excluded_atoms = excluded_atoms_list.iloc[start_index: start_index + num_excluded].values.flatten()
+        excluded_atoms = excluded_atoms_list.iloc[start_index: start_index+num_excluded].values.flatten()
 
         # A value of 0 is a "nonexistent atom 0" - means no exclusions
         excluded_atoms = [value for value in excluded_atoms if value != 0]
@@ -442,7 +442,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
             all_excluded_df = pd.concat([all_excluded_df, excluded_df])
 
-        start_index += (row.values[0] + 1)
+        start_index += (row.values[0])
 
     # Much faster to build large dataframe and add all at once
     if not all_excluded_df.empty:

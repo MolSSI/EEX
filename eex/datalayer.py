@@ -190,7 +190,7 @@ class DataLayer(object):
 
     def set_nb_scaling_factors(self, nb_scaling_factors):
         """
-        Sets the exclusion information for the datalayer
+        Sets the non-bond scaling information for the datalayer
 
         Parameters
         ------
@@ -234,12 +234,61 @@ class DataLayer(object):
 
         return ret
 
-    def set_nb_pair_interaction(self):
+    def calculate_nb_scaling_factors(self):
         """
-        Set a special interaction between two particles
-        :return:
+        Calculates scale12, scale13, and scale14 based on pair scalings.  If they are already set, see if what is stored
+        in the datalayer matches.
+
+        Returns:
+        --------------------
+            True if successful
+
         """
-        return False
+
+        scf = self.get_nb_scaling_factors()
+
+        pair_scalings = self.get_pair_scalings(order=True)
+
+        scale_template = metadata.additional_metadata.exclusions.copy()
+
+        # Make all values in this template 0 (in case not overwritten)
+        for k,v in scale_template.items():
+            for scale_type, value in v.items():
+                scale_template[k][scale_type] = 0
+
+        for scaling_type in scale_template.keys():
+
+            for order in [2, 3, 4]:
+                scale_kw = "scale1%s" % (order)
+                order_scalings = pair_scalings[pair_scalings["order"] == order]
+                scale_values = np.unique(order_scalings[scaling_type + "_scale"].values)
+
+                # If there is a single value and
+                if len(scale_values) == 1 and not scf:
+                    scale_template[scaling_type][scale_kw] = scale_values[0]
+
+                elif len(scale_values) == 1 and scf:
+
+                    if scf[scaling_type][scale_kw] != scale_values[0]:
+                        raise ValueError("Scaling factor set in data layer (%s - %s) does not match stored pair scalings "
+                                         "(%s - %s" %(scale_kw, scf[scaling_type][scale_kw], scale_kw, scf[scaling_type][scale_kw]))
+                    else:
+                        scale_template[scaling_type][scale_kw] = scale_values[0]
+
+                elif len(scale_values) == 0:
+                    # This corresponds to the case where there are no interactions of this order (for example, water would have
+                    # no dihedrals. Set to 0  in this case (eg scale14 will just be set to 0 - shouldn't matter if there are no
+                    # 1-4 interactions )
+                    scale_template[scaling_type][scale_kw] = 0
+
+                else:
+                    raise ValueError("Nonbond scaling factors cannot be set because there is more than one value for"
+                                     " scaling type %s, with order %s" %(scaling_type, order))
+
+
+        self.set_nb_scaling_factors(scale_template)
+
+        return True
 
     def set_pair_scalings(self, scaling_df):
         """
@@ -290,7 +339,7 @@ class DataLayer(object):
 
         return True
 
-    def get_pair_scalings(self, nb_labels=["vdw_scale", "coul_scale"], order=True):
+    def get_pair_scalings(self, nb_labels=metadata.additional_metadata.nb_scaling["scaling_type"], order=True):
         """
         Get scaling factor for nonbond interaction between two atoms. If order is True, the term order between the two
         atoms is returned. i.e. - bonded atoms have order 2, atoms in angle (atom 1 & atom 3) have order 3.
@@ -335,6 +384,9 @@ class DataLayer(object):
         Build pair scalings based on parameters set in set_nb_scaling_factors.
         """
         scaling_factors = self.get_nb_scaling_factors()
+
+        if not scaling_factors:
+            raise ValueError("Can not build scaling list, nb_scale_factors not set")
 
         for k, v in scaling_factors.items():
             for scale, val in v.items():

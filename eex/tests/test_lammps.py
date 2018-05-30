@@ -86,29 +86,43 @@ def test_lammps_read_angles(spce_dl):
 
 
 
-@pytest.mark.parametrize("molecule", [
-    "data.trappe_butane_single_molecule",
-    "data.trappe_propane_single_molecule",
-    "data.trappe_ethane_single_molecule",
-])
-def test_lammps_writer(molecule):
-    sim_data = {'units': 'real', 'bond_style': 'harmonic', 'angle_style': 'harmonic', 'dihedral_style': 'opls',
-                'atom_style': 'full'}
-    fname = eex_find_files.get_example_filename("lammps", "alkanes", molecule)
+@pytest.mark.parametrize("molecule", ["butane","propane","ethane"])
+def test_lammps_reader(molecule):
+
+    infile_name = "in.%s" %(molecule)
+
+    in_fname = eex_find_files.get_example_filename("lammps", "alkanes", infile_name)
 
     # Read in the data
     dl = eex.datalayer.DataLayer(molecule)
-    dl.set_mixing_rule('geometric')
-    eex.translators.lammps.read_lammps_data_file(dl, fname, sim_data)
+    eex.translators.lammps.read_lammps_input_file(dl, in_fname)
+
+    stored_scaling_factors = dl.get_nb_scaling_factors()
+
+    # Check that some things were read correctly
+    scaling_factors = {
+        "vdw": {
+            "scale12": 0,
+            "scale13": 0,
+            "scale14": 0,
+        },
+        "coul": {
+            "scale12": 0,
+            "scale13": 0,
+            "scale14": 0,
+        },
+    }
+
+    eex.testing.dict_compare(stored_scaling_factors, scaling_factors)
+    return True
+
+def test_lammps_writer(butane_dl):
+
+    # Read in the data
+    dl = butane_dl()
 
     # Write out the data
-    oname = eex_find_files.get_scratch_directory(molecule)
+    oname = eex_find_files.get_scratch_directory('test_lammps_writer')
     input_filename = oname + '.in'
+
     eex.translators.lammps.write_lammps_file(dl, oname, input_filename, unit_style="real")
-
-    # Read in output data
-    dl_new = eex.datalayer.DataLayer(molecule)
-    eex.translators.lammps.read_lammps_data_file(dl_new, oname, sim_data)
-    #assert eex.testing.dl_compare(dl, dl_new)
-
-    ## write tests for unit conversions - requires lammps writer to write lammps in file

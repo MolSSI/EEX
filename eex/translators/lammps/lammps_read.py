@@ -349,6 +349,7 @@ def read_lammps_input_file(dl, fname, blocksize=110):
         line_split = line.split()
         keyword = line_split[0]
         keyword_opts = line_split[1:]
+
         # Handle keywords
         if keyword == "read_data":
             # This needs to be generalized in case a path is given. (?)
@@ -387,43 +388,44 @@ def read_lammps_input_file(dl, fname, blocksize=110):
                 dl.set_mixing_rule(mix_rule)
 
         elif keyword == "special_bonds":
-            pass
+            # This exclusion section may need work. Possible keywords are 'lj', 'coul', or 'lj/coul'. If both
+            # lj and coul need to be set to the *same* values, 'lj/coul' will work. However, if both need to be set, but
+            # to different vaues, 'lj/coul' will not work. In this case, the command would be
+            # 'special_bonds lj w1 w2 w3 coul wc1 wc2 wc3'
+            exclusions = {}
+            special_bonds_keywords = re.findall("[a-zA-Za-z\/]+", " ".join(keyword_opts))
+            for exclusions_keyword in special_bonds_keywords:
+                idx = keyword_opts.index(exclusions_keyword)
+                if exclusions_keyword in lmd.exclusions.keys():
+                    if (exclusions_keyword == 'lj'):
+                        exclusions["vdw"] = {}
+                        exclusions["vdw"]["scale12"] = float(keyword_opts[idx + 1])
+                        exclusions["vdw"]["scale13"] = float(keyword_opts[idx + 2])
+                        exclusions["vdw"]["scale14"] = float(keyword_opts[idx + 3])
+                    elif (exclusions_keyword == 'coul'):
+                        exclusions["coul"] = {}
+                        exclusions["coul"]["scale12"] = float(keyword_opts[idx + 1])
+                        exclusions["coul"]["scale13"] = float(keyword_opts[idx + 2])
+                        exclusions["coul"]["scale14"] = float(keyword_opts[idx + 3])
+                    elif (exclusions_keyword == 'lj/coul'):
+                        exclusions["vdw"] = {}
+                        exclusions["vdw"]["scale12"] = float(keyword_opts[idx + 1])
+                        exclusions["vdw"]["scale13"] = float(keyword_opts[idx + 2])
+                        exclusions["vdw"]["scale14"] = float(keyword_opts[idx + 3])
+                        exclusions["coul"] = {}
+                        exclusions["coul"]["scale12"] = exclusions["vdw"]["scale12"]
+                        exclusions["coul"]["scale13"] = exclusions["vdw"]["scale13"]
+                        exclusions["coul"]["scale14"] = exclusions["vdw"]["scale14"]
+                    else:
+                        exclusions["coul"] = lmd.exclusions[exclusions_keyword]["coul"]
+                        exclusions["vdw"] = lmd.exclusions[exclusions_keyword]["lj"]
+                elif exclusions_keyword in lmd.exclusions["additional_keywords"]:
+                    raise Exception("Keyword %s is not currently supported", exclusions_keyword)
 
+            if "coul" not in exclusions:
+                exclusions["coul"] = lmd.exclusions["default"]["coul"]
+            if "vdw" not in exclusions:
+                exclusions["lj"] = lmd.exclusions["default"]["lj"]
 
-def get_special_bonds():
-    exclusions = {}
-    special_bonds_keywords = re.findall("[a-zA-Za-z\/]+", " ".join(keyword_opts))
-    for idx, exclusions_keyword in enumerate(special_bonds_keywords):
-        if exclusions_keyword in lmd.exclusions.keys():
-            if (exclusions_keyword == 'lj'):
-                exclusions["lj"] = {}
-                exclusions["lj"]["scale12"] = float(keyword_opts[idx + 1])
-                exclusions["lj"]["scale13"] = float(keyword_opts[idx + 2])
-                exclusions["lj"]["scale14"] = float(keyword_opts[idx + 3])
-            elif (exclusions_keyword == 'coul'):
-                exclusions["coul"] = {}
-                exclusions["coul"]["scale12"] = float(keyword_opts[idx + 1])
-                exclusions["coul"]["scale13"] = float(keyword_opts[idx + 2])
-                exclusions["coul"]["scale14"] = float(keyword_opts[idx + 3])
-            elif (exclusions_keyword == 'lj/coul'):
-                exclusions["lj"] = {}
-                exclusions["lj"]["scale12"] = float(keyword_opts[idx + 1])
-                exclusions["lj"]["scale13"] = float(keyword_opts[idx + 2])
-                exclusions["lj"]["scale14"] = float(keyword_opts[idx + 3])
-                exclusions["coul"] = {}
-                exclusions["coul"]["scale12"] = exclusions["lj"]["scale12"]
-                exclusions["coul"]["scale13"] = exclusions["lj"]["scale13"]
-                exclusions["coul"]["scale14"] = exclusions["lj"]["scale14"]
-            else:
-                exclusions["coul"] = lmd.exclusions[exclusion_keyword]["coul"]
-                exclusions["lj"] = lmd.exclusions[exclusion_keyword]["lj"]
-        elif exclusions_keyword in lmd.exclusions["additional_keywords"]:
-            raise Exception("Keyword %s is not currently supported", exclusion_keyword)
+            dl.set_nb_scaling_factors(exclusions)
 
-    if "coul" not in exclusions:
-        exclusions["coul"] = lmd.exclusions["default"]["coul"]
-    if "lj" not in exclusions:
-        exclusions["lj"] = lmd.exclusions["default"]["lj"]
-
-    return exclusions
-    # dl.set_exclusions(exclusions)

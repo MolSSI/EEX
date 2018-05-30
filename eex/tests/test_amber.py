@@ -20,72 +20,6 @@ def spce_dl(request):
     dl.close()
 
 
-@pytest.fixture(scope="function", params=["HDF5", "Memory"])
-def butane_dl(request):
-    # Build the topology for UA butane.
-    dl = eex.datalayer.DataLayer("butane", backend=request.param)
-
-    # Create empty dataframe
-    atom_df = pd.DataFrame()
-
-    # Create atomic system using pandas dataframe
-    atom_df["atom_index"] = np.arange(0, 4)
-    atom_df["molecule_index"] = [int(x) for x in np.zeros(4)]
-    atom_df["residue_index"] = [int(x) for x in np.zeros(4)]
-    atom_df["atom_name"] = ["C1", "C2", "C3", "C4"]
-    atom_df["charge"] = np.zeros(4)
-    atom_df["atom_type"] = [1, 2, 2, 1]
-    atom_df["X"] = [0, 0, 0, -1.474]
-    atom_df["Y"] = [-0.4597, 0, 1.598, 1.573]
-    atom_df["Z"] = [-1.5302, 0, 0, -0.6167]
-    atom_df["mass"] = [15.0452, 14.02658, 14.02658, 15.0452]
-
-    # Add atoms to datalayer
-    dl.add_atoms(atom_df, by_value=True)
-
-    # Create empty dataframes for bonds
-    bond_df = pd.DataFrame()
-
-    # Create column names. Here, "term_index" refers to the bond type index.
-    # i.e. - if all bonds are the same type, they will have the same term index
-    bond_column_names = ["atom1", "atom2", "term_index"]
-
-    # Create corresponding data. The first row specifies that atom0 is bonded
-    # to atom 1 and has bond_type id 0
-    bond_data = np.array([[0, 1, 0, ],
-                          [1, 2, 0],
-                          [2, 3, 0]])
-
-    for num, name in enumerate(bond_column_names):
-        bond_df[name] = bond_data[:, num]
-
-    dl.add_bonds(bond_df)
-
-    angle_df = pd.DataFrame()
-    dihedral_df = pd.DataFrame()
-
-    angle_column_names = ["atom1", "atom2", "atom3", "term_index"]
-    dihedral_column_names = ["atom1", "atom2", "atom3", "atom4", "term_index"]
-
-    angle_data = np.array([[0, 1, 2, 0, ],
-                           [1, 2, 3, 0], ])
-
-    dihedral_data = np.array([[0, 1, 2, 3, 0, ]])
-
-    for num, name in enumerate(angle_column_names):
-        angle_df[name] = angle_data[:, num]
-
-    dl.add_angles(angle_df)
-
-    for num, name in enumerate(dihedral_column_names):
-        dihedral_df[name] = dihedral_data[:, num]
-
-    dl.add_dihedrals(dihedral_df)
-
-    yield (dl)
-    dl.close()
-
-
 def test_amber_spce_read_data(spce_dl):
     data, dl = spce_dl
     assert data["VERSION"] == "V0001.000"
@@ -157,17 +91,6 @@ def test_amber_read_butane():
 
     assert eex.testing.dict_compare(box_info, ref_box)
 
-
-
-
-# def test_amber_spce_parameters(spce_dl):
-#     data, dl = spce_dl
-
-#     # Test bond df
-#     bonds = dl.get_bonds()
-#     assert bonds.shape[0] == 648
-#     assert set(np.unique(bonds["term_index"])) == set([1, 2])
-
 @pytest.mark.parametrize("backend", ["HDF5", "Memory"])
 @pytest.mark.parametrize("molecule", [
     "trappe_butane_single_molecule.prmtop",
@@ -199,7 +122,7 @@ def test_amber_writer(molecule, backend):
 
 def test_amber_compatibility_NB_number(butane_dl):
 
-    dl = butane_dl
+    dl = butane_dl(nb=False)
 
     oname = eex_find_files.get_scratch_directory("dl_compatibility.prmtop")
 
@@ -210,33 +133,25 @@ def test_amber_compatibility_NB_number(butane_dl):
     with pytest.raises(ValueError):
         eex.translators.amber.write_amber_file(dl, oname)
 
+def test_amber_compatibility_NB_type(butane_dl):
+
+    dl = butane_dl(nb=False)
+
+    dl.add_nb_parameter(atom_type=1, nb_name="Buckingham", nb_model=None, nb_parameters=[1.0, 1.0, 1.0])
+
+    oname = eex_find_files.get_scratch_directory("dl_compatibility.prmtop")
+
+    with pytest.raises(KeyError):
+        eex.translators.amber.write_amber_file(dl, oname)
+
 def test_amber_compatibility_check_mixing_rule(butane_dl):
 
     # Get butane topology
-    dl = butane_dl
+    dl = butane_dl(nb=True)
 
     oname = eex_find_files.get_scratch_directory("dl_compatibility.prmtop")
 
     # Check to make sure that mixing rule will be applied by compatibility check
-
-    dl.add_nb_parameter(atom_type=1, nb_name="LJ",
-                        nb_model="epsilon/sigma", nb_parameters={'sigma': 3.75, 'epsilon': 0.1947460018},
-                        utype={'sigma': 'angstrom', 'epsilon': 'kcal * mol ** -1'})
-
-    dl.add_nb_parameter(atom_type=2, nb_name="LJ",
-                        nb_model="epsilon/sigma", nb_parameters={'sigma': 3.95, 'epsilon': 0.0914112887},
-                        utype={'sigma': 'angstrom', 'epsilon': 'kcal * mol ** -1'})
-
-    dl.add_term_parameter(3, "harmonic", {'K': 62.100, 'theta0': 114}, uid=0,
-                          utype={'K': 'kcal * mol ** -1 * radian ** -2',
-                                 'theta0': 'degree'})
-
-    dl.add_term_parameter(2, "harmonic", {'K': 300.9, 'R0': 1.540}, uid=0,
-                              utype={'K': "kcal * mol **-1 * angstrom ** -2",
-                                     'R0': "angstrom"})
-
-    dl.set_mixing_rule('lorentz_berthelot')
-
     eex.translators.amber.write_amber_file(dl, oname)
 
     # Make sure we're getting pair parameters from DL
@@ -246,25 +161,51 @@ def test_amber_compatibility_check_mixing_rule(butane_dl):
 
 def test_amber_compatibility_functional_form(butane_dl):
 
-    dl = butane_dl
+    dl = butane_dl(ff=False)
 
     oname = eex_find_files.get_scratch_directory("dl_compatibility.prmtop")
-
-    dl.add_nb_parameter(atom_type=1, nb_name="LJ",
-                        nb_model="epsilon/sigma", nb_parameters={'sigma': 3.75, 'epsilon': 0.1947460018},
-                        utype={'sigma': 'angstrom', 'epsilon': 'kcal * mol ** -1'})
-
-    dl.add_nb_parameter(atom_type=2, nb_name="LJ",
-                        nb_model="epsilon/sigma", nb_parameters={'sigma': 3.95, 'epsilon': 0.0914112887},
-                        utype={'sigma': 'angstrom', 'epsilon': 'kcal * mol ** -1'})
-
-
-    dl.set_mixing_rule('arithmetic')
 
     # Add incompatible functional form
     with pytest.raises(TypeError):
         dl.add_term_parameter(2, "fene", {"K": 1, "R0": 1, "epsilon": 1, "sigma": 1,})
         eex.translators.amber.write_amber_file(dl, oname)
+
+def test_amber_compatibility_scaling(butane_dl):
+
+    dl = butane_dl(scale=False)
+
+    oname = eex_find_files.get_scratch_directory("dl_compatibility.prmtop")
+
+    # Set with noncompatible scale13
+    scaling_factors = {
+        "coul": {
+            "scale12": 0.0,
+            "scale13": 0.50,
+            "scale14": 0.75,
+        },
+
+        "vdw": {
+            "scale12": 0.0,
+            "scale13": 0.0,
+            "scale14": 0.75,
+        }
+    }
+
+    dl.set_nb_scaling_factors(scaling_factors)
+
+    with pytest.raises(ValueError):
+        eex.translators.amber.write_amber_file(dl, oname)
+
+def test_amber_compatibility_no_scaling(butane_dl):
+
+    dl = butane_dl(scale=False)
+
+    oname = eex_find_files.get_scratch_directory("dl_compatibility.prmtop")
+
+    with pytest.raises(ValueError):
+        eex.translators.amber.write_amber_file(dl, oname)
+
+
 
 
 
