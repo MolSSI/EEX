@@ -1125,7 +1125,7 @@ class DataLayer(object):
             The order (number of atoms) involved in the expression i.e. 2, "two"
         df : pd.DataFrame
             Adds a DataFrame containing the term information by index
-            Required columns: ["term_index", "atom1_index", ..., "atom(order)_index", "term_index"]
+            Required columns: ["term_index", "atom1_index", ..., "atom(order)_index"]
 
         Returns
         -------
@@ -1161,6 +1161,27 @@ class DataLayer(object):
 
         # Finally store the dataframe
         return self.store.add_table("term" + str(order), df)
+
+    def remove_terms(self, order, index=None):
+        """
+        Removes terms using a index notation.
+
+        Parameters
+        ----------
+        order : {str, int}
+            The order (number of atoms) involved in the expression i.e. 2, "two"
+        index: list
+            The indices of the terms to be removed. If index is None, all terms of that order will be removed.
+
+        Returns
+        -------
+        return : bool
+            Returns a boolean value if the operations was successful or not
+        """
+
+        self.store.remove_table("term" + str(order), index)
+
+        return True
 
     def get_terms(self, order):
         order = metadata.sanitize_term_order_name(order)
