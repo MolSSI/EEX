@@ -1178,8 +1178,26 @@ class DataLayer(object):
         return : bool
             Returns a boolean value if the operations was successful or not
         """
+        order = metadata.sanitize_term_order_name(order)
 
         self.store.remove_table("term" + str(order), index)
+
+        df = self.get_terms(order)
+
+        print(df)
+
+        # Redo term count
+        self._term_count[order] = {}
+        self._term_count[order]["total"] = 0
+
+        uvals, ucnts = np.unique(df["term_index"], return_counts=True)
+        for uval, cnt in zip(uvals, ucnts):
+            if uval not in self._term_count[order]:
+                self._term_count[order][uval] = cnt
+            else:
+                self._term_count[order][uval] += cnt
+
+            self._term_count[order]["total"] += cnt
 
         return True
 
