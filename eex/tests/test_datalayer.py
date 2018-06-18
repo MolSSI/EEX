@@ -844,3 +844,21 @@ def test_calculate_nb_scaling_factors3(butane_dl):
     with pytest.raises(ValueError):
         dl.calculate_nb_scaling_factors()
 
+def test_remove_terms(butane_dl):
+
+    dl = butane_dl()
+
+    bonds = dl.get_terms(2)
+
+    assert(not bonds.empty)
+
+    dl.remove_terms(2)
+
+    bonds = dl.get_terms(2)
+
+    assert(bonds.empty)
+
+    print(dl.get_term_count(2))
+
+    assert(dl.get_term_count(2)['total'] == 0)
+
