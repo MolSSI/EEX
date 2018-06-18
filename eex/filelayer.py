@@ -175,7 +175,7 @@ class MemoryStore(BaseStore):
             del self.table_frags[key]
         else:
             # Drop the subsection of the table
-            self.tables[key].drop(self.tables[key].index[index])
+            self.tables[key].drop(self.tables[key].index[index], inplace=True)
 
     def close(self):
         """
