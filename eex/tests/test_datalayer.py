@@ -858,7 +858,76 @@ def test_remove_terms(butane_dl):
 
     assert(bonds.empty)
 
-    print(dl.get_term_count(2))
+    assert(dl.get_term_count(2)['total'] == 0)
+
+def test_remove_terms_by_index(butane_dl):
+
+    dl = butane_dl()
+
+    bonds = dl.get_terms(2)
+
+    assert(not bonds.empty)
+
+    # Remove first two bonds
+    dl.remove_terms(2, index=[0,1])
+
+    bonds = dl.get_terms(2)
+
+    assert(dl.get_term_count(2)['total'] == 1)
+
+    # Here, since propogate was set to false. Angles and dihedrals remain unchanged.
+    assert(dl.get_term_count(3)['total'] == 2)
+
+    assert (dl.get_term_count(4)['total'] == 1)
+
+    return True
+
+def test_remove_terms_propagate(butane_dl):
+
+    dl = butane_dl()
+
+    bonds = dl.get_terms(2)
+
+    # Assert topology is what we expect.
+    assert(not bonds.empty)
+
+    assert(dl.get_term_count(2)['total'] == 3)
+
+    assert(dl.get_term_count(3)['total'] == 2)
+
+    assert (dl.get_term_count(4)['total'] == 1)
+
+    dl.remove_terms(2, propogate=True)
+
+    # Assert all has been removed.
+    bonds = dl.get_terms(2)
+
+    assert(bonds.empty)
 
     assert(dl.get_term_count(2)['total'] == 0)
+
+    assert(dl.get_term_count(3)['total'] == 0)
+
+    assert (dl.get_term_count(4)['total'] == 0)
+
+    return True
+
+def test_remove_terms_by_index_propogate(butane_dl):
+
+    dl = butane_dl()
+
+    bonds = dl.get_terms(2)
+
+    assert(not bonds.empty)
+
+    # Remove one bond - choose to propogate this so dihedral and angle should also be removed.
+    dl.remove_terms(2, index=[0], propogate=True)
+
+    assert(dl.get_term_count(2)['total'] == 2)
+
+    assert (dl.get_term_count(3)['total'] == 1)
+
+    #assert(dl.get_term_count)
+
+    return True
 
