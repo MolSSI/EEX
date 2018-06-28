@@ -1162,7 +1162,7 @@ class DataLayer(object):
         # Finally store the dataframe
         return self.store.add_table("term" + str(order), df)
 
-    def remove_terms(self, order, index=None):
+    def remove_terms(self, order, index=None, propogate=False):
         """
         Removes terms using a index notation.
 
@@ -1172,6 +1172,8 @@ class DataLayer(object):
             The order (number of atoms) involved in the expression i.e. 2, "two"
         index: list
             The indices of the terms to be removed. If index is None, all terms of that order will be removed.
+        propogate: bool
+            This flag indicates if higher order terms should be removed with the removed term.
 
         Returns
         -------
@@ -1180,24 +1182,67 @@ class DataLayer(object):
         """
         order = metadata.sanitize_term_order_name(order)
 
-        self.store.remove_table("term" + str(order), index)
+        # Initialize order list
+        order_list = [order]
 
-        df = self.get_terms(order)
+        # If this action should be propagated, orders will be added to order list.
+        if propogate == True:
+            order_list.extend([x for x in [3,4] if x > order])
 
-        print(df)
+        # Figure out atom numbers for this removal.
+        # The way this should be done - the index for a particular term to be removed will give the atoms which are involved.
+        # All higher order terms which should also be removed if this removal is propagated will involve these atoms.
+        # Use nested list here, where each inner list are atoms for a particular term to be removed.
+        atoms = []
 
-        # Redo term count
-        self._term_count[order] = {}
-        self._term_count[order]["total"] = 0
+        if index is not None:
+            atom_df = self.get_terms(order).iloc[index]
+            cols = metadata.get_term_metadata(order, "index_columns")
+            cols = [x for x in cols if 'atom' in x]
 
-        uvals, ucnts = np.unique(df["term_index"], return_counts=True)
-        for uval, cnt in zip(uvals, ucnts):
-            if uval not in self._term_count[order]:
-                self._term_count[order][uval] = cnt
+            # Terms are to be removed for higher order interactions containing. Below results df with just atoms of interest
+            atoms = atom_df[cols]
+
+        # Loop through order to be removed
+        for o in order_list:
+
+            # Get column names for order o
+            cols = metadata.get_term_metadata(o, "index_columns")
+            cols = [x for x in cols if 'atom' in x]
+
+            # Get terms for order o
+            terms = self.get_terms(o)
+
+            # If atoms list is empty, remove_index = None (ie, all removed). Otherwise, only remove interactions
+            # for specified atoms.
+            if not len(atoms):
+                remove_index = None
             else:
-                self._term_count[order][uval] += cnt
+                remove_index =[]
 
-            self._term_count[order]["total"] += cnt
+                # Build list of indices to remove. Should be removed for order if all atoms from 'atoms' are in same row
+                # in dataframe
+                search = terms.isin(atoms).T
+                matching_ind = search.sum()[search.sum()>(o-1)].index.tolist()
+                remove_index.extend(matching_ind)
+
+            # Use FL remove function.
+            self.store.remove_table("term" + str(o), remove_index)
+
+            df = self.get_terms(o)
+
+            # Redo term count
+            self._term_count[o] = {}
+            self._term_count[o]["total"] = 0
+
+            uvals, ucnts = np.unique(df["term_index"], return_counts=True)
+            for uval, cnt in zip(uvals, ucnts):
+                if uval not in self._term_count[o]:
+                    self._term_count[o][uval] = cnt
+                else:
+                    self._term_count[o][uval] += cnt
+
+                self._term_count[o]["total"] += cnt
 
         return True
 
