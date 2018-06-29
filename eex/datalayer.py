@@ -1223,7 +1223,8 @@ class DataLayer(object):
                 # Build list of indices to remove. Should be removed for order if all atoms from 'atoms' are in same row
                 # in dataframe
                 search = terms.isin(atoms).T
-                matching_ind = search.sum()[search.sum()>(o-1)].index.tolist()
+                matching_ind = search.sum()[search.sum()==order].index.tolist()
+
                 remove_index.extend(matching_ind)
 
             # Use FL remove function.
