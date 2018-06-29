@@ -918,6 +918,15 @@ def test_remove_terms_by_index_propogate(butane_dl):
 
     bonds = dl.get_terms(2)
 
+    # Assert topology is what we expect.
+    assert(not bonds.empty)
+
+    assert(dl.get_term_count(2)['total'] == 3)
+
+    assert(dl.get_term_count(3)['total'] == 2)
+
+    assert (dl.get_term_count(4)['total'] == 1)
+
     assert(not bonds.empty)
 
     # Remove one bond - choose to propogate this so dihedral and angle should also be removed.
@@ -927,7 +936,6 @@ def test_remove_terms_by_index_propogate(butane_dl):
 
     assert (dl.get_term_count(3)['total'] == 1)
 
-    #assert(dl.get_term_count)
+    assert(dl.get_term_count)
 
     return True
-
