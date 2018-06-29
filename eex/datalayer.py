@@ -1192,7 +1192,6 @@ class DataLayer(object):
         # Figure out atom numbers for this removal.
         # The way this should be done - the index for a particular term to be removed will give the atoms which are involved.
         # All higher order terms which should also be removed if this removal is propagated will involve these atoms.
-        # Use nested list here, where each inner list are atoms for a particular term to be removed.
         atoms = []
 
         if index is not None:
