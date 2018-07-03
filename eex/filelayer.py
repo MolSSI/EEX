@@ -98,6 +98,22 @@ class HDFStore(BaseStore):
         else:
             return pd.DataFrame()
 
+    def remove_table(self, key, index=None):
+        if key not in self.list_tables():
+            raise KeyError("Key %s does not exist" % key)
+
+        if index is None:
+            # Drop whole table
+            # Remove key from self.tables and self.created_tables
+            self.store.remove(key)
+            self.created_tables.remove(key)
+
+        else:
+            # Drop the subsection of the table. Is there a better way to do this? Arguments for removal are start and
+            # stop, not list of indices
+            for i in index:
+                self.store.remove(key, start=i, stop=i+1)
+
     def close(self):
         """
         Closes the FL file.
@@ -168,7 +184,7 @@ class MemoryStore(BaseStore):
         if key not in list(self.tables):
             raise KeyError("Key %s does not exist" % key)
 
-        if not index:
+        if index is None:
             # Drop whole table
             # Remove key from self.tables and self.table_frags dictionaries
             del self.tables[key]
