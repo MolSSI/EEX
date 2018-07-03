@@ -1235,14 +1235,15 @@ class DataLayer(object):
             self._term_count[o] = {}
             self._term_count[o]["total"] = 0
 
-            uvals, ucnts = np.unique(df["term_index"], return_counts=True)
-            for uval, cnt in zip(uvals, ucnts):
-                if uval not in self._term_count[o]:
-                    self._term_count[o][uval] = cnt
-                else:
-                    self._term_count[o][uval] += cnt
+            if not df.empty:
+                uvals, ucnts = np.unique(df["term_index"], return_counts=True)
+                for uval, cnt in zip(uvals, ucnts):
+                    if uval not in self._term_count[o]:
+                        self._term_count[o][uval] = cnt
+                    else:
+                        self._term_count[o][uval] += cnt
 
-                self._term_count[o]["total"] += cnt
+                    self._term_count[o]["total"] += cnt
 
         return True
 
