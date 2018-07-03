@@ -864,16 +864,44 @@ def test_remove_terms_by_index(butane_dl):
 
     dl = butane_dl()
 
-    bonds = dl.get_terms(2)
+    bonds1 = dl.get_terms(2)
 
-    assert(not bonds.empty)
+    assert(not bonds1.empty)
 
     # Remove first two bonds
     dl.remove_terms(2, index=[0,1])
 
-    bonds = dl.get_terms(2)
+    bonds2 = dl.get_terms(2)
 
     assert(dl.get_term_count(2)['total'] == 1)
+
+    # Check that bonds are what we expect
+    assert(sorted(bonds1.loc[2].values) == sorted(bonds2.values[0]))
+
+    # Here, since propogate was set to false. Angles and dihedrals remain unchanged.
+    assert(dl.get_term_count(3)['total'] == 2)
+
+    assert (dl.get_term_count(4)['total'] == 1)
+
+    return True
+
+def test_remove_terms_by_index_nonconsecutive(butane_dl):
+
+    dl = butane_dl()
+
+    bonds1 = dl.get_terms(2)
+
+    assert(not bonds1.empty)
+
+    # Remove two non-consectutive bonds
+    dl.remove_terms(2, index=[0,2])
+
+    bonds2 = dl.get_terms(2)
+
+    assert(dl.get_term_count(2)['total'] == 1)
+
+    # Check that bonds are what we expect
+    assert(sorted(bonds1.loc[1].values) == sorted(bonds2.values[0]))
 
     # Here, since propogate was set to false. Angles and dihedrals remain unchanged.
     assert(dl.get_term_count(3)['total'] == 2)
@@ -899,7 +927,7 @@ def test_remove_terms_propagate(butane_dl):
 
     dl.remove_terms(2, propogate=True)
 
-    # Assert all has been removed.
+    # Assert all have been removed.
     bonds = dl.get_terms(2)
 
     assert(bonds.empty)
