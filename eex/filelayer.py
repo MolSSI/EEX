@@ -110,7 +110,10 @@ class HDFStore(BaseStore):
 
         else:
             # Drop the subsection of the table. Is there a better way to do this? Arguments for removal are start and
-            # stop, not list of indices
+            # stop rows, not list of indices
+            index.sort()
+            ind_sub = list(range(len(index)))
+            index = [x - y for x, y in zip(index, ind_sub)]
             for i in index:
                 self.store.remove(key, start=i, stop=i+1)
 
