@@ -5,6 +5,7 @@ Base class for the filelayer.
 import os
 
 import pandas as pd
+import numpy as np
 
 
 def build_store(store_type, name, store_location, save_data):
@@ -109,13 +110,33 @@ class HDFStore(BaseStore):
             self.created_tables.remove(key)
 
         else:
-            # Drop the subsection of the table. Is there a better way to do this? Arguments for removal are start and
-            # stop rows, not list of indices
+            # Drop the subsection of the table.
             index.sort()
-            ind_sub = list(range(len(index)))
-            index = [x - y for x, y in zip(index, ind_sub)]
-            for i in index:
-                self.store.remove(key, start=i, stop=i+1)
+
+            # Group consectutive indices
+            run = []
+            result = [run]
+            expect = None
+
+            for v in index:
+                if (v == expect) or (expect is None):
+                    run.append(v)
+                else:
+                    run = [v]
+                    result.append(run)
+                expect = v + 1
+
+            # Account for row renumbering as rows are removed. Here, a list must be subtracted from a nested list.
+            # Couldn't figure out a way using list comprehension.
+            ind_sub = [0]
+            new_result = []
+
+            for x in np.arange(len(result)):
+                ind_sub.append(len(result[x]) + ind_sub[-1])
+                new_result.append([y - ind_sub[x] for y in result[x]])
+
+            for i in new_result:
+                self.store.remove(key, start=i[0], stop=i[-1]+1)
 
     def close(self):
         """
