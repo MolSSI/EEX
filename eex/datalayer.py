@@ -1203,14 +1203,14 @@ class DataLayer(object):
             atoms = atom_df[cols]
 
         # Loop through order to be removed
-        for o in order_list:
+        for ord in order_list:
 
-            # Get column names for order o
-            cols = metadata.get_term_metadata(o, "index_columns")
+            # Get column names for order ord
+            cols = metadata.get_term_metadata(ord, "index_columns")
             cols = [x for x in cols if 'atom' in x]
 
-            # Get terms for order o
-            terms = self.get_terms(o)
+            # Get terms for order ord
+            terms = self.get_terms(ord)
 
             # If atoms list is empty, remove_index = None (ie, all removed). Otherwise, only remove interactions
             # for specified atoms.
@@ -1227,23 +1227,23 @@ class DataLayer(object):
                 remove_index.extend(matching_ind)
 
             # Use FL remove function.
-            self.store.remove_table("term" + str(o), remove_index)
+            self.store.remove_table("term" + str(ord), remove_index)
 
-            df = self.get_terms(o)
+            df = self.get_terms(ord)
 
             # Redo term count
-            self._term_count[o] = {}
-            self._term_count[o]["total"] = 0
+            self._term_count[ord] = {}
+            self._term_count[ord]["total"] = 0
 
             if not df.empty:
                 uvals, ucnts = np.unique(df["term_index"], return_counts=True)
                 for uval, cnt in zip(uvals, ucnts):
-                    if uval not in self._term_count[o]:
-                        self._term_count[o][uval] = cnt
+                    if uval not in self._term_count[ord]:
+                        self._term_count[ord][uval] = cnt
                     else:
-                        self._term_count[o][uval] += cnt
+                        self._term_count[ord][uval] += cnt
 
-                    self._term_count[o]["total"] += cnt
+                    self._term_count[ord]["total"] += cnt
 
         return True
 
