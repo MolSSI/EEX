@@ -114,29 +114,19 @@ class HDFStore(BaseStore):
             index.sort()
 
             # Group consectutive indices
-            run = []
-            result = [run]
-            expect = None
+            indices = np.split(index, np.where(np.diff(index) != 1)[0]+1)
 
-            for v in index:
-                if (v == expect) or (expect is None):
-                    run.append(v)
+            ret = []
+            for pair in indices:
+                if pair.shape[0] == 1:
+                    ret.append((pair[0], pair[0] + 1))
                 else:
-                    run = [v]
-                    result.append(run)
-                expect = v + 1
+                    ret.append((pair[0], pair[-1] + 1))
 
-            # Account for row renumbering as rows are removed. Here, a list must be subtracted from a nested list.
-            # Couldn't figure out a way using list comprehension.
-            ind_sub = [0]
-            new_result = []
+            ret.reverse()
 
-            for x in np.arange(len(result)):
-                ind_sub.append(len(result[x]) + ind_sub[-1])
-                new_result.append([y - ind_sub[x] for y in result[x]])
-
-            for i in new_result:
-                self.store.remove(key, start=i[0], stop=i[-1]+1)
+            for i in ret:
+                self.store.remove(key, start=i[0], stop=i[-1])
 
     def close(self):
         """
