@@ -964,6 +964,35 @@ def test_remove_terms_by_index_propogate(butane_dl):
 
     assert (dl.get_term_count(3)['total'] == 1)
 
-    assert(dl.get_term_count)
+    assert(dl.get_term_count(4)['total'] == 0)
+
+    return True
+
+def test_remove_terms_by_index_nonconsecutive_propogate(butane_dl):
+    dl = butane_dl()
+
+    bonds = dl.get_terms(2)
+
+    # Assert topology is what we expect.
+    assert (not bonds.empty)
+
+    #print(dl.get_terms(3))
+
+    assert (dl.get_term_count(2)['total'] == 3)
+
+    assert (dl.get_term_count(3)['total'] == 2)
+
+    assert (dl.get_term_count(4)['total'] == 1)
+
+    # Remove two bonds - choose to propogate this so dihedral and both angles should also be removed.
+    dl.remove_terms(2, index=[0, 2], propogate=True)
+
+    assert(dl.get_term_count(2)['total'] == 1)
+
+    #print(dl.get_terms(3))
+
+    assert (dl.get_term_count(3)['total'] == 0)
+
+    assert(dl.get_term_count(4)['total'] == 0)
 
     return True
