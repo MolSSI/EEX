@@ -1125,7 +1125,7 @@ class DataLayer(object):
             The order (number of atoms) involved in the expression i.e. 2, "two"
         df : pd.DataFrame
             Adds a DataFrame containing the term information by index
-            Required columns: ["term_index", "atom1_index", ..., "atom(order)_index", "term_index"]
+            Required columns: ["term_index", "atom1_index", ..., "atom(order)_index"]
 
         Returns
         -------
@@ -1161,6 +1161,91 @@ class DataLayer(object):
 
         # Finally store the dataframe
         return self.store.add_table("term" + str(order), df)
+
+    def remove_terms(self, order, index=None, propogate=False):
+        """
+        Removes terms using a index notation.
+
+        Parameters
+        ----------
+        order : {str, int}
+            The order (number of atoms) involved in the expression i.e. 2, "two"
+        index: list
+            The indices of the terms to be removed. If index is None, all terms of that order will be removed.
+        propogate: bool
+            This flag indicates if higher order terms should be removed with the removed term.
+
+        Returns
+        -------
+        return : bool
+            Returns a boolean value if the operations was successful or not
+        """
+        order = metadata.sanitize_term_order_name(order)
+
+        # Initialize order list
+        order_list = [order]
+
+        # If this action should be propagated, orders will be added to order list.
+        if propogate == True:
+            order_list.extend([x for x in [3,4] if x > order])
+
+        # Figure out atom numbers for this removal.
+        # The way this should be done - the index for a particular term to be removed will give the atoms which are involved.
+        # All higher order terms which should also be removed if this removal is propagated will involve these atoms.
+        atoms = []
+
+        if index is not None:
+            atom_df = self.get_terms(order).iloc[index]
+            cols = metadata.get_term_metadata(order, "index_columns")
+            cols = [x for x in cols if 'atom' in x]
+
+            # Terms are to be removed for higher order interactions containing. Below results df with just atoms of interest
+            atoms = atom_df[cols]
+
+        # Loop through order to be removed
+        for ord in order_list:
+
+            # Get column names for order ord
+            cols = metadata.get_term_metadata(ord, "index_columns")
+            cols = [x for x in cols if 'atom' in x]
+
+            # Get terms for order ord
+            terms = self.get_terms(ord)
+
+            # If atoms list is empty, remove_index = None (ie, all removed). Otherwise, only remove interactions
+            # for specified atoms.
+            if not len(atoms):
+                remove_index = None
+            else:
+                remove_index =[]
+
+                # Build list of indices to remove. Should be removed for order if all atoms from 'atoms' are in same row
+                # in dataframe
+                for atom_list in atoms.values:
+                    search = terms[cols].isin(atom_list).T
+                    matching_ind = search.sum()[search.sum() == order].index.tolist()
+                    remove_index.extend(matching_ind)
+
+            # Use FL remove function.
+            self.store.remove_table("term" + str(ord), remove_index)
+
+            df = self.get_terms(ord)
+
+            # Redo term count
+            self._term_count[ord] = {}
+            self._term_count[ord]["total"] = 0
+
+            if not df.empty:
+                uvals, ucnts = np.unique(df["term_index"], return_counts=True)
+                for uval, cnt in zip(uvals, ucnts):
+                    if uval not in self._term_count[ord]:
+                        self._term_count[ord][uval] = cnt
+                    else:
+                        self._term_count[ord][uval] += cnt
+
+                    self._term_count[ord]["total"] += cnt
+
+        return True
 
     def get_terms(self, order):
         order = metadata.sanitize_term_order_name(order)

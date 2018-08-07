@@ -844,3 +844,137 @@ def test_calculate_nb_scaling_factors3(butane_dl):
     with pytest.raises(ValueError):
         dl.calculate_nb_scaling_factors()
 
+def test_remove_terms(butane_dl):
+
+    dl = butane_dl()
+
+    bonds = dl.get_terms(2)
+
+    assert(not bonds.empty)
+
+    dl.remove_terms(2)
+
+    bonds = dl.get_terms(2)
+
+    assert(bonds.empty)
+    assert(dl.get_term_count(2)['total'] == 0)
+
+def test_remove_terms_by_index(butane_dl):
+
+    dl = butane_dl()
+
+    bonds1 = dl.get_terms(2)
+
+    assert(not bonds1.empty)
+
+    # Remove first two bonds
+    dl.remove_terms(2, index=[0,1])
+
+    bonds2 = dl.get_terms(2)
+
+    assert(dl.get_term_count(2)['total'] == 1)
+
+    # Check that bonds are what we expect
+    assert(sorted(bonds1.loc[2].values) == sorted(bonds2.values[0]))
+
+    # Here, since propogate was set to false. Angles and dihedrals remain unchanged.
+    assert(dl.get_term_count(3)['total'] == 2)
+
+    assert (dl.get_term_count(4)['total'] == 1)
+
+    return True
+
+def test_remove_terms_by_index_nonconsecutive(butane_dl):
+
+    dl = butane_dl()
+
+    bonds1 = dl.get_terms(2)
+
+    assert(not bonds1.empty)
+
+    # Remove two non-consectutive bonds
+    dl.remove_terms(2, index=[0,2])
+
+    bonds2 = dl.get_terms(2)
+
+    assert(dl.get_term_count(2)['total'] == 1)
+
+    # Check that bonds are what we expect
+    assert(sorted(bonds1.loc[1].values) == sorted(bonds2.values[0]))
+
+    # Here, since propogate was set to false. Angles and dihedrals remain unchanged.
+    assert(dl.get_term_count(3)['total'] == 2)
+
+    assert (dl.get_term_count(4)['total'] == 1)
+
+    return True
+
+def test_remove_terms_propagate(butane_dl):
+
+    dl = butane_dl()
+
+    bonds = dl.get_terms(2)
+
+    # Assert topology is what we expect.
+    assert(not bonds.empty)
+    assert(dl.get_term_count(2)['total'] == 3)
+    assert(dl.get_term_count(3)['total'] == 2)
+    assert (dl.get_term_count(4)['total'] == 1)
+
+    dl.remove_terms(2, propogate=True)
+
+    # Assert all have been removed.
+    bonds = dl.get_terms(2)
+
+    assert(bonds.empty)
+    assert(dl.get_term_count(2)['total'] == 0)
+    assert(dl.get_term_count(3)['total'] == 0)
+    assert (dl.get_term_count(4)['total'] == 0)
+
+    return True
+
+def test_remove_terms_by_index_propogate(butane_dl):
+
+    dl = butane_dl()
+
+    bonds = dl.get_terms(2)
+
+    # Assert topology is what we expect.
+    assert(not bonds.empty)
+    assert(dl.get_term_count(2)['total'] == 3)
+    assert(dl.get_term_count(3)['total'] == 2)
+    assert (dl.get_term_count(4)['total'] == 1)
+
+    assert(not bonds.empty)
+
+    # Remove one bond - choose to propogate this so dihedral and angle should also be removed.
+    dl.remove_terms(2, index=[0], propogate=True)
+
+    assert(dl.get_term_count(2)['total'] == 2)
+    assert (dl.get_term_count(3)['total'] == 1)
+    assert(dl.get_term_count(4)['total'] == 0)
+
+    return True
+
+def test_remove_terms_by_index_nonconsecutive_propogate(butane_dl):
+    dl = butane_dl()
+
+    bonds = dl.get_terms(2)
+
+    # Assert topology is what we expect.
+    assert (not bonds.empty)
+
+    #print(dl.get_terms(3))
+
+    assert (dl.get_term_count(2)['total'] == 3)
+    assert (dl.get_term_count(3)['total'] == 2)
+    assert (dl.get_term_count(4)['total'] == 1)
+
+    # Remove two bonds - choose to propogate this so dihedral and both angles should also be removed.
+    dl.remove_terms(2, index=[0, 2], propogate=True)
+
+    assert(dl.get_term_count(2)['total'] == 1)
+    assert (dl.get_term_count(3)['total'] == 0)
+    assert(dl.get_term_count(4)['total'] == 0)
+
+    return True

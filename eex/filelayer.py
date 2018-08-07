@@ -5,6 +5,7 @@ Base class for the filelayer.
 import os
 
 import pandas as pd
+import numpy as np
 
 
 def build_store(store_type, name, store_location, save_data):
@@ -98,6 +99,35 @@ class HDFStore(BaseStore):
         else:
             return pd.DataFrame()
 
+    def remove_table(self, key, index=None):
+        if key not in self.list_tables():
+            raise KeyError("Key %s does not exist" % key)
+
+        if index is None:
+            # Drop whole table
+            # Remove key from self.tables and self.created_tables
+            self.store.remove(key)
+            self.created_tables.remove(key)
+
+        else:
+            # Drop the subsection of the table.
+            index.sort()
+
+            # Group consectutive indices
+            indices = np.split(index, np.where(np.diff(index) != 1)[0]+1)
+
+            ret = []
+            for pair in indices:
+                if pair.shape[0] == 1:
+                    ret.append((pair[0], pair[0] + 1))
+                else:
+                    ret.append((pair[0], pair[-1] + 1))
+
+            ret.reverse()
+
+            for i in ret:
+                self.store.remove(key, start=i[0], stop=i[-1])
+
     def close(self):
         """
         Closes the FL file.
@@ -137,7 +167,6 @@ class MemoryStore(BaseStore):
 
         # Init the base class
         BaseStore.__init__(self, name, store_location, save_data)
-        self.store_filename = os.path.join(self.store_location, self.name + ".h5")
 
         # Table holder dictionary
         self.tables = {}
@@ -164,6 +193,19 @@ class MemoryStore(BaseStore):
             self.table_frags[key] = []
 
         return self.tables[key].copy()
+
+    def remove_table(self, key, index=None):
+        if key not in list(self.tables):
+            raise KeyError("Key %s does not exist" % key)
+
+        if index is None:
+            # Drop whole table
+            # Remove key from self.tables and self.table_frags dictionaries
+            del self.tables[key]
+            del self.table_frags[key]
+        else:
+            # Drop the subsection of the table
+            self.tables[key].drop(self.tables[key].index[index], inplace=True)
 
     def close(self):
         """
