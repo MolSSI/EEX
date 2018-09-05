@@ -978,3 +978,43 @@ def test_remove_terms_by_index_nonconsecutive_propogate(butane_dl):
     assert(dl.get_term_count(4)['total'] == 0)
 
     return True
+
+def test_remove_and_readd_terms(butane_dl):
+    dl = butane_dl()
+
+    bonds = dl.get_terms(2)
+
+    assert(not bonds.empty)
+
+    dl.remove_terms(2)
+
+    bonds_new = dl.get_terms(2)
+
+    assert(bonds_new.empty)
+    assert(dl.get_term_count(2)['total'] == 0)
+
+    dl.add_bonds(bonds)
+
+    added_bonds = dl.get_terms(2)
+
+    assert (not added_bonds.empty)
+
+def test_remove_and_readd_terms_index(butane_dl):
+    dl = butane_dl()
+
+    bonds = dl.get_terms(2)
+
+    assert(not bonds.empty)
+
+    dl.remove_terms(2, index=[0])
+
+    assert(dl.get_term_count(2)['total'] == 2)
+
+    dl.add_bonds(bonds.iloc[[0]])
+
+    added_bonds = dl.get_terms(2)
+
+    assert (not added_bonds.empty)
+
+    for col in added_bonds.columns:
+        assert(set(added_bonds[col].values) == set(bonds[col].values))
