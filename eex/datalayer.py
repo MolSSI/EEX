@@ -1162,7 +1162,7 @@ class DataLayer(object):
         # Finally store the dataframe
         return self.store.add_table("term" + str(order), df)
 
-    def remove_terms(self, order, index=None, propogate=False):
+    def remove_terms(self, order, index=None, propagate=False):
         """
         Removes terms using a index notation.
 
@@ -1172,7 +1172,7 @@ class DataLayer(object):
             The order (number of atoms) involved in the expression i.e. 2, "two"
         index: list
             The indices of the terms to be removed. If index is None, all terms of that order will be removed.
-        propogate: bool
+        propagate: bool
             This flag indicates if higher order terms should be removed with the removed term.
 
         Returns
@@ -1186,7 +1186,7 @@ class DataLayer(object):
         order_list = [order]
 
         # If this action should be propagated, orders will be added to order list.
-        if propogate == True:
+        if propagate == True:
             order_list.extend([x for x in [3,4] if x > order])
 
         # Figure out atom numbers for this removal.
@@ -1203,14 +1203,14 @@ class DataLayer(object):
             atoms = atom_df[cols]
 
         # Loop through order to be removed
-        for ord in order_list:
+        for current_order in order_list:
 
             # Get column names for order ord
-            cols = metadata.get_term_metadata(ord, "index_columns")
+            cols = metadata.get_term_metadata(current_order, "index_columns")
             cols = [x for x in cols if 'atom' in x]
 
             # Get terms for order ord
-            terms = self.get_terms(ord)
+            terms = self.get_terms(current_order)
 
             # If atoms list is empty, remove_index = None (ie, all removed). Otherwise, only remove interactions
             # for specified atoms.
@@ -1227,23 +1227,23 @@ class DataLayer(object):
                     remove_index.extend(matching_ind)
 
             # Use FL remove function.
-            self.store.remove_table("term" + str(ord), remove_index)
+            self.store.remove_table("term" + str(current_order), remove_index)
 
-            df = self.get_terms(ord)
+            df = self.get_terms(current_order)
 
             # Redo term count
-            self._term_count[ord] = {}
-            self._term_count[ord]["total"] = 0
+            self._term_count[current_order] = {}
+            self._term_count[current_order]["total"] = 0
 
             if not df.empty:
                 uvals, ucnts = np.unique(df["term_index"], return_counts=True)
                 for uval, cnt in zip(uvals, ucnts):
-                    if uval not in self._term_count[ord]:
-                        self._term_count[ord][uval] = cnt
+                    if uval not in self._term_count[current_order]:
+                        self._term_count[current_order][uval] = cnt
                     else:
-                        self._term_count[ord][uval] += cnt
+                        self._term_count[current_order][uval] += cnt
 
-                    self._term_count[ord]["total"] += cnt
+                    self._term_count[current_order]["total"] += cnt
 
         return True
 

@@ -75,7 +75,11 @@ class HDFStore(BaseStore):
             do_append = False
             self.created_tables.append(key)
 
-        data.to_hdf(self.store, key, format="t", append=do_append)
+        if do_append:
+            self.store.append(key, data)
+        else:
+            data.to_hdf(self.store, key, format="t", append=do_append)
+
         return True
 
     def read_table(self, key, rows=None, where=None, chunksize=None):
@@ -127,6 +131,11 @@ class HDFStore(BaseStore):
 
             for i in ret:
                 self.store.remove(key, start=i[0], stop=i[-1])
+
+            # If everything is removed by index, we should drop this key from the list of created tables
+            if self.read_table(key).empty:
+                self.created_tables.remove(key)
+
 
     def close(self):
         """
