@@ -979,7 +979,7 @@ def test_remove_terms_by_index_nonconsecutive_propogate(butane_dl):
 
     return True
 
-def test_remove_and_readd_terms(butane_dl):
+def test_remove_and_add_terms(butane_dl):
     dl = butane_dl()
 
     bonds = dl.get_terms(2)
@@ -999,7 +999,7 @@ def test_remove_and_readd_terms(butane_dl):
 
     assert (not added_bonds.empty)
 
-def test_remove_and_readd_terms_index(butane_dl):
+def test_remove_and_add_terms_index(butane_dl):
     dl = butane_dl()
 
     bonds = dl.get_terms(2)
