@@ -1162,7 +1162,7 @@ class DataLayer(object):
         # Finally store the dataframe
         return self.store.add_table("term" + str(order), df)
 
-    def remove_terms(self, order, index=None, propogate=False):
+    def remove_terms(self, order, index=None, propagate=False):
         """
         Removes terms using a index notation.
 
@@ -1172,7 +1172,7 @@ class DataLayer(object):
             The order (number of atoms) involved in the expression i.e. 2, "two"
         index: list
             The indices of the terms to be removed. If index is None, all terms of that order will be removed.
-        propogate: bool
+        propagate: bool
             This flag indicates if higher order terms should be removed with the removed term.
 
         Returns
@@ -1186,7 +1186,7 @@ class DataLayer(object):
         order_list = [order]
 
         # If this action should be propagated, orders will be added to order list.
-        if propogate == True:
+        if propagate == True:
             order_list.extend([x for x in [3,4] if x > order])
 
         # Figure out atom numbers for this removal.
