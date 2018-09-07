@@ -206,6 +206,21 @@ def test_amber_compatibility_no_scaling(butane_dl):
         eex.translators.amber.write_amber_file(dl, oname)
 
 
+def test_amber_compatibility_dihedral_conversion(butane_dl):
+
+    dl = butane_dl()
+
+    oname = eex_find_files.get_scratch_directory("dl_compatibility.prmtop")
+
+    eex.translators.amber.amber_write._check_dl_compatibility(dl)
+
+    print(dl.get_term_count(4))
+
+    print(dl.get_terms(4))
+
+    # eex.translators.amber.write_amber_file(dl, oname)
+
+
 
 
 

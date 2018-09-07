@@ -71,13 +71,22 @@ def butane_dl(request):
         dl.add_dihedrals(dihedral_df)
 
         if ff:
+            # Add harmonic bond
             dl.add_term_parameter(3, "harmonic", {'K': 62.100, 'theta0': 114}, uid=0,
                                   utype={'K': 'kcal * mol ** -1 * radian ** -2',
                                          'theta0': 'degree'})
 
+            # Add harmonic angle
             dl.add_term_parameter(2, "harmonic", {'K': 300.9, 'R0': 1.540}, uid=0,
                                   utype={'K': "kcal * mol **-1 * angstrom ** -2",
                                          'R0': "angstrom"})
+
+            # Add opls dihedral
+            dl.add_term_parameter(4, "opls", {'K_1': 1.41103414, 'K_2': -0.27101489,
+                                              'K_3': 3.14502869, 'K_4': 0}, uid=0, utype={'K_1': 'kcal * mol ** -1',
+                                                                                          'K_2': 'kcal * mol ** -1',
+                                                                                          'K_3': 'kcal * mol ** -1',
+                                                                                          'K_4': 'kcal * mol ** -1'})
 
         if nb:
             dl.add_nb_parameter(atom_type=1, nb_name="LJ",

@@ -74,7 +74,7 @@ def test_alkane(lammps_bench, program):
 
 # write test that loads in amber --> lammps --> EEX compare datalayers
 
-@pytest.mark.parametrize("program1", ["amber"]) #build dl
+@pytest.mark.parametrize("program1", ["amber", "lammps"]) #build dl
 @pytest.mark.parametrize("program2", ["amber", "lammps"]) #write dl
 @pytest.mark.parametrize("molecule", _alkane_molecules)
 def test_translation(program1, program2, molecule):
