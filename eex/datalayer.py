@@ -1078,6 +1078,41 @@ class DataLayer(object):
 
         return self._terms[order]
 
+    def remove_term_parameter(self, order, uid):
+        """
+        Removes parameter from datalayer based on term order and uid. This paramater must have a term count of 0.
+
+        Parameters
+        -------------
+        order : int
+            The order of the functional form (2, 3, 4, ...)
+        uid: int
+            The uid of the term to be removed.
+
+
+        Return
+        --------------
+            Returns True if successful
+        """
+
+        # Check that order is int
+        if order not in list(self._terms.keys()):
+            raise KeyError("No terms with order %s exist" % order)
+
+        # Check that uid is int and exists in dl.
+        if uid not in list(self._terms[order].keys()):
+            raise KeyError("No terms with order %s and uid %s exist" % (order, uid))
+
+        # Check that term count for uid is 0 (shouldn't really be removing if this isn't true)
+        if uid in self.get_term_count(order).keys():
+            raise ValueError("Terms for order %s and uid %s exist in datalayer. Term parameter cannot be removed" %(order, uid))
+
+        # Remove (just delete this key out of _terms dict)
+        del self._terms[order][uid]
+
+        return True
+
+
     def list_term_uids(self, order=None):
         """
         Lists all stored UID's in the datalayer.
