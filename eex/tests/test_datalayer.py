@@ -1018,3 +1018,37 @@ def test_remove_and_add_terms_index(butane_dl):
 
     for col in added_bonds.columns:
         assert(set(added_bonds[col].values) == set(bonds[col].values))
+
+def test_remove_term_parameters(butane_dl):
+    dl = butane_dl()
+
+    # First remove angle
+    dl.remove_terms(order=3)
+
+    # Remove angle type from datalayer
+    dl.remove_term_parameter(order=3, uid=0)
+
+    # Assert that there are no stored angle parameters
+    assert not dl.list_term_parameters(order=3)
+
+def test_remove_term_parameters_two(butane_dl):
+    dl = butane_dl()
+
+    # Add second angle
+    uid = dl.add_term_parameter(3, "harmonic", {'K': 62.100, 'theta0': 116},
+                          utype={'K': 'kcal * mol ** -1 * radian ** -2',
+                                 'theta0': 'degree'})
+
+    # First remove angle
+    dl.remove_terms(order=3)
+
+    # Remove angle type from datalayer
+    dl.remove_term_parameter(order=3, uid=0)
+
+    # Add another angle - what will the uid be?
+    uid2 = dl.add_term_parameter(3, "harmonic", {'K': 62.100, 'theta0': 117},
+
+    utype = {'K': 'kcal * mol ** -1 * radian ** -2',
+             'theta0': 'degree'})
+
+    print("The uids are", uid, uid2)

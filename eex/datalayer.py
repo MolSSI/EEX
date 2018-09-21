@@ -1095,7 +1095,7 @@ class DataLayer(object):
             Returns True if successful
         """
 
-        # Check that order is int
+        # Check that order exists in datalayer
         if order not in list(self._terms.keys()):
             raise KeyError("No terms with order %s exist" % order)
 
@@ -1216,6 +1216,9 @@ class DataLayer(object):
             Returns a boolean value if the operations was successful or not
         """
         order = metadata.sanitize_term_order_name(order)
+
+        # Check that terms with order exist
+
 
         # Initialize order list
         order_list = [order]
