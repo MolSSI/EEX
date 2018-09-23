@@ -877,7 +877,7 @@ def test_remove_terms_by_index(butane_dl):
     # Check that bonds are what we expect
     assert(sorted(bonds1.loc[2].values) == sorted(bonds2.values[0]))
 
-    # Here, since propogate was set to false. Angles and dihedrals remain unchanged.
+    # Here, since propagate was set to false. Angles and dihedrals remain unchanged.
     assert(dl.get_term_count(3)['total'] == 2)
 
     assert (dl.get_term_count(4)['total'] == 1)
@@ -902,7 +902,7 @@ def test_remove_terms_by_index_nonconsecutive(butane_dl):
     # Check that bonds are what we expect
     assert(sorted(bonds1.loc[1].values) == sorted(bonds2.values[0]))
 
-    # Here, since propogate was set to false. Angles and dihedrals remain unchanged.
+    # Here, since propagate was set to false. Angles and dihedrals remain unchanged.
     assert(dl.get_term_count(3)['total'] == 2)
 
     assert (dl.get_term_count(4)['total'] == 1)
@@ -921,7 +921,7 @@ def test_remove_terms_propagate(butane_dl):
     assert(dl.get_term_count(3)['total'] == 2)
     assert (dl.get_term_count(4)['total'] == 1)
 
-    dl.remove_terms(2, propogate=True)
+    dl.remove_terms(2, propagate=True)
 
     # Assert all have been removed.
     bonds = dl.get_terms(2)
@@ -933,7 +933,7 @@ def test_remove_terms_propagate(butane_dl):
 
     return True
 
-def test_remove_terms_by_index_propogate(butane_dl):
+def test_remove_terms_by_index_propagate(butane_dl):
 
     dl = butane_dl()
 
@@ -947,8 +947,8 @@ def test_remove_terms_by_index_propogate(butane_dl):
 
     assert(not bonds.empty)
 
-    # Remove one bond - choose to propogate this so dihedral and angle should also be removed.
-    dl.remove_terms(2, index=[0], propogate=True)
+    # Remove one bond - choose to propagate this so dihedral and angle should also be removed.
+    dl.remove_terms(2, index=[0], propagate=True)
 
     assert(dl.get_term_count(2)['total'] == 2)
     assert (dl.get_term_count(3)['total'] == 1)
@@ -956,7 +956,7 @@ def test_remove_terms_by_index_propogate(butane_dl):
 
     return True
 
-def test_remove_terms_by_index_nonconsecutive_propogate(butane_dl):
+def test_remove_terms_by_index_nonconsecutive_propagate(butane_dl):
     dl = butane_dl()
 
     bonds = dl.get_terms(2)
@@ -970,11 +970,97 @@ def test_remove_terms_by_index_nonconsecutive_propogate(butane_dl):
     assert (dl.get_term_count(3)['total'] == 2)
     assert (dl.get_term_count(4)['total'] == 1)
 
-    # Remove two bonds - choose to propogate this so dihedral and both angles should also be removed.
-    dl.remove_terms(2, index=[0, 2], propogate=True)
+    # Remove two bonds - choose to propagate this so dihedral and both angles should also be removed.
+    dl.remove_terms(2, index=[0, 2], propagate=True)
 
     assert(dl.get_term_count(2)['total'] == 1)
     assert (dl.get_term_count(3)['total'] == 0)
     assert(dl.get_term_count(4)['total'] == 0)
 
     return True
+
+def test_remove_and_add_terms(butane_dl):
+    dl = butane_dl()
+
+    bonds = dl.get_terms(2)
+
+    assert(not bonds.empty)
+
+    dl.remove_terms(2)
+
+    bonds_new = dl.get_terms(2)
+
+    assert(bonds_new.empty)
+    assert(dl.get_term_count(2)['total'] == 0)
+
+    dl.add_bonds(bonds)
+
+    added_bonds = dl.get_terms(2)
+
+    assert (not added_bonds.empty)
+
+def test_remove_and_add_terms_index(butane_dl):
+    dl = butane_dl()
+
+    bonds = dl.get_terms(2)
+
+    assert(not bonds.empty)
+
+    dl.remove_terms(2, index=[0])
+
+    assert(dl.get_term_count(2)['total'] == 2)
+
+    dl.add_bonds(bonds.iloc[[0]])
+
+    added_bonds = dl.get_terms(2)
+
+    assert (not added_bonds.empty)
+
+    for col in added_bonds.columns:
+        assert(set(added_bonds[col].values) == set(bonds[col].values))
+
+def test_remove_term_parameters(butane_dl):
+    dl = butane_dl()
+
+    # Check that term parameter cannot be removed if term is not removed first
+    with pytest.raises(ValueError):
+        dl.remove_term_parameter(order=3, uid=0)
+
+    # First remove angle
+    dl.remove_terms(order=3)
+
+    # Test that this produces error (there is only one term parameter (has uid 0))
+    with pytest.raises(KeyError):
+        dl.remove_term_parameter(order=3, uid=1)
+
+    # Remove angle type from datalayer
+    dl.remove_term_parameter(order=3, uid=0)
+
+    # Assert that there are no stored angle parameters
+    assert not dl.list_term_parameters(order=3)
+
+    # Test that second removal produces error
+    with pytest.raises(KeyError):
+        dl.remove_term_parameter(order=3, uid=0)
+
+def test_remove_term_parameters_two(butane_dl):
+    dl = butane_dl()
+
+    # Add second angle
+    uid = dl.add_term_parameter(3, "harmonic", {'K': 62.100, 'theta0': 116},
+                          utype={'K': 'kcal * mol ** -1 * radian ** -2',
+                                 'theta0': 'degree'})
+
+    # First remove angle
+    dl.remove_terms(order=3)
+
+    # Remove angle type from datalayer
+    dl.remove_term_parameter(order=3, uid=0)
+
+    # Add another angle - what will the uid be?
+    uid2 = dl.add_term_parameter(3, "harmonic", {'K': 62.100, 'theta0': 117},
+
+    utype = {'K': 'kcal * mol ** -1 * radian ** -2',
+             'theta0': 'degree'})
+
+    print("The uids are", uid, uid2)
