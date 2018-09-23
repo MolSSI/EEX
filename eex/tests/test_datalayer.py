@@ -1022,14 +1022,26 @@ def test_remove_and_add_terms_index(butane_dl):
 def test_remove_term_parameters(butane_dl):
     dl = butane_dl()
 
+    # Check that term parameter cannot be removed if term is not removed first
+    with pytest.raises(ValueError):
+        dl.remove_term_parameter(order=3, uid=0)
+
     # First remove angle
     dl.remove_terms(order=3)
+
+    # Test that this produces error (there is only one term parameter (has uid 0))
+    with pytest.raises(KeyError):
+        dl.remove_term_parameter(order=3, uid=1)
 
     # Remove angle type from datalayer
     dl.remove_term_parameter(order=3, uid=0)
 
     # Assert that there are no stored angle parameters
     assert not dl.list_term_parameters(order=3)
+
+    # Test that second removal produces error
+    with pytest.raises(KeyError):
+        dl.remove_term_parameter(order=3, uid=0)
 
 def test_remove_term_parameters_two(butane_dl):
     dl = butane_dl()

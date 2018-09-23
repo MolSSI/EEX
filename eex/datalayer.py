@@ -1100,11 +1100,11 @@ class DataLayer(object):
             raise KeyError("No terms with order %s exist" % order)
 
         # Check that uid is int and exists in dl.
-        if uid not in list(self._terms[order].keys()):
+        if uid not in self._terms[order]:
             raise KeyError("No terms with order %s and uid %s exist" % (order, uid))
 
         # Check that term count for uid is 0 (shouldn't really be removing if this isn't true)
-        if uid in self.get_term_count(order).keys():
+        if uid in self.get_term_count(order):
             raise ValueError("Terms for order %s and uid %s exist in datalayer. Term parameter cannot be removed" %(order, uid))
 
         # Remove (just delete this key out of _terms dict)
