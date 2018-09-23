@@ -1224,7 +1224,7 @@ class DataLayer(object):
         order_list = [order]
 
         # If this action should be propagated, orders will be added to order list.
-        if propagate == True:
+        if propagate is True:
             order_list.extend([x for x in [3,4] if x > order])
 
         # Figure out atom numbers for this removal.
