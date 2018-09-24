@@ -70,7 +70,8 @@ def _get_charmm_dihedral_count(dl):
         term_md = eex.metadata.get_term_metadata(order, "forms", j[0])
         # Zip up the parameters
         parameters = {k: v for k, v in zip(term_md["parameters"], j[1:])}
-        parameters = eex.form_converters.convert_form(order, parameters, j[0], charmm)
+        parameters = eex.form_converters.convert_form(order, parameters, j[0],
+                                                      charmm)
 
         if isinstance(parameters['K'], float):
             ret += 1
@@ -93,22 +94,29 @@ def _check_dl_compatibility(dl):
             terms = dl.list_term_parameters(v["order"])
 
             for j in terms.values():
-                term_md = eex.metadata.get_term_metadata(v["order"], "forms", j[0])
+                term_md = eex.metadata.get_term_metadata(
+                    v["order"], "forms", j[0])
                 canonical_form = term_md['canonical_form']
-                compatible_forms = eex.metadata.get_term_metadata(v["order"], "group")[canonical_form]
+                compatible_forms = eex.metadata.get_term_metadata(
+                    v["order"], "group")[canonical_form]
 
                 if v['form'] not in compatible_forms:
                     # Will need to insert check to see if these can be easily converted (ex OPLS dihedral <-> charmmfsw)
-                    raise TypeError("Functional form %s stored in datalayer is not compatible with Amber.\n" % (j[0]))
+                    raise TypeError(
+                        "Functional form %s stored in datalayer is not compatible with Amber.\n"
+                        % (j[0]))
         else:
             # Handle nonbonds. Make sure only LJ types are stored in datalayer.
             nb_forms = dl.list_stored_nb_types()
 
             if set(nb_forms) != set(["LJ"]):
-                raise KeyError("Nonbond forms must be type LJ. Forms stored in datalayer are not compatible with Amber - %s" % nb_forms)
+                raise KeyError(
+                    "Nonbond forms must be type LJ. Forms stored in datalayer are not compatible with Amber - %s"
+                    % nb_forms)
 
             # Grab all pair interactions stored in datalayer. Amber must have pair interactions.
-            nb = dl.list_nb_parameters(nb_name="LJ", nb_model="AB", itype="pair")
+            nb = dl.list_nb_parameters(
+                nb_name="LJ", nb_model="AB", itype="pair")
 
             # Get the number of atom types. The number of pair interactions should be equal to num_atom_types * (num_atom_types + 1)) / 2
             num_atom_types = len(dl.get_unique_atom_types())
@@ -121,46 +129,54 @@ def _check_dl_compatibility(dl):
                 # rule before calling the amber writer.
                 if dl.get_mixing_rule() not in amd.mixing_rule:
                     raise TypeError(
-                        "Mixing rule %s not compatible with amber (lorentz-berthelot mixing rule)" % dl.get_mixing_rule())
+                        "Mixing rule %s not compatible with amber (lorentz-berthelot mixing rule)"
+                        % dl.get_mixing_rule())
 
                 # Calculate pair interactions according to amber.
                 dl.build_LJ_mixing_table()
 
             # This condition will be met if some pair interactions are stored, but not the correct number.
             elif len(nb.keys()) != (num_atom_types * (num_atom_types + 1)) / 2:
-                raise ValueError("Amber compatibility check : Incorrect number of pair interactions\n")
+                raise ValueError(
+                    "Amber compatibility check : Incorrect number of pair interactions\n"
+                )
 
             # Check NB scaling factors are compatible with amber
 
-            scaling_types = eex.metadata.additional_metadata.nb_scaling["scaling_type"]
+            scaling_types = eex.metadata.additional_metadata.nb_scaling[
+                "scaling_type"]
 
             for scale_type in scaling_types:
 
                 if scale_type not in dl.store.list_tables():
 
                     if not dl.get_nb_scaling_factors():
-                        raise ValueError("No nonbond scaling (%s) information is set in datalayer" %(scale_type))
+                        raise ValueError(
+                            "No nonbond scaling (%s) information is set in datalayer"
+                            % (scale_type))
                     else:
                         # Build atom-wise scaling list
                         dl.build_scaling_list()
 
                 # Check that NB scaling factors are compatible with amber (ie 1,2 and 1,3 must be 0 (excluded))
-                pair_scalings = dl.get_pair_scalings(nb_labels=[scale_type], order=True)
+                pair_scalings = dl.get_pair_scalings(
+                    nb_labels=[scale_type], order=True)
 
                 p12 = pair_scalings[pair_scalings["order"] == 2][scale_type]
 
                 p13 = pair_scalings[pair_scalings["order"] == 3][scale_type]
 
                 if p12.nonzero()[0].any():
-                    raise ValueError("Nonbond scaling (order=2, %s) is not consistent with Amber. In Amber, 1-2 nonbond "
-                                     "interactions are excluded" %(scale_type))
+                    raise ValueError(
+                        "Nonbond scaling (order=2, %s) is not consistent with Amber. In Amber, 1-2 nonbond "
+                        "interactions are excluded" % (scale_type))
 
                 if p13.nonzero()[0].any():
-                    raise ValueError("Nonbond scaling (order=3, %s) is not consistent with Amber. In Amber, 1-3 nonbond "
-                                     "interactions are excluded" %(scale_type))
+                    raise ValueError(
+                        "Nonbond scaling (order=3, %s) is not consistent with Amber. In Amber, 1-3 nonbond "
+                        "interactions are excluded" % (scale_type))
 
                 ## TODO - need check scaling 0 is set for all order 2 and order 3
-
 
     stored_properties = dl.list_atom_properties()
     required_properties = list(amd.atom_property_names.values())
@@ -195,7 +211,8 @@ def _check_dl_compatibility(dl):
             except:
                 raise KeyError("No masses stored in datalayer")
         else:
-            raise KeyError("Atom property %s is missing from datalayer" % (req))
+            raise KeyError(
+                "Atom property %s is missing from datalayer" % (req))
 
     # Check for residue_index
 
@@ -245,7 +262,8 @@ def write_amber_file(dl, filename, inpcrd=None):
     without_hydrogen = {}
     hidx = (dl.get_atoms("atomic_number") == 1)['atomic_number']
     hidx = hidx[hidx].index
-    for term_type, term_name in zip([2, 3, 4], ["bonds", "angles", "dihedrals"]):
+    for term_type, term_name in zip([2, 3, 4],
+                                    ["bonds", "angles", "dihedrals"]):
         term = dl.get_terms(term_type)
         if term.shape[0] == 0:
             num_H_list.append(0)
@@ -265,23 +283,36 @@ def write_amber_file(dl, filename, inpcrd=None):
     output_sizes = {k: 0 for k in amd.size_keys}
 
     output_sizes['NATOM'] = dl.get_atom_count()  # Number of atoms
-    output_sizes["NBONH"] = num_H_list[0]  # Number of bonds containing hydrogen
-    output_sizes["MBONA"] = dl.get_term_count(2, "total") - output_sizes["NBONH"]  # Number of bonds not containing hydrogen
-    output_sizes['NBONA'] = output_sizes["MBONA"]  # MBONA + number of constraint bonds (MBONA = NBONA always)
-    output_sizes["NTHETH"] = num_H_list[1]  # Number of angles containing hydrogen
-    output_sizes["MTHETA"] = dl.get_term_count(3, "total") - output_sizes["NTHETH"]  # Number of angles not containing hydrogen
-    output_sizes['NTHETA'] = output_sizes["MTHETA"]  # MTHETA + number of constraint angles (NTHETA = MTHETA always)
-    output_sizes["NPHIH"] = num_H_list[2]  # Number of torsions containing hydrogen
-    output_sizes["MPHIA"] = dl.get_term_count(4, "total") - output_sizes["NPHIH"]  # Number of torsions not containing hydrogen
+    output_sizes["NBONH"] = num_H_list[
+        0]  # Number of bonds containing hydrogen
+    output_sizes["MBONA"] = dl.get_term_count(2, "total") - output_sizes[
+        "NBONH"]  # Number of bonds not containing hydrogen
+    output_sizes['NBONA'] = output_sizes[
+        "MBONA"]  # MBONA + number of constraint bonds (MBONA = NBONA always)
+    output_sizes["NTHETH"] = num_H_list[
+        1]  # Number of angles containing hydrogen
+    output_sizes["MTHETA"] = dl.get_term_count(3, "total") - output_sizes[
+        "NTHETH"]  # Number of angles not containing hydrogen
+    output_sizes['NTHETA'] = output_sizes[
+        "MTHETA"]  # MTHETA + number of constraint angles (NTHETA = MTHETA always)
+    output_sizes["NPHIH"] = num_H_list[
+        2]  # Number of torsions containing hydrogen
+    output_sizes["MPHIA"] = dl.get_term_count(4, "total") - output_sizes[
+        "NPHIH"]  # Number of torsions not containing hydrogen
     output_sizes["NPHIA"] = output_sizes["MPHIA"]
-    output_sizes["NUMBND"] = len(dl.list_term_uids(2))  # Number of unique bond types
-    output_sizes["NUMANG"] = len(dl.list_term_uids(3))  # Number of unique angle types
+    output_sizes["NUMBND"] = len(
+        dl.list_term_uids(2))  # Number of unique bond types
+    output_sizes["NUMANG"] = len(
+        dl.list_term_uids(3))  # Number of unique angle types
     output_sizes["NPTRA"] = dihedral_count  # Number of unique torsion types
 
-    output_sizes["NRES"] = len(dl.list_atom_uids("residue_name"))  # Number of residues (not stable)
-    output_sizes["NTYPES"] = len(np.unique(dl.get_atoms("atom_type")))  # Number of distinct LJ atom types
+    output_sizes["NRES"] = len(
+        dl.list_atom_uids("residue_name"))  # Number of residues (not stable)
+    output_sizes["NTYPES"] = len(np.unique(
+        dl.get_atoms("atom_type")))  # Number of distinct LJ atom types
 
-    output_sizes["NPARM"] = 0  # Used to determine if this is a LES-compatible prmtop (??)
+    output_sizes[
+        "NPARM"] = 0  # Used to determine if this is a LES-compatible prmtop (??)
     output_sizes["NNB"] = dl.get_atom_count(
     )  # Number of excluded atoms - Set to num atoms for our test cases. Amber will not run with 0
     # 0 - no box, 1 - orthorhombic box, 2 - truncated octahedron
@@ -290,7 +321,9 @@ def write_amber_file(dl, filename, inpcrd=None):
     output_sizes["NUMEXTRA"] = 0  # Number of extra points in the topology file
 
     # Needs check for orthorhomibic box (1) or truncated octahedron (2). Currently just 0 or 1
-    output_sizes["IFBOX"] = [0 if dl.get_box_size() == {} else 1][0]  # Flag indicating whether a periodic box is present
+    output_sizes["IFBOX"] = [
+        0 if dl.get_box_size() == {} else 1
+    ][0]  # Flag indicating whether a periodic box is present
 
     written_categories = []
 
@@ -307,7 +340,8 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     # Write title and version information
     f = open(filename, "w")
-    f.write('%%VERSION  VERSION_STAMP = V0001.000  DATE = %s  %s\n' % (time.strftime("%x"), time.strftime("%H:%M:%S")))
+    f.write('%%VERSION  VERSION_STAMP = V0001.000  DATE = %s  %s\n' %
+            (time.strftime("%x"), time.strftime("%H:%M:%S")))
     f.write("%FLAG TITLE\n%FORMAT(20a4)\n")
     f.write("prmtop generated by MolSSI EEX\n")
 
@@ -332,7 +366,10 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     for k in amd.atom_property_names:
         # Get data
-        data = dl.get_atoms(amd.atom_property_names[k], by_value=True, utype=amd.atom_data_units).values.ravel()
+        data = dl.get_atoms(
+            amd.atom_property_names[k],
+            by_value=True,
+            utype=amd.atom_data_units).values.ravel()
         _write_amber_data(file_handle, data, k)
 
         written_categories.append(k)
@@ -341,7 +378,8 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     # We assume these are sorted WRT to atom and itself at the moment... not great
     res_data = dl.get_atoms(["residue_index", "residue_name"], by_value=True)
-    uvals, uidx, ucnts = np.unique(res_data["residue_index"], return_index=True, return_counts=True)
+    uvals, uidx, ucnts = np.unique(
+        res_data["residue_index"], return_index=True, return_counts=True)
 
     labels = res_data["residue_name"].iloc[uidx].values
     _write_amber_data(file_handle, labels, "RESIDUE_LABEL")
@@ -367,7 +405,8 @@ def write_amber_file(dl, filename, inpcrd=None):
 
         # Build lists of data since AMBER holds this as 1D
         for uid in uids:
-            params = dl.get_term_parameter(order, uid, utype=utype, ftype=term_md['form'])
+            params = dl.get_term_parameter(
+                order, uid, utype=utype, ftype=term_md['form'])
 
             for k, v in params[1].items():
                 tmps[inv_lookup[k]].append(v)
@@ -378,7 +417,8 @@ def write_amber_file(dl, filename, inpcrd=None):
             _write_amber_data(file_handle, v, k)
             written_categories.append(k)
 
-    for term_type, term_name in zip([2, 3, 4], ["bonds", "angles", "dihedrals"]):
+    for term_type, term_name in zip([2, 3, 4],
+                                    ["bonds", "angles", "dihedrals"]):
         term = dl.get_terms(term_type)
 
         if term.shape[0] == 0:
@@ -388,8 +428,10 @@ def write_amber_file(dl, filename, inpcrd=None):
         inc_hydrogen_mask = term["atom1"].isin(hidx)
 
         # Scale by weird AMBER factors
-        inc_hydrogen[term_name][:, :-1] = (inc_hydrogen[term_name][:, :-1] - 1) * 3
-        without_hydrogen[term_name][:, :-1] = (without_hydrogen[term_name][:, :-1] - 1) * 3
+        inc_hydrogen[term_name][:, :-1] = (
+            inc_hydrogen[term_name][:, :-1] - 1) * 3
+        without_hydrogen[term_name][:, :-1] = (
+            without_hydrogen[term_name][:, :-1] - 1) * 3
 
         inc_h_name = term_name.upper() + "_INC_HYDROGEN"
         without_h_name = term_name.upper() + "_WITHOUT_HYDROGEN"
@@ -397,7 +439,8 @@ def write_amber_file(dl, filename, inpcrd=None):
         _write_amber_data(file_handle, inc_hydrogen[term_name], inc_h_name)
         written_categories.append(inc_h_name)
 
-        _write_amber_data(file_handle, without_hydrogen[term_name], without_h_name)
+        _write_amber_data(file_handle, without_hydrogen[term_name],
+                          without_h_name)
         written_categories.append(without_h_name)
 
     # Handle SOLVENT_POINTERS, ATOMS_PER_MOLECULE and BOX_DIMENSIONS. Only present if IFBOX>0.
@@ -423,14 +466,24 @@ def write_amber_file(dl, filename, inpcrd=None):
         for x in range(1, nspm + 1):
             atoms_per_molecule.append(count_atoms_per_molecule[x])
 
-        _write_amber_data(file_handle, atoms_per_molecule, "ATOMS_PER_MOLECULE")
+        _write_amber_data(file_handle, atoms_per_molecule,
+                          "ATOMS_PER_MOLECULE")
 
         # Write box dimensions section
-        box_dimensions = dl.get_box_size(utype={"a": amd.box_units["length"], "b": amd.box_units["length"],
-                                                "c": amd.box_units["length"], "alpha": amd.box_units["angle"],
-                                                "beta": amd.box_units["angle"], "gamma": amd.box_units["angle"]})
+        box_dimensions = dl.get_box_size(
+            utype={
+                "a": amd.box_units["length"],
+                "b": amd.box_units["length"],
+                "c": amd.box_units["length"],
+                "alpha": amd.box_units["angle"],
+                "beta": amd.box_units["angle"],
+                "gamma": amd.box_units["angle"]
+            })
 
-        write_box = [box_dimensions["beta"], box_dimensions["a"], box_dimensions["b"], box_dimensions["c"]]
+        write_box = [
+            box_dimensions["beta"], box_dimensions["a"], box_dimensions["b"],
+            box_dimensions["c"]
+        ]
 
         _write_amber_data(file_handle, write_box, "BOX_DIMENSIONS")
 
@@ -449,7 +502,10 @@ def write_amber_file(dl, filename, inpcrd=None):
 
     # Get parameters from datalayer using correct amber units
     stored_nb_parameters = dl.list_nb_parameters(
-        nb_name="LJ", nb_model="AB", utype=amd.forcefield_parameters["nonbond"]["units"], itype="pair")
+        nb_name="LJ",
+        nb_model="AB",
+        utype=amd.forcefield_parameters["nonbond"]["units"],
+        itype="pair")
     nonbonded_parm_index = np.zeros(ntypes * ntypes)
     lj_a_coeff = []
     lj_b_coeff = []
@@ -463,7 +519,8 @@ def write_amber_file(dl, filename, inpcrd=None):
         nonbonded_parm_index[index_to_nb - 1] = len(lj_a_coeff)
         nonbonded_parm_index[index_to_nb2 - 1] = len(lj_a_coeff)
 
-    _write_amber_data(file_handle, nonbonded_parm_index, "NONBONDED_PARM_INDEX")
+    _write_amber_data(file_handle, nonbonded_parm_index,
+                      "NONBONDED_PARM_INDEX")
     _write_amber_data(file_handle, lj_a_coeff, "LENNARD_JONES_ACOEF")
     _write_amber_data(file_handle, lj_b_coeff, "LENNARD_JONES_BCOEF")
 
@@ -490,7 +547,8 @@ def write_amber_file(dl, filename, inpcrd=None):
             excluded_atoms_df = order_2_3_4.loc[ind]
             excluded_atoms = excluded_atoms_df.index.values
             exclusion_categories["EXCLUDED_ATOMS_LIST"].extend(excluded_atoms)
-            exclusion_categories["NUMBER_EXCLUDED_ATOMS"].append(len(excluded_atoms))
+            exclusion_categories["NUMBER_EXCLUDED_ATOMS"].append(
+                len(excluded_atoms))
 
         else:
             exclusion_categories["NUMBER_EXCLUDED_ATOMS"].append(1)
@@ -500,7 +558,6 @@ def write_amber_file(dl, filename, inpcrd=None):
         _write_amber_data(file_handle, exclusion_categories[excl], excl)
         written_categories.append(excl)
 
-
     # Write headers for other sections (file will not work in AMBER without these)
     for k in amd.data_labels:
         if k not in written_categories:
@@ -508,7 +565,8 @@ def write_amber_file(dl, filename, inpcrd=None):
                 data = np.zeros(label_sizes[k])
                 _write_amber_data(file_handle, data, k)
             else:
-                file_handle.write(("%%FLAG %s\n%s\n\n" % (k, amd.data_labels[k][1])).encode())
+                file_handle.write((
+                    "%%FLAG %s\n%s\n\n" % (k, amd.data_labels[k][1])).encode())
             written_categories.append(k)
 
     file_handle.close()

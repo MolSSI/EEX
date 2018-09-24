@@ -12,11 +12,16 @@ from . import eex_find_files
 @pytest.fixture(scope="module", params=["HDF5", "Memory"])
 def spce_dl(request):
     fname = eex_find_files.get_example_filename("lammps", "SPCE", "data.spce")
-    dl = eex.datalayer.DataLayer(
-        "test_lammps_read", )
-    sim_data = {'units': 'real', 'bond_style': 'harmonic', 'angle_style': 'harmonic', 'dihedral_style': 'opls',
-                'atom_style': 'full'}
-    eex.translators.lammps.read_lammps_data_file(dl, fname, sim_data, blocksize=55)
+    dl = eex.datalayer.DataLayer("test_lammps_read", )
+    sim_data = {
+        'units': 'real',
+        'bond_style': 'harmonic',
+        'angle_style': 'harmonic',
+        'dihedral_style': 'opls',
+        'atom_style': 'full'
+    }
+    eex.translators.lammps.read_lammps_data_file(
+        dl, fname, sim_data, blocksize=55)
     yield dl
     dl.close()
 
@@ -26,10 +31,14 @@ def test_lammps_read_data(spce_dl):
 
     # Check on the data dictionary
     utype = {"epsilon": "kcal / mol", "sigma": "angstrom"}
-    nb_param_atom1 = dl.get_nb_parameter(atom_type=1, nb_model='epsilon/sigma', utype=utype)
-    nb_param_atom2 = dl.get_nb_parameter(atom_type=2, nb_model='epsilon/sigma', utype=utype)
-    assert np.allclose([nb_param_atom1['epsilon'], nb_param_atom1['sigma']], [0.15524976551, 3.166])
-    assert np.allclose([nb_param_atom2['epsilon'], nb_param_atom2['sigma']], [0.0, 0.0])
+    nb_param_atom1 = dl.get_nb_parameter(
+        atom_type=1, nb_model='epsilon/sigma', utype=utype)
+    nb_param_atom2 = dl.get_nb_parameter(
+        atom_type=2, nb_model='epsilon/sigma', utype=utype)
+    assert np.allclose([nb_param_atom1['epsilon'], nb_param_atom1['sigma']],
+                       [0.15524976551, 3.166])
+    assert np.allclose([nb_param_atom2['epsilon'], nb_param_atom2['sigma']],
+                       [0.0, 0.0])
     assert len(dl.get_unique_atom_types()) == 2
     assert len(dl.list_term_uids()[2]) == 1
     assert len(dl.list_term_uids()[3]) == 1
@@ -83,15 +92,13 @@ def test_lammps_read_angles(spce_dl):
     assert np.allclose(np.unique(angles["term_index"]), [1])
 
 
-
-
-
-@pytest.mark.parametrize("molecule", ["butane","propane","ethane"])
+@pytest.mark.parametrize("molecule", ["butane", "propane", "ethane"])
 def test_lammps_reader(molecule):
 
-    infile_name = "in.%s" %(molecule)
+    infile_name = "in.%s" % (molecule)
 
-    in_fname = eex_find_files.get_example_filename("lammps", "alkanes", infile_name)
+    in_fname = eex_find_files.get_example_filename("lammps", "alkanes",
+                                                   infile_name)
 
     # Read in the data
     dl = eex.datalayer.DataLayer(molecule)
@@ -116,6 +123,7 @@ def test_lammps_reader(molecule):
     eex.testing.dict_compare(stored_scaling_factors, scaling_factors)
     return True
 
+
 def test_lammps_writer(butane_dl):
 
     # Read in the data
@@ -125,4 +133,5 @@ def test_lammps_writer(butane_dl):
     oname = eex_find_files.get_scratch_directory('test_lammps_writer')
     input_filename = oname + '.in'
 
-    eex.translators.lammps.write_lammps_file(dl, oname, input_filename, unit_style="real")
+    eex.translators.lammps.write_lammps_file(
+        dl, oname, input_filename, unit_style="real")

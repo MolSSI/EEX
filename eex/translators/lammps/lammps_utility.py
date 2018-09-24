@@ -29,7 +29,7 @@ def compute_lattice_constants(bsize, tilt_factors):
     if np.isclose(b * c, 0.0):
         raise ZeroDivisionError("One of the box sizes is zero")
 
-    cos_alpha = (xy *  xz + ly * yz) / (b * c)
+    cos_alpha = (xy * xz + ly * yz) / (b * c)
     cos_beta = xz / c
     cos_gamma = xy / b
 
@@ -37,7 +37,15 @@ def compute_lattice_constants(bsize, tilt_factors):
     beta = np.arccos(cos_beta)
     gamma = np.arccos(cos_gamma)
 
-    return {'a': a, 'b': b, 'c': c, 'alpha': alpha, 'beta': beta, 'gamma': gamma}
+    return {
+        'a': a,
+        'b': b,
+        'c': c,
+        'alpha': alpha,
+        'beta': beta,
+        'gamma': gamma
+    }
+
 
 def get_energies(input_file=None, lmp_path=None, unit_style=None):
     """Evaluate energies of LAMMPS files. Based on InterMol
@@ -47,8 +55,9 @@ def get_energies(input_file=None, lmp_path=None, unit_style=None):
         lmp_path = path to LAMMPS binaries
     """
 
-    for exe in ['lammps', 'lmp_mpi', 'lmp_serial', 'lmp_openmpi',
-                'lmp_mac_mpi']:
+    for exe in [
+            'lammps', 'lmp_mpi', 'lmp_serial', 'lmp_openmpi', 'lmp_mac_mpi'
+    ]:
         if eex.utility.which(exe):
             LMP_PATH = exe
             break
@@ -66,7 +75,6 @@ def get_energies(input_file=None, lmp_path=None, unit_style=None):
 
     if not os.path.isfile(input_file):
         raise OSError("Could not find file '%s'" % input_file)
-
 
     saved_path = os.getcwd()
     directory, input_file = os.path.split(os.path.abspath(input_file))
@@ -90,11 +98,14 @@ def get_energies(input_file=None, lmp_path=None, unit_style=None):
 
     ret = _group_energy_terms(out)
 
-#    for key in ret:
-#        cf = eex.units.conversion_factor(log_prop_table[key]['utype'], prop_table[key]['utype'])
-#        ret[key] *= cf
+    #    for key in ret:
+    #        cf = eex.units.conversion_factor(log_prop_table[key]['utype'], prop_table[key]['utype'])
+    #        ret[key] *= cf
 
-    return eex.utility.canonicalize_energy_names(ret, {k:v['canonical'] for (k, v) in log_prop_table.items()})
+    return eex.utility.canonicalize_energy_names(
+        ret, {k: v['canonical']
+              for (k, v) in log_prop_table.items()})
+
 
 def _extract_unit_style(stdout):
     """Parse LAMMPS stdout to extract unit style. """
@@ -102,6 +113,7 @@ def _extract_unit_style(stdout):
     line_nbr = ['Unit style' in item for item in lines].index(True)
     unit_style = lines[line_nbr].split()[-1]
     return unit_style
+
 
 def _group_energy_terms(stdout):
     """Parse LAMMPS stdout to extract and group the energy terms in a dict. """

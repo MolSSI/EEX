@@ -1,4 +1,3 @@
-
 """
 A helper function to access EEX converteres easier
 """
@@ -27,10 +26,14 @@ def convert_form(order, coeffs, origin, final):
     from_canonical = from_canonical.lower()
 
     if to_canonical not in REGISTERED_CONVERTERS[order].keys():
-        raise KeyError('Cannot perform the conversion %s because it has not been implemented' % to_canonical)
+        raise KeyError(
+            'Cannot perform the conversion %s because it has not been implemented'
+            % to_canonical)
 
     if from_canonical not in REGISTERED_CONVERTERS[order].keys():
-        raise KeyError('Cannot perform the conversion %s because it has not been implemented' % from_canonical)
+        raise KeyError(
+            'Cannot perform the conversion %s because it has not been implemented'
+            % from_canonical)
 
     canonical_coeffs = REGISTERED_CONVERTERS[order][to_canonical](coeffs)
     ret = REGISTERED_CONVERTERS[order][from_canonical](canonical_coeffs)

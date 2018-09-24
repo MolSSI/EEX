@@ -20,7 +20,8 @@ def sanitize_term_order_name(order):
     elif order in [4, "four", "dihedral", "dihedrals"]:
         return 4
     else:
-        raise KeyError("EEX: Term order name '%s' not recognized." % str(order))
+        raise KeyError(
+            "EEX: Term order name '%s' not recognized." % str(order))
 
 
 def get_atom_metadata(propery_name, field_name=None):
@@ -53,7 +54,9 @@ def get_term_metadata(order, name=None, field=None):
     # Do we have a field
     if field:
         if field not in tmpdata.keys():
-            raise KeyError("Md_helper: get_term_metadata: functional form '%s' not found." % field)
+            raise KeyError(
+                "Md_helper: get_term_metadata: functional form '%s' not found."
+                % field)
         return tmpdata[field]
     else:
         return tmpdata

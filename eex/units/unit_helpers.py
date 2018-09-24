@@ -10,6 +10,7 @@ from .default_contexts import default_contexts
 
 __all__ = ["conversion_dict", "conversion_factor", "convert_contexts"]
 
+
 def conversion_dict(from_units, to_units):
     """
     Builds a standard conversion dictionary between two dictionaries of units.
@@ -17,7 +18,8 @@ def conversion_dict(from_units, to_units):
 
     diff = set(from_units) ^ set(to_units)
     if len(diff):
-        raise KeyError("conversion_dict: Not all units found, missing '%s'" % str(diff))
+        raise KeyError(
+            "conversion_dict: Not all units found, missing '%s'" % str(diff))
 
     ret = {}
     for key in from_units:

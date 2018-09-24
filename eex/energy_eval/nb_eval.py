@@ -28,7 +28,13 @@ def _fast_coulomb_sum(coords, charges, shift, efunc):
     return 0.5 * energy
 
 
-def lattice_sum(coords, charges, boxlength, nboxes, func="coulomb", return_shells=False, spherical_truncation=True):
+def lattice_sum(coords,
+                charges,
+                boxlength,
+                nboxes,
+                func="coulomb",
+                return_shells=False,
+                spherical_truncation=True):
     """
     Computes the direct latice sum electostatic energy.
 
@@ -75,7 +81,8 @@ def lattice_sum(coords, charges, boxlength, nboxes, func="coulomb", return_shell
             continue
 
         shiftvec = np.array(nvecs) * boxlength
-        energy[shell] += _fast_coulomb_sum(coords, charges, shiftvec, _coulomb_energy)
+        energy[shell] += _fast_coulomb_sum(coords, charges, shiftvec,
+                                           _coulomb_energy)
 
     # Sum up the energy
     energy["total"] = sum(v for k, v in energy.items())
@@ -102,7 +109,9 @@ def nonbonded_eval(coords, atom_types, form, parameters):
     try:
         expr = ne.NumExpr(form, signature=ptypes)
     except ValueError:
-        raise KeyError("nb_eval: Not all paramters for form %s resolved, found keys %s" % (form, list(ptypes.keys())))
+        raise KeyError(
+            "nb_eval: Not all paramters for form %s resolved, found keys %s" %
+            (form, list(ptypes.keys())))
 
     local_params = {}
     energy = 0.0
