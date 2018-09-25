@@ -9,6 +9,7 @@ import math
 import re
 import numpy as np
 from collections import Counter
+from copy import deepcopy
 
 # Python 2/3 compat
 try:
@@ -26,7 +27,6 @@ logger = logging.getLogger(__name__)
 
 
 def _write_1d(file_handle, data, ncols, fmt):
-
     data = data.ravel()
 
     remainder_size = data.size % ncols
@@ -90,16 +90,63 @@ def _check_dl_compatibility(dl):
     # Loop over force field information - check functional form compatibility
     for k, v in amd.forcefield_parameters.items():
         if k is not "nonbond":
-            terms = dl.list_term_parameters(v["order"])
+            terms = deepcopy(dl.list_term_parameters(v["order"]))
 
-            for j in terms.values():
+            for id, j in terms.items():
                 term_md = eex.metadata.get_term_metadata(v["order"], "forms", j[0])
                 canonical_form = term_md['canonical_form']
                 compatible_forms = eex.metadata.get_term_metadata(v["order"], "group")[canonical_form]
 
                 if v['form'] not in compatible_forms:
-                    # Will need to insert check to see if these can be easily converted (ex OPLS dihedral <-> charmmfsw)
                     raise TypeError("Functional form %s stored in datalayer is not compatible with Amber.\n" % (j[0]))
+
+                elif j[0] != v['form']:
+                    # Functional form is compatible, but not the correct form. Perform conversion.
+
+                    # Grab here since multiple conversions will change indices.
+                    term_list = dl.get_terms(v["order"])
+
+                    # Need to get parameters in dictionary for conversion
+                    term_parameters = eex.metadata.get_term_metadata(v["order"], "forms", j[0])["parameters"]
+                    convert_parameters = {k: v for k, v in zip(term_parameters, j[1:])}
+
+                    # Call conversion function
+                    new_form = eex.form_converters.convert_form(v["order"], convert_parameters, j[0], v['form'])
+
+                    # Get info for original functional form to remove.
+                    remove_terms = term_list[term_list["term_index"] == id]
+                    atom_columns = [x for x in remove_terms.columns if "atom" in x]
+                    
+                    # Remove terms for original functional form
+                    dl.remove_terms(v['order'], index=remove_terms.index, propogate=False)
+
+                    # Add new - Two things must be done here:
+                    # First the converted functional form must be added using dl.add_term_parameter
+                    # Then, terms themselves must be re-added using dl.add_term
+
+                    # Build dataframe
+                    # 1. Get atoms involved in term from remove terms - 'base_atoms'
+                    # 2. Build df with atoms and term_index
+
+                    base_atoms = remove_terms[atom_columns]
+                    new_form_keys = new_form.keys()
+
+                    # Loop through new terms to add to dl
+                    for val in range(len(list(new_form.values())[0])):
+                        to_add = {}
+
+                        for key in new_form_keys:
+                            to_add[key] = new_form[key][val]
+
+
+                        uid = dl.add_term_parameter(v["order"], v['form'], to_add)
+                        base_atoms['term_index'] = uid
+
+                        dl.add_terms(v["order"], base_atoms)
+
+                    # Remove this form from dl
+                    #print(dl.get_terms(v["order"]))
+
         else:
             # Handle nonbonds. Make sure only LJ types are stored in datalayer.
             nb_forms = dl.list_stored_nb_types()
@@ -235,6 +282,7 @@ def write_amber_file(dl, filename, inpcrd=None):
     # First get information into Amber pointers. All keys are initially filled with zero.
     # Ones that are currently 0, but should be implemented eventually are marked with
 
+    # Check that datalayer is compatible with amber
     _check_dl_compatibility(dl)
 
     dihedral_count = _get_charmm_dihedral_count(dl)

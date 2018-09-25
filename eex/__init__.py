@@ -10,6 +10,7 @@ from . import testing
 from . import translators
 from . import utility
 from . import form_converters
+from . import metadata
 from .units import ureg
 
 
