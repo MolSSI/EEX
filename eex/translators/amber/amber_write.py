@@ -89,7 +89,7 @@ def _check_dl_compatibility(dl):
 
     # Loop over force field information - check functional form compatibility
     for k, v in amd.forcefield_parameters.items():
-        if k is not "nonbond":
+        if k != "nonbond":
             terms = dl.list_term_parameters(v["order"])
 
             for j in terms.values():
@@ -479,8 +479,6 @@ def write_amber_file(dl, filename, inpcrd=None):
     exclusions_scaling = dl.get_pair_scalings(order=True)
 
     order_2_3_4 = exclusions_scaling[(exclusions_scaling["order"].notnull())]
-
-    atom_inds = order_2_3_4.index.get_level_values('atom_index1').unique()
 
     # Build NUMBER_EXCLUDED_ATOMS and EXCLUDED_ATOMS_LIST.
     for ind in sorted(dl.get_atoms("atomic_number").index.values):
