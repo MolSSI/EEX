@@ -3,12 +3,11 @@ Computes the electrostatics of a expression
 """
 
 import itertools
-import copy
 
 import numpy as np
 import numexpr as ne
 
-### Electrostatic like terms
+# Electrostatic like terms
 
 
 def _coulomb_energy(qij, R):
@@ -68,7 +67,8 @@ def lattice_sum(coords, charges, boxlength, nboxes, func="coulomb", return_shell
     for nvecs in itertools.product(boxlist, boxlist, boxlist):
         shell = int(np.linalg.norm(nvecs))
         # Skip the home box
-        if shell == 0: continue
+        if shell == 0:
+            continue
 
         # We only want the sphere, not the box
         if spherical_truncation and (shell > nboxes):
@@ -90,8 +90,6 @@ def nonbonded_eval(coords, atom_types, form, parameters):
     """
     Evaluates the nb of the internal box
     """
-
-    params = {k: np.atleast_2d(v) for k, v in parameters.items()}
 
     # Find parameter types, this function will supply the "r" (distance) parameter
     ptypes = [(p, np.double) for p in parameters.keys()]

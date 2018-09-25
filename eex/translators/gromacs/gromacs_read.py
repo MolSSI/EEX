@@ -23,7 +23,7 @@ def read_gromacs_gro_file(dl, gro_folder, ffdir=None):
     if not os.path.exists(ffdir):
         raise OSError("GROMACS read: Could not find FF folder, expected at '%s'." % ffdir)
 
-    ### Read in conf.gro file first
+    # Read in conf.gro file first
 
     conf_fname = os.path.join(gro_folder, "conf.gro")
     if not os.path.exists(conf_fname):
@@ -57,7 +57,7 @@ def read_gromacs_gro_file(dl, gro_folder, ffdir=None):
     box_size = {k: (-v, v) for k, v in zip(["x", "y", "z"], half_box_length)}
     dl.set_box_size(box_size)
 
-    ### Read in topol.top file next
+    # Read in topol.top file next
 
     top_fname = os.path.join(gro_folder, "topol.top")
     if not os.path.exists(conf_fname):

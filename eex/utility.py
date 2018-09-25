@@ -4,9 +4,9 @@ A EEX utility folder
 
 import os
 import hashlib
-from . import units
 import numpy as np
 from subprocess import PIPE, Popen
+
 
 def canonicalize_energy_names(energy_dict, canonical_keys):
     """Adjust the keys in energy_dict to the canonical names.
@@ -69,7 +69,7 @@ def run_subprocess(cmd, stdout_path, stderr_path, stdin=None):
     """
     proc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, universal_newlines=True)
     out, err = proc.communicate(input=stdin)
-   
+
     with open(stdout_path, 'a') as stdout, open(stderr_path, 'a') as stderr:
         stdout.write(out)
         stderr.write(err)
@@ -77,6 +77,7 @@ def run_subprocess(cmd, stdout_path, stderr_path, stdin=None):
     if proc.returncode != 0:
         raise OSError("Command %s failed. Exit code %d. Error %s. Check file %s" % (cmd, proc.returncode, str(err), stderr_path))
     return out
+
 
 def fuzzy_list_match(line, ldata):
     """

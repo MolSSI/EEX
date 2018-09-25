@@ -2,10 +2,8 @@
 AMBER EEX I/O
 """
 
-import time
 import pandas as pd
 import math
-import re
 import numpy as np
 
 # Python 2/3 compat
@@ -136,7 +134,6 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         "angles": [4, 0, np.array([])],
         "dihedrals": [5, 0, np.array([])],
     }
-    _nonbonded_params = {}
 
     # Iterate over the file
     while True:
@@ -425,7 +422,7 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     for index, row in number_excluded_atoms.iterrows():
         num_excluded = row.values[0]
 
-        excluded_atoms = excluded_atoms_list.iloc[start_index: start_index+num_excluded].values.flatten()
+        excluded_atoms = excluded_atoms_list.iloc[start_index: start_index + num_excluded].values.flatten()
 
         # A value of 0 is a "nonexistent atom 0" - means no exclusions
         excluded_atoms = [value for value in excluded_atoms if value != 0]
