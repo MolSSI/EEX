@@ -1134,21 +1134,32 @@ class DataLayer(object):
         """
         Gives the number of term counts and uids
 
+        Parameters:
+        ----------------------
+
+        Returns:
+        ---------------------
+
         Note
         ----
         The number of unique UID's may differ from list_parameter_uid's for incomplete DL's as
         `get_term_count` measures the number of terms add by `add_terms` while `list_parameter_uids` list
         the number of UID's added by `add_parameter`.
         """
+
+        # Check that order and uid exists
+
+        # Should give error if uid is given and order is not
+        if (order is None) and (uid is not None):
+            raise ValueError("Order must be specified if uid is specified")
+
         if (order is None) and (uid is None):
             return copy.deepcopy(self._term_count)
 
         if uid is None:
-            if order is None:
-                raise KeyError("DataLayer:get_term_count: Cannot use 'uid' if 'order' is None.")
-            return self._term_count[order]
+            return copy.deepcopy(self._term_count[order])
 
-        return self._term_count[order][uid]
+        return copy.deepcopy(self._term_count[order][uid])
 
     def add_terms(self, order, df):
         """
