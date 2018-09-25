@@ -3,8 +3,6 @@ LAMMPS EEX I/O
 """
 
 import pandas as pd
-import math
-import numpy as np
 import eex
 
 from . import lammps_metadata as lmd
@@ -108,13 +106,11 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
             scaling_string += scaling_type + ' '
 
         for scaling_order, values in scalings.items():
-            scaling_string += str(values) +' '
+            scaling_string += str(values) + ' '
 
     scaling_string += '\n'
 
     input_file.write(scaling_string)
-
-
 
     sizes = {}
     sizes["atoms"] = dl.get_atom_count()
