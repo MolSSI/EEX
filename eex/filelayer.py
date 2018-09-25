@@ -31,8 +31,6 @@ class BaseStore(object):
     def _parse_store_location(self, store_location):
         if store_location is None:
             store_location = os.getcwd()
-        else:
-            store_location = store_location
 
         if not os.path.exists(store_location):
             os.makedirs(store_location)
