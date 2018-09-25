@@ -136,55 +136,29 @@ class DataLayer(object):
     def set_box_center(self, box_center, utype=None):
         """
         Sets the center of the box.
+
+        Parameters:
+        ------------------------
+            box_center: dict
+                The center of the box
+            utype: dict
+                Distance units
+
+            TODO - finish docstring
         """
 
-        # Get box metadata
-        box_metadata = metadata.box_metadata
-        dimensions = box_metadata["center"]
+        self._set_box(keyword="center", data=box_center, utype=utype)
 
-        # Make sure we have all keywords that define a simulation box
-        for k in dimensions:
-            if k.lower() not in box_center and k.upper() not in box_center:
-                raise KeyError("Could not find key '%s'." % k)
-
-        if utype is not None:
-            if not isinstance(utype, dict):
-                raise TypeError("Validate term dict: Unit type '%s' not understood" % str(type(utype)))
-
-            # Convert to internal units
-            for k, v in dimensions.items():
-                internal = units.convert_contexts(v)
-                cf = units.conversion_factor(utype[k], internal)
-                self._box_center[k] = cf * box_center[k]
-
-        else:
-            for k, v in box_center.items():
-                self._box_center[k] = v
 
     def get_box_center(self, utype=None):
         """
         Gets the overall size of the box for the datalayer
+        TODO: write docstring
+
         """
-        ret = copy.deepcopy(self._box_center)
 
-        # Get information for internal representation of box dimensions
-        box_metadata = metadata.box_metadata
-        dimensions = box_metadata["center"]
+        return self._get_box(keyword="center", utype=utype)
 
-        if utype is not None and ret:
-            if not isinstance(utype, dict):
-                raise TypeError("Validate term dict: Unit type '%s' not understood" % str(type(utype)))
-
-            # Convert to internal units
-            for k, v in dimensions.items():
-                internal = units.convert_contexts(v)
-                cf = units.conversion_factor(internal, utype[k])
-                ret[k] *= cf
-
-            return ret
-
-        else:
-            return ret
 
     def set_box_size(self, lattice_const, utype=None):
         """
@@ -202,15 +176,31 @@ class DataLayer(object):
              'gamma': [angle],
              }
 
+        utype: dict
+            Dictionary containing unit information
+
         """
+
+        return self._set_box(keyword='dimensions', data=lattice_const, utype=utype)
+
+    def _set_box(self, keyword, data, utype):
+        """
+        Set box information.
+        """
+
+        keyword = keyword.lower()
+
+        # Check keyword
+        if keyword not in ['center', 'dimensions']:
+            raise ValueError('_set_box keyword %s not valid. Must be "center" or "dimensions"' % keyword)
 
         # Get box metadata
         box_metadata = metadata.box_metadata
-        dimensions = box_metadata["dimensions"]
+        dimensions = box_metadata[keyword]
 
         # Make sure we have all keywords that define a simulation box
         for k in dimensions:
-            if k.lower() not in lattice_const and k.upper() not in lattice_const:
+            if k.lower() not in data and k.upper() not in data:
                 raise KeyError("Could not find key '%s'." % k)
 
         if utype is not None:
@@ -221,21 +211,34 @@ class DataLayer(object):
             for k, v in dimensions.items():
                 internal = units.convert_contexts(v)
                 cf = units.conversion_factor(utype[k], internal)
-                self._box_size[k] = cf * lattice_const[k]
+                if keyword == "center":
+                    self._box_center[k] = cf * data[k]
+                else:
+                    self._box_size[k] = cf * data[k]
 
         else:
-            for k, v in lattice_const.items():
-                self._box_size[k] = v
+            for k, v in data.items():
+                if keyword == "center":
+                    self._box_center[k] = v
+                else:
+                    self._box_size[k] = v
 
-    def get_box_size(self, utype=None):
-        """
-        Gets the overall size of the box for the datalayer
-        """
-        ret = copy.deepcopy(self._box_size)
+    def _get_box(self, keyword, utype):
+
+        keyword = keyword.lower()
+
+        # Check keyword
+        if keyword not in ['center', 'dimensions']:
+            raise ValueError('_get_box keyword %s not valid. Must be "center" or "dimensions"' % keyword)
+
+        if keyword == 'center':
+            ret = copy.deepcopy(self._box_center)
+        else:
+            ret = copy.deepcopy(self._box_size)
 
         # Get information for internal representation of box dimensions
         box_metadata = metadata.box_metadata
-        dimensions = box_metadata["dimensions"]
+        dimensions = box_metadata[keyword]
 
         if utype is not None and ret:
             if not isinstance(utype, dict):
@@ -251,6 +254,15 @@ class DataLayer(object):
 
         else:
             return ret
+
+    def get_box_size(self, utype=None):
+        """
+        Gets the overall size of the box for the datalayer
+
+        TODO: write docstring
+        """
+
+        return self._get_box(keyword="dimensions", utype=utype)
 
 
     def set_nb_scaling_factors(self, nb_scaling_factors):
