@@ -5,16 +5,8 @@ Writer for amber
 
 import time
 import pandas as pd
-import math
-import re
 import numpy as np
 from collections import Counter
-
-# Python 2/3 compat
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
 
 import eex
 import logging
@@ -383,9 +375,6 @@ def write_amber_file(dl, filename, inpcrd=None):
 
         if term.shape[0] == 0:
             continue
-
-        # Build up an index of what is in hydrogen or not
-        inc_hydrogen_mask = term["atom1"].isin(hidx)
 
         # Scale by weird AMBER factors
         inc_hydrogen[term_name][:, :-1] = (inc_hydrogen[term_name][:, :-1] - 1) * 3

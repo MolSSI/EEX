@@ -1,4 +1,3 @@
-import numpy as np
 import eex
 import os
 from . import amber_metadata as amd

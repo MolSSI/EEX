@@ -86,8 +86,6 @@ def get_energies(input_file=None, lmp_path=None, unit_style=None):
     else:
         unit_style = _extract_unit_style(out)
 
-    prop_table = lmd.build_prop_table(unit_style)
-
     ret = _group_energy_terms(out)
 
 #    for key in ret:

@@ -42,7 +42,6 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
     # Bond Coeffs, etc.
     category_list = lmd.build_valid_category_list()
 
-    header = header_data[0]
     for num, line in enumerate(header_data[1:]):
 
         # Skip blanklines
@@ -241,7 +240,6 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
 
             elif op["call_type"] == "nb_parameter":
                 fname = op["kwargs"]["nb_name"]
-                fform = op["kwargs"]["nb_model"]
                 utype = nb_term_table[fname]["utype"]
                 op["kwargs"]["utype"] = utype
                 cols = nb_term_table[fname]["parameters"]

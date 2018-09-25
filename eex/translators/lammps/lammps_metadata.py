@@ -505,13 +505,13 @@ atom_style = {
     "full": ["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"],
     "line": ["atom_index", "molecule_index", "atom_type", "lineflag", "density", "X", "Y", "Z"],
     "meso": ["atom_index", "atom_type", "rho", "e", "cv", "X", "Y", "Z"],
-    "molecular": ["atom_index", "molecule_index"
+    "molecular": ["atom_index", "molecule_index",
                   "atom_type", "X", "Y", "Z"],
     "peri": ["atom_index", "atom_type", "volume density", "X", "Y", "Z"],
-    "smd": ["atom_index", "atom_type", "molecule volume", "mass", "kernel_radius", "contact_radius"
+    "smd": ["atom_index", "atom_type", "molecule volume", "mass", "kernel_radius", "contact_radius",
             "X", "Y", "Z"],
     "sphere": ["atom_index", "atom_type", "diameter", "density", "X", "Y", "Z"],
-    "template": ["atom_index", "molecule_index"
+    "template": ["atom_index", "molecule_index",
                  "template_index", "template_atom", "atom_type", "X", "Y", "Z"],
     "tri": ["atom_index", "molecule_index", "atom_type", "triangleflag", "density", "X", "Y", "Z"],
     "wavepacket": ["atom_index", "atom_type", "charge", "spin", "eradius", "etag", "cs_re", "cs_im", "X", "Y", "Z"],
