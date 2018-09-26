@@ -1,7 +1,6 @@
 """
 Converts various bond forms to other equivalents.
 """
-import numpy as np
 from .converter_registry import register_converter
 
 

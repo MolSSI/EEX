@@ -148,8 +148,6 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
         data_file.write('\n')
 
     param_fmt = "%10.8f"
-    # Loop over Pair Coeffs
-    nb_forms = dl.list_stored_nb_types()
 
     # Handle nonbonds - This needs to be generalized badly - make it work for now.
     if dl.get_mixing_rule() is not None:
@@ -165,7 +163,7 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
             nb_name="LJ", nb_model="epsilon/sigma", utype={"epsilon": unit_set["[energy]"], "sigma": unit_set["[length]"]}, itype="pair")
 
     for key, value in stored_nb_parameters.items():
-        if key[1] == None:
+        if key[1] is None:
             data_file.write(("%2d %10.8f %10.8f\n" % (key[0], value['epsilon'], value['sigma'])))
         else:
             data_file.write(("%2d %2d %10.8f %10.8f\n" % (key[0], key[1], value['epsilon'], value['sigma'])))

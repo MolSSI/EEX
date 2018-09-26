@@ -84,7 +84,7 @@ _LJ_conversion_matrix = {}
 # Build LJ conversion matrix. This matrix has keys with the LJ form name (i.e. 'epsilon/sigma', etc). The value is
 # a list with elements [ [LJ parameters], function_to_ab, function_from_ab ]
 for form_name, entry in LJ_forms.items():
-    if form_name is not "default":
+    if form_name != "default":
         func_internal = "_LJ_%s%s_to_ab" % (entry["parameters"][0].lower(), entry["parameters"][1].lower())
         func_external = "_LJ_ab_to_%s%s" % (entry["parameters"][0].lower(), entry["parameters"][1].lower())
         _LJ_conversion_matrix[form_name] = [entry["parameters"], getattr(nb_converter, func_internal), getattr(nb_converter, func_external)]

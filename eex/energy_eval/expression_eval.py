@@ -106,7 +106,7 @@ def evaluate_energy_expression(dl, utype):
 
 
         # To avoid counting total
-        if k is not "total":
+        if k != "total":
             energy["total"] += v
 
     return energy

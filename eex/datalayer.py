@@ -3,7 +3,6 @@ Contains the DataLayer class (name in progress) which takes and reads various pi
 """
 
 import copy
-import json
 import os
 
 import numpy as np
@@ -14,7 +13,6 @@ from . import filelayer
 from . import metadata
 from . import units
 from . import utility
-from . import testing
 from . import nb_converter
 from . import form_converters
 
@@ -138,15 +136,71 @@ class DataLayer(object):
     def set_box_center(self, box_center, utype=None):
         """
         Sets the center of the box.
+
+        Parameters:
+        ------------------------
+            box_center: dict
+                The center of the box
+            utype: dict
+                Distance units
+
+            TODO - finish docstring
         """
+
+        self._set_box(keyword="center", data=box_center, utype=utype)
+
+
+    def get_box_center(self, utype=None):
+        """
+        Gets the overall size of the box for the datalayer
+        TODO: write docstring
+
+        """
+
+        return self._get_box(keyword="center", utype=utype)
+
+
+    def set_box_size(self, lattice_const, utype=None):
+        """
+        Sets the box lattice constants for the datalayer
+
+        Inputs
+        -----------------------------
+        lattice_const: dict
+            Dictionary containing box dimensions
+            { 'a' : [length],
+             'b' : [length],
+             'c': [length],
+             'alpha': [angle],
+             'beta': [angle],
+             'gamma': [angle],
+             }
+
+        utype: dict
+            Dictionary containing unit information
+
+        """
+
+        return self._set_box(keyword='dimensions', data=lattice_const, utype=utype)
+
+    def _set_box(self, keyword, data, utype):
+        """
+        Set box information.
+        """
+
+        keyword = keyword.lower()
+
+        # Check keyword
+        if keyword not in ['center', 'dimensions']:
+            raise ValueError('_set_box keyword %s not valid. Must be "center" or "dimensions"' % keyword)
 
         # Get box metadata
         box_metadata = metadata.box_metadata
-        dimensions = box_metadata["center"]
+        dimensions = box_metadata[keyword]
 
         # Make sure we have all keywords that define a simulation box
         for k in dimensions:
-            if k.lower() not in box_center and k.upper() not in box_center:
+            if k.lower() not in data and k.upper() not in data:
                 raise KeyError("Could not find key '%s'." % k)
 
         if utype is not None:
@@ -157,21 +211,34 @@ class DataLayer(object):
             for k, v in dimensions.items():
                 internal = units.convert_contexts(v)
                 cf = units.conversion_factor(utype[k], internal)
-                self._box_center[k] = cf * box_center[k]
+                if keyword == "center":
+                    self._box_center[k] = cf * data[k]
+                else:
+                    self._box_size[k] = cf * data[k]
 
         else:
-            for k, v in box_center.items():
-                self._box_center[k] = v
+            for k, v in data.items():
+                if keyword == "center":
+                    self._box_center[k] = v
+                else:
+                    self._box_size[k] = v
 
-    def get_box_center(self, utype=None):
-        """
-        Gets the overall size of the box for the datalayer
-        """
-        ret = copy.deepcopy(self._box_center)
+    def _get_box(self, keyword, utype):
+
+        keyword = keyword.lower()
+
+        # Check keyword
+        if keyword not in ['center', 'dimensions']:
+            raise ValueError('_get_box keyword %s not valid. Must be "center" or "dimensions"' % keyword)
+
+        if keyword == 'center':
+            ret = copy.deepcopy(self._box_center)
+        else:
+            ret = copy.deepcopy(self._box_size)
 
         # Get information for internal representation of box dimensions
         box_metadata = metadata.box_metadata
-        dimensions = box_metadata["center"]
+        dimensions = box_metadata[keyword]
 
         if utype is not None and ret:
             if not isinstance(utype, dict):
@@ -187,6 +254,16 @@ class DataLayer(object):
 
         else:
             return ret
+
+    def get_box_size(self, utype=None):
+        """
+        Gets the overall size of the box for the datalayer
+
+        TODO: write docstring
+        """
+
+        return self._get_box(keyword="dimensions", utype=utype)
+
 
     def set_nb_scaling_factors(self, nb_scaling_factors):
         """
@@ -403,72 +480,6 @@ class DataLayer(object):
                     self.set_pair_scalings(store_df)
 
         return True
-
-    def set_box_size(self, lattice_const, utype=None):
-        """
-        Sets the box lattice constants for the datalayer
-
-        Inputs
-        -----------------------------
-        lattice_const: dict
-            Dictionary containing box dimensions
-            { 'a' : [length],
-             'b' : [length],
-             'c': [length],
-             'alpha': [angle],
-             'beta': [angle],
-             'gamma': [angle],
-             }
-
-        """
-
-        # Get box metadata
-        box_metadata = metadata.box_metadata
-        dimensions = box_metadata["dimensions"]
-
-        # Make sure we have all keywords that define a simulation box
-        for k in dimensions:
-            if k.lower() not in lattice_const and k.upper() not in lattice_const:
-                raise KeyError("Could not find key '%s'." % k)
-
-        if utype is not None:
-            if not isinstance(utype, dict):
-                raise TypeError("Validate term dict: Unit type '%s' not understood" % str(type(utype)))
-
-            # Convert to internal units
-            for k, v in dimensions.items():
-                internal = units.convert_contexts(v)
-                cf = units.conversion_factor(utype[k], internal)
-                self._box_size[k] = cf * lattice_const[k]
-
-        else:
-            for k, v in lattice_const.items():
-                self._box_size[k] = v
-
-    def get_box_size(self, utype=None):
-        """
-        Gets the overall size of the box for the datalayer
-        """
-        ret = copy.deepcopy(self._box_size)
-
-        # Get information for internal representation of box dimensions
-        box_metadata = metadata.box_metadata
-        dimensions = box_metadata["dimensions"]
-
-        if utype is not None and ret:
-            if not isinstance(utype, dict):
-                raise TypeError("Validate term dict: Unit type '%s' not understood" % str(type(utype)))
-
-            # Convert to internal units
-            for k, v in dimensions.items():
-                internal = units.convert_contexts(v)
-                cf = units.conversion_factor(internal, utype[k])
-                ret[k] *= cf
-
-            return ret
-
-        else:
-            return ret
 
     def evaluate(self, utype=None):
         """
@@ -994,6 +1005,10 @@ class DataLayer(object):
                 return uid
 
     def get_term_parameter(self, order, uid=None, utype=None, ftype=None):
+        """
+        TODO: Write docstring for this function. Also needs a lot of comments
+
+        """
 
         order = metadata.sanitize_term_order_name(order)
 
@@ -1016,7 +1031,6 @@ class DataLayer(object):
             if not isinstance(ftype, str):
                 raise TypeError("DataLayer:get_parameters: Input ftype '%s' is not understood." % str(type(ftype)))
 
-            term_md_ftype = metadata.get_term_metadata(order, "forms", ftype)
             parameters = form_converters.convert_form(order, parameters, data[0], ftype)
 
         elif utype is not None and ftype is None:
@@ -1136,30 +1150,31 @@ class DataLayer(object):
 
         Parameters:
         ----------------------
+        order: int
+            The order of the term count to retrieve.
+        uid: int
+            The uid of of the term count to retrieve. Note: if uid is specified, order must also be specified.
 
         Returns:
         ---------------------
-
-        Note
-        ----
-        The number of unique UID's may differ from list_parameter_uid's for incomplete DL's as
-        `get_term_count` measures the number of terms add by `add_terms` while `list_parameter_uids` list
-        the number of UID's added by `add_parameter`.
+            term_count: dict
+                Dictionary containing counts
+                TODO: Change else to return dict - several things in the readers and writers will have to be changed.
         """
 
-        # Check that order and uid exists
+        term_dict = {}
 
         # Should give error if uid is given and order is not
         if (order is None) and (uid is not None):
             raise ValueError("Order must be specified if uid is specified")
+        elif (order is None) and (uid is None):
+            term_dict = copy.deepcopy(self._term_count)
+        elif uid is None:
+            term_dict = copy.deepcopy(self._term_count[order])
+        else:
+            term_dict = copy.deepcopy(self._term_count[order][uid])
 
-        if (order is None) and (uid is None):
-            return copy.deepcopy(self._term_count)
-
-        if uid is None:
-            return copy.deepcopy(self._term_count[order])
-
-        return copy.deepcopy(self._term_count[order][uid])
+        return term_dict
 
     def add_terms(self, order, df):
         """
@@ -1681,7 +1696,7 @@ class DataLayer(object):
             Returns True if successful
         """
 
-        if mixing_rule == None:
+        if mixing_rule is None:
             mixing_rule = self._mixing_rule
 
         param_keys = [(atom_type1, None), (atom_type2, None)]

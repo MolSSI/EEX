@@ -8,7 +8,6 @@ from .three_body_terms import three_body_metadata
 from .four_body_terms import four_body_metadata
 from .nb_terms import nb_metadata
 
-
 def sanitize_term_order_name(order):
     if isinstance(order, str):
         order = order.lower()
