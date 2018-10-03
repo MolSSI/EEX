@@ -4,11 +4,15 @@ Provides helper functions that validate the functional data.
 
 from .. import units
 
-__all__ = ['term_required_fields', 'functional_form_required_fields', 'validate_term_dict','validate_functional_form_dict',
-             'validate_units']
+__all__ = [
+    'term_required_fields', 'functional_form_required_fields',
+    'validate_term_dict', 'validate_functional_form_dict', 'validate_units'
+]
 
 term_required_fields = ['variables', 'store_name', 'store_indices', 'forms']
-functional_form_required_fields = ['form', 'parameters', 'units', 'description']
+functional_form_required_fields = [
+    'form', 'parameters', 'units', 'description'
+]
 
 
 def validate_term_dict(name, functional_form, parameters, utype=None):
@@ -18,8 +22,9 @@ def validate_term_dict(name, functional_form, parameters, utype=None):
 
     if isinstance(parameters, (list, tuple)):
         if len(parameters) != len(functional_form["parameters"]):
-            raise ValueError("Validate term dict: Number of parameters passed is %d, expected %d for terms %s" %
-                             (len(parameters), len(functional_form["parameters"]), name))
+            raise ValueError(
+                "Validate term dict: Number of parameters passed is %d, expected %d for terms %s"
+                % (len(parameters), len(functional_form["parameters"]), name))
         params = list(parameters)
     elif isinstance(parameters, dict):
         params = []
@@ -27,20 +32,27 @@ def validate_term_dict(name, functional_form, parameters, utype=None):
             try:
                 params.append(parameters[key])
             except KeyError:
-                raise KeyError("Validate term dict: Did not find expected key '%s' from term '%s'." % (key, name))
+                raise KeyError(
+                    "Validate term dict: Did not find expected key '%s' from term '%s'."
+                    % (key, name))
     else:
-        raise TypeError("Validate term dict: Parameter type '%s' not understood" % str(type(parameters)))
+        raise TypeError(
+            "Validate term dict: Parameter type '%s' not understood" % str(
+                type(parameters)))
 
     for value in params:
         if not isinstance(value, (int, float)):
-            raise TypeError("Validate term dict: Parameters must be floats, found type %s." % type(value))
+            raise TypeError(
+                "Validate term dict: Parameters must be floats, found type %s."
+                % type(value))
 
     # Deal with units
     if utype is not None:
         if isinstance(utype, (list, tuple)):
             if len(utype) != len(functional_form["utype"]):
-                raise ValueError("Validate term dict: Number of units passed is %d, expected %d for terms %s" %
-                                 (len(utype), len(functional_form["utype"]), name))
+                raise ValueError(
+                    "Validate term dict: Number of units passed is %d, expected %d for terms %s"
+                    % (len(utype), len(functional_form["utype"]), name))
             form_units = list(utype)
         elif isinstance(utype, dict):
             form_units = []
@@ -48,15 +60,18 @@ def validate_term_dict(name, functional_form, parameters, utype=None):
                 try:
                     form_units.append(utype[key])
                 except KeyError:
-                    raise KeyError("Validate term dict: Did not find expected key '%s' from term '%s'." % (key, name))
+                    raise KeyError(
+                        "Validate term dict: Did not find expected key '%s' from term '%s'."
+                        % (key, name))
         else:
-            raise TypeError("Validate term dict: Unit type '%s' not understood" % str(type(utype)))
+            raise TypeError("Validate term dict: Unit type '%s' not understood"
+                            % str(type(utype)))
 
         # Convert units to internal
         for x, key in enumerate(functional_form["parameters"]):
-            cf = units.conversion_factor(form_units[x], functional_form["utype"][key])
+            cf = units.conversion_factor(form_units[x],
+                                         functional_form["utype"][key])
             params[x] *= cf
-
 
     # Cast any ints to floats
     return list(map(float, params))
@@ -68,22 +83,29 @@ def validate_functional_form_dict(name, functional_form):
     """
 
     # First check if the required fields are present
-    missing_fields = set(functional_form_required_fields) - set(list(functional_form))
+    missing_fields = set(functional_form_required_fields) - set(
+        list(functional_form))
     if len(missing_fields):
-        raise KeyError("Validate term style: term '%s' is missing the %s fields." % (name, list(missing_fields)))
+        raise KeyError(
+            "Validate term style: term '%s' is missing the %s fields." %
+            (name, list(missing_fields)))
 
     # Make sure each parameter has an associated unit
-    missing_param_units = set(functional_form["parameters"]) - set(list(functional_form["units"]))
+    missing_param_units = set(functional_form["parameters"]) - set(
+        list(functional_form["units"]))
     if len(missing_param_units):
-        raise KeyError("Validate term style: term '%s' is missing the %s parameter units." %
-                       (name, list(missing_param_units)))
+        raise KeyError(
+            "Validate term style: term '%s' is missing the %s parameter units."
+            % (name, list(missing_param_units)))
 
     # Validate the unit contexts
     for k, v in functional_form["units"].items():
         try:
             units.convert_contexts(v)
         except:
-            raise KeyError("Validate term style: term '%s' has unknown dimension '%s'" % (name, v))
+            raise KeyError(
+                "Validate term style: term '%s' has unknown dimension '%s'" %
+                (name, v))
 
     return True
 

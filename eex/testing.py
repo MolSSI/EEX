@@ -6,7 +6,12 @@ import numpy as np
 import pandas as pd
 
 
-def df_compare(left, right, columns=None, atol=1.e-8, rtol=1.e-5, equal_nan=True):
+def df_compare(left,
+               right,
+               columns=None,
+               atol=1.e-8,
+               rtol=1.e-5,
+               equal_nan=True):
     """
     Compares two dataframe in an approximate manner.
 
@@ -26,13 +31,15 @@ def df_compare(left, right, columns=None, atol=1.e-8, rtol=1.e-5, equal_nan=True
             raise KeyError("Left DataFrame did not contain all tested columns")
 
         if not (set(right.columns) >= col_set):
-            raise KeyError("Right DataFrame did not contain all tested columns")
+            raise KeyError(
+                "Right DataFrame did not contain all tested columns")
 
         left = left[columns]
         right = right[columns]
     else:
         if set(left.columns) != set(right.columns):
-            raise KeyError("Right and Left DataFrames do not have the same columns")
+            raise KeyError(
+                "Right and Left DataFrames do not have the same columns")
 
         # Order the dataframe
         left = left[right.columns]
@@ -42,13 +49,18 @@ def df_compare(left, right, columns=None, atol=1.e-8, rtol=1.e-5, equal_nan=True
     left = left.loc[right.index]
 
     # Check floats
-    fcols = [name for name, tp in zip(left.columns, left.dtypes) if tp.kind == "f"]
-    fclose = np.allclose(left[fcols], right[fcols], atol=atol, rtol=rtol, equal_nan=equal_nan)
+    fcols = [
+        name for name, tp in zip(left.columns, left.dtypes) if tp.kind == "f"
+    ]
+    fclose = np.allclose(
+        left[fcols], right[fcols], atol=atol, rtol=rtol, equal_nan=equal_nan)
     if not fclose:
         raise AssertionError("DF_compare: Mismatch in float columns.")
 
     # Check ints
-    icols = [name for name, tp in zip(left.columns, left.dtypes) if tp.kind == "i"]
+    icols = [
+        name for name, tp in zip(left.columns, left.dtypes) if tp.kind == "i"
+    ]
     iclose = np.allclose(left[icols], right[icols])
     if not fclose:
         raise AssertionError("DF_compare: Mismatch in integer columns.")
@@ -93,10 +105,13 @@ def dict_compare(left, right, atol=1.e-9, rtol=1.e-5):
         elif isinstance(lv, dict):
             match = dict_compare(lv, rv, atol=atol, rtol=rtol)
         else:
-            raise TypeError("dict_compare: Misunderstood compare type '%s'." % str(type(lv)))
+            raise TypeError("dict_compare: Misunderstood compare type '%s'." %
+                            str(type(lv)))
 
         if match is False:
-            raise AssertionError("dict_compare: Mismatch for key %s, comparing %s to %s" % (key, str(lv), str(rv)))
+            raise AssertionError(
+                "dict_compare: Mismatch for key %s, comparing %s to %s" %
+                (key, str(lv), str(rv)))
 
     return True
 
@@ -124,8 +139,9 @@ def dl_compare(left, right, atom_checks=None):
     # First make sure the number of terms is the same
     for k in list(left_uids):
         if not set(left_uids[k]) == set(right_uids[k]):
-            raise KeyError("dl_compare: Mismatch in the number of parameters between left (%d) and right (%d)." %
-                           (len(left_uids[k]), len(right_uids[k])))
+            raise KeyError(
+                "dl_compare: Mismatch in the number of parameters between left (%d) and right (%d)."
+                % (len(left_uids[k]), len(right_uids[k])))
 
     # Make sure the terms in left matches the terms in right.
     conversion_dict = {}
@@ -151,16 +167,21 @@ def dl_compare(left, right, atom_checks=None):
 
         # After all luid's have been used, our ruid list should be empty
         if len(ruid_tmps):
-            raise KeyError("dl_compare: Did not find a match for all parameter terms")
+            raise KeyError(
+                "dl_compare: Did not find a match for all parameter terms")
 
     ### Find matching atoms and compare atom properties
     left_atom_missing = set(atom_checks) - set(left.list_atom_properties())
     if len(left_atom_missing):
-        raise KeyError("dl_compare: left dataframe was missing %s atom properies" % str(left_atom_missing))
+        raise KeyError(
+            "dl_compare: left dataframe was missing %s atom properies" %
+            str(left_atom_missing))
 
     right_atom_missing = set(atom_checks) - set(right.list_atom_properties())
     if len(right_atom_missing):
-        raise KeyError("dl_compare: right dataframe was missing %s atom properies" % str(right_atom_missing))
+        raise KeyError(
+            "dl_compare: right dataframe was missing %s atom properies" %
+            str(right_atom_missing))
 
     left_atom = left.get_atoms(atom_checks, by_value=True)
     right_atom = right.get_atoms(atom_checks, by_value=True)
@@ -168,7 +189,9 @@ def dl_compare(left, right, atom_checks=None):
     # print(right_atom)
 
     if left_atom.shape != right_atom.shape:
-        raise IndexError("dl_compare: The number of atoms in the left and right DL's does not match.")
+        raise IndexError(
+            "dl_compare: The number of atoms in the left and right DL's does not match."
+        )
 
     # Assume order is the same for now
     assert df_compare(left_atom.reset_index(), right_atom.reset_index())
@@ -193,13 +216,17 @@ def dl_compare(left, right, atom_checks=None):
     for order in list(conversion_dict):
         for k, v in conversion_dict[order].items():
             if k != v:
-                raise KeyError("dl_compare: Does not yet support non-identical parameter key dictionaries")
+                raise KeyError(
+                    "dl_compare: Does not yet support non-identical parameter key dictionaries"
+                )
 
     for order in list(conversion_dict):
         if len(conversion_dict[order]) < 1:
             continue
 
-        assert df_compare(left.get_terms(order).reset_index(), right.get_terms(order).reset_index())
+        assert df_compare(
+            left.get_terms(order).reset_index(),
+            right.get_terms(order).reset_index())
 
     ### Find matching non-bonds
 

@@ -5,6 +5,7 @@ import pandas as pd
 import copy
 from . import eex_find_files
 
+
 @pytest.fixture(scope="function", params=["HDF5", "Memory"])
 def butane_dl(request):
     # Build the topology for UA butane. Force Field parameters can be set to defaults by using
@@ -40,9 +41,11 @@ def butane_dl(request):
 
         # Create corresponding data. The first row specifies that atom0 is bonded
         # to atom 1 and has bond_type id 0
-        bond_data = np.array([[0, 1, 0, ],
-                              [1, 2, 0],
-                              [2, 3, 0]])
+        bond_data = np.array([[
+            0,
+            1,
+            0,
+        ], [1, 2, 0], [2, 3, 0]])
 
         for num, name in enumerate(bond_column_names):
             bond_df[name] = bond_data[:, num]
@@ -53,12 +56,27 @@ def butane_dl(request):
         dihedral_df = pd.DataFrame()
 
         angle_column_names = ["atom1", "atom2", "atom3", "term_index"]
-        dihedral_column_names = ["atom1", "atom2", "atom3", "atom4", "term_index"]
+        dihedral_column_names = [
+            "atom1", "atom2", "atom3", "atom4", "term_index"
+        ]
 
-        angle_data = np.array([[0, 1, 2, 0, ],
-                               [1, 2, 3, 0], ])
+        angle_data = np.array([
+            [
+                0,
+                1,
+                2,
+                0,
+            ],
+            [1, 2, 3, 0],
+        ])
 
-        dihedral_data = np.array([[0, 1, 2, 3, 0, ]])
+        dihedral_data = np.array([[
+            0,
+            1,
+            2,
+            3,
+            0,
+        ]])
 
         for num, name in enumerate(angle_column_names):
             angle_df[name] = angle_data[:, num]
@@ -71,25 +89,58 @@ def butane_dl(request):
         dl.add_dihedrals(dihedral_df)
 
         if ff:
-            dl.add_term_parameter(3, "harmonic", {'K': 62.100, 'theta0': 114}, uid=0,
-                                  utype={'K': 'kcal * mol ** -1 * radian ** -2',
-                                         'theta0': 'degree'})
+            dl.add_term_parameter(
+                3,
+                "harmonic", {
+                    'K': 62.100,
+                    'theta0': 114
+                },
+                uid=0,
+                utype={
+                    'K': 'kcal * mol ** -1 * radian ** -2',
+                    'theta0': 'degree'
+                })
 
-            dl.add_term_parameter(2, "harmonic", {'K': 300.9, 'R0': 1.540}, uid=0,
-                                  utype={'K': "kcal * mol **-1 * angstrom ** -2",
-                                         'R0': "angstrom"})
+            dl.add_term_parameter(
+                2,
+                "harmonic", {
+                    'K': 300.9,
+                    'R0': 1.540
+                },
+                uid=0,
+                utype={
+                    'K': "kcal * mol **-1 * angstrom ** -2",
+                    'R0': "angstrom"
+                })
 
         if nb:
-            dl.add_nb_parameter(atom_type=1, nb_name="LJ",
-                                nb_model="epsilon/sigma", nb_parameters={'sigma': 3.75, 'epsilon': 0.1947460018},
-                                utype={'sigma': 'angstrom', 'epsilon': 'kcal * mol ** -1'})
+            dl.add_nb_parameter(
+                atom_type=1,
+                nb_name="LJ",
+                nb_model="epsilon/sigma",
+                nb_parameters={
+                    'sigma': 3.75,
+                    'epsilon': 0.1947460018
+                },
+                utype={
+                    'sigma': 'angstrom',
+                    'epsilon': 'kcal * mol ** -1'
+                })
 
-            dl.add_nb_parameter(atom_type=2, nb_name="LJ",
-                                nb_model="epsilon/sigma", nb_parameters={'sigma': 3.95, 'epsilon': 0.0914112887},
-                                utype={'sigma': 'angstrom', 'epsilon': 'kcal * mol ** -1'})
+            dl.add_nb_parameter(
+                atom_type=2,
+                nb_name="LJ",
+                nb_model="epsilon/sigma",
+                nb_parameters={
+                    'sigma': 3.95,
+                    'epsilon': 0.0914112887
+                },
+                utype={
+                    'sigma': 'angstrom',
+                    'epsilon': 'kcal * mol ** -1'
+                })
 
             dl.set_mixing_rule('lorentz_berthelot')
-
 
         if scale:
             scaling_factors = {
@@ -98,7 +149,6 @@ def butane_dl(request):
                     "scale13": 0.0,
                     "scale14": 0.75,
                 },
-
                 "vdw": {
                     "scale12": 0.0,
                     "scale13": 0.0,

@@ -12,7 +12,6 @@ from . import utility
 from . import form_converters
 from .units import ureg
 
-
 # Initializes the eex_init metadata
 from . import eex_init
 del eex_init

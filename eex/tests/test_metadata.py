@@ -45,7 +45,10 @@ def test_style_metadata(order, form):
 def test_evaluate_metadata(order, form):
     md = term_dict[order]["forms"][form]
 
-    global_dict = {k: (np.random.rand(4) + 1) for k in list(term_dict[order]["variables"])}
+    global_dict = {
+        k: (np.random.rand(4) + 1)
+        for k in list(term_dict[order]["variables"])
+    }
     local_dict = {k: random.random() for k in md["parameters"]}
     for ival in ["n", "phase"]:
         if ival in local_dict:
@@ -55,14 +58,16 @@ def test_evaluate_metadata(order, form):
         local_dict["R0"] = np.mean(global_dict["r"])
 
     # First compare that the input is valid
-    expr = eex.energy_eval.evaluate_form(md["form"], local_dict, evaluate=False)
+    expr = eex.energy_eval.evaluate_form(
+        md["form"], local_dict, evaluate=False)
 
     expr_names = set(expr.input_names)
     dict_names = set(list(local_dict) + list(global_dict) + ["PI"])
     missing_names = expr_names - dict_names
     if len(missing_names):
-        raise KeyError("For term %s %s missing keys %s in either expression or parameters" % (order, form,
-                                                                                              str(missing_names)))
+        raise KeyError(
+            "For term %s %s missing keys %s in either expression or parameters"
+            % (order, form, str(missing_names)))
 
     # Looks like we have a few singularities, wait on that
     # assert np.all(np.isfinite(eex.energy_eval.evaluate_form(md["form"], local_dict, global_dict)))

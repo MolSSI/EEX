@@ -64,10 +64,13 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
             if "VERSION_STAMP" == sline[1]:
                 ret_data["VERSION"] = sline[3]
                 if ret_data["VERSION"] != "V0001.000":
-                    raise ValueError("AMBER Read: Did not recognize version '%s'." % ret_data["VERSION"])
+                    raise ValueError(
+                        "AMBER Read: Did not recognize version '%s'." %
+                        ret_data["VERSION"])
                 found_version = True
             else:
-                raise ValueError("AMBER Read: Could not understand version line.")
+                raise ValueError(
+                    "AMBER Read: Could not understand version line.")
 
         # Get size_information - read in "FLAG POINTERS"
         elif "FLAG POINTERS" in line:
@@ -79,11 +82,16 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                 # Make sure the leading white space is not being cut off each line
                 if shift < 3:
                     dline = dline.rjust(80)
-                dline = [dtype(dline[i:(i + width)]) for i in range(0, len(dline), width)]
+                dline = [
+                    dtype(dline[i:(i + width)])
+                    for i in range(0, len(dline), width)
+                ]
                 parsed_sizes.extend(dline)
 
             if len(parsed_sizes) != len(amd.size_keys):
-                raise IndexError("AMBER Read: The size of the FLAG POINTERS does not match the FLAG NAMES.")
+                raise IndexError(
+                    "AMBER Read: The size of the FLAG POINTERS does not match the FLAG NAMES."
+                )
 
             for k, v in zip(amd.size_keys, parsed_sizes):
                 sizes_dict[k] = v
@@ -119,8 +127,11 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     counter = 0
     for line in file_handle:
         if counter > 100:
-            raise KeyError("AMBER Read: Could not find the line a data category in the first 100 lines.")
-        matched, name = eex.utility.fuzzy_list_match(line, list(amd.data_labels))
+            raise KeyError(
+                "AMBER Read: Could not find the line a data category in the first 100 lines."
+            )
+        matched, name = eex.utility.fuzzy_list_match(line,
+                                                     list(amd.data_labels))
         if matched:
             current_data_category = name
             current_data_type = amd.parse_format(next(file_handle))
@@ -166,19 +177,30 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                 tmp_handle = file_handle
 
             # Read in the data
-            data = pd.read_fwf(tmp_handle, nrows=read_size, widths=widths, dtypes=dtypes, header=None)
+            data = pd.read_fwf(
+                tmp_handle,
+                nrows=read_size,
+                widths=widths,
+                dtypes=dtypes,
+                header=None)
             # 1D atom properties
             if current_data_category in list(amd.atom_property_names):
-                df = _data_flatten(data, amd.atom_property_names[current_data_category], category_index, "atom_index")
+                df = _data_flatten(
+                    data, amd.atom_property_names[current_data_category],
+                    category_index, "atom_index")
                 category_index += df.shape[0]
 
                 # Add the data to DL
                 dl.add_atoms(df, by_value=True, utype=amd.atom_data_units)
             # Store forcefield parameters as "other" for later processing
             elif current_data_category in amd.store_other and len(data) != 0:
-                df = _data_flatten(data, current_data_category, category_index, "index")
+                df = _data_flatten(data, current_data_category, category_index,
+                                   "index")
                 # Force certain categories to be type int
-                if current_data_category in ["RESIDUE_POINTER", "NUMBER_EXCLUDED_ATOMS", "EXCLUDED_ATOMS_LIST"]:
+                if current_data_category in [
+                        "RESIDUE_POINTER", "NUMBER_EXCLUDED_ATOMS",
+                        "EXCLUDED_ATOMS_LIST"
+                ]:
                     df = df.astype(int)
                 category_index += df.shape[0]
 
@@ -189,7 +211,8 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
             elif current_data_category in list(amd.topology_store_names):
                 category = current_data_category.split("_")[0].lower()
 
-                mod_size, current_size, remaining_data = _current_topology_indices[category]
+                mod_size, current_size, remaining_data = _current_topology_indices[
+                    category]
 
                 data = data.values.ravel()
                 data = data[np.isfinite(data)]
@@ -202,7 +225,8 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                 remaining = data.size % mod_size
                 if remaining:
                     data = data[:-remaining]
-                    _current_topology_indices[category][-1] = data[-remaining:].copy()
+                    _current_topology_indices[category][-1] = data[
+                        -remaining:].copy()
                 else:
                     _current_topology_indices[category][-1] = np.array([])
 
@@ -222,7 +246,8 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                 col_name = ["atom" + str(x) for x in range(1, mod_size)]
                 col_name.append("term_index")
 
-                index = np.arange(current_size, data.shape[0] + current_size, dtype=int)
+                index = np.arange(
+                    current_size, data.shape[0] + current_size, dtype=int)
 
                 # Build and curate the data
                 df_dict = {}
@@ -254,12 +279,24 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                 box_size["b"] = b
                 box_size["c"] = c
 
-                dl.set_box_size(box_size, utype={"a": amd.box_units["length"], "b": amd.box_units["length"],
-                                                 "c": amd.box_units["length"], "alpha": amd.box_units["angle"],
-                                                 "beta": amd.box_units["angle"], "gamma": amd.box_units["angle"], })
+                dl.set_box_size(
+                    box_size,
+                    utype={
+                        "a": amd.box_units["length"],
+                        "b": amd.box_units["length"],
+                        "c": amd.box_units["length"],
+                        "alpha": amd.box_units["angle"],
+                        "beta": amd.box_units["angle"],
+                        "gamma": amd.box_units["angle"],
+                    })
 
-                dl.set_box_center(box_center, utype={"x": amd.box_units["length"], "y": amd.box_units["length"],
-                                                     "z": amd.box_units["length"]})
+                dl.set_box_center(
+                    box_center,
+                    utype={
+                        "x": amd.box_units["length"],
+                        "y": amd.box_units["length"],
+                        "z": amd.box_units["length"]
+                    })
 
             else:
                 # logger.debug("Did not understand data category.. passing")
@@ -291,9 +328,11 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
             except StopIteration:
                 break
 
-        matched, current_data_category = eex.utility.fuzzy_list_match(category_line, list(amd.data_labels))
+        matched, current_data_category = eex.utility.fuzzy_list_match(
+            category_line, list(amd.data_labels))
         if not matched:
-            raise KeyError("AMBER Read: Data category '%s' not understood" % category_line)
+            raise KeyError("AMBER Read: Data category '%s' not understood" %
+                           category_line)
 
         current_data_type = amd.parse_format(format_line)
 
@@ -311,8 +350,10 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
     res_df["residue_index"] = np.arange(1, res_df.shape[0] + 1)
     res_df = pd.DataFrame({
-        "residue_index": np.repeat(res_df["residue_index"].values, sizes, axis=0),
-        "residue_name": np.repeat(res_df["RESIDUE_LABEL"].values.astype('str'), sizes, axis=0)
+        "residue_index":
+        np.repeat(res_df["residue_index"].values, sizes, axis=0),
+        "residue_name":
+        np.repeat(res_df["RESIDUE_LABEL"].values.astype('str'), sizes, axis=0)
     })
 
     res_df.index = np.arange(1, res_df.shape[0] + 1)
@@ -334,7 +375,11 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
         # gives the total number of molecules in the system.
 
         molecule_df = pd.DataFrame({
-            "molecule_index": np.repeat(molecule_range, [int(x) for x in molecule_df["ATOMS_PER_MOLECULE"].values], axis=0)
+            "molecule_index":
+            np.repeat(
+                molecule_range,
+                [int(x) for x in molecule_df["ATOMS_PER_MOLECULE"].values],
+                axis=0)
         })
 
         molecule_df.index = np.arange(1, molecule_df.shape[0] + 1)
@@ -342,7 +387,8 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
     else:
         molecule_df = pd.DataFrame({
-            "molecule_index": np.ones(sizes_dict["NATOM"])
+            "molecule_index":
+            np.ones(sizes_dict["NATOM"])
         })
 
         molecule_df.index = np.arange(1, molecule_df.shape[0] + 1)
@@ -369,7 +415,11 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                 for k, v in param_data["column_names"].items():
                     params[v] = row[k]
                 dl.add_term_parameter(
-                    param_data["order"], param_data["form"], params, uid=cnt, utype=param_data["units"])
+                    param_data["order"],
+                    param_data["form"],
+                    params,
+                    uid=cnt,
+                    utype=param_data["units"])
                 cnt += 1
         else:
             # Get info for grabbing LJ parameters
@@ -398,17 +448,23 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
                     nb_index = nb_parm_index.iloc[ind_nb_parm_index - 1]
 
                     # Grab values
-                    A_coeff = A_coeff_list.iloc[nb_index - 1]['LENNARD_JONES_ACOEF'].values[0]
-                    B_coeff = B_coeff_list.iloc[nb_index - 1]['LENNARD_JONES_BCOEF'].values[0]
+                    A_coeff = A_coeff_list.iloc[
+                        nb_index - 1]['LENNARD_JONES_ACOEF'].values[0]
+                    B_coeff = B_coeff_list.iloc[
+                        nb_index - 1]['LENNARD_JONES_BCOEF'].values[0]
 
                     # Store in datalayer
                     dl.add_nb_parameter(
                         atom_type=nb_key[0],
                         atom_type2=nb_key[1],
-                        nb_parameters={"A": A_coeff,
-                                       "B": B_coeff},
-                        nb_name=amd.forcefield_parameters["nonbond"]["form"]["name"],
-                        nb_model=amd.forcefield_parameters["nonbond"]["form"]["form"],
+                        nb_parameters={
+                            "A": A_coeff,
+                            "B": B_coeff
+                        },
+                        nb_name=amd.forcefield_parameters["nonbond"]["form"]
+                        ["name"],
+                        nb_model=amd.forcefield_parameters["nonbond"]["form"]
+                        ["form"],
                         utype=amd.forcefield_parameters["nonbond"]["units"])
 
     # Handle exclusions
@@ -422,7 +478,9 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     for index, row in number_excluded_atoms.iterrows():
         num_excluded = row.values[0]
 
-        excluded_atoms = excluded_atoms_list.iloc[start_index: start_index + num_excluded].values.flatten()
+        excluded_atoms = excluded_atoms_list.iloc[start_index:start_index +
+                                                  num_excluded].values.flatten(
+                                                  )
 
         # A value of 0 is a "nonexistent atom 0" - means no exclusions
         excluded_atoms = [value for value in excluded_atoms if value != 0]
@@ -455,14 +513,19 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
     if header_data:
         inpcrd_size = header_data[1].split()
         if len(inpcrd_size) > 1:
-            raise Exception("Cannot handle velocities or pressure in INPCRD file yet.")
+            raise Exception(
+                "Cannot handle velocities or pressure in INPCRD file yet.")
 
         read_size = math.ceil(float(inpcrd_size[0]) / 2)
 
         file_handle = open(inpcrd_file, "r")
         # Read in all information in inpcrd
         data = pd.read_fwf(
-            file_handle, widths=([12] * 6), dtypes=([float] * 6), header=None, skiprows=2)
+            file_handle,
+            widths=([12] * 6),
+            dtypes=([float] * 6),
+            header=None,
+            skiprows=2)
 
         if data.shape[0] == read_size + 1 and sizes_dict["IFBOX"] > 0:
             box_information = data.tail(1).values[0]
@@ -471,13 +534,25 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
             b = box_information[1]
             c = box_information[2]
 
-            box_sizes = {"a": a, "b": b, "c": c,
-                         "alpha": box_information[3], "beta": box_information[3], "gamma": box_information[3],
-                         }
+            box_sizes = {
+                "a": a,
+                "b": b,
+                "c": c,
+                "alpha": box_information[3],
+                "beta": box_information[3],
+                "gamma": box_information[3],
+            }
 
-            dl.set_box_size(box_sizes, utype={"a": amd.box_units["length"], "b": amd.box_units["length"],
-                                              "c": amd.box_units["length"], "alpha": amd.box_units["angle"],
-                                              "beta": amd.box_units["angle"], "gamma": amd.box_units["angle"], })
+            dl.set_box_size(
+                box_sizes,
+                utype={
+                    "a": amd.box_units["length"],
+                    "b": amd.box_units["length"],
+                    "c": amd.box_units["length"],
+                    "alpha": amd.box_units["angle"],
+                    "beta": amd.box_units["angle"],
+                    "gamma": amd.box_units["angle"],
+                })
 
             box_center = []
 
@@ -486,14 +561,21 @@ def read_amber_file(dl, filename, inpcrd=None, blocksize=5000):
 
             box_center = dict(zip(['x', 'y', 'z'], box_center))
 
-            dl.set_box_center(box_center, utype={"x": amd.box_units["length"], "y": amd.box_units["length"],
-                                                 "z": amd.box_units["length"]})
+            dl.set_box_center(
+                box_center,
+                utype={
+                    "x": amd.box_units["length"],
+                    "y": amd.box_units["length"],
+                    "z": amd.box_units["length"]
+                })
 
             # Drop box info from atom coordinates
             data.drop(data.index[-1], inplace=True)
 
         elif data.shape[0] == read_size and sizes_dict["IFBOX"] > 0:
-            raise Warning("Periodic prmtop used with non-periodic inpcrd. Using prmtop data")
+            raise Warning(
+                "Periodic prmtop used with non-periodic inpcrd. Using prmtop data"
+            )
 
         df = pd.DataFrame(data.values.reshape(-1, 3), columns=["X", "Y", "Z"])
         df.dropna(axis=0, how="any", inplace=True)

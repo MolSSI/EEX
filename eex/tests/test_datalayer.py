@@ -80,8 +80,10 @@ def test_misc(backend):
     with pytest.raises(AttributeError):
         dl.call_by_string("not_a_function")
 
-    assert(set(dl.list_tables()) == {'atom_name', 'xyz', 'molecule_index', 'charge', 'atom_type'})
-    assert(dl.list_other_tables() == [])
+    assert (set(dl.list_tables()) == {
+        'atom_name', 'xyz', 'molecule_index', 'charge', 'atom_type'
+    })
+    assert (dl.list_other_tables() == [])
 
 
 def test_add_atom_parameter():
@@ -112,9 +114,12 @@ def test_add_atom_parameter_units():
 
     # Test duplicate and uid add of same
     assert 0 == dl.add_atom_parameter("mass", 5.0, utype="kilogram / mol")
-    assert pytest.approx(5.0) == dl.get_atom_parameter("mass", 0, utype="kilogram / mol")
-    assert pytest.approx(5000.0) == dl.get_atom_parameter("mass", 0, utype="gram / mol")
-    assert pytest.approx(5000.0) == dl.get_atom_parameter("mass", 0, utype={"mass": "gram / mol"})
+    assert pytest.approx(5.0) == dl.get_atom_parameter(
+        "mass", 0, utype="kilogram / mol")
+    assert pytest.approx(5000.0) == dl.get_atom_parameter(
+        "mass", 0, utype="gram / mol")
+    assert pytest.approx(5000.0) == dl.get_atom_parameter(
+        "mass", 0, utype={"mass": "gram / mol"})
 
 
 def test_add_term_parameter():
@@ -137,7 +142,8 @@ def test_add_term_parameter():
 
     # Check uid types
     assert 0 == dl.add_term_parameter(2, "harmonic", [4.0, 5.0], uid=0)
-    assert 0 == dl.add_term_parameter(2, "harmonic", [4.0, 5.0 + 1.e-10], uid=0)
+    assert 0 == dl.add_term_parameter(
+        2, "harmonic", [4.0, 5.0 + 1.e-10], uid=0)
 
     # Add out of order uid
     assert 10 == dl.add_term_parameter(2, "harmonic", [9.0, 9], uid=10)
@@ -149,15 +155,27 @@ def test_add_term_parameter():
 
     # Check add by dict
     mdp = two_body_md["parameters"]
-    assert 0 == dl.add_term_parameter(2, "harmonic", {mdp[0]: 4.0, mdp[1]: 5.0})
-    assert 1 == dl.add_term_parameter(2, "harmonic", {mdp[0]: 4.0, mdp[1]: 6.0})
-    assert 3 == dl.add_term_parameter(2, "harmonic", {mdp[0]: 4.0, mdp[1]: 7.0})
+    assert 0 == dl.add_term_parameter(2, "harmonic", {
+        mdp[0]: 4.0,
+        mdp[1]: 5.0
+    })
+    assert 1 == dl.add_term_parameter(2, "harmonic", {
+        mdp[0]: 4.0,
+        mdp[1]: 6.0
+    })
+    assert 3 == dl.add_term_parameter(2, "harmonic", {
+        mdp[0]: 4.0,
+        mdp[1]: 7.0
+    })
 
     with pytest.raises(KeyError):
         dl.add_term_parameter(2, "harmonic", {mdp[0]: 4.0, "turtle": 5.0})
 
     mdp = three_body_md["parameters"]
-    assert 0 == dl.add_term_parameter(3, "harmonic", {mdp[0]: 4.0, mdp[1]: 6.0})
+    assert 0 == dl.add_term_parameter(3, "harmonic", {
+        mdp[0]: 4.0,
+        mdp[1]: 6.0
+    })
 
     # Check uid type
     with pytest.raises(TypeError):
@@ -195,26 +213,51 @@ def test_add_term_parameters_units():
     # Same units
     utype_2b = {"K": "(kJ / mol) * angstrom ** -2", "R0": "angstrom"}
     utype_2bl = [utype_2b["K"], utype_2b["R0"]]
-    assert 0 == dl.add_term_parameter(2, "harmonic", {"K": 4.0, "R0": 5.0}, utype=utype_2b)
-    assert 0 == dl.add_term_parameter(2, "harmonic", {"K": 4.0, "R0": 5.0}, utype=utype_2bl)
-    assert 0 == dl.add_term_parameter(2, "harmonic", [4.0, 5.0], utype=utype_2b)
-    assert 0 == dl.add_term_parameter(2, "harmonic", [4.0, 5.0], utype=utype_2bl)
+    assert 0 == dl.add_term_parameter(
+        2, "harmonic", {
+            "K": 4.0,
+            "R0": 5.0
+        }, utype=utype_2b)
+    assert 0 == dl.add_term_parameter(
+        2, "harmonic", {
+            "K": 4.0,
+            "R0": 5.0
+        }, utype=utype_2bl)
+    assert 0 == dl.add_term_parameter(
+        2, "harmonic", [4.0, 5.0], utype=utype_2b)
+    assert 0 == dl.add_term_parameter(
+        2, "harmonic", [4.0, 5.0], utype=utype_2bl)
 
     # Scale by 2
-    utype_2b = {"K": "0.5 * (kJ / mol) * angstrom ** -2", "R0": "0.5 * angstrom"}
+    utype_2b = {
+        "K": "0.5 * (kJ / mol) * angstrom ** -2",
+        "R0": "0.5 * angstrom"
+    }
     utype_2bl = [utype_2b["K"], utype_2b["R0"]]
-    assert 0 == dl.add_term_parameter(2, "harmonic", {"K": 8.0, "R0": 10.0}, utype=utype_2b)
-    assert 0 == dl.add_term_parameter(2, "harmonic", {"K": 8.0, "R0": 10.0}, utype=utype_2bl)
-    assert 0 == dl.add_term_parameter(2, "harmonic", [8.0, 10.0], utype=utype_2b)
-    assert 0 == dl.add_term_parameter(2, "harmonic", [8.0, 10.0], utype=utype_2bl)
+    assert 0 == dl.add_term_parameter(
+        2, "harmonic", {
+            "K": 8.0,
+            "R0": 10.0
+        }, utype=utype_2b)
+    assert 0 == dl.add_term_parameter(
+        2, "harmonic", {
+            "K": 8.0,
+            "R0": 10.0
+        }, utype=utype_2bl)
+    assert 0 == dl.add_term_parameter(
+        2, "harmonic", [8.0, 10.0], utype=utype_2b)
+    assert 0 == dl.add_term_parameter(
+        2, "harmonic", [8.0, 10.0], utype=utype_2bl)
 
     # Different unit type
     utype_2b = {"K": "0.5 * (kJ / mol) * angstrom ** -2", "R0": "picometers"}
-    assert 0 == dl.add_term_parameter(2, "harmonic", [8.0, 500.0], utype=utype_2b)
+    assert 0 == dl.add_term_parameter(
+        2, "harmonic", [8.0, 500.0], utype=utype_2b)
 
     # Finally a different parameter type all together
     utype_2b = {"K": "0.5 * (kJ / mol) * angstrom ** -2", "R0": "picometers"}
-    assert 1 == dl.add_term_parameter(2, "harmonic", [8.0, 5.0], utype=utype_2b)
+    assert 1 == dl.add_term_parameter(
+        2, "harmonic", [8.0, 5.0], utype=utype_2b)
 
 
 def test_get_term_parameter():
@@ -263,15 +306,27 @@ def test_get_term_parameters_units():
     dl = eex.datalayer.DataLayer("test_get_parameters_units")
 
     utype_2b = {"K": "(kJ / mol) * angstrom ** -2", "R0": "angstrom"}
-    assert 0 == dl.add_term_parameter(2, "harmonic", {"K": 4.0, "R0": 5.0}, utype=utype_2b)
-    assert 1 == dl.add_term_parameter(2, "harmonic", {"K": 6.0, "R0": 7.0}, utype=utype_2b)
+    assert 0 == dl.add_term_parameter(
+        2, "harmonic", {
+            "K": 4.0,
+            "R0": 5.0
+        }, utype=utype_2b)
+    assert 1 == dl.add_term_parameter(
+        2, "harmonic", {
+            "K": 6.0,
+            "R0": 7.0
+        }, utype=utype_2b)
 
-    utype_2scale = {"K": "2.0 * (kJ / mol) * angstrom ** -2", "R0": "2.0 * angstrom"}
+    utype_2scale = {
+        "K": "2.0 * (kJ / mol) * angstrom ** -2",
+        "R0": "2.0 * angstrom"
+    }
     parm1 = dl.get_term_parameter(2, 0, utype=utype_2scale, ftype="harmonic")
     assert parm1[0] == "harmonic"
     assert dict_compare(parm1[1], {"K": 2.0, "R0": 2.5})
 
-    parm2 = dl.get_term_parameter(2, 0, utype=[utype_2scale["K"], utype_2scale["R0"]], ftype="harmonic")
+    parm2 = dl.get_term_parameter(
+        2, 0, utype=[utype_2scale["K"], utype_2scale["R0"]], ftype="harmonic")
     assert parm2[0] == "harmonic"
     assert dict_compare(parm2[1], {"K": 2.0, "R0": 2.5})
 
@@ -322,7 +377,8 @@ def test_atom_units():
     tmp_df.index.name = "atom_index"
     dl.add_atoms(tmp_df, by_value=True, utype=utypes)
 
-    assert df_compare(tmp_df, dl.get_atoms("charge", by_value=True), columns="charge")
+    assert df_compare(
+        tmp_df, dl.get_atoms("charge", by_value=True), columns="charge")
 
     # Check multiple output types
     xyz_pm = dl.get_atoms("XYZ", by_value=True, utype={"xyz": "picometers"})
@@ -343,7 +399,14 @@ def test_atom_units():
 def test_box_size():
     dl = eex.datalayer.DataLayer("test_box_size", backend="memory")
 
-    tmp = {"a": 5, "b": 6, "c": 7, "alpha": np.pi / 3, "beta": 0.0, "gamma": 0.0}
+    tmp = {
+        "a": 5,
+        "b": 6,
+        "c": 7,
+        "alpha": np.pi / 3,
+        "beta": 0.0,
+        "gamma": 0.0
+    }
 
     # Normal set/get
     dl.set_box_size(tmp)
@@ -351,7 +414,14 @@ def test_box_size():
     assert dict_compare(tmp, comp)
 
     # Set/get with units
-    utype = {"a": "nanometers", "b": "nanometers", "c": "nanometers", "alpha": "radian", "beta": "radian", "gamma": "radian"}
+    utype = {
+        "a": "nanometers",
+        "b": "nanometers",
+        "c": "nanometers",
+        "alpha": "radian",
+        "beta": "radian",
+        "gamma": "radian"
+    }
     dl.set_box_size(tmp, utype=utype)
     comp = dl.get_box_size(utype=utype)
     assert np.isclose(comp["a"], tmp["a"])
@@ -362,7 +432,14 @@ def test_box_size():
     assert np.isclose(comp["gamma"], tmp["gamma"])
 
     # Set/get with units
-    utype_1 = {"a": "angstroms", "b": "angstroms", "c": "angstroms", "alpha": "degree", "beta": "degree", "gamma": "degree"}
+    utype_1 = {
+        "a": "angstroms",
+        "b": "angstroms",
+        "c": "angstroms",
+        "alpha": "degree",
+        "beta": "degree",
+        "gamma": "degree"
+    }
     dl.set_box_size(tmp, utype=utype)
     comp = dl.get_box_size(utype=utype_1)
     assert np.isclose(comp["a"], tmp["a"] * 10)
@@ -372,7 +449,14 @@ def test_box_size():
     assert np.isclose(comp["beta"], tmp["beta"] * 180.0 / np.pi)
     assert np.isclose(comp["gamma"], tmp["gamma"] * 180.0 / np.pi)
 
-    utype_2 = {"a": "miles", "b": "miles", "c": "miles", "alpha": "radians", "beta": "radians", "gamma": "radians"}
+    utype_2 = {
+        "a": "miles",
+        "b": "miles",
+        "c": "miles",
+        "alpha": "radians",
+        "beta": "radians",
+        "gamma": "radians"
+    }
     with pytest.raises(AssertionError):
         dl.set_box_size(tmp, utype=utype_2)
         comp = dl.get_box_size()
@@ -428,11 +512,21 @@ def test_add_nb_parameter():
     dl.add_atoms(atom_sys)
 
     # Add AB LJ parameters to data layer - add to single atom
-    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_model="AB", nb_parameters=[1.0, 1.0])
-    dl.add_nb_parameter(atom_type=2, nb_name="LJ", nb_model="epsilon/sigma", nb_parameters=[1.0, 1.0])
+    dl.add_nb_parameter(
+        atom_type=1, nb_name="LJ", nb_model="AB", nb_parameters=[1.0, 1.0])
+    dl.add_nb_parameter(
+        atom_type=2,
+        nb_name="LJ",
+        nb_model="epsilon/sigma",
+        nb_parameters=[1.0, 1.0])
 
     # Add AB LJ parameters to data layer - add to two atoms
-    dl.add_nb_parameter(atom_type=1, atom_type2=2, nb_name="LJ", nb_model="AB", nb_parameters=[2.0, 2.0])
+    dl.add_nb_parameter(
+        atom_type=1,
+        atom_type2=2,
+        nb_name="LJ",
+        nb_model="AB",
+        nb_parameters=[2.0, 2.0])
 
     # Grab stored test parameters - will need to replace dl._nb_parameters with dl.get_nb_parameter when implemented
     test_parameters = dl._nb_parameters
@@ -441,9 +535,14 @@ def test_add_nb_parameter():
     assert test_parameters[(2, None)]["parameters"] == {'A': 4.0, 'B': 4.0}
     assert test_parameters[(1, 2)]["parameters"] == {'A': 2.0, 'B': 2.0}
 
-    dl.add_nb_parameter(atom_type=1, nb_name="Buckingham", nb_model=None, nb_parameters=[1.0, 1.0, 1.0])
+    dl.add_nb_parameter(
+        atom_type=1,
+        nb_name="Buckingham",
+        nb_model=None,
+        nb_parameters=[1.0, 1.0, 1.0])
     with pytest.raises(KeyError):
-        dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_model=None, nb_parameters=[1.0, 1.0])
+        dl.add_nb_parameter(
+            atom_type=1, nb_name="LJ", nb_model=None, nb_parameters=[1.0, 1.0])
 
 
 def test_add_nb_parameter_units():
@@ -462,7 +561,10 @@ def test_add_nb_parameter_units():
         nb_name="LJ",
         nb_model="AB",
         nb_parameters=[1.0, 1.0],
-        utype=["kJ * mol ** -1 * nanometers ** 12", "kJ * mol ** -1 * nanometers ** 6"])
+        utype=[
+            "kJ * mol ** -1 * nanometers ** 12",
+            "kJ * mol ** -1 * nanometers ** 6"
+        ])
 
     # Add AB LJ parameters to data layer - add to two atoms
     dl.add_nb_parameter(
@@ -471,7 +573,10 @@ def test_add_nb_parameter_units():
         nb_model="AB",
         nb_parameters=[2.0, 2.0],
         atom_type2=2,
-        utype=["kJ * mol ** -1 * nanometers ** 12", "kJ * mol ** -1 * nanometers ** 6"])
+        utype=[
+            "kJ * mol ** -1 * nanometers ** 12",
+            "kJ * mol ** -1 * nanometers ** 6"
+        ])
 
     # Test atom types out of order
     dl.add_nb_parameter(
@@ -480,7 +585,10 @@ def test_add_nb_parameter_units():
         nb_model="AB",
         nb_parameters=[2.0, 2.0],
         atom_type2=1,
-        utype=["kJ * mol ** -1 * nanometers ** 12", "kJ * mol ** -1 * nanometers ** 6"])
+        utype=[
+            "kJ * mol ** -1 * nanometers ** 12",
+            "kJ * mol ** -1 * nanometers ** 6"
+        ])
 
     # Grab stored test parameters
     test_parameters = dl.list_nb_parameters(nb_name="LJ")
@@ -495,7 +603,7 @@ def test_add_nb_parameter_units():
 
     # Check keywords
     test_parameters2 = dl.list_nb_parameters(nb_name="LJ", itype="single")
-    assert(list(test_parameters2) == [(1, None)])
+    assert (list(test_parameters2) == [(1, None)])
 
     test_parameters3 = dl.list_nb_parameters(nb_name="LJ", itype="pair")
     assert (list(test_parameters3) == [(1, 2), (1, 3)])
@@ -512,30 +620,63 @@ def test_get_nb_parameter():
     dl.add_atoms(atom_sys)
 
     # Add AB LJ parameters to data layer - add to single atom
-    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_model="AB", nb_parameters={'A': 1.0, 'B': 2.0})
+    dl.add_nb_parameter(
+        atom_type=1,
+        nb_name="LJ",
+        nb_model="AB",
+        nb_parameters={
+            'A': 1.0,
+            'B': 2.0
+        })
 
     # Add Buckingham parameter to datalayer
-    dl.add_nb_parameter(atom_type=2, nb_name="Buckingham", nb_parameters={"A": 1.0, "C": 1.0, "rho": 1.0})
+    dl.add_nb_parameter(
+        atom_type=2,
+        nb_name="Buckingham",
+        nb_parameters={
+            "A": 1.0,
+            "C": 1.0,
+            "rho": 1.0
+        })
 
     # The following should raise an error because (1,2) interaction is not set
     with pytest.raises(KeyError):
         dl.get_nb_parameter(atom_type=1, atom_type2=2, nb_model="AB")
 
     # Test that what returned is expected
-    assert dict_compare(dl.get_nb_parameter(atom_type=2), {"A": 1.0, "C": 1.0, "rho": 1.0})
-    assert dict_compare(dl.get_nb_parameter(atom_type=1, nb_model="AB"), {'A': 1.0, 'B': 2.0})
+    assert dict_compare(
+        dl.get_nb_parameter(atom_type=2), {
+            "A": 1.0,
+            "C": 1.0,
+            "rho": 1.0
+        })
+    assert dict_compare(
+        dl.get_nb_parameter(atom_type=1, nb_model="AB"), {
+            'A': 1.0,
+            'B': 2.0
+        })
 
     # Test conversion of AB to different forms
     assert dict_compare(
-        dl.get_nb_parameter(atom_type=1, nb_model="epsilon/sigma"), {'epsilon': 1.0,
-                                                                     'sigma': (1. / 2.)**(1. / 6.)})
+        dl.get_nb_parameter(atom_type=1, nb_model="epsilon/sigma"), {
+            'epsilon': 1.0,
+            'sigma': (1. / 2.)**(1. / 6.)
+        })
 
-    assert dict_compare(dl.get_nb_parameter(atom_type=1, nb_model="epsilon/Rmin"), {'epsilon': 1.0, 'Rmin': 1})
+    assert dict_compare(
+        dl.get_nb_parameter(atom_type=1, nb_model="epsilon/Rmin"), {
+            'epsilon': 1.0,
+            'Rmin': 1
+        })
 
     # Test that correct parameters are pulled from data layer based on name
     assert (set(dl.list_stored_nb_types()) == set(["LJ", "Buckingham"]))
 
-    assert dict_compare(dl.list_nb_parameters(nb_name="LJ"), {(1, None): {'A': 1., 'B': 2.}})
+    assert dict_compare(
+        dl.list_nb_parameters(nb_name="LJ"), {(1, None): {
+                                                  'A': 1.,
+                                                  'B': 2.
+                                              }})
 
     comp = {(2, None): {'A': 1.0, "C": 1.0, "rho": 1.0}}
     assert dict_compare(dl.list_nb_parameters(nb_name="Buckingham"), comp)
@@ -543,15 +684,25 @@ def test_get_nb_parameter():
     # Test translation of units
     comp = {(1, None): {'A': 1.e-12, 'B': 2.e-6}}
     result = dl.list_nb_parameters(
-        nb_name="LJ", utype={'A': "kJ * mol ** -1 * nanometers ** 12",
-                             'B': "kJ * mol ** -1 * nanometers ** 6"})
+        nb_name="LJ",
+        utype={
+            'A': "kJ * mol ** -1 * nanometers ** 12",
+            'B': "kJ * mol ** -1 * nanometers ** 6"
+        })
     assert dict_compare(result, comp)
 
     # Sigma/epsilon test
-    comp = {'sigma': (1. / 2.)**(1. / 6.), 'epsilon': eex.units.conversion_factor('kJ', 'kcal')}
+    comp = {
+        'sigma': (1. / 2.)**(1. / 6.),
+        'epsilon': eex.units.conversion_factor('kJ', 'kcal')
+    }
     result = dl.get_nb_parameter(
-        atom_type=1, nb_model='epsilon/sigma', utype={'epsilon': 'kcal * mol ** -1',
-                                                      'sigma': 'angstrom'})
+        atom_type=1,
+        nb_model='epsilon/sigma',
+        utype={
+            'epsilon': 'kcal * mol ** -1',
+            'sigma': 'angstrom'
+        })
     assert dict_compare(result, comp)
 
 
@@ -575,10 +726,24 @@ def test_mixing_rule():
         dl.set_mixing_rule(5)
 
     # Add AB LJ parameters to data layer - add to single atom
-    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_model="epsilon/sigma", nb_parameters={'epsilon': 1.0, 'sigma': 2.0})
+    dl.add_nb_parameter(
+        atom_type=1,
+        nb_name="LJ",
+        nb_model="epsilon/sigma",
+        nb_parameters={
+            'epsilon': 1.0,
+            'sigma': 2.0
+        })
 
     # Add Buckingham parameter to datalayer
-    dl.add_nb_parameter(atom_type=2, nb_name="Buckingham", nb_parameters={"A": 1.0, "C": 1.0, "rho": 1.0})
+    dl.add_nb_parameter(
+        atom_type=2,
+        nb_name="Buckingham",
+        nb_parameters={
+            "A": 1.0,
+            "C": 1.0,
+            "rho": 1.0
+        })
 
     # This should fail because we can not combine LJ and Buckingham parameters.
     with pytest.raises(ValueError):
@@ -588,15 +753,23 @@ def test_mixing_rule():
         dl.mix_LJ_parameters(atom_type1=1, atom_type2=3)
 
     # Overwrite Buckingham parameter
-    dl.add_nb_parameter(atom_type=2, nb_name="LJ", nb_model="epsilon/sigma", nb_parameters={'epsilon': 1.0, 'sigma': 1.0})
+    dl.add_nb_parameter(
+        atom_type=2,
+        nb_name="LJ",
+        nb_model="epsilon/sigma",
+        nb_parameters={
+            'epsilon': 1.0,
+            'sigma': 1.0
+        })
 
     # Apply mixing rule
     dl.mix_LJ_parameters(atom_type1=1, atom_type2=2)
 
     # Get values from datalayer and check
-    params = dl.get_nb_parameter(atom_type=1, atom_type2=2, nb_model="epsilon/sigma")
+    params = dl.get_nb_parameter(
+        atom_type=1, atom_type2=2, nb_model="epsilon/sigma")
 
-    ans = {'sigma': 2 ** (1. / 2.), 'epsilon': 1.}
+    ans = {'sigma': 2**(1. / 2.), 'epsilon': 1.}
 
     assert dict_compare(params, ans)
 
@@ -614,35 +787,48 @@ def test_mixing_table():
     dl.set_mixing_rule("arithmetic")
 
     # Add AB LJ parameters to data layer - add to single atom
-    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_model="epsilon/sigma", nb_parameters={'epsilon': 1.0, 'sigma': 2.0})
+    dl.add_nb_parameter(
+        atom_type=1,
+        nb_name="LJ",
+        nb_model="epsilon/sigma",
+        nb_parameters={
+            'epsilon': 1.0,
+            'sigma': 2.0
+        })
 
     # Add AB LJ parameters to data layer - add to single atom
-    dl.add_nb_parameter(atom_type=2, nb_name="LJ", nb_model="epsilon/sigma", nb_parameters={'epsilon': 2.0, 'sigma': 1.0})
+    dl.add_nb_parameter(
+        atom_type=2,
+        nb_name="LJ",
+        nb_model="epsilon/sigma",
+        nb_parameters={
+            'epsilon': 2.0,
+            'sigma': 1.0
+        })
 
     # Apply mixing rule
     dl.build_LJ_mixing_table()
 
     # Get mixed parameters
-    pairIJ = dl.list_nb_parameters(nb_name="LJ", itype="pair", nb_model="epsilon/sigma")
+    pairIJ = dl.list_nb_parameters(
+        nb_name="LJ", itype="pair", nb_model="epsilon/sigma")
 
     ans = {
         (1, 1): {
             'sigma': 2.,
             'epsilon': 1,
         },
-
         (1, 2): {
             'sigma': 1.5,
-            'epsilon': (2.) ** (1. / 2.)
+            'epsilon': (2.)**(1. / 2.)
         },
-
         (2, 2): {
             'sigma': 1.,
             'epsilon': 2.
         },
     }
 
-    assert(dict_compare(pairIJ, ans))
+    assert (dict_compare(pairIJ, ans))
 
 
 def test_nb_scaling():
@@ -658,10 +844,24 @@ def test_nb_scaling():
     dl.set_mixing_rule("arithmetic")
 
     # Add AB LJ parameters to data layer - add to single atom
-    dl.add_nb_parameter(atom_type=1, nb_name="LJ", nb_model="epsilon/sigma", nb_parameters={'epsilon': 1.0, 'sigma': 2.0})
+    dl.add_nb_parameter(
+        atom_type=1,
+        nb_name="LJ",
+        nb_model="epsilon/sigma",
+        nb_parameters={
+            'epsilon': 1.0,
+            'sigma': 2.0
+        })
 
     # Add AB LJ parameters to data layer - add to single atom
-    dl.add_nb_parameter(atom_type=2, nb_name="LJ", nb_model="epsilon/sigma", nb_parameters={'epsilon': 2.0, 'sigma': 1.0})
+    dl.add_nb_parameter(
+        atom_type=2,
+        nb_name="LJ",
+        nb_model="epsilon/sigma",
+        nb_parameters={
+            'epsilon': 2.0,
+            'sigma': 1.0
+        })
 
     # Apply mixing rule
     dl.build_LJ_mixing_table()
@@ -745,7 +945,6 @@ def test_set_nb_scaling_factors():
             "scale13": 0.25,
             "scale14": 0.75,
         },
-
         "vdw": {
             "scale12": 0.0,
             "scale13": 0.5,
@@ -769,13 +968,15 @@ def test_set_nb_scaling_factors():
     dl.build_scaling_list()
 
     # Retrieve from datalayer
-    scaling = dl.get_pair_scalings(nb_labels=["vdw_scale", "coul_scale"], order=True)
+    scaling = dl.get_pair_scalings(
+        nb_labels=["vdw_scale", "coul_scale"], order=True)
 
-    assert(set(scaling['vdw_scale'].values) == set([0, 0.5]))
+    assert (set(scaling['vdw_scale'].values) == set([0, 0.5]))
 
-    assert(set(scaling['coul_scale'].values) == set([0, 0.25]))
+    assert (set(scaling['coul_scale'].values) == set([0, 0.25]))
 
-    assert(set(scaling['order'].values) == set([2, 3]))
+    assert (set(scaling['order'].values) == set([2, 3]))
+
 
 def test_calculate_nb_scaling_factors(butane_dl):
 
@@ -793,23 +994,23 @@ def test_calculate_nb_scaling_factors(butane_dl):
     dl.calculate_nb_scaling_factors()
 
     scaling_factors_answer = {
-        "vdw" :
-            {
-                "scale12": 0,
-                "scale13": 0.5,
-                "scale14": 0.75,
-            },
-        "coul" :
-            {
-                "scale12": 0.1,
-                "scale13": 0.25,
-                "scale14": 0.5,
-            }
+        "vdw": {
+            "scale12": 0,
+            "scale13": 0.5,
+            "scale14": 0.75,
+        },
+        "coul": {
+            "scale12": 0.1,
+            "scale13": 0.25,
+            "scale14": 0.5,
+        }
     }
 
     scaling_factors_calculated = dl.get_nb_scaling_factors()
 
-    eex.testing.dict_compare(scaling_factors_answer, scaling_factors_calculated)
+    eex.testing.dict_compare(scaling_factors_answer,
+                             scaling_factors_calculated)
+
 
 def test_calculate_nb_scaling_factors2(butane_dl):
 
@@ -828,6 +1029,7 @@ def test_calculate_nb_scaling_factors2(butane_dl):
     with pytest.raises(ValueError):
         dl.calculate_nb_scaling_factors()
 
+
 def test_calculate_nb_scaling_factors3(butane_dl):
 
     dl = butane_dl(scale=True)
@@ -844,20 +1046,22 @@ def test_calculate_nb_scaling_factors3(butane_dl):
     with pytest.raises(ValueError):
         dl.calculate_nb_scaling_factors()
 
+
 def test_remove_terms(butane_dl):
 
     dl = butane_dl()
 
     bonds = dl.get_terms(2)
 
-    assert(not bonds.empty)
+    assert (not bonds.empty)
 
     dl.remove_terms(2)
 
     bonds = dl.get_terms(2)
 
-    assert(bonds.empty)
-    assert(dl.get_term_count(2)['total'] == 0)
+    assert (bonds.empty)
+    assert (dl.get_term_count(2)['total'] == 0)
+
 
 def test_remove_terms_by_index(butane_dl):
 
@@ -865,24 +1069,25 @@ def test_remove_terms_by_index(butane_dl):
 
     bonds1 = dl.get_terms(2)
 
-    assert(not bonds1.empty)
+    assert (not bonds1.empty)
 
     # Remove first two bonds
-    dl.remove_terms(2, index=[0,1])
+    dl.remove_terms(2, index=[0, 1])
 
     bonds2 = dl.get_terms(2)
 
-    assert(dl.get_term_count(2)['total'] == 1)
+    assert (dl.get_term_count(2)['total'] == 1)
 
     # Check that bonds are what we expect
-    assert(sorted(bonds1.loc[2].values) == sorted(bonds2.values[0]))
+    assert (sorted(bonds1.loc[2].values) == sorted(bonds2.values[0]))
 
     # Here, since propagate was set to false. Angles and dihedrals remain unchanged.
-    assert(dl.get_term_count(3)['total'] == 2)
+    assert (dl.get_term_count(3)['total'] == 2)
 
     assert (dl.get_term_count(4)['total'] == 1)
 
     return True
+
 
 def test_remove_terms_by_index_nonconsecutive(butane_dl):
 
@@ -890,24 +1095,25 @@ def test_remove_terms_by_index_nonconsecutive(butane_dl):
 
     bonds1 = dl.get_terms(2)
 
-    assert(not bonds1.empty)
+    assert (not bonds1.empty)
 
     # Remove two non-consectutive bonds
-    dl.remove_terms(2, index=[0,2])
+    dl.remove_terms(2, index=[0, 2])
 
     bonds2 = dl.get_terms(2)
 
-    assert(dl.get_term_count(2)['total'] == 1)
+    assert (dl.get_term_count(2)['total'] == 1)
 
     # Check that bonds are what we expect
-    assert(sorted(bonds1.loc[1].values) == sorted(bonds2.values[0]))
+    assert (sorted(bonds1.loc[1].values) == sorted(bonds2.values[0]))
 
     # Here, since propagate was set to false. Angles and dihedrals remain unchanged.
-    assert(dl.get_term_count(3)['total'] == 2)
+    assert (dl.get_term_count(3)['total'] == 2)
 
     assert (dl.get_term_count(4)['total'] == 1)
 
     return True
+
 
 def test_remove_terms_propagate(butane_dl):
 
@@ -916,9 +1122,9 @@ def test_remove_terms_propagate(butane_dl):
     bonds = dl.get_terms(2)
 
     # Assert topology is what we expect.
-    assert(not bonds.empty)
-    assert(dl.get_term_count(2)['total'] == 3)
-    assert(dl.get_term_count(3)['total'] == 2)
+    assert (not bonds.empty)
+    assert (dl.get_term_count(2)['total'] == 3)
+    assert (dl.get_term_count(3)['total'] == 2)
     assert (dl.get_term_count(4)['total'] == 1)
 
     dl.remove_terms(2, propagate=True)
@@ -926,12 +1132,13 @@ def test_remove_terms_propagate(butane_dl):
     # Assert all have been removed.
     bonds = dl.get_terms(2)
 
-    assert(bonds.empty)
-    assert(dl.get_term_count(2)['total'] == 0)
-    assert(dl.get_term_count(3)['total'] == 0)
+    assert (bonds.empty)
+    assert (dl.get_term_count(2)['total'] == 0)
+    assert (dl.get_term_count(3)['total'] == 0)
     assert (dl.get_term_count(4)['total'] == 0)
 
     return True
+
 
 def test_remove_terms_by_index_propagate(butane_dl):
 
@@ -940,21 +1147,22 @@ def test_remove_terms_by_index_propagate(butane_dl):
     bonds = dl.get_terms(2)
 
     # Assert topology is what we expect.
-    assert(not bonds.empty)
-    assert(dl.get_term_count(2)['total'] == 3)
-    assert(dl.get_term_count(3)['total'] == 2)
+    assert (not bonds.empty)
+    assert (dl.get_term_count(2)['total'] == 3)
+    assert (dl.get_term_count(3)['total'] == 2)
     assert (dl.get_term_count(4)['total'] == 1)
 
-    assert(not bonds.empty)
+    assert (not bonds.empty)
 
     # Remove one bond - choose to propagate this so dihedral and angle should also be removed.
     dl.remove_terms(2, index=[0], propagate=True)
 
-    assert(dl.get_term_count(2)['total'] == 2)
+    assert (dl.get_term_count(2)['total'] == 2)
     assert (dl.get_term_count(3)['total'] == 1)
-    assert(dl.get_term_count(4)['total'] == 0)
+    assert (dl.get_term_count(4)['total'] == 0)
 
     return True
+
 
 def test_remove_terms_by_index_nonconsecutive_propagate(butane_dl):
     dl = butane_dl()
@@ -973,25 +1181,26 @@ def test_remove_terms_by_index_nonconsecutive_propagate(butane_dl):
     # Remove two bonds - choose to propagate this so dihedral and both angles should also be removed.
     dl.remove_terms(2, index=[0, 2], propagate=True)
 
-    assert(dl.get_term_count(2)['total'] == 1)
+    assert (dl.get_term_count(2)['total'] == 1)
     assert (dl.get_term_count(3)['total'] == 0)
-    assert(dl.get_term_count(4)['total'] == 0)
+    assert (dl.get_term_count(4)['total'] == 0)
 
     return True
+
 
 def test_remove_and_add_terms(butane_dl):
     dl = butane_dl()
 
     bonds = dl.get_terms(2)
 
-    assert(not bonds.empty)
+    assert (not bonds.empty)
 
     dl.remove_terms(2)
 
     bonds_new = dl.get_terms(2)
 
-    assert(bonds_new.empty)
-    assert(dl.get_term_count(2)['total'] == 0)
+    assert (bonds_new.empty)
+    assert (dl.get_term_count(2)['total'] == 0)
 
     dl.add_bonds(bonds)
 
@@ -999,16 +1208,17 @@ def test_remove_and_add_terms(butane_dl):
 
     assert (not added_bonds.empty)
 
+
 def test_remove_and_add_terms_index(butane_dl):
     dl = butane_dl()
 
     bonds = dl.get_terms(2)
 
-    assert(not bonds.empty)
+    assert (not bonds.empty)
 
     dl.remove_terms(2, index=[0])
 
-    assert(dl.get_term_count(2)['total'] == 2)
+    assert (dl.get_term_count(2)['total'] == 2)
 
     dl.add_bonds(bonds.iloc[[0]])
 
@@ -1017,7 +1227,8 @@ def test_remove_and_add_terms_index(butane_dl):
     assert (not added_bonds.empty)
 
     for col in added_bonds.columns:
-        assert(set(added_bonds[col].values) == set(bonds[col].values))
+        assert (set(added_bonds[col].values) == set(bonds[col].values))
+
 
 def test_remove_term_parameters(butane_dl):
     dl = butane_dl()
@@ -1043,13 +1254,21 @@ def test_remove_term_parameters(butane_dl):
     with pytest.raises(KeyError):
         dl.remove_term_parameter(order=3, uid=0)
 
+
 def test_remove_term_parameters_two(butane_dl):
     dl = butane_dl()
 
     # Add second angle
-    uid = dl.add_term_parameter(3, "harmonic", {'K': 62.100, 'theta0': 116},
-                          utype={'K': 'kcal * mol ** -1 * radian ** -2',
-                                 'theta0': 'degree'})
+    uid = dl.add_term_parameter(
+        3,
+        "harmonic", {
+            'K': 62.100,
+            'theta0': 116
+        },
+        utype={
+            'K': 'kcal * mol ** -1 * radian ** -2',
+            'theta0': 'degree'
+        })
 
     # First remove angle
     dl.remove_terms(order=3)
@@ -1058,9 +1277,15 @@ def test_remove_term_parameters_two(butane_dl):
     dl.remove_term_parameter(order=3, uid=0)
 
     # Add another angle - what will the uid be?
-    uid2 = dl.add_term_parameter(3, "harmonic", {'K': 62.100, 'theta0': 117},
-
-    utype = {'K': 'kcal * mol ** -1 * radian ** -2',
-             'theta0': 'degree'})
+    uid2 = dl.add_term_parameter(
+        3,
+        "harmonic", {
+            'K': 62.100,
+            'theta0': 117
+        },
+        utype={
+            'K': 'kcal * mol ** -1 * radian ** -2',
+            'theta0': 'degree'
+        })
 
     print("The uids are", uid, uid2)
