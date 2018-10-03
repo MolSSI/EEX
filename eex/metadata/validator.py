@@ -4,7 +4,10 @@ Provides helper functions that validate the functional data.
 
 from .. import units
 
-term_requied_fields = ['variables', 'store_name', 'store_indices', 'forms']
+__all__ = ['term_required_fields', 'functional_form_required_fields', 'validate_term_dict','validate_functional_form_dict',
+             'validate_units']
+
+term_required_fields = ['variables', 'store_name', 'store_indices', 'forms']
 functional_form_required_fields = ['form', 'parameters', 'units', 'description']
 
 

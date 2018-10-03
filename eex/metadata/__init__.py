@@ -15,7 +15,7 @@ from .nb_terms import nb_metadata
 from .additional_metadata import box_metadata, exclusions, mixing_rules
 
 # Bring in the helper functions
-from .md_helper import *
+from .md_helper import sanitize_term_order_name, get_atom_metadata, get_term_metadata, get_nb_metadata
 
 # Bring in validation function
 from .validator import *

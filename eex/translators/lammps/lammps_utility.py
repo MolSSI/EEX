@@ -84,6 +84,7 @@ def get_energies(input_file=None, lmp_path=None, unit_style=None):
         if unit_style not in lmd.units_style:
             raise KeyError(" '%s' unit style not recognized" % unit_style)
     else:
+        # TODO - determine is this working as intended? unit_style is never used after this
         unit_style = _extract_unit_style(out)
 
     ret = _group_energy_terms(out)
