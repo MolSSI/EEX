@@ -30,7 +30,6 @@ def read_gromacs_gro_file(dl, gro_folder, ffdir=None):
         raise OSError("GROMACS read: Could not find conf.gro file, expected at '%s'." % conf_fname)
 
     with open(conf_fname, 'r') as conf_file:
-        conf_title = next(conf_file)
         conf_read_size = int(next(conf_file))
 
     reader = pd.read_table(
