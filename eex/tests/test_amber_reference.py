@@ -24,7 +24,12 @@ for test_dir in _test_directories:
         _test_systems.append((path, file_name))
 
 # List current energy tests
-_energy_types = {"two-body" : "bond", "three-body": "angle", "four-body": "dihedral"}
+_energy_types = {
+    "two-body": "bond",
+    "three-body": "angle",
+    "four-body": "dihedral"
+}
+
 
 def test_references(amber_references):
 
@@ -34,10 +39,12 @@ def test_references(amber_references):
     data, dl = eex_build_dl.build_dl("amber", test_dir, molecule)
     dl_energies = dl.evaluate(utype='kcal * mol ** -1')
 
-    reference_file = eex_find_files.get_example_filename("amber", test_dir, "energies.csv")
+    reference_file = eex_find_files.get_example_filename(
+        "amber", test_dir, "energies.csv")
     reference_energies = pd.read_csv(reference_file, header=0)
 
-    reference = reference_energies.loc[reference_energies['molecule'] == molecule]
+    reference = reference_energies.loc[reference_energies['molecule'] ==
+                                       molecule]
 
     for k in _energy_types:
         k_reference = reference[_energy_types[k]].get_values()[0]

@@ -22,8 +22,8 @@ def canonicalize_energy_names(energy_dict, canonical_keys):
 
     """
     # TODO: Look into creating an `EnergyDict` class.
-#    normalized = OrderedDict.fromkeys(canonical_energy_names,
-#                                      0 * units.kilojoules_per_mole)
+    #    normalized = OrderedDict.fromkeys(canonical_energy_names,
+    #                                      0 * units.kilojoules_per_mole)
     ret = dict()
     for key, energy in energy_dict.items():
         canonical_key = canonical_keys.get(key)
@@ -34,6 +34,7 @@ def canonicalize_energy_names(energy_dict, canonical_keys):
                 ret[k] = energy
         else:
             ret[canonical_key] = energy
+
 
 #    if 'Non-bonded' in canonical_keys:
 #        normalized['nonbonded'] = energy_dict['Non-bonded']
@@ -67,7 +68,8 @@ def run_subprocess(cmd, stdout_path, stderr_path, stdin=None):
     """
         General method to run MM codes. Taken from InterMol.
     """
-    proc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    proc = Popen(
+        cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, universal_newlines=True)
     out, err = proc.communicate(input=stdin)
 
     with open(stdout_path, 'a') as stdout, open(stderr_path, 'a') as stderr:
@@ -75,7 +77,9 @@ def run_subprocess(cmd, stdout_path, stderr_path, stdin=None):
         stderr.write(err)
 
     if proc.returncode != 0:
-        raise OSError("Command %s failed. Exit code %d. Error %s. Check file %s" % (cmd, proc.returncode, str(err), stderr_path))
+        raise OSError(
+            "Command %s failed. Exit code %d. Error %s. Check file %s" %
+            (cmd, proc.returncode, str(err), stderr_path))
     return out
 
 
@@ -152,7 +156,8 @@ def _build_hash_string(data, float_fmt):
     if isinstance(data, (str)):
         ret.append(data)
         ret.append(", ")
-    elif isinstance(data, (int, float, np.int, np.int32, np.int64, np.float, np.float32, np.float64)):
+    elif isinstance(data, (int, float, np.int, np.int32, np.int64, np.float,
+                           np.float32, np.float64)):
         ret.append(float_fmt % data)
         ret.append(", ")
     elif isinstance(data, (tuple, list, np.ndarray)):

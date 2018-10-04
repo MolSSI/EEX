@@ -4,7 +4,10 @@ Dictionaries for coeff format and units - http://lammps.sandia.gov/doc/Section_c
 
 nb_styles = {
     "LJ": {
-        "form": {"name": "LJ", "form": "epsilon/sigma"},
+        "form": {
+            "name": "LJ",
+            "form": "epsilon/sigma"
+        },
         "parameters": ["epsilon", "sigma"],
         "units": {
             "epsilon": "[energy]",
@@ -14,7 +17,6 @@ nb_styles = {
     }
 }
 
-
 bond_styles = {
     # "none": {
     #     "form": "NYI",
@@ -23,7 +25,8 @@ bond_styles = {
     #     "description": "NYI"
     # },
     "fene": {
-        "form": "-0.5*K*R0 ** 2*ln(1-(r/R0) ** 2) + 4*epsilon((sigma/r) ** 12 - (sigma/r) ** 6)) + epsilon",
+        "form":
+        "-0.5*K*R0 ** 2*ln(1-(r/R0) ** 2) + 4*epsilon((sigma/r) ** 12 - (sigma/r) ** 6)) + epsilon",
         "parameters": ["K", "R0", "epsilon", "sigma"],
         "units": {
             "K": "[energy] * [length] ** -2",
@@ -31,7 +34,8 @@ bond_styles = {
             "epsilon": "[energy]",
             "sigma": "[length]"
         },
-        "description": "This is a fene bond!"
+        "description":
+        "This is a fene bond!"
     },
     "nonlinear": {
         "form": "(epsilon*(r-r0) ** 2) / (lambda ** 2-(r-r0) ** 2)",
@@ -64,7 +68,8 @@ bond_styles = {
         "This is fene/expand bond"
     },
     "quartic": {
-        "form": "K(r-Rc) ** 2 * (r-Rc-B1)*(r-Rc-B2) + U0 + 4*epsilon*((sigma/r) ** 12 - (sigma/r) ** 6) + epsilon",
+        "form":
+        "K(r-Rc) ** 2 * (r-Rc-B1)*(r-Rc-B2) + U0 + 4*epsilon*((sigma/r) ** 12 - (sigma/r) ** 6) + epsilon",
         "parameters": ["K", "B1", "B2", "Rc", "U0"],
         "units": {
             "K": "[energy] * [length] ** -4",
@@ -73,7 +78,8 @@ bond_styles = {
             "Rc": "[length]",
             "U0": "[energy]"
         },
-        "description": "This is a quartic bond"
+        "description":
+        "This is a quartic bond"
     },
     # "hybrid": {  # Special case - allows for more than one bond type in a simulation
     #     "form": "NYI",
@@ -244,7 +250,8 @@ angle_styles = {
         "description": "This is a fourier potential"
     },
     "quartic": {
-        "form": "K2*(theta-theta0)**2+K3*(theta-theta0)**3+K4*(theta-theta0)**4",
+        "form":
+        "K2*(theta-theta0)**2+K3*(theta-theta0)**3+K4*(theta-theta0)**4",
         "parameters": ["K2", "K3", "K4", "theta0"],
         "units": {
             "K2": "[energy] radian**-2",
@@ -294,11 +301,11 @@ dihedral_styles = {
         "units": {
             "K": "[energy]",
             "n": "count",  # must be type int, no units
-            "d": "degree",  # must be type int. Differs because units must be degree regardless of units command ?
+            "d":
+            "degree",  # must be type int. Differs because units must be degree regardless of units command ?
         },
         "description": "This is a charmm dihedral"
     },
-
     "multiharmonic": {
         "form": "Sum(A_n * (cos(phi))**(n-1))",  # n goes from 1 to 5
         "parameters": ["A_n"],
@@ -372,7 +379,8 @@ dihedral_styles = {
         "description": "This is a nharmonic dihedral"
     },
     "opls": {
-        "form": "0.5*K_1*(1+cos(phi))+0.5*K_2*(1-cos(2*phi))+0.5*K_3+(1+cos(3*phi))+0.5*K_4*(1-cos(4*phi))",
+        "form":
+        "0.5*K_1*(1+cos(phi))+0.5*K_2*(1-cos(2*phi))+0.5*K_3+(1+cos(3*phi))+0.5*K_4*(1-cos(4*phi))",
         "parameters": ["K_1", "K_2", "K_3", "K_4"],
         "units": {
             "K_1": "[energy]",
@@ -380,7 +388,8 @@ dihedral_styles = {
             "K_3": "[energy]",
             "K_4": "[energy]",
         },
-        "description": "This is a opls dihedral"
+        "description":
+        "This is a opls dihedral"
     },
     "quadratic": {
         "form": "K*(phi-phi0)**2",

@@ -270,9 +270,12 @@ output_keywords = {
     },
 }
 
-
 # Possible types of the keyword 'variable' found in the input file
-variable_types = ['delete', 'index', 'loop', 'world', 'universe', 'uloop', 'string', 'format', 'getenv', 'file', 'atomfile', 'python', 'internal', 'equal', 'vector', 'atom']
+variable_types = [
+    'delete', 'index', 'loop', 'world', 'universe', 'uloop', 'string',
+    'format', 'getenv', 'file', 'atomfile', 'python', 'internal', 'equal',
+    'vector', 'atom'
+]
 
 mixing_rules = ["geometric", "arithmetic", "sixthpower"]
 
@@ -366,11 +369,10 @@ exclusions = {
     "additional_keywords": ["angle", "dihedral"]
 }
 
-
 # Possible size keys to look for in the header
 size_keys = [
-    "atoms", "atom types", "bonds", "bond types", "angles", "angle types", "dihedrals", "dihedral types", "impropers",
-    "improper types"
+    "atoms", "atom types", "bonds", "bond types", "angles", "angle types",
+    "dihedrals", "dihedral types", "impropers", "improper types"
 ]
 
 # Units based LAMMPS unit styles (http://lammps.sandia.gov/doc/units.html)
@@ -489,32 +491,52 @@ units_style = {
 
 # Possible atom styles
 atom_style = {
-    "default": "full",
+    "default":
+    "full",
     "angle": ["atom_index", "molecule_index", "atom_type", "X", "Y", "Z"],
     "atomic": ["atom_index", "atom_type", "X", "Y", "Z"],
     "body": ["atom_index", "atom_type", "bodyflag", "mass", "X", "Y", "Z"],
     "bond": ["atom_index", "molecule_index", "atom_type", "X", "Y", "Z"],
     "charge": ["atom_index", "atom_type", "charge", "X", "Y", "Z"],
-    "dipole": ["atom_index", "atom_type", "charge", "X", "Y", "Z", "mux", "muy", "muz"],
+    "dipole":
+    ["atom_index", "atom_type", "charge", "X", "Y", "Z", "mux", "muy", "muz"],
     "dpd": ["atom_index", "atom_type", "theta", "X", "Y", "Z"],
     "edpd": ["atom_index", "atom_type", "edpd_temp", "edpd_cv", "X", "Y", "Z"],
     "mdpd": ["atom_index", "atom_type", "X", "Y", "Z"],
     # "tdpd"    ["atom_index", "atom_type", "X", "Y", "Z", "cc1", "cc2", ccNspecies], #NYI
-    "electron": ["atom_index", "atom_type", "charge", "spin eradius", "X", "Y", "Z"],
-    "ellipsoid": ["atom_index", "atom_type", "ellipsoidflag density", "X", "Y", "Z"],
-    "full": ["atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"],
-    "line": ["atom_index", "molecule_index", "atom_type", "lineflag", "density", "X", "Y", "Z"],
+    "electron":
+    ["atom_index", "atom_type", "charge", "spin eradius", "X", "Y", "Z"],
+    "ellipsoid":
+    ["atom_index", "atom_type", "ellipsoidflag density", "X", "Y", "Z"],
+    "full": [
+        "atom_index", "molecule_index", "atom_type", "charge", "X", "Y", "Z"
+    ],
+    "line": [
+        "atom_index", "molecule_index", "atom_type", "lineflag", "density",
+        "X", "Y", "Z"
+    ],
     "meso": ["atom_index", "atom_type", "rho", "e", "cv", "X", "Y", "Z"],
-    "molecular": ["atom_index", "molecule_index",
-                  "atom_type", "X", "Y", "Z"],
+    "molecular": ["atom_index", "molecule_index", "atom_type", "X", "Y", "Z"],
     "peri": ["atom_index", "atom_type", "volume density", "X", "Y", "Z"],
-    "smd": ["atom_index", "atom_type", "molecule volume", "mass", "kernel_radius", "contact_radius",
-            "X", "Y", "Z"],
-    "sphere": ["atom_index", "atom_type", "diameter", "density", "X", "Y", "Z"],
-    "template": ["atom_index", "molecule_index",
-                 "template_index", "template_atom", "atom_type", "X", "Y", "Z"],
-    "tri": ["atom_index", "molecule_index", "atom_type", "triangleflag", "density", "X", "Y", "Z"],
-    "wavepacket": ["atom_index", "atom_type", "charge", "spin", "eradius", "etag", "cs_re", "cs_im", "X", "Y", "Z"],
+    "smd": [
+        "atom_index", "atom_type", "molecule volume", "mass", "kernel_radius",
+        "contact_radius", "X", "Y", "Z"
+    ],
+    "sphere": [
+        "atom_index", "atom_type", "diameter", "density", "X", "Y", "Z"
+    ],
+    "template": [
+        "atom_index", "molecule_index", "template_index", "template_atom",
+        "atom_type", "X", "Y", "Z"
+    ],
+    "tri": [
+        "atom_index", "molecule_index", "atom_type", "triangleflag", "density",
+        "X", "Y", "Z"
+    ],
+    "wavepacket": [
+        "atom_index", "atom_type", "charge", "spin", "eradius", "etag",
+        "cs_re", "cs_im", "X", "Y", "Z"
+    ],
     # "hybrid":["atom_index", "atom_type", "X", "Y", "Z", "sub-style1 sub-style2 ..."]
 }
 
@@ -560,10 +582,14 @@ _operation_table = {
         "call_type": "single",
     },
     "Dihedrals": {
-        "size": "dihedrals",
-        "dl_func": "add_dihedrals",
-        "df_cols": ["dihedral_index", "term_index", "atom1", "atom2", "atom3", "atom4"],
-        "call_type": "single",
+        "size":
+        "dihedrals",
+        "dl_func":
+        "add_dihedrals",
+        "df_cols":
+        ["dihedral_index", "term_index", "atom1", "atom2", "atom3", "atom4"],
+        "call_type":
+        "single",
     },
     "Impropers": {
         "size": "impropers",
@@ -585,7 +611,6 @@ _operation_table = {
             "utype": None
         }
     },
-
     "PairIJ Coeffs": {
         "size": "pair types",
         "n_uids": 2,
@@ -670,9 +695,13 @@ def build_operation_table(extra_simulation_data, size_dict):
             v["kwargs"]["utype"] = aunits
 
         # Supply bond types, angle types, dihedral types
-        if ("args" in v) and ("style_keyword" in v["args"]) and (v["args"]["style_keyword"] in ["bond_style", "angle_style", "dihedral_style"]):
+        if ("args" in v) and ("style_keyword" in v["args"]) and (
+                v["args"]["style_keyword"] in [
+                    "bond_style", "angle_style", "dihedral_style"
+                ]):
             if (v["args"]["style_keyword"] in extra_simulation_data.keys()):
-                v["args"]["style_keyword"] = extra_simulation_data[v["args"]["style_keyword"]]
+                v["args"]["style_keyword"] = extra_simulation_data[
+                    v["args"]["style_keyword"]]
 
         # Supply atom style
         if "df_cols" in v and "atom_style" in v["df_cols"]:
@@ -731,6 +760,7 @@ def build_prop_table(utype):
         utype = eex.units.convert_contexts(v['units'], ustyle)
         v['utype'] = utype
     return ret
+
 
 # if __name__ == "__main__":
 #     from eex.units import ureg

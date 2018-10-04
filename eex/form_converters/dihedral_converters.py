@@ -16,7 +16,7 @@ def _alternating_signs(n):
     if (n < 0.0):
         raise ValueError("Argument has to be zero or a positive integer")
 
-    return (-1.0) ** n
+    return (-1.0)**n
 
 
 def _cosnx(n):
@@ -50,7 +50,8 @@ def _cosx_n(n):
 @register_converter(order=4)
 def _RB_to_RB(coeffs):
     if not isinstance(coeffs, dict):
-        raise TypeError("RB to RB dihedral conversion requires an input dictionary")
+        raise TypeError(
+            "RB to RB dihedral conversion requires an input dictionary")
 
     return coeffs
 
@@ -64,15 +65,18 @@ def _opls_to_RB(coeffs):
     """
 
     if not isinstance(coeffs, dict):
-        raise TypeError("OPLS to RB dihedral conversion requires an input dictionary")
+        raise TypeError(
+            "OPLS to RB dihedral conversion requires an input dictionary")
 
     k_1 = coeffs['K_1']
     k_2 = coeffs['K_2']
     k_3 = coeffs['K_3']
     k_4 = coeffs['K_4']
 
-    if(k_1 == 0.0 and k_2 == 0.0 and k_3 == 0.0 and k_4 == 0.0):
-        raise ValueError('OPLS to RB dihedral conversion not possible. All the coefficients of this dihedral are zero.')
+    if (k_1 == 0.0 and k_2 == 0.0 and k_3 == 0.0 and k_4 == 0.0):
+        raise ValueError(
+            'OPLS to RB dihedral conversion not possible. All the coefficients of this dihedral are zero.'
+        )
 
     ret = dict()
     # Note: c1 and c3 are the negative of what is defined on equation 4.64 of Gromacs Manual 4.6.1
@@ -90,7 +94,8 @@ def _opls_to_RB(coeffs):
 def _RB_to_opls(coeffs):
 
     if not isinstance(coeffs, dict):
-        raise TypeError("RB to OPLS dihedral conversion requires an input dictionary")
+        raise TypeError(
+            "RB to OPLS dihedral conversion requires an input dictionary")
 
     a_0 = coeffs['A_0']
     a_1 = coeffs['A_1']
@@ -101,11 +106,16 @@ def _RB_to_opls(coeffs):
 
     ret = dict()
 
-    if(a_0 == 0.0 and a_1 == 0.0 and a_2 == 0.0 and a_3 == 0.0 and a_4 == 0.0 and a_5 == 0.0):
-        raise ValueError('OPLS to RB dihedral conversion not possible. All the coefficients of this dihedral are zero.')
+    if (a_0 == 0.0 and a_1 == 0.0 and a_2 == 0.0 and a_3 == 0.0 and a_4 == 0.0
+            and a_5 == 0.0):
+        raise ValueError(
+            'OPLS to RB dihedral conversion not possible. All the coefficients of this dihedral are zero.'
+        )
 
     if (a_5 != 0.0 and a_1 + a_2 + a_3 + a_4 != 0.0):
-        raise ValueError("RB to OPLS dihedral conversion not possible. This RB dihedral is inconsistent with OPLS style")
+        raise ValueError(
+            "RB to OPLS dihedral conversion not possible. This RB dihedral is inconsistent with OPLS style"
+        )
 
     # note - f1 and f3 are opposite sign as expected in GROMACS, probably because of angle conventions.
     ret['K_1'] = 2.0 * a_1 + 3.0 * a_3 / 2.0
@@ -119,7 +129,8 @@ def _RB_to_opls(coeffs):
 def _charmmfsw_to_RB(coeffs):
 
     if not isinstance(coeffs, dict):
-        raise TypeError("CHARMM to RB dihedral conversion requires an input dictionary")
+        raise TypeError(
+            "CHARMM to RB dihedral conversion requires an input dictionary")
 
     tmp = np.zeros(6)
     n = coeffs['n']
@@ -127,21 +138,31 @@ def _charmmfsw_to_RB(coeffs):
     k = coeffs['K']
 
     if n > 5:
-        raise ValueError("CHARMM to RB dihedral conversion not possible. The multiplicity value n in the CHARMM dihedral must be less than 5")
+        raise ValueError(
+            "CHARMM to RB dihedral conversion not possible. The multiplicity value n in the CHARMM dihedral must be less than 5"
+        )
 
     if n < 0:
-        raise ValueError("CHARMM to RB dihedral conversion not possible. The multiplicity must be a positive integer.")
+        raise ValueError(
+            "CHARMM to RB dihedral conversion not possible. The multiplicity must be a positive integer."
+        )
     # Make sure d is either 0.0, pi, 2pi, 3pi, 4pi.
     # TODO: Need to generalize for other values of d.
 
     if n == 0 and d % np.pi == 0:
-        raise ValueError("CHARMM to RB dihedral conversion not possible. The CHARMM dihedral energy is zero.")
+        raise ValueError(
+            "CHARMM to RB dihedral conversion not possible. The CHARMM dihedral energy is zero."
+        )
 
     if k == 0:
-        raise ValueError("CHARMM to RB dihedral conversion not possible. The CHARMM dihedral energy is zero.")
+        raise ValueError(
+            "CHARMM to RB dihedral conversion not possible. The CHARMM dihedral energy is zero."
+        )
 
     if not np.isclose(d % np.pi, 0.0):
-        raise ValueError("CHARMM to RB dihedral conversion not possible. The CHARMM phase shift d is not a multiple of PI.")
+        raise ValueError(
+            "CHARMM to RB dihedral conversion not possible. The CHARMM phase shift d is not a multiple of PI."
+        )
 
     div = np.abs(d / np.pi)
     p = list(_alternating_signs(div) * _cosnx(n))
@@ -162,7 +183,8 @@ def _RB_to_charmmfsw(coeffs):
     # TODO Need more efficient way to do this conversion
 
     if not isinstance(coeffs, dict):
-        raise TypeError("RB to CHARMM dihedral conversion requires an input dictionary")
+        raise TypeError(
+            "RB to CHARMM dihedral conversion requires an input dictionary")
 
     a_0 = coeffs['A_0']
     a_1 = coeffs['A_1']
@@ -174,7 +196,7 @@ def _RB_to_charmmfsw(coeffs):
     # TODO probably we need a more efficient way of doing this
     rb_coeffs = np.array([a_0, a_1, a_2, a_3, a_4, a_5])
 
-    if(np.all(rb_coeffs == 0)):
+    if (np.all(rb_coeffs == 0)):
         raise ValueError('All the coefficients of this dihedral are zero.')
 
     nz = np.nonzero(rb_coeffs)

@@ -151,7 +151,12 @@ _two_body_functional_forms = {
 two_body_metadata = {}
 
 # Valid variables used in all two-body terms
-two_body_metadata["variables"] = {"r": {"units": "[length]", "description": "Distance between the two indexed atoms."}}
+two_body_metadata["variables"] = {
+    "r": {
+        "units": "[length]",
+        "description": "Distance between the two indexed atoms."
+    }
+}
 
 _inverted_two_body_conversion = dict()
 for k, v in _two_body_functional_forms.items():

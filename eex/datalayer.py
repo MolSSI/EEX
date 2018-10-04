@@ -20,7 +20,11 @@ APC_DICT = metadata.atom_property_to_column
 
 
 class DataLayer(object):
-    def __init__(self, name, store_location=None, save_data=False, backend="Memory"):
+    def __init__(self,
+                 name,
+                 store_location=None,
+                 save_data=False,
+                 backend="Memory"):
         """
         Initializes the DataLayer class
 
@@ -44,7 +48,8 @@ class DataLayer(object):
         if self.store_location is None:
             self.store_location = os.getcwd()
 
-        self.store = filelayer.build_store(backend, self.name, self.store_location, save_data)
+        self.store = filelayer.build_store(backend, self.name,
+                                           self.store_location, save_data)
 
         # Setup empty term holder
         self._terms = {order: {} for order in [2, 3, 4]}
@@ -83,7 +88,8 @@ class DataLayer(object):
         try:
             func = getattr(self, args[0])
         except AttributeError:
-            raise AttributeError("DataLayer:call_by_string: does not have method %s." % args[0])
+            raise AttributeError(
+                "DataLayer:call_by_string: does not have method %s." % args[0])
 
         return func(*args[1:], **kwargs)
 
@@ -98,13 +104,18 @@ class DataLayer(object):
         """
         Lists tables loaded into the store.
         """
-        return [x for x in self.store.list_tables() if not x.startswith("other_")]
+        return [
+            x for x in self.store.list_tables() if not x.startswith("other_")
+        ]
 
     def list_other_tables(self):
         """
         Lists "other" tables loaded into the store.
         """
-        return [x.replace("other_", "") for x in self.store.list_tables() if x.startswith("other_")]
+        return [
+            x.replace("other_", "") for x in self.store.list_tables()
+            if x.startswith("other_")
+        ]
 
     def set_mixing_rule(self, mixing_rule):
         """
@@ -118,7 +129,8 @@ class DataLayer(object):
 
         """
         if not isinstance(mixing_rule, str):
-            raise TypeError("Validate mixing rule: %s is not a string" % mixing_rule)
+            raise TypeError(
+                "Validate mixing rule: %s is not a string" % mixing_rule)
 
         mixing_metadata = metadata.mixing_rules
 
@@ -149,7 +161,6 @@ class DataLayer(object):
 
         self._set_box(keyword="center", data=box_center, utype=utype)
 
-
     def get_box_center(self, utype=None):
         """
         Gets the overall size of the box for the datalayer
@@ -158,7 +169,6 @@ class DataLayer(object):
         """
 
         return self._get_box(keyword="center", utype=utype)
-
 
     def set_box_size(self, lattice_const, utype=None):
         """
@@ -181,7 +191,8 @@ class DataLayer(object):
 
         """
 
-        return self._set_box(keyword='dimensions', data=lattice_const, utype=utype)
+        return self._set_box(
+            keyword='dimensions', data=lattice_const, utype=utype)
 
     def _set_box(self, keyword, data, utype):
         """
@@ -192,7 +203,9 @@ class DataLayer(object):
 
         # Check keyword
         if keyword not in ['center', 'dimensions']:
-            raise ValueError('_set_box keyword %s not valid. Must be "center" or "dimensions"' % keyword)
+            raise ValueError(
+                '_set_box keyword %s not valid. Must be "center" or "dimensions"'
+                % keyword)
 
         # Get box metadata
         box_metadata = metadata.box_metadata
@@ -205,7 +218,9 @@ class DataLayer(object):
 
         if utype is not None:
             if not isinstance(utype, dict):
-                raise TypeError("Validate term dict: Unit type '%s' not understood" % str(type(utype)))
+                raise TypeError(
+                    "Validate term dict: Unit type '%s' not understood" % str(
+                        type(utype)))
 
             # Convert to internal units
             for k, v in dimensions.items():
@@ -229,7 +244,9 @@ class DataLayer(object):
 
         # Check keyword
         if keyword not in ['center', 'dimensions']:
-            raise ValueError('_get_box keyword %s not valid. Must be "center" or "dimensions"' % keyword)
+            raise ValueError(
+                '_get_box keyword %s not valid. Must be "center" or "dimensions"'
+                % keyword)
 
         if keyword == 'center':
             ret = copy.deepcopy(self._box_center)
@@ -242,7 +259,9 @@ class DataLayer(object):
 
         if utype is not None and ret:
             if not isinstance(utype, dict):
-                raise TypeError("Validate term dict: Unit type '%s' not understood" % str(type(utype)))
+                raise TypeError(
+                    "Validate term dict: Unit type '%s' not understood" % str(
+                        type(utype)))
 
             # Convert to internal units
             for k, v in dimensions.items():
@@ -263,7 +282,6 @@ class DataLayer(object):
         """
 
         return self._get_box(keyword="dimensions", utype=utype)
-
 
     def set_nb_scaling_factors(self, nb_scaling_factors):
         """
@@ -287,7 +305,9 @@ class DataLayer(object):
         }
         """
         if not isinstance(nb_scaling_factors, dict):
-            raise TypeError("Exclusion information cannot be validated as dictionary '%s'" % str(type(nb_scaling_factors)))
+            raise TypeError(
+                "Exclusion information cannot be validated as dictionary '%s'"
+                % str(type(nb_scaling_factors)))
 
         exclusions_metadata = metadata.exclusions
         # Make sure we have all keywords
@@ -298,7 +318,8 @@ class DataLayer(object):
         for ok, ov in nb_scaling_factors.items():
             for k, v in ov.items():
                 if v > 1.0 or v < 0.0:
-                    raise ValueError("Exclusion value outside bounds '%s'." % v)
+                    raise ValueError(
+                        "Exclusion value outside bounds '%s'." % v)
 
         self._nb_scaling_factors = nb_scaling_factors
 
@@ -329,7 +350,7 @@ class DataLayer(object):
         scale_template = metadata.additional_metadata.exclusions.copy()
 
         # Make all values in this template 0 (in case not overwritten)
-        for k,v in scale_template.items():
+        for k, v in scale_template.items():
             for scale_type, value in v.items():
                 scale_template[k][scale_type] = 0
 
@@ -338,7 +359,8 @@ class DataLayer(object):
             for order in [2, 3, 4]:
                 scale_kw = "scale1%s" % (order)
                 order_scalings = pair_scalings[pair_scalings["order"] == order]
-                scale_values = np.unique(order_scalings[scaling_type + "_scale"].values)
+                scale_values = np.unique(
+                    order_scalings[scaling_type + "_scale"].values)
 
                 # If there is a single value and
                 if len(scale_values) == 1 and not scf:
@@ -347,10 +369,14 @@ class DataLayer(object):
                 elif len(scale_values) == 1 and scf:
 
                     if scf[scaling_type][scale_kw] != scale_values[0]:
-                        raise ValueError("Scaling factor set in data layer (%s - %s) does not match stored pair scalings "
-                                         "(%s - %s" %(scale_kw, scf[scaling_type][scale_kw], scale_kw, scf[scaling_type][scale_kw]))
+                        raise ValueError(
+                            "Scaling factor set in data layer (%s - %s) does not match stored pair scalings "
+                            "(%s - %s" %
+                            (scale_kw, scf[scaling_type][scale_kw], scale_kw,
+                             scf[scaling_type][scale_kw]))
                     else:
-                        scale_template[scaling_type][scale_kw] = scale_values[0]
+                        scale_template[scaling_type][scale_kw] = scale_values[
+                            0]
 
                 elif len(scale_values) == 0:
                     # This corresponds to the case where there are no interactions of this order (for example, water would have
@@ -359,9 +385,10 @@ class DataLayer(object):
                     scale_template[scaling_type][scale_kw] = 0
 
                 else:
-                    raise ValueError("Nonbond scaling factors cannot be set because there is more than one value for"
-                                     " scaling type %s, with order %s" %(scaling_type, order))
-
+                    raise ValueError(
+                        "Nonbond scaling factors cannot be set because there is more than one value for"
+                        " scaling type %s, with order %s" % (scaling_type,
+                                                             order))
 
         self.set_nb_scaling_factors(scale_template)
 
@@ -387,19 +414,26 @@ class DataLayer(object):
         Returns: bool
             True if successful
         """
-        possible_columns = [y for x in metadata.additional_metadata.nb_scaling.values() for y in x]
+        possible_columns = [
+            y for x in metadata.additional_metadata.nb_scaling.values()
+            for y in x
+        ]
         # Check the columns of the dataframe
         for col in scaling_df.columns:
             if col not in possible_columns:
-                raise KeyError("Column '%s' not recognized in set_pair_scalings." % (col))
+                raise KeyError(
+                    "Column '%s' not recognized in set_pair_scalings." % (col))
 
         # Check to make sure atom_type1 and atom_type2 are set in dataframe
         for col in metadata.additional_metadata.nb_scaling["index"]:
             if col not in scaling_df.columns:
-                raise KeyError("%s not found in scaling dataframe (set_pair_scalings)" % (col))
+                raise KeyError(
+                    "%s not found in scaling dataframe (set_pair_scalings)" %
+                    (col))
 
             if not np.issubdtype(scaling_df[col].dtype, np.integer):
-                raise TypeError("%s column is type %s. Should be integer" % (col, scaling_df[col].dtype))
+                raise TypeError("%s column is type %s. Should be integer" %
+                                (col, scaling_df[col].dtype))
 
         # Make sure at least one scaling factor is set
         if len(scaling_df.columns) < 3:
@@ -407,7 +441,8 @@ class DataLayer(object):
 
         # Check that scalings are type float
         # Build multi-level indexer
-        index = pd.MultiIndex.from_arrays([scaling_df["atom_index1"], scaling_df["atom_index2"]])
+        index = pd.MultiIndex.from_arrays(
+            [scaling_df["atom_index1"], scaling_df["atom_index2"]])
 
         for l in metadata.additional_metadata.nb_scaling["scaling_type"]:
             if l in scaling_df.columns:
@@ -416,7 +451,10 @@ class DataLayer(object):
 
         return True
 
-    def get_pair_scalings(self, nb_labels=metadata.additional_metadata.nb_scaling["scaling_type"], order=True):
+    def get_pair_scalings(
+            self,
+            nb_labels=metadata.additional_metadata.nb_scaling["scaling_type"],
+            order=True):
         """
         Get scaling factor for nonbond interaction between two atoms. If order is True, the term order between the two
         atoms is returned. i.e. - bonded atoms have order 2, atoms in angle (atom 1 & atom 3) have order 3.
@@ -432,7 +470,8 @@ class DataLayer(object):
         """
 
         for k in nb_labels:
-            if k not in metadata.additional_metadata.nb_scaling["scaling_type"]:
+            if k not in metadata.additional_metadata.nb_scaling[
+                    "scaling_type"]:
                 raise KeyError("%s is not a valid nb_scale type" % (k))
 
         rlist = []
@@ -450,7 +489,8 @@ class DataLayer(object):
             atom_pairs = ret.index.values
             pair_order = []
 
-            pair_order.append([self.query_atom_pair(x[0], x[1]) for x in atom_pairs])
+            pair_order.append(
+                [self.query_atom_pair(x[0], x[1]) for x in atom_pairs])
 
             ret['order'] = pair_order[0]
 
@@ -463,7 +503,8 @@ class DataLayer(object):
         scaling_factors = self.get_nb_scaling_factors()
 
         if not scaling_factors:
-            raise ValueError("Can not build scaling list, nb_scale_factors not set")
+            raise ValueError(
+                "Can not build scaling list, nb_scale_factors not set")
 
         for k, v in scaling_factors.items():
             for scale, val in v.items():
@@ -496,7 +537,8 @@ class DataLayer(object):
         """
         property_name = property_name.lower()
         if property_name not in metadata.atom_metadata:
-            raise Exception("DataLayer: Atom property %s is not valid." % property_name)
+            raise Exception(
+                "DataLayer: Atom property %s is not valid." % property_name)
 
         return property_name
 
@@ -530,7 +572,8 @@ class DataLayer(object):
             if gb_hash not in param_dict["uvals"]:
 
                 # Bidirectional dictionary
-                new_key = utility.find_lowest_hole(list(param_dict["inv_uvals"]))
+                new_key = utility.find_lowest_hole(
+                    list(param_dict["inv_uvals"]))
                 param_dict["uvals"][gb_hash] = new_key
                 param_dict["inv_uvals"][new_key] = gb_dict
 
@@ -548,7 +591,8 @@ class DataLayer(object):
         param_dict = self._atom_metadata[property_name]
 
         cols = field_data["required_columns"]
-        ret_df = pd.DataFrame(index=df.index, columns=cols, dtype=field_data["dtype"])
+        ret_df = pd.DataFrame(
+            index=df.index, columns=cols, dtype=field_data["dtype"])
         for gb_idx, udf in df.groupby(cols):
             gb_dict = param_dict["inv_uvals"][gb_idx]
             for col in cols:
@@ -567,7 +611,8 @@ class DataLayer(object):
                 utype = {field_data["required_columns"][0]: utype}
         return utype
 
-    def _store_atom_table(self, table_name, df, property_name, by_value, utype):
+    def _store_atom_table(self, table_name, df, property_name, by_value,
+                          utype):
         """
         Internal way to store atom tables
         """
@@ -575,7 +620,8 @@ class DataLayer(object):
         field_data = metadata.atom_metadata[property_name]
 
         # Figure out unit scaling factors
-        if by_value and (field_data["units"] is not None) and (utype is not None):
+        if by_value and (field_data["units"] is not None) and (utype is
+                                                               not None):
             utype = self._parse_atom_utype(property_name, utype)
             cf = units.conversion_dict(utype, field_data["utype"])
             df = df[field_data["required_columns"]] * pd.Series(cf)
@@ -604,14 +650,20 @@ class DataLayer(object):
 
         # Figure out unit scaling factors
         field_data = metadata.atom_metadata[property_name]
-        if by_value and (field_data["units"] is not None) and (utype is not None):
+        if by_value and (field_data["units"] is not None) and (utype is
+                                                               not None):
             utype = self._parse_atom_utype(property_name, utype)
             cf = units.conversion_dict(field_data["utype"], utype)
             tmp[field_data["required_columns"]] *= pd.Series(cf)
 
         return tmp
 
-    def add_atom_parameter(self, property_name, value, uid=None, utype=None, allow_duplicates=False):
+    def add_atom_parameter(self,
+                           property_name,
+                           value,
+                           uid=None,
+                           utype=None,
+                           allow_duplicates=False):
         """
         Adds atom parameters to the Datalayer object
 
@@ -654,20 +706,28 @@ class DataLayer(object):
 
         # Parse value
         if not isinstance(value, (int, float, dict)):
-            raise TypeError("DataLayer:add_atom_parameter: Did not understand input type '%s'." % str(type(value)))
+            raise TypeError(
+                "DataLayer:add_atom_parameter: Did not understand input type '%s'."
+                % str(type(value)))
 
         if isinstance(value, (int, float)):
             req_cols = field_data["required_columns"]
             if len(req_cols) != 1:
-                raise TypeError("DataLayer:add_atom_parameter: Expected %d values, only recieved one." % len(req_cols))
+                raise TypeError(
+                    "DataLayer:add_atom_parameter: Expected %d values, only recieved one."
+                    % len(req_cols))
             value = {req_cols[0]: value}
 
         if (utype is not None) and not isinstance(utype, dict):
             utype = {field_data["required_columns"][0]: utype}
 
         # if (utype is not None) and (field_data["units"] is not None):
-        tmp = {"parameters": field_data["required_columns"], "utype": field_data["utype"]}
-        value = metadata.validate_term_dict(property_name, tmp, value, utype=utype)
+        tmp = {
+            "parameters": field_data["required_columns"],
+            "utype": field_data["utype"]
+        }
+        value = metadata.validate_term_dict(
+            property_name, tmp, value, utype=utype)
         value = {k: v for k, v in zip(field_data["required_columns"], value)}
 
         # Round the floats
@@ -713,30 +773,38 @@ class DataLayer(object):
 
         property_name = self._check_atoms_dict(property_name)
         if metadata.atom_metadata[property_name]["unique"]:
-            raise KeyError("DataLayer:get_atom_parameter: '%s' is not stored as unique values." % property_name)
+            raise KeyError(
+                "DataLayer:get_atom_parameter: '%s' is not stored as unique values."
+                % property_name)
 
         if not uid in self._atom_metadata[property_name]["inv_uvals"]:
-            raise KeyError("DataLayer:get_atom_parameter: property '%s' key '%d' not found." % (property_name, uid))
+            raise KeyError(
+                "DataLayer:get_atom_parameter: property '%s' key '%d' not found."
+                % (property_name, uid))
         field_data = metadata.atom_metadata[property_name]
         req_fields = field_data["required_columns"]
 
-        data = copy.deepcopy(self._atom_metadata[property_name]["inv_uvals"][uid])
+        data = copy.deepcopy(
+            self._atom_metadata[property_name]["inv_uvals"][uid])
 
         # Handle utype
         if utype is not None:
             if field_data["units"] is None:
                 raise TypeError(
-                    "DataLayer:get_atom_parameter: property '%s' does not have units, but `utype` was passed in.")
+                    "DataLayer:get_atom_parameter: property '%s' does not have units, but `utype` was passed in."
+                )
 
             if not isinstance(utype, dict):
                 if len(req_fields) > 1:
                     raise TypeError(
-                        "DataLayer:get_atom_parameter: unit order can not be interpreted for more than one field.")
+                        "DataLayer:get_atom_parameter: unit order can not be interpreted for more than one field."
+                    )
                 utype = {req_fields[0]: utype}
 
             if set(field_data["utype"]) != set(utype):
-                raise KeyError("DataLayer:get_atom_paramter: required units '%s' does not match input units '%s'." %
-                               (str(list(field_data["utype"])), str(list(utype))))
+                raise KeyError(
+                    "DataLayer:get_atom_paramter: required units '%s' does not match input units '%s'."
+                    % (str(list(field_data["utype"])), str(list(utype))))
 
             for k, v in field_data["utype"].items():
                 data[k] *= units.conversion_factor(v, utype[k])
@@ -765,7 +833,9 @@ class DataLayer(object):
         if property_name in self._atom_counts:
             return self._atom_counts[property_name]
         else:
-            raise KeyError("DataLayer:get_atom_count: property_name `%s` not understood" % property_name)
+            raise KeyError(
+                "DataLayer:get_atom_count: property_name `%s` not understood" %
+                property_name)
 
     def get_bond_count(self):
         return len(self.get_bonds())
@@ -788,7 +858,9 @@ class DataLayer(object):
         if not metadata.atom_metadata[property_name]["unique"]:
             return list(self._atom_metadata[property_name]["inv_uvals"])
         else:
-            raise KeyError("DataLayer:list_atom_uids: '%s' is not stored as unique values." % property_name)
+            raise KeyError(
+                "DataLayer:list_atom_uids: '%s' is not stored as unique values."
+                % property_name)
 
     def add_atoms(self, atom_df, by_value=False, utype=None):
         """
@@ -823,13 +895,17 @@ class DataLayer(object):
 
         # Validate DataFrame
         if not isinstance(atom_df, pd.DataFrame):
-            raise KeyError("DataLayer:add_atoms: Data type '%s' not understood." % type(atom_df))
+            raise KeyError(
+                "DataLayer:add_atoms: Data type '%s' not understood." %
+                type(atom_df))
 
         if index in atom_df.columns:
             atom_df = atom_df.set_index(index, drop=True)
 
         if atom_df.index.name != index:
-            raise KeyError("DataLayer:add_atoms: DF index must be the `atom_index` not '%s'." % atom_df.index.name)
+            raise KeyError(
+                "DataLayer:add_atoms: DF index must be the `atom_index` not '%s'."
+                % atom_df.index.name)
 
         if utype is None:
             utype = {}
@@ -850,8 +926,9 @@ class DataLayer(object):
                 self._store_atom_table(k, atom_df, k, by_value, uval)
                 found_one = True
         if not found_one:
-            raise Exception("DataLayer:add_atom: No data was added as no key was matched from input columns:\n%s" %
-                            (" " * 11 + str(atom_df.columns)))
+            raise Exception(
+                "DataLayer:add_atom: No data was added as no key was matched from input columns:\n%s"
+                % (" " * 11 + str(atom_df.columns)))
 
         return True
 
@@ -887,7 +964,9 @@ class DataLayer(object):
 
         if not set(properties) <= set(list(valid_properties)):
             invalid_props = set(properties) - set(list(valid_properties))
-            raise KeyError("DataLayer:add_atoms: Property name(s) '%s' not recognized." % str(list(invalid_props)))
+            raise KeyError(
+                "DataLayer:add_atoms: Property name(s) '%s' not recognized." %
+                str(list(invalid_props)))
 
         if utype is None:
             utype = {}
@@ -914,7 +993,12 @@ class DataLayer(object):
 
 # Term functions
 
-    def add_term_parameter(self, order, term_name, term_parameters, uid=None, utype=None):
+    def add_term_parameter(self,
+                           order,
+                           term_name,
+                           term_parameters,
+                           uid=None,
+                           utype=None):
         """
         Adds parameters for a given fuctional form.
 
@@ -952,11 +1036,13 @@ class DataLayer(object):
         try:
             term_md = metadata.get_term_metadata(order, "forms", term_name)
         except KeyError:
-            raise KeyError("DataLayer:add_parameters: Did not understand term order: %d, name: %s'." % (order,
-                                                                                                        term_name))
+            raise KeyError(
+                "DataLayer:add_parameters: Did not understand term order: %d, name: %s'."
+                % (order, term_name))
 
         # Validate and converate data as needed
-        params = metadata.validate_term_dict(term_name, term_md, term_parameters, utype=utype)
+        params = metadata.validate_term_dict(
+            term_name, term_md, term_parameters, utype=utype)
 
         # First we check if we already have it
         found_key = None
@@ -986,15 +1072,18 @@ class DataLayer(object):
 
             if not isinstance(uid, int):
                 raise TypeError(
-                    "DataLayer:add_term_parameter: uid keyword must be of type int, found type '%s'." % type(uid))
+                    "DataLayer:add_term_parameter: uid keyword must be of type int, found type '%s'."
+                    % type(uid))
 
             # If we exist this could get dangerous
             if uid in self._terms[order]:
                 old_param = self._terms[order][uid]
-                match = (old_param[0] == term_name) and np.allclose(old_param[1:], params)
+                match = (old_param[0] == term_name) and np.allclose(
+                    old_param[1:], params)
                 if not match:
                     raise KeyError(
-                        "DataLayer:add_term_parameter: uid already exists, but does not much current parameters.")
+                        "DataLayer:add_term_parameter: uid already exists, but does not much current parameters."
+                    )
                 else:
                     return uid
 
@@ -1013,7 +1102,8 @@ class DataLayer(object):
         order = metadata.sanitize_term_order_name(order)
 
         if uid not in self._terms[order]:
-            raise KeyError("DataLayer:get_parameters: Did not find term '%d %d" % (order, uid))
+            raise KeyError("DataLayer:get_parameters: Did not find term '%d %d"
+                           % (order, uid))
 
         # Stored as [term_name, parameters...]
         data = self._terms[order][uid]
@@ -1029,46 +1119,69 @@ class DataLayer(object):
 
         elif utype is None and ftype is not None:
             if not isinstance(ftype, str):
-                raise TypeError("DataLayer:get_parameters: Input ftype '%s' is not understood." % str(type(ftype)))
+                raise TypeError(
+                    "DataLayer:get_parameters: Input ftype '%s' is not understood."
+                    % str(type(ftype)))
 
-            parameters = form_converters.convert_form(order, parameters, data[0], ftype)
+            parameters = form_converters.convert_form(order, parameters,
+                                                      data[0], ftype)
 
         elif utype is not None and ftype is None:
 
             if isinstance(utype, (list, tuple)):
                 if len(utype) != len(term_md["parameters"]):
-                    raise KeyError("DataLayer:get_parameters: length of utype should match the length of parameters.")
+                    raise KeyError(
+                        "DataLayer:get_parameters: length of utype should match the length of parameters."
+                    )
                 utype = {k: v for k, v in zip(term_md["parameters"], utype)}
 
             if not isinstance(utype, dict):
-                raise TypeError("DataLayer:get_parameters: Input utype '%s' is not understood." % str(type(utype)))
+                raise TypeError(
+                    "DataLayer:get_parameters: Input utype '%s' is not understood."
+                    % str(type(utype)))
 
             if (set(term_md["parameters"]) != set(utype.keys())):
-                raise KeyError("DataLayer:get_parameters: Utype and ftype keys are not consistent")
+                raise KeyError(
+                    "DataLayer:get_parameters: Utype and ftype keys are not consistent"
+                )
 
             for key in term_md["parameters"]:
-                parameters[key] *= units.conversion_factor(term_md["utype"][key], utype[key])
+                parameters[key] *= units.conversion_factor(
+                    term_md["utype"][key], utype[key])
 
             ftype = data[0]
         else:
             if not isinstance(ftype, str):
-                raise TypeError("DataLayer:get_parameters: Input ftype '%s' is not understood." % str(type(ftype)))
+                raise TypeError(
+                    "DataLayer:get_parameters: Input ftype '%s' is not understood."
+                    % str(type(ftype)))
 
             term_md_ftype = metadata.get_term_metadata(order, "forms", ftype)
-            parameters = form_converters.convert_form(order, parameters, data[0], ftype)
+            parameters = form_converters.convert_form(order, parameters,
+                                                      data[0], ftype)
             if isinstance(utype, (list, tuple)):
                 if len(utype) != len(term_md_ftype["parameters"]):
-                    raise KeyError("DataLayer:get_parameters: length of utype should match the length of parameters.")
-                utype = {k: v for k, v in zip(term_md_ftype["parameters"], utype)}
+                    raise KeyError(
+                        "DataLayer:get_parameters: length of utype should match the length of parameters."
+                    )
+                utype = {
+                    k: v
+                    for k, v in zip(term_md_ftype["parameters"], utype)
+                }
 
             if not isinstance(utype, dict):
-                raise TypeError("DataLayer:get_parameters: Input utype '%s' is not understood." % str(type(utype)))
+                raise TypeError(
+                    "DataLayer:get_parameters: Input utype '%s' is not understood."
+                    % str(type(utype)))
 
             if (set(term_md_ftype["parameters"]) != set(utype.keys())):
-                raise KeyError("DataLayer:get_parameters: Utype and ftype keys are not consistent")
+                raise KeyError(
+                    "DataLayer:get_parameters: Utype and ftype keys are not consistent"
+                )
 
             for key in term_md_ftype["parameters"]:
-                parameters[key] *= units.conversion_factor(term_md_ftype["utype"][key], utype[key])
+                parameters[key] *= units.conversion_factor(
+                    term_md_ftype["utype"][key], utype[key])
 
         return ftype, parameters
 
@@ -1115,17 +1228,19 @@ class DataLayer(object):
 
         # Check that uid is int and exists in dl.
         if uid not in self._terms[order]:
-            raise KeyError("No terms with order %s and uid %s exist" % (order, uid))
+            raise KeyError(
+                "No terms with order %s and uid %s exist" % (order, uid))
 
         # Check that term count for uid is 0 (shouldn't really be removing if this isn't true)
         if uid in self.get_term_count(order):
-            raise ValueError("Terms for order %s and uid %s exist in datalayer. Term parameter cannot be removed" %(order, uid))
+            raise ValueError(
+                "Terms for order %s and uid %s exist in datalayer. Term parameter cannot be removed"
+                % (order, uid))
 
         # Remove (just delete this key out of _terms dict)
         del self._terms[order][uid]
 
         return True
-
 
     def list_term_uids(self, order=None):
         """
@@ -1196,13 +1311,17 @@ class DataLayer(object):
 
         order = metadata.sanitize_term_order_name(order)
         if order not in list(self._terms):
-            raise KeyError("DataLayer:add_terms: Did not understand order key '%s'." % str(order))
+            raise KeyError(
+                "DataLayer:add_terms: Did not understand order key '%s'." %
+                str(order))
 
         req_cols = metadata.get_term_metadata(order, "index_columns")
 
         not_found = set(req_cols) - set(df.columns)
         if not_found:
-            raise KeyError("DataLayer:add_terms: Missing required columns '%s' for order %d" % (str(not_found), order))
+            raise KeyError(
+                "DataLayer:add_terms: Missing required columns '%s' for order %d"
+                % (str(not_found), order))
 
         # Add the data in the index
         if "term_index" in df.columns:
@@ -1245,13 +1364,12 @@ class DataLayer(object):
 
         # Check that terms with order exist
 
-
         # Initialize order list
         order_list = [order]
 
         # If this action should be propagated, orders will be added to order list.
         if propagate is True:
-            order_list.extend([x for x in [3,4] if x > order])
+            order_list.extend([x for x in [3, 4] if x > order])
 
         # Figure out atom numbers for this removal.
         # The way this should be done - the index for a particular term to be removed will give the atoms which are involved.
@@ -1281,13 +1399,14 @@ class DataLayer(object):
             if not len(atoms):
                 remove_index = None
             else:
-                remove_index =[]
+                remove_index = []
 
                 # Build list of indices to remove. Should be removed for order if all atoms from 'atoms' are in same row
                 # in dataframe
                 for atom_list in atoms.values:
                     search = terms[cols].isin(atom_list).T
-                    matching_ind = search.sum()[search.sum() == order].index.tolist()
+                    matching_ind = search.sum()[search.sum() ==
+                                                order].index.tolist()
                     remove_index.extend(matching_ind)
 
             # Use FL remove function.
@@ -1314,12 +1433,15 @@ class DataLayer(object):
     def get_terms(self, order):
         order = metadata.sanitize_term_order_name(order)
         if order not in list(self._terms):
-            raise KeyError("DataLayer:add_terms: Did not understand order key '%s'." % str(order))
+            raise KeyError(
+                "DataLayer:add_terms: Did not understand order key '%s'." %
+                str(order))
 
         try:
             return self.store.read_table("term" + str(order))
         except KeyError:
-            cols = metadata.get_term_metadata(order, "index_columns") + ["term_index"]
+            cols = metadata.get_term_metadata(
+                order, "index_columns") + ["term_index"]
             return pd.DataFrame(columns=cols)
 
     def add_bonds(self, bonds):
@@ -1455,9 +1577,12 @@ class DataLayer(object):
         print("----------------------------------------------")
 
         # Print information about bond, angle, dihedral parameters
-        print("Number of bond parameters:     %s" % len(self.list_term_uids()[2]))
-        print("Number of angle parameters:    %s" % len(self.list_term_uids()[3]))
-        print("Number of dihedral parameters: %s" % len(self.list_term_uids()[4]))
+        print("Number of bond parameters:     %s" % len(
+            self.list_term_uids()[2]))
+        print("Number of angle parameters:    %s" % len(
+            self.list_term_uids()[3]))
+        print("Number of dihedral parameters: %s" % len(
+            self.list_term_uids()[4]))
 
         print("----------------------------------------------")
 
@@ -1501,9 +1626,16 @@ class DataLayer(object):
 
         return pd.concat(tmp_data, axis=1)
 
+
 # Non-bonded parameter
 
-    def add_nb_parameter(self, atom_type, nb_name, nb_parameters, nb_model=None, atom_type2=None, utype=None):
+    def add_nb_parameter(self,
+                         atom_type,
+                         nb_name,
+                         nb_parameters,
+                         nb_model=None,
+                         atom_type2=None,
+                         utype=None):
         """
         Stores nb parameters in data layer as dictionary
 
@@ -1547,20 +1679,27 @@ class DataLayer(object):
         try:
             form_md = metadata.get_nb_metadata(nb_name, model=nb_model)
         except KeyError:
-            raise KeyError("DataLayer:add_parameters: Did not understand nonbond form: %d, name: %s'." % (nb_name,
-                                                                                                          nb_form))
+            raise KeyError(
+                "DataLayer:add_parameters: Did not understand nonbond form: %d, name: %s'."
+                % (nb_name, nb_form))
         parameters = form_md['parameters']
 
         # Validate input parameters against form
         if isinstance(nb_parameters, (list, tuple)):
             if len(parameters) == len(nb_parameters):
-                param_dict['parameters'] = {k: v for k, v in zip(parameters, nb_parameters)}
+                param_dict['parameters'] = {
+                    k: v
+                    for k, v in zip(parameters, nb_parameters)
+                }
             else:
-                raise ValueError("Input number of parameters (%s) and number of form parameters (%s) do not match." %
-                                 (len(nb_parameters), len(parameters)))
+                raise ValueError(
+                    "Input number of parameters (%s) and number of form parameters (%s) do not match."
+                    % (len(nb_parameters), len(parameters)))
         elif isinstance(nb_parameters, (dict)):
             if set(nb_parameters.keys()) != set(parameters):
-                raise ValueError("Incorrect parameters entered for nonbond form %s %s" % (nb_name, nb_form))
+                raise ValueError(
+                    "Incorrect parameters entered for nonbond form %s %s" %
+                    (nb_name, nb_form))
             else:
                 param_dict['parameters'] = nb_parameters
 
@@ -1568,8 +1707,9 @@ class DataLayer(object):
         if utype is not None:
             if isinstance(utype, (list, tuple)):
                 if len(utype) != len(form_md["utype"]):
-                    raise ValueError("Validate term dict: Number of units passed is %d, expected %d" %
-                                     (len(utype), len(form["utype"])))
+                    raise ValueError(
+                        "Validate term dict: Number of units passed is %d, expected %d"
+                        % (len(utype), len(form["utype"])))
                 form_units = list(utype)
             elif isinstance(utype, dict):
                 form_units = []
@@ -1577,19 +1717,24 @@ class DataLayer(object):
                     try:
                         form_units.append(utype[key])
                     except KeyError:
-                        raise KeyError("Validate term dict: Did not find expected key '%s' from term'." % (key))
+                        raise KeyError(
+                            "Validate term dict: Did not find expected key '%s' from term'."
+                            % (key))
             else:
-                raise TypeError("Validate term dict: Unit type '%s' not understood" % str(type(utype)))
+                raise TypeError(
+                    "Validate term dict: Unit type '%s' not understood" % str(
+                        type(utype)))
 
             # Convert to internal units
             for x, key in enumerate(form_md["parameters"]):
-                cf = units.conversion_factor(form_units[x], form_md["utype"][key])
+                cf = units.conversion_factor(form_units[x],
+                                             form_md["utype"][key])
                 param_dict['parameters'][key] *= cf
 
         if (nb_name == "LJ"):
             model_default = metadata.get_nb_metadata(nb_name, "default")
-            param_dict['parameters'] = nb_converter.convert_LJ_coeffs(param_dict['parameters'], nb_model,
-                                                                      model_default)
+            param_dict['parameters'] = nb_converter.convert_LJ_coeffs(
+                param_dict['parameters'], nb_model, model_default)
 
         # Store it! --
         param_dict_key = (atom_type, atom_type2)
@@ -1601,7 +1746,11 @@ class DataLayer(object):
         self._nb_parameters[param_dict_key] = param_dict
         return True
 
-    def get_nb_parameter(self, atom_type, nb_model=None, atom_type2=None, utype=None):
+    def get_nb_parameter(self,
+                         atom_type,
+                         nb_model=None,
+                         atom_type2=None,
+                         utype=None):
         """
         Retrieves nb parameter from datalayer
 
@@ -1639,7 +1788,9 @@ class DataLayer(object):
             # Use deep copy here
             nb_parameters = copy.deepcopy(self._nb_parameters[param_dict_key])
         else:
-            raise KeyError("Nonbond interaction for atom types (%s, %s) not found" % param_dict_key)
+            raise KeyError(
+                "Nonbond interaction for atom types (%s, %s) not found" %
+                param_dict_key)
 
         # Get nb_name - this is stored when parameter is input (ex "LJ")
         nb_name = nb_parameters['form']
@@ -1651,14 +1802,16 @@ class DataLayer(object):
         form_md = metadata.get_nb_metadata(nb_name, model=nb_model)
 
         # Find models
-        default_form = metadata.get_nb_metadata(nb_parameters["form"], "default")
+        default_form = metadata.get_nb_metadata(nb_parameters["form"],
+                                                "default")
         if nb_model is None:
             nb_model = default_form
 
         # Need to convert to specified nb_name (form) if needed (ex - AB to epsilon/sigma)
         if nb_parameters["form"] == "LJ":
-            param_dict = nb_converter.convert_LJ_coeffs(param_dict, metadata.get_nb_metadata("LJ", "default"),
-                                                        nb_model)
+            param_dict = nb_converter.convert_LJ_coeffs(
+                param_dict, metadata.get_nb_metadata("LJ", "default"),
+                nb_model)
 
         # Convert units if specified - otherwise return what is stored in datalayer
         form_units = {}
@@ -1667,11 +1820,14 @@ class DataLayer(object):
                 try:
                     form_units[key] = utype[key]
                 except KeyError:
-                    raise KeyError("Validate term dict: Did not find expected key '%s' from term (utype)'." % (key))
+                    raise KeyError(
+                        "Validate term dict: Did not find expected key '%s' from term (utype)'."
+                        % (key))
 
             for x, key in enumerate(param_dict):
                 # Convert from what is in DL (form["utype"][key] to user specified units (form_units[x]
-                cf = units.conversion_factor(form_md["utype"][key], form_units[key])
+                cf = units.conversion_factor(form_md["utype"][key],
+                                             form_units[key])
                 param_dict[key] *= cf
 
         return param_dict
@@ -1709,18 +1865,28 @@ class DataLayer(object):
                 # Use deep copy here
                 params.append(copy.deepcopy(self._nb_parameters[k]))
             else:
-                raise KeyError("Nonbond interaction for atom types (%s, %s) not found" % (k))
+                raise KeyError(
+                    "Nonbond interaction for atom types (%s, %s) not found" %
+                    (k))
 
         # Check that both parameters are LJ form
         if params[0]["form"] != "LJ" or params[1]["form"] != "LJ":
-            raise ValueError("Can only combine LJ coefficients using mixing rules.")
+            raise ValueError(
+                "Can only combine LJ coefficients using mixing rules.")
 
         # Apply mixing rule
-        new_params = nb_converter.mix_LJ(params[0]["parameters"], params[1]["parameters"], mixing_rule=mixing_rule)
+        new_params = nb_converter.mix_LJ(
+            params[0]["parameters"],
+            params[1]["parameters"],
+            mixing_rule=mixing_rule)
 
         # Add new parameter to datalayer!
-        self.add_nb_parameter(atom_type=atom_type1, atom_type2=atom_type2, nb_parameters=new_params,
-                              nb_name="LJ", nb_model="AB")
+        self.add_nb_parameter(
+            atom_type=atom_type1,
+            atom_type2=atom_type2,
+            nb_parameters=new_params,
+            nb_name="LJ",
+            nb_model="AB")
 
         return True
 
@@ -1736,13 +1902,16 @@ class DataLayer(object):
             Returns True if successful
         """
 
-        parameters = self.list_nb_parameters(nb_name="LJ", nb_model="AB", itype="single")
+        parameters = self.list_nb_parameters(
+            nb_name="LJ", nb_model="AB", itype="single")
 
         parameter_keys = list(parameters)
 
         for k in range(0, len(parameter_keys)):
             for k2 in range(0, k + 1):
-                self.mix_LJ_parameters(atom_type1=parameter_keys[k][0], atom_type2=parameter_keys[k2][0])
+                self.mix_LJ_parameters(
+                    atom_type1=parameter_keys[k][0],
+                    atom_type2=parameter_keys[k2][0])
 
         return True
 
@@ -1758,7 +1927,11 @@ class DataLayer(object):
         unique_nb_types = np.unique(nb_types)
         return unique_nb_types
 
-    def list_nb_parameters(self, nb_name, nb_model=None, utype=None, itype="all"):
+    def list_nb_parameters(self,
+                           nb_name,
+                           nb_model=None,
+                           utype=None,
+                           itype="all"):
         """
         Return all NB parameters stored in data layer which have the form specified by nb_name.
 
@@ -1802,9 +1975,15 @@ class DataLayer(object):
 
             if (None in key) and (itype == "all" or itype == "single"):
                 return_parameters[key] = self.get_nb_parameter(
-                    atom_type=key[0], atom_type2=key[1], nb_model=nb_model, utype=utype)
+                    atom_type=key[0],
+                    atom_type2=key[1],
+                    nb_model=nb_model,
+                    utype=utype)
             elif (None not in key) and (itype == "all" or itype == "pair"):
                 return_parameters[key] = self.get_nb_parameter(
-                    atom_type=key[0], atom_type2=key[1], nb_model=nb_model, utype=utype)
+                    atom_type=key[0],
+                    atom_type2=key[1],
+                    nb_model=nb_model,
+                    utype=utype)
 
         return return_parameters

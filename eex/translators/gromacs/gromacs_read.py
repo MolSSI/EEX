@@ -18,16 +18,22 @@ def read_gromacs_gro_file(dl, gro_folder, ffdir=None):
         if "GROMACS_DIR" in os.environ:
             ffdir = os.environ["GROMACS_DIR"]
         else:
-            raise KeyError("GROMACS read: Must provide `ffdir` if 'GROMACS_DIR' not in environmental variables.")
+            raise KeyError(
+                "GROMACS read: Must provide `ffdir` if 'GROMACS_DIR' not in environmental variables."
+            )
 
     if not os.path.exists(ffdir):
-        raise OSError("GROMACS read: Could not find FF folder, expected at '%s'." % ffdir)
+        raise OSError(
+            "GROMACS read: Could not find FF folder, expected at '%s'." %
+            ffdir)
 
     # Read in conf.gro file first
 
     conf_fname = os.path.join(gro_folder, "conf.gro")
     if not os.path.exists(conf_fname):
-        raise OSError("GROMACS read: Could not find conf.gro file, expected at '%s'." % conf_fname)
+        raise OSError(
+            "GROMACS read: Could not find conf.gro file, expected at '%s'." %
+            conf_fname)
 
     with open(conf_fname, 'r') as conf_file:
         conf_read_size = int(next(conf_file))
@@ -46,7 +52,8 @@ def read_gromacs_gro_file(dl, gro_folder, ffdir=None):
     data["atomic_number"] = 0
     data.set_index("atom_index", inplace=True, drop=True)
     for val, idx in data.groupby("atomic_symbol"):
-        data.loc[idx.index, "atomic_number"] = eex.metadata.atom_symbol_to_number[val]
+        data.loc[idx.index,
+                 "atomic_number"] = eex.metadata.atom_symbol_to_number[val]
 
     dl.add_atoms(data)
 
@@ -60,7 +67,9 @@ def read_gromacs_gro_file(dl, gro_folder, ffdir=None):
 
     top_fname = os.path.join(gro_folder, "topol.top")
     if not os.path.exists(conf_fname):
-        raise OSError("GROMACS read: Could not find topol.top file, expected at '%s'." % conf_fname)
+        raise OSError(
+            "GROMACS read: Could not find topol.top file, expected at '%s'." %
+            conf_fname)
 
     data = pd.read_table(
         top_fname,
@@ -79,7 +88,9 @@ def read_gromacs_gro_file(dl, gro_folder, ffdir=None):
         end = indices[indx + 1]
 
         label = data.iloc[start, 1]
-        tmp = data.iloc[(start + 1):end].convert_objects(convert_numeric=True).dropna(axis=1, how="all")
+        tmp = data.iloc[(start + 1):end].convert_objects(
+            convert_numeric=True).dropna(
+                axis=1, how="all")
         print(label)
         print(tmp)
         print('----')

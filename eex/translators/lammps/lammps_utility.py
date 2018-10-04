@@ -37,7 +37,14 @@ def compute_lattice_constants(bsize, tilt_factors):
     beta = np.arccos(cos_beta)
     gamma = np.arccos(cos_gamma)
 
-    return {'a': a, 'b': b, 'c': c, 'alpha': alpha, 'beta': beta, 'gamma': gamma}
+    return {
+        'a': a,
+        'b': b,
+        'c': c,
+        'alpha': alpha,
+        'beta': beta,
+        'gamma': gamma
+    }
 
 
 def get_energies(input_file=None, lmp_path=None, unit_style=None):
@@ -48,8 +55,9 @@ def get_energies(input_file=None, lmp_path=None, unit_style=None):
         lmp_path = path to LAMMPS binaries
     """
 
-    for exe in ['lammps', 'lmp_mpi', 'lmp_serial', 'lmp_openmpi',
-                'lmp_mac_mpi']:
+    for exe in [
+            'lammps', 'lmp_mpi', 'lmp_serial', 'lmp_openmpi', 'lmp_mac_mpi'
+    ]:
         if eex.utility.which(exe):
             LMP_PATH = exe
             break
@@ -84,15 +92,18 @@ def get_energies(input_file=None, lmp_path=None, unit_style=None):
         if unit_style not in lmd.units_style:
             raise KeyError(" '%s' unit style not recognized" % unit_style)
     else:
+        # TODO - determine is this working as intended? unit_style is never used after this
         unit_style = _extract_unit_style(out)
 
     ret = _group_energy_terms(out)
 
-#    for key in ret:
-#        cf = eex.units.conversion_factor(log_prop_table[key]['utype'], prop_table[key]['utype'])
-#        ret[key] *= cf
+    #    for key in ret:
+    #        cf = eex.units.conversion_factor(log_prop_table[key]['utype'], prop_table[key]['utype'])
+    #        ret[key] *= cf
 
-    return eex.utility.canonicalize_energy_names(ret, {k: v['canonical'] for (k, v) in log_prop_table.items()})
+    return eex.utility.canonicalize_energy_names(
+        ret, {k: v['canonical']
+              for (k, v) in log_prop_table.items()})
 
 
 def _extract_unit_style(stdout):
