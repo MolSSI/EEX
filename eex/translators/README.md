@@ -19,13 +19,19 @@ internal representation. Valid term forms can be found in `metadata`.
 
 ```
 """
-Metadata for two, three, and four body terms for the amber forcefield.
+Metadata the amber forcefield.
 
-Each style has the following values:
+Each style follows conventions outlined for EEX internal metadata.
+
+Bonded terms (typically bonds, angles, and dihedrals) should be a dictionary named using the convention `_n_body_functional_forms`
+
+Each dictionary has the has the following keys:
   - form: The overall mathematical expression of the term
   - parameters: The ordered name of the terms as they will be stored with their expected unit contexts
   - units: A dictionary that contains the unit context for each parameter
   - description: A short word description of the two-body term style
+
+Nonbonded terms are similar, except that an extra key sub-key (again, following the convention set by the internal EEX metadata.
 
 """
 _two_body_functional_forms = {
@@ -65,6 +71,20 @@ _four_body_functional_forms = {
     },
 
 }
+
+_nonbond_functional_forms = {
+    "LJ": {
+        "AB": {
+            "form": "A/(r ** 12.0) - B/(r ** 6.0)",
+            "parameters": ["A", "B"],
+            "units": {
+                "A": "kcal * mol ** -1 * angstrom ** 12",
+                "B": "kcal * mol ** -1 * angstrom ** 6",
+            },
+        },
+    }
+}
+
 
 term_data = {}
 term_data[2] = _two_body_functional_forms
