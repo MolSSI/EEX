@@ -2,6 +2,7 @@ import eex
 import os
 from . import amber_metadata as amd
 
+
 def get_energies(prmtop=None, crd=None, input_file=None, amb_path=None):
     """Evaluate energies of AMBER files. Based on InterMol
 
@@ -33,7 +34,9 @@ def get_energies(prmtop=None, crd=None, input_file=None, amb_path=None):
         raise OSError('Unable to find AMBER executable (sander).')
 
     # Run sander.
-    cmd = [amber_bin, '-i', input_file, '-c', crd, '-p', prmtop, '-o', mdout, '-O']
+    cmd = [
+        amber_bin, '-i', input_file, '-c', crd, '-p', prmtop, '-o', mdout, '-O'
+    ]
     _ = eex.utility.run_subprocess(cmd, stdout_path, stderr_path)
 
     ret = _group_energy_terms(mdout)
@@ -41,7 +44,6 @@ def get_energies(prmtop=None, crd=None, input_file=None, amb_path=None):
     # TODO: Unit conversion
 
     return eex.utility.canonicalize_energy_names(ret, amd.to_canonical)
-
 
 
 def _group_energy_terms(mdout):
@@ -64,7 +66,7 @@ def _group_energy_terms(mdout):
 
     e_out = dict()
     potential = 0
-    for line in all_lines[startline+3:]:
+    for line in all_lines[startline + 3:]:
         if '=' in line:
             for i in range(3):
                 r = ranges[i]
@@ -78,7 +80,5 @@ def _group_energy_terms(mdout):
         else:
             break
     e_out['ENERGY'] = potential
-#    eex.utility.canonicalize_energy_names(e_out)
+    #    eex.utility.canonicalize_energy_names(e_out)
     return e_out
-
-

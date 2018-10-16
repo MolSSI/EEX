@@ -2,30 +2,24 @@ import re
 
 to_canonical = {
     'BOND': ['bond'],
-
     'ANGLE': ['angle'],
     'UB': ['angle', 'urey_bradley'],
-
     'DIHED': ['proper'],
     'IMP': ['improper'],
     'CMAP': ['cmap'],
-
     'HBOND': ['h-bond'],
-
     'VDWAALS': ['vdw_total'],
     '1-4 VDW': ['vdw_14'],
-
     'EEL': ['coulomb_total'],
     '1-4 EEL': ['coulomb-14'],
-
     'ENERGY': ['potential']
 }
 
-
 # Possible size keys to look for in the header
 size_keys = [
-    "NATOM", "NTYPES", "NBONH", "MBONA", "NTHETH", "MTHETA", "NPHIH", "MPHIA", "NHPARM", "NPARM", "NNB", "NRES",
-    "NBONA", "NTHETA", "NPHIA", "NUMBND", "NUMANG", "NPTRA", "NATYP", "NPHB", "IFPERT", "NBPER", "NGPER", "NDPER",
+    "NATOM", "NTYPES", "NBONH", "MBONA", "NTHETH", "MTHETA", "NPHIH", "MPHIA",
+    "NHPARM", "NPARM", "NNB", "NRES", "NBONA", "NTHETA", "NPHIA", "NUMBND",
+    "NUMANG", "NPTRA", "NATYP", "NPHB", "IFPERT", "NBPER", "NGPER", "NDPER",
     "MBPER", "MGPER", "MDPER", "IFBOX", "NMXRS", "IFCAP", "NUMEXTRA"
 ]
 
@@ -64,7 +58,9 @@ data_labels = {
     "HBCUT": ["NPHB", "%FORMAT(5E16.8)"],
     "AMBER_ATOM_TYPE": ["NATOM", "%FORMAT(20a4)"],
     "TREE_CHAIN_CLASSIFICATION": ["NATOM", "%FORMAT(20a4)"],
-    "JOIN_ARRAY": ["NATOM", "%FORMAT(10I8)"],  # This section is filled with zeros, but is unused. We should not store it.
+    "JOIN_ARRAY": [
+        "NATOM", "%FORMAT(10I8)"
+    ],  # This section is filled with zeros, but is unused. We should not store it.
     "IROTAT": ["NATOM", "%FORMAT(10I8)"],
     "SOLVENT_POINTERS": ["3 if IFBOX else 0", "%FORMAT(3I8)"],
     "ATOMS_PER_MOLECULE": ["NATOM if IFBOX else 0", "%FORMAT(10I8)"],
@@ -116,8 +112,9 @@ residue_store_names = ["RESIDUE_LABEL", "RESIDUE_POINTER"]
 molecule_store_names = ["ATOMS_PER_MOLECULE"]
 
 topology_store_names = [
-    "BONDS_INC_HYDROGEN", "BONDS_WITHOUT_HYDROGEN", "ANGLES_INC_HYDROGEN", "ANGLES_WITHOUT_HYDROGEN",
-    "DIHEDRALS_INC_HYDROGEN", "DIHEDRALS_WITHOUT_HYDROGEN"
+    "BONDS_INC_HYDROGEN", "BONDS_WITHOUT_HYDROGEN", "ANGLES_INC_HYDROGEN",
+    "ANGLES_WITHOUT_HYDROGEN", "DIHEDRALS_INC_HYDROGEN",
+    "DIHEDRALS_WITHOUT_HYDROGEN"
 ]
 
 forcefield_parameters = {
@@ -159,10 +156,12 @@ forcefield_parameters = {
             "DIHEDRAL_PHASE": "d",
         }
     },
-
     "nonbond": {
         "order": None,
-        "form": {"name": "LJ", "form": "AB"},
+        "form": {
+            "name": "LJ",
+            "form": "AB"
+        },
         "units": {
             "A": "kcal * mol ** -1 * angstrom ** 12",
             "B": "kcal * mol ** -1 * angstrom ** 6",
@@ -172,9 +171,7 @@ forcefield_parameters = {
             "LENNARD_JONES_BCOEF": "B",
             "NONBONDED_PARM_INDEX": ""
         },
-
     },
-
 }
 
 # Can be either keyword - equivalent
@@ -213,32 +210,38 @@ def parse_format(string):
     [10, int, 8]
     """
     if "FORMAT" not in string:
-        raise ValueError("AMBER: Did not understand format line '%s'." % string)
+        raise ValueError(
+            "AMBER: Did not understand format line '%s'." % string)
 
     pstring = string.replace("%FORMAT(", "").replace(")", "").strip()
     ret = [x for x in re.split('(\d+)', pstring) if x]
 
     if ret[1] == "I":
         if len(ret) != 3:
-            raise ValueError("AMBER: Did not understand format line '%s'." % string)
+            raise ValueError(
+                "AMBER: Did not understand format line '%s'." % string)
         ret[1] = int
         ret[0] = int(ret[0])
         ret[2] = int(ret[2])
     elif ret[1] == "E":
         if len(ret) != 5:
-            raise ValueError("AMBER: Did not understand format line '%s'." % string)
+            raise ValueError(
+                "AMBER: Did not understand format line '%s'." % string)
         ret[1] = float
         ret[0] = int(ret[0])
         ret[2] = int(ret[2])
         # The .8 is not interesting to us
     elif ret[1] == "a":
         if len(ret) != 3:
-            raise ValueError("AMBER: Did not understand format line '%s'." % string)
+            raise ValueError(
+                "AMBER: Did not understand format line '%s'." % string)
         ret[1] = str
         ret[0] = int(ret[0])
         ret[2] = int(ret[2])
     else:
-        raise ValueError("AMBER: Type symbol '%s' not understood from line '%s'." % (ret[1], string))
+        raise ValueError(
+            "AMBER: Type symbol '%s' not understood from line '%s'." %
+            (ret[1], string))
 
     return ret
 

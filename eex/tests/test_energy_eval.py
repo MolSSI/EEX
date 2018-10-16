@@ -27,7 +27,8 @@ def test_distance():
 
 def test_angle():
     def _test_angle(p1, p2, p3, value, degrees=True):
-        tmp = eex.energy_eval.geometry.compute_angle(p1, p2, p3, degrees=degrees)
+        tmp = eex.energy_eval.geometry.compute_angle(
+            p1, p2, p3, degrees=degrees)
         assert pytest.approx(value) == tmp
 
     # Check all 90 degree domains
@@ -61,7 +62,8 @@ def test_angle():
 
 def test_dihedral():
     def _test_dihedral(p1, p2, p3, p4, value, degrees=True):
-        tmp = eex.energy_eval.geometry.compute_dihedral(p1, p2, p3, p4, degrees=degrees)
+        tmp = eex.energy_eval.geometry.compute_dihedral(
+            p1, p2, p3, p4, degrees=degrees)
         assert pytest.approx(value) == tmp
 
     p1 = [0, 0, 0]
@@ -100,12 +102,14 @@ def test_lattice_sum():
     lattice_sum = eex.energy_eval.nb_eval.lattice_sum
 
     # Build a small charge neutral cell
-    upper = np.array([[1, 1, 1], [-1, 1, 1], [1, -1, 1], [-1, -1, 1]], dtype=np.float64)
+    upper = np.array([[1, 1, 1], [-1, 1, 1], [1, -1, 1], [-1, -1, 1]],
+                     dtype=np.float64)
     coords = np.vstack((upper, upper * np.array([1, 1, -1])))
     charge = np.array([-1, 1, 1, -1, 1, -1, -1, 1], dtype=np.float64)
 
     box_length = np.array([3.0, 3.0, 3.0])
-    assert pytest.approx(-2.9120598512) == lattice_sum(coords, charge, box_length, 0)
+    assert pytest.approx(-2.9120598512) == lattice_sum(coords, charge,
+                                                       box_length, 0)
 
     lat_data = lattice_sum(coords, charge, box_length, 10, return_shells=True)
     assert pytest.approx(-2.9120598512599667) == lat_data["home"]
@@ -124,16 +128,22 @@ def test_nb_eval_simple():
     lj_form = eex.metadata.get_nb_metadata("LJ", "form")
     lj_params = {"A": np.array([[1.0]]), "B": np.array([[2.0]])}
 
-    for dist, values in [(0.5, 3968), (1.0, -1.0), (2.0, -0.031005859375), (3.0, -0.00274160254854)]:
+    for dist, values in [(0.5, 3968), (1.0, -1.0), (2.0, -0.031005859375),
+                         (3.0, -0.00274160254854)]:
         coords[-1, -1] = dist
         energy = nb_eval(coords, atom_types, lj_form, lj_params)
         assert pytest.approx(energy) == values
 
     # Test Buckingham
     buck_form = eex.metadata.get_nb_metadata("Buckingham", "form")
-    buck_params = {"A": np.array([[1.e7]]), "C": np.array([[2.0]]), "rho": np.array([[0.05]])}
+    buck_params = {
+        "A": np.array([[1.e7]]),
+        "C": np.array([[2.0]]),
+        "rho": np.array([[0.05]])
+    }
 
-    for dist, values in [(0.5, 325.999297625), (1.0, -1.97938846378), (2.0, -0.0312499999575)]:
+    for dist, values in [(0.5, 325.999297625), (1.0, -1.97938846378),
+                         (2.0, -0.0312499999575)]:
         coords[-1, -1] = dist
         energy = nb_eval(coords, atom_types, buck_form, buck_params)
         assert pytest.approx(energy) == values

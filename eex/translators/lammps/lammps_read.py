@@ -16,7 +16,9 @@ logger = logging.getLogger(__name__)
 def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
 
     if not isinstance(extra_simulation_data, dict):
-        raise TypeError("Validate term dict: Extra simulation data type '%s' not understood" % str(type(extra_simulation_data)))
+        raise TypeError(
+            "Validate term dict: Extra simulation data type '%s' not understood"
+            % str(type(extra_simulation_data)))
 
     # This is a list of keywords needed from the input file.
     # This list depends on the molecule topology (for instance, ethane does
@@ -59,7 +61,8 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
         # holds the first data section in the data file
         elif eex.utility.fuzzy_list_match(line, category_list)[0]:
             startline = num + 3  # Skips first row and two blank lines
-            current_data_category = eex.utility.fuzzy_list_match(line, category_list)[1]
+            current_data_category = eex.utility.fuzzy_list_match(
+                line, category_list)[1]
             break
 
         # Read tilt factors
@@ -84,7 +87,8 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
 
             else:
                 raise KeyError(
-                    "LAMMPS Read: The following line looks like a dimension line, but does not match:\n%s" % line)
+                    "LAMMPS Read: The following line looks like a dimension line, but does not match:\n%s"
+                    % line)
 
         # Are we a size line?
         # Lmd.size_keys contains ['atoms', 'atom types', 'bonds', 'bond types']
@@ -96,9 +100,13 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
             size_name = " ".join(dline[1:])
 
             if size_name in list(sizes_dict):
-                raise KeyError("LAMMPS Read: KeyError size key %s already found." % size_name)
+                raise KeyError(
+                    "LAMMPS Read: KeyError size key %s already found." %
+                    size_name)
             if size_name not in lmd.size_keys:
-                raise KeyError("LAMMPS Read: KeyError size key %s not recognized." % size_name)
+                raise KeyError(
+                    "LAMMPS Read: KeyError size key %s not recognized." %
+                    size_name)
 
             sizes_dict[size_name] = size
 
@@ -109,7 +117,8 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
             # Dihedrals.
 
             if 'types' in size_name and size > 0:
-                needed_keywords.append(size_name.replace('types', 'style').replace(" ", "_"))
+                needed_keywords.append(
+                    size_name.replace('types', 'style').replace(" ", "_"))
 
         else:
             raise IOError("LAMMPS Read: Line not understood!\n%s" % line)
@@ -124,43 +133,55 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
             if keyword == 'units':
                 unit_style = extra_simulation_data["units"]
                 if unit_style not in lmd.units_style:
-                    raise KeyError("Could not find unit style '%s'." % unit_style)
+                    raise KeyError(
+                        "Could not find unit style '%s'." % unit_style)
             elif keyword == 'bond_style':
                 bond_style = extra_simulation_data['bond_style']
                 if bond_style not in lmd.lammps_ff.term_data[2]:
-                    raise KeyError("Could not find bond style '%s'." % bond_style)
+                    raise KeyError(
+                        "Could not find bond style '%s'." % bond_style)
             elif keyword == 'angle_style':
                 angle_style = extra_simulation_data['angle_style']
                 if angle_style not in lmd.lammps_ff.term_data[3]:
-                    raise KeyError("Could not find angle style '%s'." % angle_style)
+                    raise KeyError(
+                        "Could not find angle style '%s'." % angle_style)
             elif keyword == 'dihedral_style':
                 dihedral_style = extra_simulation_data['dihedral_style']
                 if dihedral_style not in lmd.lammps_ff.term_data[4]:
-                    raise KeyError("Could not find dihedral style '%s'." % dihedral_style)
+                    raise KeyError(
+                        "Could not find dihedral style '%s'." % dihedral_style)
             elif keyword == 'atom_style':
                 atom_style = extra_simulation_data['atom_style']
                 if atom_style not in lmd.atom_style:
-                    raise KeyError("Could not find atom style '%s'." % atom_style)
+                    raise KeyError(
+                        "Could not find atom style '%s'." % atom_style)
             else:
                 raise KeyError("Key %s not understood. " % keyword)
 
     if box_size:
         # Set the box size
-        lattice_constants = lammps_utility.compute_lattice_constants(box_size, tilt_factors)
+        lattice_constants = lammps_utility.compute_lattice_constants(
+            box_size, tilt_factors)
 
         dl.set_box_size(lattice_constants)
         dl.set_box_center(box_center)
 
     # Make sure we have what we need
     if startline is None:
-        raise IOError("LAMMPS Read: Did not find data start in %d header lines." % max_rows)
+        raise IOError(
+            "LAMMPS Read: Did not find data start in %d header lines." %
+            max_rows)
 
-    if ("atoms" not in list(sizes_dict)) or ("atom types" not in list(sizes_dict)):
-        raise IOError("LAMMPS Read: Did not find size data on 'atoms' or 'atom types' in %d header lines." % max_rows)
+    if ("atoms" not in list(sizes_dict)) or (
+            "atom types" not in list(sizes_dict)):
+        raise IOError(
+            "LAMMPS Read: Did not find size data on 'atoms' or 'atom types' in %d header lines."
+            % max_rows)
 
     # sizes_dict["Pair types"] is relevant if we need to specify
     # cross interactions explicitly
-    sizes_dict["pair types"] = sizes_dict["atom types"] * (sizes_dict["atom types"] + 1) / 2
+    sizes_dict["pair types"] = sizes_dict["atom types"] * (
+        sizes_dict["atom types"] + 1) / 2
 
     # Create temporaries (op_table, term_table), specific to the current unit
     # specification
@@ -226,7 +247,12 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
                 atom_prop = op["atom_property"]
                 utype = op["kwargs"]["utype"][atom_prop]
                 for idx, row in data.iterrows():
-                    dl.add_atom_parameter(atom_prop, row.iloc[1], uid=row.iloc[0], utype=utype, allow_duplicates=True)
+                    dl.add_atom_parameter(
+                        atom_prop,
+                        row.iloc[1],
+                        uid=row.iloc[0],
+                        utype=utype,
+                        allow_duplicates=True)
             # Adding parameters
             elif op["call_type"] == "parameter":
                 order = op["args"]["order"]
@@ -236,7 +262,8 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
                 for idx, row in data.iterrows():
                     params = list(row[cols])
                     utype = term_table[order][fname]["utype"]
-                    dl.add_term_parameter(order, fname, params, uid=int(row["uid"]), utype=utype)
+                    dl.add_term_parameter(
+                        order, fname, params, uid=int(row["uid"]), utype=utype)
 
             elif op["call_type"] == "nb_parameter":
                 fname = op["kwargs"]["nb_name"]
@@ -247,12 +274,14 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
                 n_given_params = len(data.columns)
                 difference = n_given_params - n_required_params
                 if difference != op["n_uids"]:
-                    raise Exception("Incorrect number of arguments for pair_coeff")
+                    raise Exception(
+                        "Incorrect number of arguments for pair_coeff")
                 uid_list = ["uid" + str(x) for x in range(0, difference)]
                 data.columns = uid_list + cols
                 for idx, row in data.iterrows():
 
-                    op["kwargs"]["nb_parameters"] = row[['epsilon', 'sigma']].to_dict()
+                    op["kwargs"]["nb_parameters"] = row[['epsilon',
+                                                         'sigma']].to_dict()
                     if len(uid_list) == 1:
                         op["kwargs"]["atom_type"] = int(row['uid0'])
                     elif len(uid_list) == 2:
@@ -261,7 +290,8 @@ def read_lammps_data_file(dl, filename, extra_simulation_data, blocksize=110):
                     dl.call_by_string(op["dl_func"], **op["kwargs"])
 
             else:
-                raise KeyError("Operation table call '%s' not understoop" % op["call_type"])
+                raise KeyError("Operation table call '%s' not understoop" %
+                               op["call_type"])
 
             # Update remaining
             remaining -= blocksize
@@ -342,7 +372,8 @@ def read_lammps_input_file(dl, fname, blocksize=110):
                 line = re.sub('\$\{(.*?)\}', variable_values[0], line)
 
             except KeyError:
-                raise KeyError("The variable %s has not been defined" % variable_name)
+                raise KeyError(
+                    "The variable %s has not been defined" % variable_name)
 
         line_split = line.split()
         keyword = line_split[0]
@@ -354,7 +385,8 @@ def read_lammps_input_file(dl, fname, blocksize=110):
             file_path = keyword_opts[0]
             if not os.path.isabs(file_path):
                 file_path = os.path.join(input_dir, file_path)
-            read_lammps_data_file(dl, file_path, extra_simulation_data, blocksize)
+            read_lammps_data_file(dl, file_path, extra_simulation_data,
+                                  blocksize)
         elif keyword == "include_data":
             include_data = eex.utility.read_lines(keyword_opts[0])
             for inum, line_data in enumerate(include_data):
@@ -371,7 +403,9 @@ def read_lammps_input_file(dl, fname, blocksize=110):
 
             variable_list[variable_name] = tmp
 
-        elif keyword in ["atom_style", "bond_style", "angle_style", "dihedral_style"]:
+        elif keyword in [
+                "atom_style", "bond_style", "angle_style", "dihedral_style"
+        ]:
             extra_simulation_data[keyword] = keyword_opts[0]
 
         elif keyword == "units":
@@ -382,7 +416,8 @@ def read_lammps_input_file(dl, fname, blocksize=110):
                 idx = keyword_opts.index('mix')
                 mix_rule = keyword_opts[idx + 1]
                 if mix_rule not in lmd.mixing_rules:
-                    raise KeyError("Could not find mixing rule style '%s'." % mixing_style)
+                    raise KeyError("Could not find mixing rule style '%s'." %
+                                   mixing_style)
                 dl.set_mixing_rule(mix_rule)
 
         elif keyword == "special_bonds":
@@ -391,34 +426,51 @@ def read_lammps_input_file(dl, fname, blocksize=110):
             # to different vaues, 'lj/coul' will not work. In this case, the command would be
             # 'special_bonds lj w1 w2 w3 coul wc1 wc2 wc3'
             exclusions = {}
-            special_bonds_keywords = re.findall("[a-zA-Za-z\/]+", " ".join(keyword_opts))
+            special_bonds_keywords = re.findall("[a-zA-Za-z\/]+",
+                                                " ".join(keyword_opts))
             for exclusions_keyword in special_bonds_keywords:
                 idx = keyword_opts.index(exclusions_keyword)
                 if exclusions_keyword in lmd.exclusions.keys():
                     if (exclusions_keyword == 'lj'):
                         exclusions["vdw"] = {}
-                        exclusions["vdw"]["scale12"] = float(keyword_opts[idx + 1])
-                        exclusions["vdw"]["scale13"] = float(keyword_opts[idx + 2])
-                        exclusions["vdw"]["scale14"] = float(keyword_opts[idx + 3])
+                        exclusions["vdw"]["scale12"] = float(
+                            keyword_opts[idx + 1])
+                        exclusions["vdw"]["scale13"] = float(
+                            keyword_opts[idx + 2])
+                        exclusions["vdw"]["scale14"] = float(
+                            keyword_opts[idx + 3])
                     elif (exclusions_keyword == 'coul'):
                         exclusions["coul"] = {}
-                        exclusions["coul"]["scale12"] = float(keyword_opts[idx + 1])
-                        exclusions["coul"]["scale13"] = float(keyword_opts[idx + 2])
-                        exclusions["coul"]["scale14"] = float(keyword_opts[idx + 3])
+                        exclusions["coul"]["scale12"] = float(
+                            keyword_opts[idx + 1])
+                        exclusions["coul"]["scale13"] = float(
+                            keyword_opts[idx + 2])
+                        exclusions["coul"]["scale14"] = float(
+                            keyword_opts[idx + 3])
                     elif (exclusions_keyword == 'lj/coul'):
                         exclusions["vdw"] = {}
-                        exclusions["vdw"]["scale12"] = float(keyword_opts[idx + 1])
-                        exclusions["vdw"]["scale13"] = float(keyword_opts[idx + 2])
-                        exclusions["vdw"]["scale14"] = float(keyword_opts[idx + 3])
+                        exclusions["vdw"]["scale12"] = float(
+                            keyword_opts[idx + 1])
+                        exclusions["vdw"]["scale13"] = float(
+                            keyword_opts[idx + 2])
+                        exclusions["vdw"]["scale14"] = float(
+                            keyword_opts[idx + 3])
                         exclusions["coul"] = {}
-                        exclusions["coul"]["scale12"] = exclusions["vdw"]["scale12"]
-                        exclusions["coul"]["scale13"] = exclusions["vdw"]["scale13"]
-                        exclusions["coul"]["scale14"] = exclusions["vdw"]["scale14"]
+                        exclusions["coul"]["scale12"] = exclusions["vdw"][
+                            "scale12"]
+                        exclusions["coul"]["scale13"] = exclusions["vdw"][
+                            "scale13"]
+                        exclusions["coul"]["scale14"] = exclusions["vdw"][
+                            "scale14"]
                     else:
-                        exclusions["coul"] = lmd.exclusions[exclusions_keyword]["coul"]
-                        exclusions["vdw"] = lmd.exclusions[exclusions_keyword]["lj"]
-                elif exclusions_keyword in lmd.exclusions["additional_keywords"]:
-                    raise Exception("Keyword %s is not currently supported", exclusions_keyword)
+                        exclusions["coul"] = lmd.exclusions[
+                            exclusions_keyword]["coul"]
+                        exclusions["vdw"] = lmd.exclusions[exclusions_keyword][
+                            "lj"]
+                elif exclusions_keyword in lmd.exclusions[
+                        "additional_keywords"]:
+                    raise Exception("Keyword %s is not currently supported",
+                                    exclusions_keyword)
 
             if "coul" not in exclusions:
                 exclusions["coul"] = lmd.exclusions["default"]["coul"]

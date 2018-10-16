@@ -13,7 +13,6 @@ from . import form_converters
 from . import metadata
 from .units import ureg
 
-
 # Initializes the eex_init metadata
 from . import eex_init
 del eex_init

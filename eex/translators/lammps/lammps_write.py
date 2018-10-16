@@ -21,11 +21,16 @@ def _check_dl_forms_compatibility(dl, term_table, nb_term_table):
     for order in (2, 3, 4):
         terms = dl.list_term_parameters(order)
         for j in terms.values():
-            canonical_form = eex.metadata.get_term_metadata(order, 'forms', j[0])['canonical_form']
-            compatible_forms = eex.metadata.get_term_metadata(order, "group")[canonical_form]
-            dl_lammps_intersection = set(compatible_forms) & set(term_table[order].keys())
+            canonical_form = eex.metadata.get_term_metadata(
+                order, 'forms', j[0])['canonical_form']
+            compatible_forms = eex.metadata.get_term_metadata(
+                order, "group")[canonical_form]
+            dl_lammps_intersection = set(compatible_forms) & set(
+                term_table[order].keys())
             if len(dl_lammps_intersection) is 0:
-                raise TypeError("Functional form %s stored in datalayer is not compatible with Lammps.\n" % (j[0]))
+                raise TypeError(
+                    "Functional form %s stored in datalayer is not compatible with Lammps.\n"
+                    % (j[0]))
             valid_forms[order] = dl_lammps_intersection
     return valid_forms
 
@@ -71,7 +76,11 @@ def _check_dl_forms_compatibility(dl, term_table, nb_term_table):
     #         pass
 
 
-def write_lammps_file(dl, data_filename, input_filename, unit_style="real", blocksize=110):
+def write_lammps_file(dl,
+                      data_filename,
+                      input_filename,
+                      unit_style="real",
+                      blocksize=110):
 
     # handle units
     unit_set = lmd.units_style[unit_style]
@@ -116,7 +125,8 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
     sizes["atoms"] = dl.get_atom_count()
     sizes["bonds"] = dl.get_term_count(2, "total")
     sizes["angles"] = dl.get_term_count(3, "total")
-    sizes["dihedrals"] = dl.get_term_count(4, "total")  # Not qutie right once we do impropers
+    sizes["dihedrals"] = dl.get_term_count(
+        4, "total")  # Not qutie right once we do impropers
     sizes["impropers"] = 0
     sizes["atom types"] = len(dl.get_unique_atom_types())
 
@@ -132,16 +142,36 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
         # data_file.write(' '.join([str(data["sizes"][k]), k, '\n']))
 
     # Write box information
-    box_size = dl.get_box_size(utype={"a": unit_set["[length]"], "b": unit_set["[length]"], "c": unit_set["[length]"],
-                                      "alpha": "degree", "beta": "degree", "gamma": "degree"})
+    box_size = dl.get_box_size(
+        utype={
+            "a": unit_set["[length]"],
+            "b": unit_set["[length]"],
+            "c": unit_set["[length]"],
+            "alpha": "degree",
+            "beta": "degree",
+            "gamma": "degree"
+        })
 
-    box_center = dl.get_box_center(utype={"x": "angstrom", "y": "angstrom", "z": "angstrom"})
+    box_center = dl.get_box_center(utype={
+        "x": "angstrom",
+        "y": "angstrom",
+        "z": "angstrom"
+    })
 
     lo_hi = {}
     if box_center and box_size:
-        lo_hi["x"] = [box_center["x"] - box_size["a"] / 2., box_center["x"] + box_size["a"] / 2.]
-        lo_hi["y"] = [box_center["y"] - box_size["b"] / 2., box_center["y"] + box_size["b"] / 2.]
-        lo_hi["z"] = [box_center["z"] - box_size["c"] / 2., box_center["z"] + box_size["c"] / 2.]
+        lo_hi["x"] = [
+            box_center["x"] - box_size["a"] / 2.,
+            box_center["x"] + box_size["a"] / 2.
+        ]
+        lo_hi["y"] = [
+            box_center["y"] - box_size["b"] / 2.,
+            box_center["y"] + box_size["b"] / 2.
+        ]
+        lo_hi["z"] = [
+            box_center["z"] - box_size["c"] / 2.,
+            box_center["z"] + box_size["c"] / 2.
+        ]
 
         for k, v in lo_hi.items():
             data_file.write("% 8.6f% 8.6f %slo %shi\n" % (v[0], v[1], k, k))
@@ -156,22 +186,38 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
         data_file.write(("Pair Coeffs\n\n").title())
 
         stored_nb_parameters = dl.list_nb_parameters(
-            nb_name="LJ", nb_model="epsilon/sigma", utype={"epsilon": unit_set["[energy]"], "sigma": unit_set["[length]"]}, itype="single")
+            nb_name="LJ",
+            nb_model="epsilon/sigma",
+            utype={
+                "epsilon": unit_set["[energy]"],
+                "sigma": unit_set["[length]"]
+            },
+            itype="single")
     else:
         data_file.write("\nPairIJ Coeffs\n\n")
         stored_nb_parameters = dl.list_nb_parameters(
-            nb_name="LJ", nb_model="epsilon/sigma", utype={"epsilon": unit_set["[energy]"], "sigma": unit_set["[length]"]}, itype="pair")
+            nb_name="LJ",
+            nb_model="epsilon/sigma",
+            utype={
+                "epsilon": unit_set["[energy]"],
+                "sigma": unit_set["[length]"]
+            },
+            itype="pair")
 
     for key, value in stored_nb_parameters.items():
         if key[1] is None:
-            data_file.write(("%2d %10.8f %10.8f\n" % (key[0], value['epsilon'], value['sigma'])))
+            data_file.write(("%2d %10.8f %10.8f\n" % (key[0], value['epsilon'],
+                                                      value['sigma'])))
         else:
-            data_file.write(("%2d %2d %10.8f %10.8f\n" % (key[0], key[1], value['epsilon'], value['sigma'])))
+            data_file.write(
+                ("%2d %2d %10.8f %10.8f\n" % (key[0], key[1], value['epsilon'],
+                                              value['sigma'])))
 
     data_file.write("\n")
 
     # Loop over all of the parameter data
-    for param_order, param_type in zip([2, 3, 4], ["bond", "angle", "dihedral"]):
+    for param_order, param_type in zip([2, 3, 4],
+                                       ["bond", "angle", "dihedral"]):
         param_uids = dl.list_term_uids(param_order)
 
         if len(param_uids) == 0:
@@ -184,11 +230,20 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
 
             if param_coeffs[0] in valid_forms[param_order]:
                 term_data = term_table[param_order][param_coeffs[0]]
-                param_coeffs = dl.get_term_parameter(param_order, uid, utype=term_data["utype"], ftype=param_coeffs[0])
+                param_coeffs = dl.get_term_parameter(
+                    param_order,
+                    uid,
+                    utype=term_data["utype"],
+                    ftype=param_coeffs[0])
             else:
                 # Arbitrarily pick the first
-                term_data = term_table[param_order][valid_forms[param_order][0]]
-                param_coeffs = dl.get_term_parameter(param_order, uid, utype=term_data["utype"], ftype=valid_forms[param_order][0])
+                term_data = term_table[param_order][valid_forms[param_order]
+                                                    [0]]
+                param_coeffs = dl.get_term_parameter(
+                    param_order,
+                    uid,
+                    utype=term_data["utype"],
+                    ftype=valid_forms[param_order][0])
 
             # Order the data like lammps wants it
             parameters = [param_coeffs[1][k] for k in term_data["parameters"]]
@@ -204,7 +259,10 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
     # Write out mass data - don't use get_atom_parameter since we cannot assume that uid = atom_type
     data_file.write(" Masses\n\n")
     data = dl.get_atoms(["atom_type", "mass"],
-                        utype={'atom_type': None, 'mass': lmd.get_context(unit_style, "[mass]")},
+                        utype={
+                            'atom_type': None,
+                            'mass': lmd.get_context(unit_style, "[mass]")
+                        },
                         by_value=True).drop_duplicates()
 
     data.to_csv(data_file, sep=' ', index=False, header=False)
@@ -217,24 +275,28 @@ def write_lammps_file(dl, data_filename, input_filename, unit_style="real", bloc
     # Write out atom data
     data_file.write(" Atoms\n\n")
 
-    atoms = dl.get_atoms(["molecule_index", "atom_type", "charge", "xyz"], by_value=True)
+    atoms = dl.get_atoms(["molecule_index", "atom_type", "charge", "xyz"],
+                         by_value=True)
     atoms.index = pd.RangeIndex(start=1, stop=atoms.shape[0] + 1)
 
     # Build a simple formatter
     def float_fmt(n):
         return "%10.8f" % n
+
     atoms.to_string(data_file, header=None, float_format=float_fmt)
     data_file.write('\n\n')
 
     # Write out all of the term data
-    for param_order, param_type in zip([2, 3, 4], ["bonds", "angles", "dihedrals"]):
+    for param_order, param_type in zip([2, 3, 4],
+                                       ["bonds", "angles", "dihedrals"]):
         if sizes[param_type] == 0:
             continue
 
         data_file.write((" %s\n\n" % param_type).title())
 
         # Grab term and reorder
-        cols = ["term_index"] + ["atom%s" % d for d in range(1, param_order + 1)]
+        cols = ["term_index"
+                ] + ["atom%s" % d for d in range(1, param_order + 1)]
         term = dl.get_terms(param_type)[cols]
         term.index = pd.RangeIndex(start=1, stop=term.shape[0] + 1)
         # print(term)

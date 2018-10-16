@@ -11,6 +11,12 @@
 <a href='http://eex-scratch.readthedocs.io/en/latest/?badge=latest'>
     <img src='https://readthedocs.org/projects/eex-scratch/badge/?version=latest' alt='Documentation Status' />
 </a>
+<a href="https://lgtm.com/projects/g/MolSSI/EEX/alerts/">
+<img alt="Total alerts" src="https://img.shields.io/lgtm/alerts/g/MolSSI/EEX.svg?logo=lgtm&logoWidth=18"/>
+</a>
+<a href="https://lgtm.com/projects/g/MolSSI/EEX/context:python">
+<img alt="Language grade: Python" src="https://img.shields.io/lgtm/grade/python/g/MolSSI/EEX.svg?logo=lgtm&logoWidth=18"/>
+</a>
 </p>
 
 # EEX: Energy Expression Exchange
