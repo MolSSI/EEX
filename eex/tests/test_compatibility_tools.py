@@ -4,6 +4,7 @@ Tests datalayer compatbility functions
 
 """
 import eex
+import pytest
 
 from eex.translators.amber.amber_ff import term_data as amber_term_data
 
@@ -14,11 +15,16 @@ from eex.translators.amber.amber_ff import term_data as amber_term_data
     - Bonds
     - Angles
     - Dihedrals
-    - Nonbonds
 3. Performs conversion when applicable
-    - Nonbonds
+    - Dihedrals
+    
+------------
+NB Tests (different format that n body terms)
+* Metadata format must be finalized. 
 
-4. Fails when conversion is not possible
+1. Fails with incompatible NB type
+2. Returns correct - pair or single 
+
 
 """
 
@@ -46,25 +52,60 @@ def test_compatibility_no_changes(butane_dl):
     eex.testing.dict_compare(term_3_new, term_3)
     eex.testing.dict_compare(term_2_new, term_2)
 
-    return True
-
 def test_compatibility_term_2(butane_dl):
 
-    dl = butane_dl()
+    dl = butane_dl(ff=False)
 
-    return True
+    # Add bond type which is incompatible with amber
+    dl.add_term_parameter(2, "fene", {'K': 300.9, 'R0': 1.540, 'epsilon': 0, 'sigma': 0}, uid=0)
+
+    # Run compatibility check
+    with pytest.raises(TypeError):
+        eex.metadata.check_term_compatibility(dl, amber_term_data)
+
 
 def test_compatibility_term_3(butane_dl):
 
+    dl = butane_dl(ff=False)
+
+    # Add angle type which is incompatible with amber
+    dl.add_term_parameter(3, "cosine", {'K': 62.100}, uid=0)
+
+    # Run compatibility check
+    with pytest.raises(TypeError):
+        eex.metadata.check_term_compatibility(dl, amber_term_data)
+
+def test_compatibility_term_4(butane_dl):
+
+    dl = butane_dl(ff=False)
+
+    # Add term parameter which is incompatible with amber
+    dl.add_term_parameter(4, "quadratic", {'K': 1, 'phi0': 0}, uid=0)
+
+    # Run compatibility check
+    with pytest.raises(TypeError):
+        eex.metadata.check_term_compatibility(dl, amber_term_data)
+
+
+def test_compatibility_conversion(butane_dl):
+
     dl = butane_dl()
 
-    return True
+    # Add term parameter which must be converted to be compatible with amber (opls)
+    dl.add_term_parameter(4, "opls", {'K_1': 1.41103414, 'K_2': -0.27101489,
+                                      'K_3': 3.14502869, 'K_4': 0}, uid=0, utype={'K_1': 'kcal * mol ** -1',
+                                                                                  'K_2': 'kcal * mol ** -1',
+                                                                                  'K_3': 'kcal * mol ** -1',
+                                                                                  'K_4': 'kcal * mol ** -1'})
 
-def test_compatilibity_term_4(butane_dl):
+    # Run compatibility check
+    eex.metadata.check_term_compatibility(dl, amber_term_data)
 
-    dl = butane_dl()
+    term_4_new = dl.list_term_parameters(4)
 
-    return True
+    for parameter in term_4_new.values():
+        assert parameter[0] == list(amber_term_data[4].keys())[0]
+
 
 """
 def test_amber_compatibility_NB_number(butane_dl):

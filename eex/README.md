@@ -22,19 +22,19 @@ Information for each individual atom is stored in the file layer in store.??
 This dictionary is used for atom properties which are *not* unique (i.e. several atoms will have the same values).    
 Has following structure:  
 
-``` 
+```
 atom_metadata = {
-		'atom_property1' :
-			{ 
-				'uvals' : {
-					    uid : value, 
-					  }
-				'inv_uvals' : {
-					    value: uid
-						},
-		'atom_property2' : ...
-		
-		}
+    'atom_property1': {
+        'uvals': {
+            'uid': value,
+        },
+
+        'inv_uvals': {
+            value: uid
+        },
+        'atom_property2': ...
+    },
+}
 ```
 
 where `atom_property1`, `atom_property2` come from atom_metadata.py  
@@ -56,11 +56,18 @@ Lists the number of values stored for each metadata item
 #### dl._terms
 dict
 
+```
+dl._terms = {
+    order: {
+        uid : ['keyword', const, const]
+    }
+}
+```
+
 #### dl._term_count
 dict
 
 ### Nonbonded Terms
-
 
 
 # File Layer

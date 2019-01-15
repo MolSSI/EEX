@@ -1808,3 +1808,4 @@ class DataLayer(object):
                     atom_type=key[0], atom_type2=key[1], nb_model=nb_model, utype=utype)
 
         return return_parameters
+
