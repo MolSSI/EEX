@@ -19,3 +19,6 @@ from .md_helper import sanitize_term_order_name, get_atom_metadata, get_term_met
 
 # Bring in validation function
 from .validator import validate_term_dict, validate_functional_form_dict, validate_units
+
+# Bring in compatibility functions
+from .compatibility_tools import check_term_compatibility

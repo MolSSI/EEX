@@ -17,7 +17,7 @@ nb_styles = {
     }
 }
 
-bond_styles = {
+_two_body_functional_forms = {
     # "none": {
     #     "form": "NYI",
     #     "parameters": "NYI",
@@ -145,7 +145,7 @@ bond_styles = {
     },
 }
 
-angle_styles = {
+_three_body_functional_forms = {
     # "none": {
     #     "form": "NYI",
     #     "parameters": "NYI",
@@ -288,7 +288,7 @@ angle_styles = {
     # },
 }
 
-dihedral_styles = {
+_four_body_functional_forms = {
     # "none": {
     #     "form": "NYI",
     #     "parameters": "NYI",
@@ -415,6 +415,7 @@ dihedral_styles = {
     # },
 }
 
+# TODO: Improper styles NYI in internal EEX
 improper_styles = {
     # "class2": {
     #     "form": "NYI",
@@ -504,6 +505,7 @@ improper_styles = {
 }
 
 term_data = {}
-term_data[2] = bond_styles
-term_data[3] = angle_styles
-term_data[4] = dihedral_styles
+term_data[2] = _two_body_functional_forms
+term_data[3] = _three_body_functional_forms
+term_data[4] = _four_body_functional_forms
+
