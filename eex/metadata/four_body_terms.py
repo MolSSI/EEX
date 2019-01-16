@@ -30,7 +30,8 @@ _four_body_functional_forms = {
         "canonical_form": "RB",
     },
     "multiharmonic": {
-        "form": "A_1 + A_2 * (cos(phi)) + A_3 * (cos(phi)) ** 2 + A_4 * (cos(phi)) ** 3 + A_5 * (cos(phi)) ** (4)",
+        "form":
+        "A_1 + A_2 * (cos(phi)) + A_3 * (cos(phi)) ** 2 + A_4 * (cos(phi)) ** 3 + A_5 * (cos(phi)) ** (4)",
         "parameters": ["A_1", "A_2", "A_3", "A_4", "A_5"],
         "units": {
             "A_1": "[energy]",
@@ -39,11 +40,14 @@ _four_body_functional_forms = {
             "A_4": "[energy]",
             "A_5": "[energy]",
         },
-        "description": "This is a multi/harmonic dihedral",
-        "canonical_form": "RB",
+        "description":
+        "This is a multi/harmonic dihedral",
+        "canonical_form":
+        "RB",
     },
     "RB": {
-        "form": "A_0 + A_1 * (cos(phi)) + A_2 * (cos(phi)) ** 2 + A_3 * (cos(phi)) ** 3 + A_4 * (cos(phi)) ** (4) + A_5 * (cos(phi)) ** (5)",
+        "form":
+        "A_0 + A_1 * (cos(phi)) + A_2 * (cos(phi)) ** 2 + A_3 * (cos(phi)) ** 3 + A_4 * (cos(phi)) ** (4) + A_5 * (cos(phi)) ** (5)",
         "parameters": ["A_0", "A_1", "A_2", "A_3", "A_4", "A_5"],
         "units": {
             "A_0": "[energy]",
@@ -52,10 +56,11 @@ _four_body_functional_forms = {
             "A_3": "[energy]",
             "A_4": "[energy]",
             "A_5": "[energy]",
-
         },
-        "description": "This is a ryckaert_bellemans",
-        "canonical_form": "RB",
+        "description":
+        "This is a ryckaert_bellemans",
+        "canonical_form":
+        "RB",
     },
     # "fourier": {
     #     "form": "Sum(k_i * (1.0 + cos(n_i * phi - d_i)))",
@@ -99,7 +104,8 @@ _four_body_functional_forms = {
     #     "description": "This is a nharmonic dihedral"
     # },
     "opls": {
-        "form": "0.5*K_1*(1+cos(phi))+0.5*K_2*(1-cos(2*phi))+0.5*K_3*(1+cos(3*phi))+0.5*K_4*(1-cos(4*phi))",
+        "form":
+        "0.5*K_1*(1+cos(phi))+0.5*K_2*(1-cos(2*phi))+0.5*K_3*(1+cos(3*phi))+0.5*K_4*(1-cos(4*phi))",
         "parameters": ["K_1", "K_2", "K_3", "K_4"],
         "units": {
             "K_1": "[energy]",
@@ -107,8 +113,10 @@ _four_body_functional_forms = {
             "K_3": "[energy]",
             "K_4": "[energy]",
         },
-        "description": "This is a opls dihedral",
-        "canonical_form": "RB",
+        "description":
+        "This is a opls dihedral",
+        "canonical_form":
+        "RB",
     },
     "quadratic": {
         "form": "K*(phi-phi0)**2",
@@ -130,8 +138,6 @@ _four_body_functional_forms = {
         "description": "This is a restricted bending angle found in Gromacs",
         "canonical_form": "restricted",
     },
-
-
 
     # IMPROPERS START HERE
     #"class2_improper": {},
@@ -202,8 +208,10 @@ four_body_metadata = {}
 # Valid variables used in all four-body terms
 four_body_metadata["variables"] = {
     "phi": {
-        "units": "[arcunit]",
-        "description": "The dihedral between the indexed atom1, atom2, atom3, and atom4.",
+        "units":
+        "[arcunit]",
+        "description":
+        "The dihedral between the indexed atom1, atom2, atom3, and atom4.",
     },
     "theta": {
         "units": "[arcunit]",

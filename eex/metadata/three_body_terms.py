@@ -95,7 +95,8 @@ _three_body_functional_forms = {
         "canonical_form": "fourier",
     },
     "quartic": {
-        "form": "K2*(theta-theta0)**2+K3*(theta-theta0)**3+K4*(theta-theta0)**4",
+        "form":
+        "K2*(theta-theta0)**2+K3*(theta-theta0)**3+K4*(theta-theta0)**4",
         "parameters": ["K2", "K3", "K4", "theta0"],
         "units": {
             "K2": "[energy] * [arcunit]**-2",  # Lammps uses radians
@@ -138,7 +139,8 @@ _three_body_functional_forms = {
         "canonical_form": "restricted",
     },
     "quartic_gmx": {
-        "form": "K0 + K1*(theta-theta0) + K2*(theta-theta0)**2+K3*(theta-theta0)**3+K4*(theta-theta0)**4",
+        "form":
+        "K0 + K1*(theta-theta0) + K2*(theta-theta0)**2+K3*(theta-theta0)**3+K4*(theta-theta0)**4",
         "parameters": ["K0", "K1", "K2", "K3", "K4", "theta0"],
         "units": {
             "K0": "[energy]",
@@ -148,8 +150,10 @@ _three_body_functional_forms = {
             "K4": "[energy] * [arcunit]**-4",
             "theta0": "[arcunit]",
         },
-        "description": "This is a quartic angle found in gmx",
-        "canonical_form": "quartic_gmx",
+        "description":
+        "This is a quartic angle found in gmx",
+        "canonical_form":
+        "quartic_gmx",
     },
 
     #"class2": {
@@ -201,7 +205,8 @@ three_body_metadata = {}
 three_body_metadata["variables"] = {
     "theta": {
         "units": "[arcunit]",
-        "description": "The angle between the indexed atom1, atom2, and atom3.",
+        "description":
+        "The angle between the indexed atom1, atom2, and atom3.",
     },
     "r12": {
         "units": "[length]",

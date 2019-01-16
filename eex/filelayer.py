@@ -15,7 +15,8 @@ def build_store(store_type, name, store_location, save_data):
     elif store_type.upper() == "MEMORY":
         return MemoryStore(name, store_location, save_data)
     else:
-        raise KeyError("build_store: store_type of type '%s' not recognized." % store_type)
+        raise KeyError("build_store: store_type of type '%s' not recognized." %
+                       store_type)
 
 
 class BaseStore(object):
@@ -45,7 +46,8 @@ class HDFStore(BaseStore):
         BaseStore.__init__(self, name, store_location, save_data)
 
         # Setup the store
-        self.store_filename = os.path.join(self.store_location, self.name + ".h5")
+        self.store_filename = os.path.join(self.store_location,
+                                           self.name + ".h5")
         self.store = pd.HDFStore(self.store_filename)
 
         # Set additional state
@@ -95,7 +97,7 @@ class HDFStore(BaseStore):
 
         if rows:
             raise Exception("NYI")
-        
+
         if key in self.list_tables():
             return pd.read_hdf(self.store, key)
         else:
@@ -116,7 +118,7 @@ class HDFStore(BaseStore):
             index.sort()
 
             # Group consectutive indices
-            indices = np.split(index, np.where(np.diff(index) != 1)[0]+1)
+            indices = np.split(index, np.where(np.diff(index) != 1)[0] + 1)
 
             ret = []
             for pair in indices:
@@ -133,7 +135,6 @@ class HDFStore(BaseStore):
             # If everything is removed by index, we should drop this key from the list of created tables
             if self.read_table(key).empty:
                 self.created_tables.remove(key)
-
 
     def close(self):
         """
@@ -163,7 +164,8 @@ class HDFStore(BaseStore):
         Copies a table from one key to another
         """
 
-        for chunk in pd.read_hdf(self.store, from_key, iterator=True, chunksize=1.e6):
+        for chunk in pd.read_hdf(
+                self.store, from_key, iterator=True, chunksize=1.e6):
             if columns_rename is not None:
                 chunk.rename(columns=columns_rename, inplace=True)
             self.add_table(to_key, chunk)
@@ -195,7 +197,7 @@ class MemoryStore(BaseStore):
         # Concat any fragments
         if len(self.table_frags[key]):
             if not self.tables[key].empty:
-                self.table_frags[key].insert(0, self.tables[key]) 
+                self.table_frags[key].insert(0, self.tables[key])
             self.tables[key] = pd.concat(self.table_frags[key])
             self.table_frags[key] = []
 

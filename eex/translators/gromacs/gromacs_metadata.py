@@ -3,7 +3,7 @@ A helper file to produce GROMACS metadata based on the type of computation
 """
 
 data_keys = [
-    "defaults", "atomtypes", "nonbond_params", "moleculetype", "atoms", 
+    "defaults", "atomtypes", "nonbond_params", "moleculetype", "atoms",
     "bonds", "pairs", "angles", "dihedrals", "system", "molecules"
 ]
 
@@ -24,24 +24,24 @@ data_keys = [
 #    "[electric potential]": "(kilojoules * mol ** -1 * e ** -1)",
 #    }
 
-bond_styles = { 
+bond_styles = {
     "harmonic": {
         "order": 2,
         "units": {
             "K": "0.5 * kilojoules * mol ** -1 * nanometer ** -2",
             "R0": "nanometer"
-        },  
+        },
         "gmx_type": 6,
-    },  
+    },
     "fourth_power": {
         "order": 2,
         "form": "fourth_power",
         "units": {
             "K": "kilojoules * mol ** -1 * nanometer ** -4",
             "R0": "nanometer"
-        },  
+        },
         "gmx_type": 2,
-    },  
+    },
     "morse": {
         "order": 2,
         "form": "morse",
@@ -49,9 +49,9 @@ bond_styles = {
             "D": "kilojoules * mol ** -1",
             "alpha": "nanometer ** -1",
             "R0": "nanometer",
-        },  
+        },
         "gmx_type": 3,
-    },  
+    },
     "cubic_bond": {
         "order": 2,
         "form": "cubic_bond",
@@ -59,49 +59,49 @@ bond_styles = {
             "K": "kilojoules * mol ** -1 * nanometer ** -2",
             "K_cub": "nanometer ** -1",
             "R0": "nanometer",
-        },  
-        "gmx_type": 4, 
-    },  
+        },
+        "gmx_type": 4,
+    },
     "fene": {
         "order": 2,
         "form": "fene",
         "units": {
             "K": "kilojoules * mol ** -1 * nanometer ** -2",
             "R0": "nanometer",
-	    "epsilon": "kilojoules * mol ** -1", # Note that this is always zero in GMX!
-	    "sigma": "nanometer", # Note that this is always zero in GMX! 
-        },  
+            "epsilon":
+            "kilojoules * mol ** -1",  # Note that this is always zero in GMX!
+            "sigma": "nanometer",  # Note that this is always zero in GMX! 
+        },
         "gmx_type": 7,
-    },  
+    },
 }
 
-
-#angles not included: 
+#angles not included:
 # bond bond cross term
 # bond angle cross term
-angle_styles = { 
+angle_styles = {
     "harmonic": {
         "order": 2,
         "units": {
             "K": "0.5 * kilojoules * mol ** -1 * radian ** -2",
             "theta0": "degree"
-        },  
-    },  
+        },
+    },
     "cosine": {
         "order": 2,
         "units": {
             "K": "0.5 * kilojoules * mol ** -1 * radian ** -2",
             "theta0": "degree"
-        },  
-    },  
+        },
+    },
     "restricted": {
         "order": 2,
         "form": "restricted",
         "units": {
             "K": "kilojoules * mol ** -1",
             "theta0": "degree",
-        },  
-    },  
+        },
+    },
     "urey-bradley": {
         "order": 2,
         "units": {
@@ -109,8 +109,8 @@ angle_styles = {
             "theta0": "degree",
             "K_ub": "0.5 * kilojoules * mol ** -1 ** nanometer ** -2",
             "R_ub": "nanometer",
-        },  
-    },  
+        },
+    },
     "quartic": {
         "order": 2,
         "form": "quartic_gmx",
@@ -121,12 +121,11 @@ angle_styles = {
             "K3": "kilojoules * mol ** -3",
             "K4": "kilojoules * mol ** -4",
             "theta0": "degree",
-        },  
-    },  
+        },
+    },
 }
 
-
-dihedral_styles = { 
+dihedral_styles = {
     "charmm": {
         "order": 4,
         "form": "charmmfsw",
@@ -134,11 +133,13 @@ dihedral_styles = {
             "K": "kilojoules * mol ** -1",
             "n": "count",
             "d": "degree"
-        },  
-    },  
+        },
+    },
     "ryckaert-bellemans": {
-        "order": 4,
-        "form": "A_0 + A_1 * (cos(phi)) + A_2 * (cos(phi)) ** 2 + A_3 * (cos(phi)) ** 3 + A_4 * (cos(phi)) ** (4) + A_5 * cos(phi)) ** (5)",
+        "order":
+        4,
+        "form":
+        "A_0 + A_1 * (cos(phi)) + A_2 * (cos(phi)) ** 2 + A_3 * (cos(phi)) ** 3 + A_4 * (cos(phi)) ** (4) + A_5 * cos(phi)) ** (5)",
         "units": {
             "A_0": "kilojoules * mol ** -1",
             "A_1": "kilojoules * mol ** -1",
@@ -146,8 +147,8 @@ dihedral_styles = {
             "A_3": "kilojoules * mol ** -1",
             "A_4": "kilojoules * mol ** -1",
             "A_5": "kilojoules * mol ** -1",
-        },  
-    },  
+        },
+    },
     "opls": {
         "order": 4,
         "form": "opls",
@@ -156,39 +157,38 @@ dihedral_styles = {
             "K_2": "kilojoules * mol ** -1",
             "K_3": "kilojoules * mol ** -1",
             "K_4": "kilojoules * mol ** -1",
-        },  
-    },  
+        },
+    },
     "restricted": {
         "order": 4,
         "form": "restricted",
         "units": {
             "K": "kilojoules * mol ** -1",
             "phi0": "degree",
-        },  
-    },  
+        },
+    },
 }
 
-improper_styles = { 
+improper_styles = {
     "harmonic": {
         "order": 4,
         "units": {
             "K": "0.5 * kilojoules * mol ** -1",
             "chi0": "degree",
-        },  
-    },  
+        },
+    },
     "periodic": {
         "order": 4,
-        "form": "charmmfsw", 
+        "form": "charmmfsw",
         "units": {
             "K": "kilojoules * mol ** -1",
             "n": "count",
             "d": "degree"
-        },  
-    },  
+        },
+    },
 }
 
 term_data = {}
 term_data[2] = bond_styles
 term_data[3] = angle_styles
 term_data[4] = dihedral_styles
-

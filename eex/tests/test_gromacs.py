@@ -8,8 +8,7 @@ import pytest
 import pandas as pd
 from . import eex_find_files
 
-# Not working on GROMACS for now - 
-
+# Not working on GROMACS for now -
 """
 @pytest.fixture(scope="module")
 def nbutane_dl():

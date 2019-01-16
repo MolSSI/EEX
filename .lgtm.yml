@@ -1,0 +1,9 @@
+# Configure LGTM for this package
+
+path_classifiers:
+  library:
+    - versioneer.py  # Set Versioneer.py to an external "library" (3rd party code)
+    - devtools/*
+  generated:
+    - examples/*
+    - eex/_version.py

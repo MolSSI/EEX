@@ -51,6 +51,11 @@ _nb_functional_forms = {
 nb_metadata = {}
 
 # Valid variables used in all two-body terms
-nb_metadata["variables"] = {"r": {"units": "[length]", "description": "Distance between the two indexed atoms."}}
+nb_metadata["variables"] = {
+    "r": {
+        "units": "[length]",
+        "description": "Distance between the two indexed atoms."
+    }
+}
 
 nb_metadata["forms"] = _nb_functional_forms
